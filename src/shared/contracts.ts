@@ -1,24 +1,39 @@
 import { z } from 'zod';
 
+export const sceneSchema = z.object({
+  slots: z.array(z.object({ slot: z.string(), resource: z.string() })),
+  focus: z.number().int().optional(),
+});
 export const leafSchema = z.discriminatedUnion('kind', [
   z.object({ id: z.string(), kind: z.literal('narration'), text: z.string() }),
+  z.object({
+    id: z.string(),
+    kind: z.literal('cg'),
+    label: z.string(),
+    resource: z.string().optional(),
+  }),
   z.object({
     id: z.string(),
     kind: z.literal('speech'),
     name: z.string(),
     paragraphs: z.array(z.string()).min(1),
     portrait: z.string().optional(),
+    scene: sceneSchema.optional(),
   }),
 ]);
 export const blockSchema = z.union([
   leafSchema,
-  z.object({ id: z.string(), kind: z.literal('cg'), label: z.string() }),
   z.object({
     id: z.string(),
     kind: z.literal('choices'),
     options: z.array(
       z.object({ label: z.string(), blocks: z.array(leafSchema) }),
     ),
+    shared: z
+      .array(
+        z.object({ labels: z.array(z.string()), blocks: z.array(leafSchema) }),
+      )
+      .optional(),
   }),
 ]);
 export const chapterMetaSchema = z.object({
@@ -27,6 +42,7 @@ export const chapterMetaSchema = z.object({
   title: z.string(),
   summary: z.string().optional(),
   wordCount: z.number().int().nonnegative().nullable(),
+  sourceUrl: z.string().url().optional(),
 });
 export const storySchema = z.object({
   id: z.string(),
@@ -35,6 +51,7 @@ export const storySchema = z.object({
   type: z.string(),
   coverLabel: z.string(),
   source: z.enum(['fixture', 'prts']),
+  sourceUrl: z.string().url().optional(),
   chapters: z.array(chapterMetaSchema),
 });
 export const chapterSchema = z.object({
@@ -45,6 +62,10 @@ export const chapterSchema = z.object({
   source: z.enum(['fixture', 'prts']),
   sourceUrl: z.string().url().optional(),
   blocks: z.array(blockSchema),
+  // Original public source is cached locally, never bundled into the plugin.
+  original: z
+    .object({ pageTitle: z.string(), textPath: z.string(), wiki: z.string() })
+    .optional(),
 });
 export const anchorSchema = z.object({
   blockId: z.string().max(200),
@@ -57,6 +78,7 @@ export const recordSchema = z.object({
   last: anchorSchema,
   furthestWords: z.number().int().nonnegative(),
   complete: z.boolean(),
+  totalWords: z.number().int().nonnegative().optional(),
   updatedAt: z.string().datetime(),
 });
 export const settingsSchema = z.object({
@@ -87,6 +109,8 @@ export const chapterInputSchema = z.object({
 });
 export const cacheInputSchema = z.object({ scope: z.enum(['images', 'all']) });
 export type Block = z.infer<typeof blockSchema>;
+export type Leaf = z.infer<typeof leafSchema>;
+export type Scene = z.infer<typeof sceneSchema>;
 export type Chapter = z.infer<typeof chapterSchema>;
 export type Story = z.infer<typeof storySchema>;
 export type ReadingRecord = z.infer<typeof recordSchema>;

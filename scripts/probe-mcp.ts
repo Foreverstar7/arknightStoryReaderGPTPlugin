@@ -4,7 +4,12 @@ import { mkdir, mkdtemp, readFile, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { z } from 'zod';
 import { RESOURCE_URI } from '../src/server/mcp.js';
-import { snapshotSchema } from '../src/shared/contracts.js';
+import assert from 'node:assert/strict';
+import {
+  snapshotSchema,
+  chapterSchema,
+  readingStateSchema,
+} from '../src/shared/contracts.js';
 
 const projectRoot = path.resolve(import.meta.dirname, '..');
 const root = process.argv[2] ? path.resolve(process.argv[2]) : projectRoot;
@@ -35,7 +40,10 @@ const wire = new StdioClientTransport({
   command: executable,
   args: configuration.args.map(expand),
   cwd: expand(configuration.cwd),
-  env: { READER_DATA_DIR: data },
+  env: {
+    READER_DATA_DIR: data,
+    READER_SOURCE: process.env.READER_SOURCE ?? 'prts',
+  },
 });
 try {
   await client.connect(wire);
@@ -45,6 +53,37 @@ try {
     arguments: {},
   });
   const snapshot = snapshotSchema.parse(result.structuredContent);
+  assert.ok(
+    tools.every((tool) =>
+      JSON.stringify(tool._meta?.ui).includes('"visibility":["app"]'),
+    ),
+  );
+  const first = snapshot.stories[0]?.chapters[0];
+  assert.ok(first);
+  const chapter = chapterSchema.parse(
+    (
+      await client.callTool({
+        name: 'reader_chapter',
+        arguments: { chapterId: first.id },
+      })
+    ).structuredContent,
+  );
+  const block = chapter.blocks[0];
+  assert.ok(block);
+  const state = readingStateSchema.parse(
+    (
+      await client.callTool({
+        name: 'reader_record',
+        arguments: {
+          chapterId: chapter.id,
+          revision: chapter.revision,
+          last: { blockId: block.id, fraction: 0.4 },
+          atEnd: false,
+        },
+      })
+    ).structuredContent,
+  );
+  assert.equal(state.recentChapterId, chapter.id);
   const resource = await client.readResource({ uri: RESOURCE_URI });
   const html = resource.contents.find((item) => 'text' in item);
   if (
@@ -64,7 +103,13 @@ try {
         stories: snapshot.stories.length,
         resource: RESOURCE_URI,
         htmlBytes: Buffer.byteLength(html.text),
-        source: 'fixture',
+        source: snapshot.sourceLabel,
+        chapter: {
+          id: chapter.id,
+          source: chapter.source,
+          blocks: chapter.blocks.length,
+          savedPosition: state.records[chapter.id]?.last,
+        },
       },
       null,
       2,

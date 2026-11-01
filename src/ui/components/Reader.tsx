@@ -188,13 +188,17 @@ export function Reader({
                       ×
                     </button>
                   </div>
-                  {block.portrait ? (
+                  {chapter.source === 'fixture' && block.portrait ? (
                     <>
                       <div className="portrait-art" />
                       <p className="muted">原创立绘位置示意</p>
                     </>
                   ) : (
-                    <p className="muted">没有可确认的立绘资源。</p>
+                    <p className="muted">
+                      {chapter.source === 'prts'
+                        ? '立绘映射尚未接入，暂不展示。'
+                        : '没有可确认的立绘资源。'}
+                    </p>
                   )}
                 </div>
               )}
@@ -221,11 +225,16 @@ export function Reader({
             >
               ◇ {cg.includes(block.id) || autoImages ? '收起 CG' : '查看 CG'}
             </button>
-            {(cg.includes(block.id) || autoImages) && (
-              <div className="cg-art" role="img" aria-label={block.label}>
-                <span>{block.label}</span>
-              </div>
-            )}
+            {(cg.includes(block.id) || autoImages) &&
+              (chapter.source === 'fixture' ? (
+                <div className="cg-art" role="img" aria-label={block.label}>
+                  <span>{block.label}</span>
+                </div>
+              ) : (
+                <p className="muted" role="status">
+                  已保留源站图片引用，图片暂不可用。
+                </p>
+              ))}
           </div>
         );
       case 'choices':
@@ -236,6 +245,14 @@ export function Reader({
               <section key={index}>
                 <p className="option">{option.label}</p>
                 {option.blocks.map((item) => (
+                  <div key={item.id}>{showBlock(item)}</div>
+                ))}
+              </section>
+            ))}
+            {block.shared?.map((group, index) => (
+              <section key={`shared-${index}`}>
+                <p className="option">共同分支：{group.labels.join(' / ')}</p>
+                {group.blocks.map((item) => (
                   <div key={item.id}>{showBlock(item)}</div>
                 ))}
               </section>
@@ -291,7 +308,16 @@ export function Reader({
               STORY / {story.chapters[currentIndex]?.code}
             </span>
             <h1>{chapter.title}</h1>
-            <p className="muted">{story.title} · 原创 fixture</p>
+            <p className="muted">
+              {story.title} ·{' '}
+              {chapter.source === 'prts' ? (
+                <a href={chapter.sourceUrl} target="_blank" rel="noreferrer">
+                  PRTS 原文
+                </a>
+              ) : (
+                '原创 fixture'
+              )}
+            </p>
           </header>
           <div className="body-copy">
             {chapter.blocks.map((block) => (

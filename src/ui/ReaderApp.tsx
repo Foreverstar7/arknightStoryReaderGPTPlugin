@@ -13,6 +13,7 @@ import {
 } from '../shared/contracts.js';
 import {
   chapterProgress,
+  chapterWords,
   progressLabel,
   storyProgress,
 } from '../domain/reading.js';
@@ -52,6 +53,7 @@ export function ReaderApp({
   const [error, setError] = useState('');
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [reload, setReload] = useState(0);
+  const retry = useRef<() => void>(() => setReload((value) => value + 1));
   const flush = useRef<() => Promise<void>>(async () => undefined);
   const key = useRef(0);
   const navigation = useRef(0);
@@ -224,6 +226,7 @@ export function ReaderApp({
     motion?: Motion,
   ) {
     if (!snapshot) return;
+    retry.current = () => void open(chapterId, restore, refresh, motion);
     if (
       !refresh &&
       restore &&
@@ -343,6 +346,7 @@ export function ReaderApp({
                     route.story,
                     route.chapter.id,
                     snapshot.state.records,
+                    chapterWords(route.chapter),
                   ),
                 )}
               </b>
@@ -364,7 +368,7 @@ export function ReaderApp({
         </div>
       </header>
       <div className="source-note">
-        {snapshot?.sourceLabel ?? '原创 fixture · 非游戏剧情'}
+        {snapshot?.sourceLabel ?? '正在核对剧情来源…'}
       </div>
       {error && (
         <div className="error-banner" role="alert">
@@ -372,9 +376,7 @@ export function ReaderApp({
           <button
             onClick={() => {
               setError('');
-              if (!snapshot) setReload((value) => value + 1);
-              else if (route.page === 'reader')
-                void open(route.chapter.id, true);
+              retry.current();
             }}
           >
             重试

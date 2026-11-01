@@ -19,12 +19,19 @@ export function blockWords(block: Block): number {
     case 'cg':
       return 0;
     case 'choices':
-      return block.options.reduce(
-        (n, option) =>
-          n +
-          countText(option.label) +
-          option.blocks.reduce((sum, leaf) => sum + blockWords(leaf), 0),
-        0,
+      return (
+        block.options.reduce(
+          (n, option) =>
+            n +
+            countText(option.label) +
+            option.blocks.reduce((sum, leaf) => sum + blockWords(leaf), 0),
+          0,
+        ) +
+        (block.shared ?? []).reduce(
+          (n, group) =>
+            n + group.blocks.reduce((sum, leaf) => sum + blockWords(leaf), 0),
+          0,
+        )
       );
   }
 }
@@ -48,14 +55,22 @@ export function storyProgress(
   story: Story,
   records: Record<string, ReadingRecord>,
 ): number | null {
-  if (story.chapters.some((chapter) => chapter.wordCount === null)) return null;
+  if (
+    story.chapters.some(
+      (chapter) =>
+        chapter.wordCount === null &&
+        records[chapter.id]?.totalWords === undefined,
+    )
+  )
+    return null;
   let total = 0;
   let read = 0;
   let complete = story.chapters.length > 0;
   for (const chapter of story.chapters) {
     const record = records[chapter.id];
-    total += chapter.wordCount ?? 0;
-    read += Math.min(record?.furthestWords ?? 0, chapter.wordCount ?? 0);
+    const words = chapter.wordCount ?? record?.totalWords ?? 0;
+    total += words;
+    read += Math.min(record?.furthestWords ?? 0, words);
     complete = complete && record?.complete === true;
   }
   return percent(read, total, complete);
@@ -65,15 +80,13 @@ export function chapterProgress(
   story: Story,
   chapterId: string,
   records: Record<string, ReadingRecord>,
+  openedWordCount?: number,
 ): number | null {
   const meta = story.chapters.find((chapter) => chapter.id === chapterId);
-  if (!meta || meta.wordCount === null) return null;
   const record = records[chapterId];
-  return percent(
-    record?.furthestWords ?? 0,
-    meta.wordCount,
-    record?.complete ?? false,
-  );
+  const words = meta?.wordCount ?? openedWordCount ?? record?.totalWords;
+  if (words === undefined || words === null) return null;
+  return percent(record?.furthestWords ?? 0, words, record?.complete ?? false);
 }
 
 export function progressLabel(progress: number | null): string {

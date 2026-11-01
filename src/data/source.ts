@@ -2,8 +2,9 @@ import type { Chapter, Story } from '../shared/contracts.js';
 
 export interface StorySource {
   readonly label: string;
-  catalog(): Promise<Story[]>;
-  chapter(chapterId: string): Promise<Chapter>;
+  catalog(retentionDays?: number): Promise<Story[]>;
+  chapter(chapterId: string, retentionDays?: number): Promise<Chapter>;
+  clearCache?(): Promise<void>;
 }
 
 export class ReaderError extends Error {

@@ -87,7 +87,7 @@ test('two independent stdio processes preserve shared reading records under simu
               path.resolve('src/server/main.ts'),
               '--stdio',
             ],
-            env: { READER_DATA_DIR: root },
+            env: { READER_DATA_DIR: root, READER_SOURCE: 'fixture' },
           }),
         ),
       ),

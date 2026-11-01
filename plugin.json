@@ -1,13 +1,13 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "arknights-story-reader",
-  "version": "0.1.6",
-  "description": "方舟剧情阅读器：本机 extension 开发版本，当前使用原创 fixture。",
+  "version": "0.1.7",
+  "description": "方舟剧情阅读器：按需读取 PRTS 骑兵与猎人，保存本机阅读位置。",
   "extensions": {
     "com.openai": {
       "interface": {
         "displayName": "方舟剧情阅读器（开发）",
-        "shortDescription": "原创 fixture 阅读器入口验证"
+        "shortDescription": "PRTS 真实剧情与本机续读"
       }
     }
   }

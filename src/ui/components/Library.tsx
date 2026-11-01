@@ -8,7 +8,11 @@ export function Cover({ story }: { story: Story }) {
     <div className="cover" style={{ viewTransitionName: transitionName }}>
       <span>
         {story.coverLabel}
-        <small>原创档案 · 布局样例</small>
+        <small>
+          {story.source === 'prts'
+            ? 'PRTS 剧情 · 封面待接入'
+            : '原创档案 · 布局样例'}
+        </small>
       </span>
     </div>
   );

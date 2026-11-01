@@ -5,6 +5,7 @@ import { NodeStreamableHTTPServerTransport } from '@modelcontextprotocol/node';
 import { StdioServerTransport } from '@modelcontextprotocol/server/stdio';
 import express from 'express';
 import { FixtureSource } from '../data/fixture.js';
+import { PrtsSource } from '../data/prts.js';
 import { ReaderError } from '../data/source.js';
 import { toolRequestSchema } from '../shared/contracts.js';
 import { createReaderMcp } from './mcp.js';
@@ -27,7 +28,12 @@ const dataRoot =
   (process.argv.includes('--installed')
     ? installedRoot
     : path.join(projectRoot, '.runtime'));
-const service = new ReaderService(new FixtureSource(), dataRoot);
+const sourceMode = process.env.READER_SOURCE ?? 'prts';
+if (!['prts', 'fixture'].includes(sourceMode))
+  throw new Error('READER_SOURCE 只能为 prts 或 fixture。');
+const source =
+  sourceMode === 'fixture' ? new FixtureSource() : new PrtsSource(dataRoot);
+const service = new ReaderService(source, dataRoot);
 
 if (process.argv.includes('--stdio')) {
   // stdout is exclusively MCP protocol traffic, including when launched by a plugin host.
@@ -52,7 +58,7 @@ if (process.argv.includes('--stdio')) {
     next();
   });
   app.get('/health', (_req, res) =>
-    res.json({ ok: true, source: 'fixture', version: VERSION }),
+    res.json({ ok: true, source: sourceMode, version: VERSION }),
   );
   app.post('/api/tools', async (req, res) => {
     const request = toolRequestSchema.safeParse(req.body);
@@ -99,7 +105,7 @@ if (process.argv.includes('--stdio')) {
   );
   const http = app.listen(port, '127.0.0.1', () =>
     console.info(
-      `Reader: http://127.0.0.1:${port} · MCP: /mcp · source=fixture`,
+      `Reader: http://127.0.0.1:${port} · MCP: /mcp · source=${sourceMode}`,
     ),
   );
   function shutdown() {

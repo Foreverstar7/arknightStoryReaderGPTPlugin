@@ -21,6 +21,7 @@
     "tests",
     "scripts",
     "vite.config.ts",
-    "playwright.config.ts"
+    "playwright.config.ts",
+    "playwright.prts.config.ts"
   ]
 }

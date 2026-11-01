@@ -77,7 +77,11 @@ export function createReaderMcp(
         annotations: {
           readOnlyHint: readOnly,
           destructiveHint: name === 'reader_clear_history',
-          openWorldHint: false,
+          openWorldHint: [
+            'reader_snapshot',
+            'reader_chapter',
+            'reader_record',
+          ].includes(name),
         },
         _meta:
           name === 'reader_open'
@@ -99,7 +103,7 @@ export function createReaderMcp(
                 type: 'text',
                 text:
                   name === 'reader_open'
-                    ? '方舟剧情阅读器已就绪（原创 fixture）。'
+                    ? '方舟剧情阅读器已就绪。'
                     : '阅读器页面操作完成。',
               },
             ],
@@ -118,7 +122,7 @@ export function createReaderMcp(
     'reader_open',
     '打开方舟剧情阅读器',
     z.object({}),
-    z.object({ ready: z.boolean(), source: z.literal('fixture') }),
+    z.object({ ready: z.boolean(), source: z.string() }),
     true,
   );
   tool(

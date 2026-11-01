@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { ReaderError, type StorySource } from '../data/source.js';
-import { blockWords } from '../domain/reading.js';
+import { blockWords, chapterWords } from '../domain/reading.js';
 import {
   cacheInputSchema,
   chapterInputSchema,
@@ -19,6 +19,32 @@ import { ReadingStore } from '../storage/reading-store.js';
 export class ReaderService {
   readonly records: ReadingStore;
   readonly cache: ContentCache;
+  // Minimal indexes for pages already opened in this process, not a body cache.
+  // Scroll saves must keep working after the user clears public content files.
+  private readonly opened = new Map<
+    string,
+    {
+      id: string;
+      storyId: string;
+      revision: string;
+      totalWords: number;
+      blocks: { id: string; words: number }[];
+    }
+  >();
+  private remember(chapter: Chapter) {
+    const layout = {
+      id: chapter.id,
+      storyId: chapter.storyId,
+      revision: chapter.revision,
+      totalWords: chapterWords(chapter),
+      blocks: chapter.blocks.map((block) => ({
+        id: block.id,
+        words: blockWords(block),
+      })),
+    };
+    this.opened.set(chapter.id, layout);
+    return layout;
+  }
   constructor(
     private readonly source: StorySource,
     root: string,
@@ -30,7 +56,7 @@ export class ReaderService {
     const state = await this.records.read();
     await this.cache.expire(state.settings.retentionDays);
     return {
-      stories: await this.source.catalog(),
+      stories: await this.source.catalog(state.settings.retentionDays),
       state,
       sourceLabel: this.source.label,
     };
@@ -40,16 +66,24 @@ export class ReaderService {
     const cached = refresh
       ? null
       : await this.cache.get(id, settings.retentionDays);
-    if (cached) return cached;
-    const chapter = chapterSchema.parse(await this.source.chapter(id));
+    if (cached) {
+      this.remember(cached);
+      return cached;
+    }
+    const chapter = chapterSchema.parse(
+      await this.source.chapter(id, settings.retentionDays),
+    );
     if (chapter.id !== id)
       throw new ReaderError('parse', '来源返回了不同的篇目标识，未覆盖缓存。');
     await this.cache.put(chapter);
+    this.remember(chapter);
     return chapter;
   }
   async record(input: unknown): Promise<ReadingState> {
     const change = recordInputSchema.parse(input);
-    const chapter = await this.chapter(change.chapterId);
+    const chapter =
+      this.opened.get(change.chapterId) ??
+      this.remember(await this.chapter(change.chapterId));
     if (change.revision !== chapter.revision)
       throw new ReaderError(
         'conflict',
@@ -70,10 +104,8 @@ export class ReaderService {
       index === chapter.blocks.length - 1 &&
       change.last.fraction === 1;
     const words =
-      chapter.blocks
-        .slice(0, index)
-        .reduce((n, item) => n + blockWords(item), 0) +
-      Math.floor(blockWords(block) * change.last.fraction);
+      chapter.blocks.slice(0, index).reduce((n, item) => n + item.words, 0) +
+      Math.floor(block.words * change.last.fraction);
     return this.records.change((state) => {
       const previous = state.records[chapter.id];
       if (previous && previous.revision !== chapter.revision) {
@@ -94,6 +126,7 @@ export class ReaderService {
             last: change.last,
             furthestWords: Math.max(previous?.furthestWords ?? 0, words),
             complete: previous?.complete === true || atEnd,
+            totalWords: chapter.totalWords,
             updatedAt: new Date().toISOString(),
           },
         },
@@ -103,7 +136,7 @@ export class ReaderService {
   async call(name: ToolName, input: unknown): Promise<object> {
     switch (name) {
       case 'reader_open':
-        return { ready: true, source: 'fixture' };
+        return { ready: true, source: this.source.label };
       case 'reader_snapshot':
         z.object({}).parse(input);
         return this.snapshot();
@@ -119,8 +152,11 @@ export class ReaderService {
       }
       case 'reader_clear_cache': {
         const { scope } = cacheInputSchema.parse(input);
-        // No image files exist in the fixture slice. Never touches reading/.
-        if (scope === 'all') await this.cache.clear();
+        // No image files exist yet. Clear only public content, never reading/.
+        if (scope === 'all') {
+          await this.cache.clear();
+          await this.source.clearCache?.();
+        }
         return { cleared: scope };
       }
       case 'reader_clear_history':

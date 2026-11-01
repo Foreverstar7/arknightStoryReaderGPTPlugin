@@ -1,6 +1,6 @@
 {
   "name": "arknights-story-reader",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "private": true,
   "type": "module",
   "engines": {
@@ -17,12 +17,14 @@
     "typecheck": "tsc --noEmit && tsc -p tsconfig.server.json --noEmit",
     "test": "tsx --test tests/*.test.ts",
     "test:e2e": "playwright test",
+    "test:e2e:prts": "playwright test -c playwright.prts.config.ts",
     "format": "prettier --write src tests scripts *.json *.ts *.html",
     "format:check": "prettier --check src tests scripts *.json *.ts *.html",
     "check": "npm run typecheck && npm test && npm run format:check",
     "plugin:prepare": "tsx scripts/prepare-plugin.ts",
     "probe:mcp": "tsx scripts/probe-mcp.ts",
     "probe:http": "tsx scripts/probe-http.ts",
+    "probe:prts": "tsx scripts/probe-prts.ts",
     "probe:host": "tsx scripts/probe-host.ts"
   },
   "dependencies": {
