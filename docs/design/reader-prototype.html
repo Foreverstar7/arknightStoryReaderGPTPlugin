@@ -1,0 +1,693 @@
+<div id="ark-motion-reader" aria-label="方舟剧情阅读器交互草案">
+<style>
+#ark-motion-reader { color-scheme:light dark; }
+#ark-motion-reader .am-app { --am-bg:light-dark(#f4f5f4,#151b20); --am-panel:light-dark(#ffffff,#1d252c); --am-soft:light-dark(#e9edee,#242f38); --am-text:light-dark(#202b33,#e9eef1); --am-muted:light-dark(#596975,#a4b3be); --am-line:light-dark(#cad3d8,#374550); --am-gold:light-dark(#856008,#edc75a); --am-goldwash:light-dark(#faf0cc,#393525); --am-blue:light-dark(#2d657c,#8dc3d4); --am-shadow:light-dark(#17232d29,#00000066); --am-mask:light-dark(#12212d50,#00000085); --am-paper:light-dark(#fffefa,#192127); --am-copy-size:17px; position:relative; display:flex; flex-direction:column; height:770px; overflow:hidden; background:var(--am-bg); color:var(--am-text); font:14px/1.55 system-ui,'Microsoft YaHei',sans-serif; border:1px solid var(--am-line); border-radius:8px; isolation:isolate; }
+#ark-motion-reader .am-app * { box-sizing:border-box; }
+#ark-motion-reader .am-app [hidden] { display:none !important; }
+#ark-motion-reader .am-app button { font:inherit; color:inherit; background:transparent; border:1px solid var(--am-line); border-radius:3px; padding:7px 12px; display:inline-flex; align-items:center; justify-content:center; gap:7px; }
+#ark-motion-reader .am-app button:hover { background:var(--am-soft); }
+#ark-motion-reader .am-app button:focus-visible { outline:2px solid var(--am-gold); outline-offset:3px; }
+#ark-motion-reader .am-app button:disabled { opacity:.35; }
+#ark-motion-reader .am-app button.am-primary { color:var(--am-bg); background:var(--am-text); border-color:var(--am-text); }
+#ark-motion-reader .am-app h1,#ark-motion-reader .am-app h2,#ark-motion-reader .am-app h3,#ark-motion-reader .am-app p { margin:0; }
+#ark-motion-reader .am-app i[data-lucide] { display:inline-block; width:15px; height:15px; }
+#ark-motion-reader .am-small { font-size:12px; color:var(--am-muted); }
+#ark-motion-reader .am-mono { font-family:ui-monospace,Consolas,monospace; font-variant-numeric:tabular-nums; }
+#ark-motion-reader .am-eyebrow { display:flex; gap:9px; align-items:center; color:var(--am-muted); font:11px/1.4 ui-monospace,Consolas,monospace; letter-spacing:.13em; }
+#ark-motion-reader .am-eyebrow:before { content:''; width:16px; height:3px; background:var(--am-gold); }
+#ark-motion-reader .am-top { display:grid; grid-template-columns:minmax(200px,1fr) minmax(80px,1fr) auto; align-items:center; gap:12px; padding:19px 105px 17px 20px; min-height:86px; flex:none; border-bottom:1px solid var(--am-line); background:var(--am-panel); position:relative; z-index:8; }
+#ark-motion-reader .am-top:after { content:''; position:absolute; bottom:-1px; left:0; width:56px; height:3px; background:var(--am-gold); }
+#ark-motion-reader .am-nav { display:flex; flex-wrap:wrap; gap:6px; }
+#ark-motion-reader .am-nav button { border-color:transparent; padding:7px 8px; }
+#ark-motion-reader .am-nav button[aria-current='page'] { color:var(--am-gold); background:var(--am-goldwash); }
+#ark-motion-reader .am-top-title { text-align:center; min-width:0; }
+#ark-motion-reader .am-top-title strong { display:block; font-size:14px; font-weight:500; overflow-wrap:anywhere; }
+#ark-motion-reader .am-top-title span { font-size:10px; letter-spacing:.14em; color:var(--am-muted); }
+#ark-motion-reader .am-tools { display:flex; gap:13px; align-items:center; justify-content:flex-end; }
+#ark-motion-reader .am-progress { font-size:11px; line-height:1.7; text-align:right; white-space:nowrap; color:var(--am-muted); }
+#ark-motion-reader .am-progress b { color:var(--am-text); font-weight:500; }
+#ark-motion-reader .am-stage { flex:1; position:relative; min-height:0; overflow:hidden; }
+#ark-motion-reader .am-screen { position:absolute; inset:0; background:var(--am-bg); }
+#ark-motion-reader .am-home { display:grid; grid-template-columns:150px minmax(0,1fr); }
+#ark-motion-reader .am-rail { display:flex; flex-direction:column; gap:9px; padding:28px 15px; border-right:1px solid var(--am-line); background:var(--am-panel); }
+#ark-motion-reader .am-rail-heading { font-size:11px; letter-spacing:.13em; margin-bottom:10px; color:var(--am-muted); }
+#ark-motion-reader .am-rail button { justify-content:flex-start; border-color:transparent; padding:10px 9px; }
+#ark-motion-reader .am-rail button[aria-current='true'] { border-left:3px solid var(--am-gold); background:var(--am-goldwash); }
+#ark-motion-reader .am-rail-footer { margin-top:auto; padding:20px 7px 0; font-size:10px; color:var(--am-muted); letter-spacing:.08em; }
+#ark-motion-reader .am-home-scroll { overflow:auto; overscroll-behavior:contain; padding:30px 30px 55px; scrollbar-color:var(--am-line) transparent; }
+#ark-motion-reader .am-library-intro { margin-bottom:28px; }
+#ark-motion-reader .am-library-intro h1 { font-size:29px; letter-spacing:.05em; font-weight:500; margin:7px 0; }
+#ark-motion-reader .am-section { scroll-margin-top:20px; margin-bottom:34px; }
+#ark-motion-reader .am-section-head { display:flex; align-items:center; gap:15px; margin-bottom:17px; }
+#ark-motion-reader .am-section-head h2 { font-size:17px; font-weight:500; }
+#ark-motion-reader .am-section-head:after { content:''; flex:1; height:1px; background:var(--am-line); }
+#ark-motion-reader .am-card-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+#ark-motion-reader .am-app button.am-story-card { width:100%; text-align:left; display:flex; flex-direction:column; align-items:stretch; justify-content:flex-start; gap:0; padding:0; background:var(--am-panel); border-color:var(--am-line); border-radius:4px; overflow:hidden; transition:transform 180ms,border-color 180ms,box-shadow 180ms; }
+#ark-motion-reader .am-story-card:hover { transform:translateY(-4px); border-color:var(--am-gold); box-shadow:0 10px 20px var(--am-shadow); }
+#ark-motion-reader .am-cover { aspect-ratio:2.35; position:relative; overflow:hidden; background:var(--am-soft); color:var(--am-muted); }
+#ark-motion-reader .am-cover img { position:absolute; left:-2%; top:-6%; width:104%; height:auto; max-width:none; }
+#ark-motion-reader .am-cover.am-abstract { background:linear-gradient(125deg,var(--am-soft),var(--am-panel)); display:flex; align-items:center; padding:18px; }
+#ark-motion-reader .am-cover.am-abstract:before { content:''; position:absolute; width:95px; height:160%; right:15%; top:-20%; transform:rotate(25deg); background:var(--am-line); opacity:.5; }
+#ark-motion-reader .am-cover.am-abstract:after { content:''; position:absolute; width:3px; height:150%; right:48%; top:-20%; transform:rotate(25deg); background:var(--am-gold); opacity:.7; }
+#ark-motion-reader .am-cover-word { z-index:1; position:relative; font:500 23px/1.2 ui-monospace,Consolas,monospace; letter-spacing:.08em; }
+#ark-motion-reader .am-cover-word small { display:block; font-size:10px; margin-top:10px; color:var(--am-muted); }
+#ark-motion-reader .am-card-caption { padding:15px 16px; display:flex; flex-direction:column; gap:10px; }
+#ark-motion-reader .am-card-name { font-size:20px; font-weight:500; letter-spacing:.02em; }
+#ark-motion-reader .am-card-meta { display:flex; justify-content:space-between; gap:10px; align-items:center; color:var(--am-muted); font-size:12px; }
+#ark-motion-reader .am-card-percent { color:var(--am-text); font:13px/1.5 ui-monospace,Consolas,monospace; }
+#ark-motion-reader .am-chapters { display:flex; flex-direction:column; background:linear-gradient(135deg,var(--am-panel),var(--am-bg)); }
+#ark-motion-reader .am-book-intro { display:flex; gap:25px; align-items:center; padding:27px 35px 18px; flex:none; }
+#ark-motion-reader .am-mini-cover { width:155px; flex:none; border:1px solid var(--am-line); border-radius:2px; overflow:hidden; }
+#ark-motion-reader .am-book-heading { min-width:0; }
+#ark-motion-reader .am-book-heading h1 { font-size:27px; font-weight:500; margin:7px 0 5px; }
+#ark-motion-reader .am-book-heading .am-primary { margin-top:14px; text-align:left; }
+#ark-motion-reader .am-resume-note { font-size:11px; color:var(--am-muted); margin-left:9px; }
+#ark-motion-reader .am-timeline-tools { display:flex; gap:10px; align-items:center; justify-content:space-between; padding:8px 35px 0; }
+#ark-motion-reader .am-timeline-tools > div { display:flex; flex:none; gap:6px; }
+#ark-motion-reader .am-timeline-tools > span { min-width:0; }
+#ark-motion-reader .am-timeline-tools button { padding:5px 10px; }
+#ark-motion-reader .am-timeline-scroll { flex:1; min-height:0; overflow-x:auto; overflow-y:hidden; overscroll-behavior:contain; scrollbar-color:var(--am-line) transparent; touch-action:pan-x; margin:0 18px 20px; }
+#ark-motion-reader .am-timeline { height:100%; min-height:375px; display:flex; width:max-content; position:relative; padding:0 22px; }
+#ark-motion-reader .am-timeline:before { content:''; position:absolute; left:0; right:0; top:50%; height:1px; background:var(--am-line); }
+#ark-motion-reader .am-node { width:210px; min-width:210px; height:100%; min-height:375px; position:relative; }
+#ark-motion-reader .am-node-dot { position:absolute; width:9px; height:9px; background:var(--am-bg); border:2px solid var(--am-muted); top:calc(50% - 4px); left:50%; transform:translateX(-50%); border-radius:50%; }
+#ark-motion-reader .am-node[data-finished='true'] .am-node-dot { border-color:var(--am-gold); background:var(--am-gold); }
+#ark-motion-reader .am-node:after { content:''; width:1px; height:23px; position:absolute; top:calc(50% - 23px); left:50%; background:var(--am-line); }
+#ark-motion-reader .am-node:nth-child(even):after { top:50%; }
+#ark-motion-reader .am-app button.am-chapter { position:absolute; left:9px; right:9px; width:calc(100% - 18px); padding:13px 15px; display:block; text-align:left; border:1px solid var(--am-line); background:var(--am-panel); border-radius:3px; bottom:calc(50% + 22px); }
+#ark-motion-reader .am-app button.am-chapter:hover { border-color:var(--am-gold); background:var(--am-soft); }
+#ark-motion-reader .am-node:nth-child(even) .am-chapter { bottom:auto; top:calc(50% + 23px); }
+#ark-motion-reader .am-chapter-code { display:flex; justify-content:space-between; gap:6px; font-size:11px; color:var(--am-muted); margin-bottom:5px; }
+#ark-motion-reader .am-chapter-name { font-weight:500; font-size:16px; }
+#ark-motion-reader .am-chapter-desc { font-size:12px; color:var(--am-muted); margin-top:8px; line-height:1.6; }
+#ark-motion-reader .am-chapter-progress { display:block; font-size:11px; margin-top:9px; color:var(--am-gold); }
+#ark-motion-reader .am-reader { background:var(--am-paper); overflow:auto; overscroll-behavior:contain; scrollbar-color:var(--am-line) transparent; }
+#ark-motion-reader .am-reading-copy { width:min(100%,810px); margin:0 auto; padding:32px 34px 30px; }
+#ark-motion-reader .am-reading-head { padding:0 0 24px 96px; border-bottom:1px solid var(--am-line); margin-bottom:27px; }
+#ark-motion-reader .am-reading-head h1 { font-size:25px; font-weight:500; margin:7px 0; }
+#ark-motion-reader .am-content { font-size:var(--am-copy-size); line-height:1.95; }
+#ark-motion-reader .am-dialogue { display:grid; grid-template-columns:78px minmax(0,1fr); gap:18px; padding:14px 0; }
+#ark-motion-reader .am-namebox { position:relative; font-size:13px; line-height:1.8; }
+#ark-motion-reader .am-namebox button.am-name { background:transparent; color:var(--am-blue); padding:0; border:0; font-weight:500; justify-content:flex-start; }
+#ark-motion-reader .am-peek { display:block; visibility:hidden; margin-top:6px; font-size:10px !important; padding:3px 5px !important; white-space:nowrap; }
+#ark-motion-reader .am-namebox:hover .am-peek,#ark-motion-reader .am-namebox:focus-within .am-peek { visibility:visible; }
+#ark-motion-reader .am-dialogue p + p { margin-top:13px; }
+#ark-motion-reader .am-narration { margin:16px 0 16px 96px !important; color:var(--am-muted); }
+#ark-motion-reader .am-branch-group { margin:24px 0 22px 96px; padding-left:18px; border-left:2px solid var(--am-line); }
+#ark-motion-reader .am-branch-group h3 { font-size:11px; font-weight:400; letter-spacing:.08em; color:var(--am-muted); margin-bottom:12px; }
+#ark-motion-reader .am-branch { margin:14px 0; }
+#ark-motion-reader .am-option { color:var(--am-gold); font-size:13px; margin-bottom:6px !important; }
+#ark-motion-reader .am-branch p:not(.am-option) { font-size:var(--am-copy-size); }
+#ark-motion-reader .am-merge { margin:20px 0 7px 96px !important; font-size:11px; color:var(--am-muted); }
+#ark-motion-reader .am-cg-wrap { margin:24px 0 24px 96px; }
+#ark-motion-reader .am-cg-art { margin-top:12px; height:220px; overflow:hidden; position:relative; background:linear-gradient(160deg,var(--am-soft),var(--am-bg)); border:1px solid var(--am-line); display:flex; align-items:flex-end; padding:18px; }
+#ark-motion-reader .am-cg-art:before { content:''; position:absolute; inset:20% 18% 0; background:repeating-linear-gradient(90deg,var(--am-line) 0 34px,transparent 34px 48px); clip-path:polygon(0 35%,20% 35%,20% 5%,35% 5%,35% 55%,55% 55%,55% 20%,75% 20%,75% 45%,100% 45%,100% 100%,0 100%); }
+#ark-motion-reader .am-cg-art span { position:relative; z-index:1; color:var(--am-text); font-size:12px; letter-spacing:.15em; }
+#ark-motion-reader .am-reader-end { margin:35px 0 0 96px; padding-top:24px; border-top:1px solid var(--am-line); display:flex; align-items:center; justify-content:space-between; gap:12px; }
+#ark-motion-reader .am-end-mark { text-align:center; color:var(--am-muted); font-size:11px; }
+#ark-motion-reader .am-morph { position:absolute; z-index:20; overflow:hidden; pointer-events:none; background:var(--am-panel); border:1px solid var(--am-line); border-radius:4px; box-shadow:0 18px 45px var(--am-shadow); display:flex; flex-direction:column; }
+#ark-motion-reader .am-morph .am-cover { aspect-ratio:auto; height:65%; flex:none; }
+#ark-motion-reader .am-morph .am-card-caption { padding:24px 30px; }
+#ark-motion-reader .am-curtain-edge { position:absolute; z-index:22; left:0; right:0; top:0; height:2px; pointer-events:none; background:var(--am-gold); box-shadow:0 5px 18px var(--am-shadow); }
+#ark-motion-reader .am-shade { position:absolute; z-index:30; inset:0; background:var(--am-mask); display:flex; justify-content:flex-end; padding:12px; }
+#ark-motion-reader .am-settings { width:min(340px,100%); overflow:auto; overscroll-behavior:contain; background:var(--am-panel); border:1px solid var(--am-line); padding:22px; box-shadow:0 12px 30px var(--am-shadow); }
+#ark-motion-reader .am-panel-head { display:flex; gap:15px; align-items:center; justify-content:space-between; margin-bottom:24px; }
+#ark-motion-reader .am-panel-head h2 { font-size:19px; font-weight:500; }
+#ark-motion-reader .am-settings h3 { font-size:11px; font-weight:400; letter-spacing:.1em; color:var(--am-muted); margin:23px 0 10px; }
+#ark-motion-reader .am-setting-row { display:flex; gap:15px; align-items:center; justify-content:space-between; padding:11px 0; border-bottom:1px solid var(--am-line); }
+#ark-motion-reader .am-setting-row label { display:flex; align-items:center; justify-content:space-between; gap:14px; width:100%; }
+#ark-motion-reader .am-settings input[type='checkbox'] { accent-color:var(--am-gold); width:17px; height:17px; }
+#ark-motion-reader .am-settings input[type='number'] { width:65px; padding:6px; border:1px solid var(--am-line); background:var(--am-bg); color:var(--am-text); font:inherit; }
+#ark-motion-reader .am-settings .am-action { display:flex; width:100%; justify-content:space-between; border:none; border-bottom:1px solid var(--am-line); border-radius:0; padding:13px 0; text-align:left; }
+#ark-motion-reader .am-history-item { display:flex; flex-direction:column; gap:7px; margin-bottom:15px; padding-bottom:15px; border-bottom:1px solid var(--am-line); }
+#ark-motion-reader .am-message { min-height:20px; font-size:12px; color:var(--am-muted); margin-top:17px; }
+#ark-motion-reader .am-portrait { position:absolute; z-index:35; width:200px; padding:11px; background:var(--am-panel); border:1px solid var(--am-line); box-shadow:0 12px 30px var(--am-shadow); }
+#ark-motion-reader .am-portrait-head { display:flex; align-items:center; justify-content:space-between; gap:9px; font-size:12px; }
+#ark-motion-reader .am-portrait-head button { padding:1px 6px; }
+#ark-motion-reader .am-portrait-art { margin-top:10px; height:225px; position:relative; overflow:hidden; background:linear-gradient(145deg,var(--am-soft),var(--am-panel)); }
+#ark-motion-reader .am-portrait-art:before { content:''; position:absolute; top:25px; left:64px; width:55px; height:67px; border-radius:45% 45% 35% 35%; background:var(--am-line); }
+#ark-motion-reader .am-portrait-art:after { content:''; position:absolute; top:92px; left:35px; width:115px; height:155px; clip-path:polygon(25% 0,75% 0,100% 100%,0 100%); background:var(--am-line); }
+#ark-motion-reader .am-portrait-label { margin-top:7px; font-size:10px; color:var(--am-muted); }
+#ark-motion-reader .am-sr { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+@media (hover:none) { #ark-motion-reader .am-peek { visibility:visible; } }
+@media (max-width:800px) { #ark-motion-reader .am-top { grid-template-columns:minmax(170px,1fr) auto; padding-right:100px; } #ark-motion-reader .am-top-title { grid-column:1/-1; grid-row:2; text-align:left; padding:0 8px; } #ark-motion-reader .am-tools { gap:8px; } #ark-motion-reader .am-top-title span { display:none; } #ark-motion-reader .am-top-title strong { font-size:12px; } #ark-motion-reader .am-home { grid-template-columns:120px minmax(0,1fr); } #ark-motion-reader .am-home-scroll { padding:25px 20px; } #ark-motion-reader .am-card-grid { gap:12px; } #ark-motion-reader .am-card-name { font-size:17px; } }
+@media (max-width:560px) { #ark-motion-reader .am-app { height:830px; } #ark-motion-reader .am-top { display:flex; flex-wrap:wrap; gap:9px; padding:14px 14px 12px; padding-top:52px; } #ark-motion-reader .am-top-title { order:3; width:100%; } #ark-motion-reader .am-nav { margin-right:auto; } #ark-motion-reader .am-nav button { padding:7px 5px; font-size:12px; } #ark-motion-reader .am-tools { margin-left:auto; } #ark-motion-reader .am-progress { font-size:10px; } #ark-motion-reader .am-tools button { font-size:12px; padding:6px 7px; } #ark-motion-reader .am-home { grid-template-columns:minmax(0,1fr); grid-template-rows:auto minmax(0,1fr); } #ark-motion-reader .am-rail { flex-direction:row; padding:9px 14px; border-right:0; border-bottom:1px solid var(--am-line); gap:8px; } #ark-motion-reader .am-rail-heading,#ark-motion-reader .am-rail-footer { display:none; } #ark-motion-reader .am-rail button { padding:7px 12px; } #ark-motion-reader .am-card-grid { grid-template-columns:minmax(0,1fr); } #ark-motion-reader .am-home-scroll { padding:22px 18px 40px; } #ark-motion-reader .am-library-intro h1 { font-size:25px; } #ark-motion-reader .am-book-intro { padding:23px 20px 10px; gap:14px; } #ark-motion-reader .am-mini-cover { display:none; } #ark-motion-reader .am-book-heading h1 { font-size:25px; } #ark-motion-reader .am-resume-note { display:block; margin:8px 0 0; } #ark-motion-reader .am-timeline-tools { padding:14px 20px 0; } #ark-motion-reader .am-timeline-scroll { margin:0 8px 15px; } #ark-motion-reader .am-node { width:185px; min-width:185px; } #ark-motion-reader .am-chapter-name { font-size:15px; } #ark-motion-reader .am-reading-copy { padding:24px 17px; } #ark-motion-reader .am-reading-head { padding-left:66px; } #ark-motion-reader .am-reading-head h1 { font-size:21px; } #ark-motion-reader .am-dialogue { grid-template-columns:55px minmax(0,1fr); gap:11px; } #ark-motion-reader .am-narration { margin-left:66px !important; } #ark-motion-reader .am-branch-group,#ark-motion-reader .am-merge,#ark-motion-reader .am-cg-wrap,#ark-motion-reader .am-reader-end { margin-left:66px !important; } #ark-motion-reader .am-namebox { font-size:12px; } #ark-motion-reader .am-peek { white-space:normal; font-size:10px !important; } #ark-motion-reader .am-reader-end { flex-wrap:wrap; } }
+@media (pointer:coarse) { #ark-motion-reader .am-app button { min-height:42px; } #ark-motion-reader .am-namebox .am-name { min-height:30px; } }
+@media (prefers-reduced-motion:reduce) { #ark-motion-reader .am-story-card { transition:none; } }
+#ark-motion-reader .am-app { height:clamp(540px,100dvh,1200px); }
+#ark-motion-reader .am-top { display:flex; flex-wrap:wrap; justify-content:space-between; }
+#ark-motion-reader .am-nav { flex:1; min-width:0; align-items:center; }
+#ark-motion-reader .am-nav button.am-current-crumb { display:inline-flex; justify-content:flex-start; min-width:0; max-width:36vw; border-left:1px solid var(--am-line); padding:7px 10px 7px 15px; margin-left:4px; color:var(--am-text); font-size:13px; gap:8px; }
+#ark-motion-reader .am-recent-label { flex:none; color:var(--am-muted); font-size:11px; }
+#ark-motion-reader .am-recent-title { min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+#ark-motion-reader .am-current-crumb > i,#ark-motion-reader .am-current-crumb > svg { flex:none; color:var(--am-gold); }
+#ark-motion-reader .am-nav button.am-current-crumb:hover { background:var(--am-goldwash); }
+#ark-motion-reader .am-tools { flex:none; }
+#ark-motion-reader .am-timeline-tools { padding:8px 35px 4px; }
+#ark-motion-reader .am-timeline-scroll { scrollbar-width:none; margin-bottom:8px; }
+#ark-motion-reader .am-timeline-scroll::-webkit-scrollbar { display:none; }
+#ark-motion-reader .am-axis-seek { display:flex; align-items:center; gap:12px; margin:0 35px 20px; flex:none; }
+#ark-motion-reader .am-axis-seek input { appearance:none; -webkit-appearance:none; width:100%; height:24px; margin:0; background:transparent; accent-color:var(--am-gold); }
+#ark-motion-reader .am-axis-seek input::-webkit-slider-runnable-track { height:2px; background:var(--am-line); }
+#ark-motion-reader .am-axis-seek input::-webkit-slider-thumb { -webkit-appearance:none; width:42px; height:6px; border-radius:3px; margin-top:-2px; background:var(--am-gold); }
+#ark-motion-reader .am-axis-seek input::-moz-range-track { height:2px; background:var(--am-line); }
+#ark-motion-reader .am-axis-seek input::-moz-range-thumb { width:42px; height:6px; border:none; border-radius:3px; background:var(--am-gold); }
+#ark-motion-reader .am-axis-seek span { flex:none; font-size:11px; color:var(--am-muted); }
+#ark-motion-reader .am-reader-layout { display:grid; grid-template-columns:clamp(160px,20%,205px) minmax(0,1fr); }
+#ark-motion-reader .am-read-index { background:var(--am-panel); border-right:1px solid var(--am-line); padding:22px 12px; overflow:auto; scrollbar-color:var(--am-line) transparent; }
+#ark-motion-reader .am-read-index h2 { padding:0 9px 15px; font-size:12px; font-weight:500; color:var(--am-muted); }
+#ark-motion-reader .am-app button.am-index-item { display:block; width:100%; text-align:left; padding:11px 9px; border-color:transparent; margin-bottom:4px; }
+#ark-motion-reader .am-index-item span { display:block; font-size:12px; color:var(--am-muted); margin-bottom:3px; }
+#ark-motion-reader .am-index-item strong { display:block; font-size:13px; font-weight:400; overflow-wrap:anywhere; }
+#ark-motion-reader .am-index-item[aria-current='true'] { background:var(--am-goldwash); border-left-color:var(--am-gold) !important; }
+#ark-motion-reader .am-reader { position:relative; min-width:0; min-height:0; }
+#ark-motion-reader .am-reading-copy { padding-left:28px; padding-right:28px; }
+#ark-motion-reader .am-namebox button.am-name { text-decoration:underline dotted; text-underline-offset:4px; }
+#ark-motion-reader .am-namebox button.am-name:hover,#ark-motion-reader .am-namebox button.am-name[aria-expanded='true'] { color:var(--am-gold); background:var(--am-goldwash); }
+#ark-motion-reader .am-name-hint { display:block; margin-top:7px; font-size:11px; line-height:1.5; color:var(--am-muted); opacity:0; transition:opacity 100ms; pointer-events:none; }
+#ark-motion-reader .am-namebox:hover .am-name-hint,#ark-motion-reader .am-namebox:focus-within .am-name-hint { opacity:1; }
+@media (hover:none) { #ark-motion-reader .am-name-hint { opacity:1; } }
+#ark-motion-reader .am-shared-cover { position:absolute; z-index:20; overflow:hidden; pointer-events:none; border-radius:3px; background:var(--am-panel); box-shadow:0 8px 25px var(--am-shadow); }
+#ark-motion-reader .am-shared-cover .am-cover { width:100%; height:100%; aspect-ratio:auto; }
+#ark-motion-reader .am-index-toggle { display:none !important; }
+@media (max-width:800px) { #ark-motion-reader .am-top { padding-left:14px; } #ark-motion-reader .am-nav button.am-current-crumb { max-width:30vw; padding-left:10px; font-size:12px; } #ark-motion-reader .am-reader-layout { grid-template-columns:155px minmax(0,1fr); } #ark-motion-reader .am-reading-copy { padding-left:20px; padding-right:20px; } }
+@media (max-width:680px) {
+  #ark-motion-reader .am-reader-layout { display:block; }
+  #ark-motion-reader .am-reader-layout > .am-reader { height:100%; }
+  #ark-motion-reader .am-read-index { display:none; position:absolute; inset:0 auto 0 0; width:230px; z-index:12; box-shadow:12px 0 30px var(--am-shadow); }
+  #ark-motion-reader .am-reader-layout[data-index-open='true'] .am-read-index { display:block; }
+  #ark-motion-reader .am-index-toggle { display:inline-flex !important; margin-bottom:18px; }
+  #ark-motion-reader .am-nav button.am-current-crumb { max-width:100%; width:100%; margin:2px 0 0; padding-left:5px; border:0; }
+  #ark-motion-reader .am-top { padding-top:52px; padding-right:14px; }
+  #ark-motion-reader .am-nav { flex-basis:100%; }
+  #ark-motion-reader .am-tools { margin-left:auto; }
+  #ark-motion-reader .am-reading-copy { padding-left:17px; padding-right:17px; }
+  #ark-motion-reader .am-axis-seek { margin:0 20px 14px; }
+  #ark-motion-reader .am-mini-cover { display:block; width:88px; }
+  #ark-motion-reader .am-book-heading h1 { font-size:22px; }
+  #ark-motion-reader .am-book-intro { padding:20px 18px 10px; gap:14px; }
+  #ark-motion-reader .am-chapters { overflow-y:auto; }
+  #ark-motion-reader .am-timeline-scroll { min-height:350px; flex-shrink:0; }
+  #ark-motion-reader .am-timeline,#ark-motion-reader .am-node { min-height:350px; }
+}
+@media (max-height:720px) { #ark-motion-reader .am-chapters { overflow-y:auto; } #ark-motion-reader .am-timeline-scroll { min-height:350px; flex-shrink:0; } #ark-motion-reader .am-timeline,#ark-motion-reader .am-node { min-height:350px; } }
+</style>
+<div class="am-app">
+  <header class="am-top">
+    <nav class="am-nav" aria-label="页面导航"><button type="button" class="cursor-interaction" data-act="home" aria-current="page"><i data-lucide="house" aria-hidden="true"></i>主页</button><button type="button" class="cursor-interaction" data-act="contents" disabled><i data-lucide="list-tree" aria-hidden="true"></i>篇章目录</button><button type="button" class="am-current-crumb cursor-interaction" data-act="recent-read" hidden><span class="am-recent-label">最近阅读</span><span class="am-recent-title"></span><i data-lucide="arrow-down-right" aria-hidden="true"></i></button></nav>
+    <div class="am-tools"><div class="am-progress" hidden></div><button type="button" class="cursor-interaction" data-act="settings"><i data-lucide="settings-2" aria-hidden="true"></i>设置</button></div>
+  </header>
+  <div class="am-stage"></div>
+  <div class="am-shade" hidden><section class="am-settings" role="dialog" aria-modal="true" aria-label="设置"></section></div>
+  <div class="am-portrait" hidden><div class="am-portrait-head"><span></span><button type="button" class="cursor-interaction" data-act="close-portrait" aria-label="关闭立绘">×</button></div><div class="am-portrait-art" role="img" aria-label="人物立绘位置示意"></div><div class="am-portrait-label">立绘位置示意</div></div>
+  <div class="am-sr" role="status" aria-live="polite"></div>
+</div>
+<script>
+(() => {
+  const root = document.getElementById('ark-motion-reader');
+  const app = root.querySelector('.am-app');
+  const stage = root.querySelector('.am-stage');
+  const shade = root.querySelector('.am-shade');
+  const settingsPanel = root.querySelector('.am-settings');
+  const portrait = root.querySelector('.am-portrait');
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  const cover = 'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20940%20400%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22sky%22%20x2%3D%220%22%20y2%3D%221%22%3E%3Cstop%20stop-color%3D%22%23e9e2cf%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23b8b8a5%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cpath%20fill%3D%22url(%23sky)%22%20d%3D%22M0%200h940v400H0z%22%2F%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%237d785f%22%20opacity%3D%22.18%22%3E%3Cpath%20d%3D%22M0%2080h940M0%20160h940M0%20240h940M140%200v400M380%200v400M620%200v400M860%200v400%22%2F%3E%3Ccircle%20cx%3D%22700%22%20cy%3D%22118%22%20r%3D%2286%22%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%22700%22%20cy%3D%22118%22%20r%3D%2251%22%20fill%3D%22%23c6a76a%22%2F%3E%3Cpath%20fill%3D%22%23858e85%22%20d%3D%22M0%20268%20155%20171%20310%20249%20465%20142%20650%20275%20825%20204%20940%20247V400H0z%22%2F%3E%3Cpath%20fill%3D%22%234e6466%22%20d%3D%22M0%20286%20156%20252%20338%20317%20490%20236%20689%20300%20820%20256%20940%20297V400H0z%22%2F%3E%3Cpath%20fill%3D%22%23293d44%22%20d%3D%22M0%20350Q165%20280%20340%20358T660%20347T940%20342V400H0z%22%2F%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23d5b779%22%20stroke-width%3D%222%22%20opacity%3D%22.65%22%3E%3Cpath%20d%3D%22M-30%20321Q150%20246%20340%20325T685%20314T970%20302M-30%20342Q150%20267%20340%20346T685%20335T970%20323%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E';
+  const stateOwner = Math.random().toString(36).slice(2);
+  const design = { expand:420, reveal:480, textSize:17, motion:'空间延展',theme:'跟随系统' };
+  const words = value => [...value.replace(/\s/g,'')].length;
+  const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const icon = name => `<i data-lucide="${name}" aria-hidden="true"></i>`;
+  function makeBlocks(index) {
+    return [
+      {kind:'narration',text:'雨停后，街道尽头的灯依次亮起。履带碾过潮湿的路面，留下两条缓慢延伸的印迹。远处的声音隔着雾传来，听不清说话的人究竟在什么地方。'},
+      {kind:'dialogue',name:'阿米娅',text:['先在这里停一下。前面的路口还没有确认安全，我们需要等侦察队的消息。','博士，你可以看一下刚才送来的记录。几份报告使用了同一个地点名称，但标记的方向并不一致。']},
+      {kind:'dialogue',name:'博士',text:['先把它们按记录时间排好。我们不必急着判断谁是对的，也许他们看到的根本不是同一条道路。']},
+      {kind:'narration',text:'桌上的纸页被风掀起一角。阿米娅伸手压住它，沿着地图边缘重新整理折痕。灯光落在她的手边，也照亮了那行被反复修改的注记。'},
+      {kind:'dialogue',name:'阿米娅',text:['我明白了。先确认每一条消息来自哪里，再把能确定的部分连起来。','这段时间大家都很疲惫，但还没有人放弃。我想，我们也可以再耐心一点。']},
+      {kind:'cg'},
+      {kind:'narration',text:'通讯器响了一声。没有人立刻回答，房间里短暂地安静下来，只有细小的电流声在桌面附近起伏。几秒后，一个陌生的声音终于从噪声中浮现。'},
+      {kind:'dialogue',name:'？？？',text:['我们已经走到约定的位置。这里没有路标，但能看见一座很高的钟楼。','如果你们正在向这里移动，请先留在开阔的地方。雾散之前，我们很难分辨彼此。']},
+      {kind:'dialogue',name:'博士',text:['收到。我们会等你们确认。请先描述周围的情况，不要单独离开队伍。']},
+      {kind:'branch',options:[{title:'先询问钟楼的位置。',text:'阿米娅将地图转了半圈，在纸上标出钟楼的大致方向。她没有急着下结论，而是等待通讯器那端给出第二个可以辨认的地点。'},{title:'先确认队伍是否安全。',text:'通讯器里传来短促的回应。所有人都在，物资也没有遗失。阿米娅放下笔，示意身旁的干员把刚刚准备的补给重新分好。'}]},
+      {kind:'narration',merge:true,text:'两份消息终于在地图上指向了同一个路口。那不是他们原本计划经过的地方，却与昨夜留下的记录完全吻合。'},
+      {kind:'dialogue',name:'阿米娅',text:['现在，我们知道该往哪里走了。接下来还是按原来的分组前进，彼此保持能够看见的距离。','如果有人需要停下来，就告诉我们。抵达目的地很重要，但我们也要一起到达。']},
+      {kind:'narration',text:'门被轻轻推开，冷空气越过门槛。远处的灯光比先前清楚了一些。队伍在街角重新集合，脚步声渐渐汇成同一个方向。'},
+      {kind:'dialogue',name:'博士',text:['出发吧。下一条消息到来之前，我们还有一些可以亲自确认的事情。']},
+      {kind:'narration',text:'第' + (index + 1) + '段记录在这里暂告一段落。纸页被合上时，天边已经露出一线浅色。新的声音从道路另一端传来，等待中的人抬起头，朝那片正在变亮的天空望去。'}
+    ];
+  }
+  const books = [
+    {id:'prologue',name:'黑暗时代·上',category:'主线',type:'主线',coverWord:'PROLOGUE',coverSub:'黑暗时代 · 档案示意',chapters:[['序章·上','序章·上','一段尚未完成的记录，等待重新翻开。'],['序章·下','序章·下','队伍沿着新的线索继续前进。'],['0-1','坍塌 · 行动前',''],['0-1','坍塌 · 行动后','']]},
+    {id:'grani',name:'骑兵与猎人',category:'支线',type:'支线',image:true,chapters:[['GT-1','日正当中 · 行动前','漫天黄沙之间，一名骑兵抵达村庄。'],['GT-1','日正当中 · 行动后','漫天黄沙之间，一名骑兵抵达村庄。'],['GT-2','察言观色 · 行动前','一条新的线索让众人重新考虑方向。'],['GT-2','察言观色 · 行动后','一条新的线索让众人重新考虑方向。'],['GT-3','意外之旅 · 行动前',''],['GT-3','意外之旅 · 行动后','']]},
+    {id:'summer',name:'火蓝之心',category:'支线',type:'支线',coverWord:'SUMMER',coverSub:'火蓝之心 · 封面示意',chapters:[['序章','演出开始','海风将远处的音乐送到岸边。'],['OF-ST1','摇滚起来','舞台上的灯光亮了起来。'],['OF-1','火山制造 · 行动前',''],['OF-1','火山制造 · 行动后','']]}
+  ];
+  books.forEach(book => book.chapters = book.chapters.map((item,i) => {
+    const blocks = makeBlocks(i); let offset = 0;
+    blocks.forEach(block => { block.start = offset; block.count = block.kind === 'cg' ? 0 : block.kind === 'branch' ? block.options.reduce((n,o) => n + words(o.title) + words(o.text),0) : words(Array.isArray(block.text) ? block.text.join('') : block.text); offset += block.count; block.end = offset; });
+    return {code:item[0],name:item[1],desc:item[2],blocks,total:offset};
+  }));
+  let saved = window.openai?.widgetState?.privateContent;
+  let records = {};
+  books.forEach(book => { records[book.id] = {max:book.chapters.map(() => 0),last:null}; });
+  records.grani.max[0] = books[1].chapters[0].total;
+  records.grani.max[1] = Math.ceil(books[1].chapters[1].total * .42);
+  records.grani.last = {chapter:1,word:records.grani.max[1]};
+  let autoImages = false, keepDays = 7, pictureCache = new Set();
+  let view = {page:'home',bookId:null,chapter:0}, current = null, busy = false, homeScroll = 0;
+  let activeCategory = '主线', timelineScroll = {}, readerRestoring = false, readerObserver = null, saveTimer = null, restoreFocus = null;
+  function validSaved(value) { return value && value.version === 2 && value.records && typeof value.records === 'object'; }
+  if (validSaved(saved)) {
+    books.forEach(book => {
+      const rec = saved.records[book.id];
+      if (rec && Array.isArray(rec.max)) {
+        records[book.id].max = book.chapters.map((c,i) => Math.max(0,Math.min(c.total,Number(rec.max[i]) || 0)));
+        if (rec.last && Number.isInteger(rec.last.chapter) && book.chapters[rec.last.chapter]) records[book.id].last = {chapter:rec.last.chapter,word:Math.max(0,Math.min(book.chapters[rec.last.chapter].total,Number(rec.last.word) || 0))};
+      }
+    });
+    autoImages = !!saved.autoImages;
+    keepDays = Math.max(1,Math.min(365,Number(saved.keepDays) || 7));
+  }
+  const bookById = id => books.find(book => book.id === id);
+  const percent = (n,d) => n >= d && d > 0 ? 100 : Math.max(0,Math.min(99,Math.floor(n / Math.max(1,d) * 100)));
+  function bookPercent(book) { return percent(records[book.id].max.reduce((n,x) => n+x,0),book.chapters.reduce((n,c) => n+c.total,0)); }
+  function chapterPercent(book,i) { return percent(records[book.id].max[i],book.chapters[i].total); }
+  function recentReading() {
+    const book = books.filter(item => records[item.id].last).sort((a,b) => (records[b.id].touched || 0)-(records[a.id].touched || 0))[0];
+    return book ? {book,last:records[book.id].last} : null;
+  }
+  function updateRecentLink() {
+    const button = root.querySelector('[data-act="recent-read"]'), recent = recentReading();
+    button.hidden = !recent;
+    if (!recent) { button.querySelector('.am-recent-title').textContent = ''; button.removeAttribute('aria-label'); button.removeAttribute('data-tooltip'); return; }
+    const chapter = recent.book.chapters[recent.last.chapter], label = chapter.code + ' ' + chapter.name;
+    button.querySelector('.am-recent-title').textContent = label;
+    button.setAttribute('aria-label','继续阅读：' + label + '，回到上次阅读位置');
+    button.setAttribute('data-tooltip',recent.book.name + ' · ' + label + '，点击继续阅读');
+  }
+  function announce(text) { root.querySelector('.am-sr').textContent = text; }
+  function icons() { if (globalThis.lucide) lucide.createIcons({attrs:{width:15,height:15}}); }
+  function duration(ms) { return reducedMotion.matches ? 0 : ms; }
+  async function animate(element,keyframes,ms,extra={}) { if (!duration(ms)) return; await element.animate(keyframes,{duration:ms,easing:'cubic-bezier(.22,1,.36,1)',fill:'both',...extra}).finished.catch(() => {}); }
+  function save() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      const snapshot = {modelContent:{page:view.page,story:bookById(view.bookId)?.name || null,chapter:view.page === 'reader' ? bookById(view.bookId).chapters[view.chapter].name : null,motion:design.motion,expandMs:design.expand,revealMs:design.reveal},privateContent:{version:2,owner:stateOwner,records,autoImages,keepDays,view,homeScroll,timelineScroll,design}};
+      if (window.openai?.setWidgetState) Promise.resolve(window.openai.setWidgetState(snapshot)).catch(() => {});
+    },180);
+  }
+  function coverHtml(book) { return book.image ? `<div class="am-cover"><img src="${cover}" alt="骑兵与猎人封面参考" draggable="false"></div>` : `<div class="am-cover am-abstract"><span class="am-cover-word">${book.coverWord}<small>${book.coverSub}</small></span></div>`; }
+  function cardInner(book) { return `${coverHtml(book)}<div class="am-card-caption"><span class="am-card-name">${book.name}</span><span class="am-card-meta"><span>${book.type}</span><span class="am-card-percent" data-book-progress="${book.id}">${bookPercent(book)}%</span></span></div>`; }
+  function makeScreen(classes,markup,label) {
+    const element = document.createElement('section');
+    element.className = 'am-screen ' + classes;
+    element.setAttribute('aria-label',label);
+    element.innerHTML = markup;
+    if (classes === 'am-reader-layout') {
+      const close = document.createElement('button'); close.type = 'button'; close.className = 'am-index-toggle cursor-interaction'; close.dataset.act = 'toggle-index'; close.setAttribute('aria-expanded','true'); close.innerHTML = icon('panel-left-close')+'收起列表'; element.querySelector('.am-read-index').prepend(close);
+    }
+    return element;
+  }
+  function renderHome() {
+    const groups = ['主线','支线'];
+    const element = makeScreen('am-home',`<aside class="am-rail" aria-label="分类导航"><span class="am-rail-heading am-mono">ARCHIVE / INDEX</span>${groups.map((name,i) => `<button type="button" class="cursor-interaction" data-act="category" data-category="${name}" aria-current="${name === activeCategory}"><span class="am-mono am-small">0${i+1}</span>${name}</button>`).join('')}<div class="am-rail-footer am-mono">ARKNIGHTS<br>STORY READER<br>剧情档案阅览</div></aside><div class="am-home-scroll"><div class="am-library-intro"><div class="am-eyebrow">STORY ARCHIVE</div><h1>剧情档案</h1><span class="am-small">目录与正文均为交互示例</span></div>${groups.map((name,i) => `<section class="am-section" data-category-section="${name}"><header class="am-section-head"><span class="am-small am-mono">0${i+1}</span><h2>${name}</h2></header><div class="am-card-grid">${books.filter(book => book.category === name).map(book => `<button type="button" class="am-story-card cursor-interaction" data-act="book" data-book="${book.id}" aria-label="打开${book.name}篇章目录">${cardInner(book)}</button>`).join('')}</div></section>`).join('')}</div>`,'剧情总目录');
+    const scroll = element.querySelector('.am-home-scroll');
+    element._restoreScroll = () => { scroll.scrollTop = homeScroll; };
+    scroll.addEventListener('scroll',() => {
+      const category = [...element.querySelectorAll('[data-category-section]')].reverse().find(section => section.offsetTop <= scroll.scrollTop + 110)?.dataset.categorySection || '主线';
+      activeCategory = category;
+      element.querySelectorAll('[data-act="category"]').forEach(button => button.setAttribute('aria-current',String(button.dataset.category === category)));
+    },{passive:true});
+    return element;
+  }
+  function renderChapters(book) {
+    const last = records[book.id].last;
+    const lastChapter = last ? book.chapters[last.chapter] : null;
+    const element = makeScreen('am-chapters',`<div class="am-book-intro"><div class="am-mini-cover">${coverHtml(book)}</div><div class="am-book-heading"><div class="am-eyebrow">${book.type === '主线' ? 'MAIN THEME' : 'SIDE STORY'} / CONTENTS</div><h1>${book.name}</h1><span class="am-small">${book.type} · 篇目示例</span>${lastChapter ? `<div><button type="button" class="am-primary cursor-interaction" data-act="continue">${icon('book-open')}继续阅读 · ${escape(lastChapter.code)} ${escape(lastChapter.name)}</button><span class="am-resume-note">回到上次停留的位置</span></div>` : ''}</div></div><div class="am-timeline-tools"><span class="am-small am-mono">CHAPTERS / 篇章目录</span></div><div class="am-timeline-scroll" aria-label="左右滑动浏览篇章"><div class="am-timeline">${book.chapters.map((chapter,i) => {
+      const progress = chapterPercent(book,i);
+      return `<div class="am-node" data-finished="${progress === 100}"><span class="am-node-dot" aria-hidden="true"></span><button type="button" class="am-chapter cursor-interaction" data-act="chapter" data-chapter="${i}"><span class="am-chapter-code am-mono"><span>${escape(chapter.code)}</span><span>${String(i+1).padStart(2,'0')}</span></span><span class="am-chapter-name">${escape(chapter.name)}</span>${chapter.desc ? `<p class="am-chapter-desc">${escape(chapter.desc)}</p>` : ''}<span class="am-chapter-progress am-mono" data-chapter-progress="${i}">${progress ? '已读 ' + progress + '%' : '未读 · 0%'}</span></button></div>`;
+    }).join('')}</div></div><label class="am-axis-seek"><input type="range" min="0" max="1000" step="1" value="0" aria-label="拖动篇章轴"><span>左右拖动</span></label>`,'篇目列表：' + book.name);
+    const scroller = element.querySelector('.am-timeline-scroll');
+    const seek = element.querySelector('.am-axis-seek input');
+    function syncSeek() { const max = scroller.scrollWidth-scroller.clientWidth; seek.value = max > 0 ? Math.round(scroller.scrollLeft/max*1000) : 0; }
+    requestAnimationFrame(() => { scroller.scrollLeft = timelineScroll[book.id] || 0; syncSeek(); });
+    scroller.addEventListener('scroll',syncSeek,{passive:true});
+    seek.addEventListener('input',() => { scroller.scrollLeft = (scroller.scrollWidth-scroller.clientWidth)*Number(seek.value)/1000; });
+    element._axisObserver = new ResizeObserver(syncSeek); element._axisObserver.observe(scroller);
+    scroller.addEventListener('wheel',event => {
+      if (Math.abs(event.deltaY) > Math.abs(event.deltaX)) { const old = scroller.scrollLeft; scroller.scrollLeft += event.deltaY; if (scroller.scrollLeft !== old) event.preventDefault(); }
+    },{passive:false});
+    let drag = null, blockClick = false;
+    scroller.addEventListener('pointerdown',event => { if (event.pointerType === 'mouse' && event.button === 0) drag = {x:event.clientX,left:scroller.scrollLeft,id:event.pointerId,moved:false}; });
+    scroller.addEventListener('pointermove',event => {
+      if (!drag) return;
+      if (Math.abs(event.clientX-drag.x) > 6) { drag.moved = true; scroller.setPointerCapture(event.pointerId); scroller.style.cursor = 'grabbing'; }
+      if (drag.moved) { event.preventDefault(); scroller.scrollLeft = drag.left - (event.clientX-drag.x); }
+    });
+    function endDrag() { if (drag?.moved) { blockClick = true; setTimeout(() => { blockClick = false; },0); } drag = null; scroller.style.cursor = ''; }
+    scroller.addEventListener('pointerup',endDrag);
+    scroller.addEventListener('pointercancel',endDrag);
+    scroller.addEventListener('click',event => { if (blockClick) { event.preventDefault(); event.stopPropagation(); } },true);
+    return element;
+  }
+  function renderReader(book,index) {
+    const chapter = book.chapters[index];
+    const markup = chapter.blocks.map((block,i) => {
+      const attr = `data-word-block="${i}" data-start="${block.start}" data-end="${block.end}"`;
+      if (block.kind === 'cg') return `<div class="am-cg-wrap" data-cg="${i}"><button type="button" class="cursor-interaction" data-act="cg" data-block="${i}">${icon('image')}查看 CG</button><div class="am-cg-art" hidden><span>CG / 画面位置示意</span></div></div>`;
+      if (block.kind === 'narration') return `${block.merge ? '<p class="am-merge am-mono">共同后续</p>' : ''}<p class="am-narration" ${attr}>${escape(block.text)}</p>`;
+      if (block.kind === 'branch') return `<section class="am-branch-group" ${attr} aria-label="选项与对应分支"><h3 class="am-mono">选项与对应分支</h3>${block.options.map((option,j) => `<div class="am-branch"><p class="am-option">${String(j+1).padStart(2,'0')} / ${escape(option.title)}</p><p>${escape(option.text)}</p></div>`).join('')}</section>`;
+      return `<div class="am-dialogue" ${attr}><div class="am-namebox" data-name="${escape(block.name)}" data-person-id="${i}"><button type="button" class="am-name cursor-interaction" data-act="name" aria-expanded="false">${escape(block.name)}</button><span class="am-name-hint">点击查看立绘</span></div><div>${block.text.map(text => `<p>${escape(text)}</p>`).join('')}</div></div>`;
+    }).join('');
+    return makeScreen('am-reader-layout',`<aside class="am-read-index" aria-label="阅读页篇章列表"><h2>${book.name}</h2>${book.chapters.map((item,i) => `<button type="button" class="am-index-item cursor-interaction" data-act="chapter" data-chapter="${i}" ${i === index ? 'aria-current="true"' : ''}><span class="am-mono">${escape(item.code)}</span><strong>${escape(item.name)}</strong></button>`).join('')}</aside><div class="am-reader"><article class="am-reading-copy"><button type="button" class="am-index-toggle cursor-interaction" data-act="toggle-index" aria-expanded="false">${icon('panel-left')}篇章列表</button><header class="am-reading-head"><div class="am-eyebrow">${escape(chapter.code)} / STORY</div><h1>${escape(chapter.name)}</h1><span class="am-small">${book.name} · 原创示例正文</span></header><div class="am-content">${markup}</div><footer class="am-reader-end"><button type="button" class="cursor-interaction" data-act="previous" ${index === 0 ? 'disabled' : ''}>${icon('arrow-left')}上一篇</button><div class="am-end-mark am-mono">本篇结束<br>END OF RECORD</div><button type="button" class="cursor-interaction" data-act="next" ${index === book.chapters.length-1 ? 'disabled' : ''}>下一篇${icon('arrow-right')}</button></footer></article></div>`,'剧情阅读：' + chapter.name);
+  }
+  function updateHeader() {
+    const book = bookById(view.bookId);
+    updateRecentLink();
+    root.querySelector('[data-act="contents"]').disabled = !book;
+    root.querySelectorAll('.am-nav [data-act="home"],.am-nav [data-act="contents"]').forEach(button => {
+      const active = button.dataset.act === 'home' ? view.page === 'home' : view.page === 'chapters';
+      if (active) button.setAttribute('aria-current','page'); else button.removeAttribute('aria-current');
+    });
+    updateNumbers();
+  }
+  function updateNumbers() {
+    const book = bookById(view.bookId);
+    const progress = root.querySelector('.am-progress');
+    progress.hidden = view.page === 'home';
+    if (book && view.page !== 'home') progress.innerHTML = (view.page === 'reader' ? `本篇已读 <b class="am-mono">${chapterPercent(book,view.chapter)}%</b><br>` : '') + `全剧情已读 <b class="am-mono">${bookPercent(book)}%</b>`;
+    root.querySelectorAll('[data-book-progress]').forEach(node => { const item = bookById(node.dataset.bookProgress); node.textContent = bookPercent(item) + '%'; });
+    if (book && view.page === 'chapters') root.querySelectorAll('[data-chapter-progress]').forEach(node => { const n = chapterPercent(book,Number(node.dataset.chapterProgress)); node.textContent = n ? '已读 ' + n + '%' : '未读 · 0%'; node.closest('.am-node').dataset.finished = String(n === 100); });
+  }
+  function readerElement(element=current) { return element?.matches('.am-reader') ? element : element?.querySelector('.am-reader'); }
+  function currentWord(reader=current) {
+    reader = readerElement(reader);
+    const book = bookById(view.bookId);
+    if (!book || view.page !== 'reader' || !reader) return 0;
+    const total = book.chapters[view.chapter].total;
+    if (reader.scrollTop + reader.clientHeight >= reader.scrollHeight - 4) return total;
+    const y = reader.scrollTop + 24;
+    let result = 0;
+    reader.querySelectorAll('[data-word-block]').forEach(block => {
+      const start = Number(block.dataset.start), end = Number(block.dataset.end);
+      if (y >= block.offsetTop + block.offsetHeight) result = end;
+      else if (y >= block.offsetTop) result = Math.max(result,start + Math.floor((end-start) * (y-block.offsetTop)/Math.max(1,block.offsetHeight)));
+    });
+    return Math.min(total,result);
+  }
+  function setWord(reader,word) {
+    reader = readerElement(reader);
+    if (!reader) return;
+    if (word <= 0) { reader.scrollTop = 0; return; }
+    const nodes = [...reader.querySelectorAll('[data-word-block]')];
+    const node = nodes.find(item => Number(item.dataset.end) >= word) || nodes[nodes.length-1];
+    if (!node) return;
+    const start = Number(node.dataset.start), end = Number(node.dataset.end);
+    reader.scrollTop = node.offsetTop + node.offsetHeight * Math.max(0,Math.min(1,(word-start)/Math.max(1,end-start))) - 24;
+    if (word >= bookById(view.bookId).chapters[view.chapter].total) reader.scrollTop = reader.scrollHeight;
+  }
+  function updateReading(force=false) {
+    if (view.page !== 'reader' || !current || readerRestoring || (busy && !force)) return;
+    const rec = records[view.bookId], word = currentWord();
+    rec.max[view.chapter] = Math.max(rec.max[view.chapter],word);
+    rec.last = {chapter:view.chapter,word};
+    rec.touched = Date.now();
+    updateRecentLink(); updateNumbers(); save();
+  }
+  function bindReader(element,targetWord) {
+    element = readerElement(element);
+    readerRestoring = true;
+    requestAnimationFrame(() => { setWord(element,targetWord); readerRestoring = false; });
+    let pending = false;
+    element.addEventListener('scroll',() => {
+      hidePortrait();
+      if (!pending) { pending = true; requestAnimationFrame(() => { pending = false; if (readerElement(current) === element) updateReading(); }); }
+    },{passive:true});
+    element.querySelectorAll('.am-namebox').forEach(box => box.addEventListener('mouseenter',() => { if (autoImages && !busy) showPortrait(box); }));
+    readerObserver = new IntersectionObserver(entries => {
+      if (!autoImages || busy) return;
+      entries.forEach(entry => { if (entry.isIntersecting && entry.target.querySelector('.am-cg-art').hidden) showCg(entry.target,true); });
+    },{root:element,rootMargin:'100px'});
+    element.querySelectorAll('[data-cg]').forEach(block => readerObserver.observe(block));
+  }
+  function remember() {
+    hidePortrait();
+    if (view.page === 'home') homeScroll = current?.querySelector('.am-home-scroll')?.scrollTop || 0;
+    if (view.page === 'chapters') { timelineScroll[view.bookId] = current?.querySelector('.am-timeline-scroll')?.scrollLeft || 0; current?._axisObserver?.disconnect(); }
+    if (view.page === 'reader') updateReading(true);
+    if (readerObserver) { readerObserver.disconnect(); readerObserver = null; }
+  }
+  function applyView(next) {
+    view = next;
+    const book = bookById(view.bookId);
+    const element = view.page === 'home' ? renderHome() : view.page === 'chapters' ? renderChapters(book) : renderReader(book,view.chapter);
+    updateHeader();
+    return element;
+  }
+  function stageRect(rect) { const base = stage.getBoundingClientRect(); return {left:rect.left-base.left,top:rect.top-base.top,width:rect.width,height:rect.height}; }
+  function sharedCover(book,rect) {
+    const element = document.createElement('div'); element.className = 'am-shared-cover'; element.innerHTML = coverHtml(book);
+    Object.assign(element.style,{left:rect.left+'px',top:rect.top+'px',width:rect.width+'px',height:rect.height+'px'});
+    stage.append(element); return element;
+  }
+  function coverFrames(from,to) { return [from,to].map(rect => ({left:rect.left+'px',top:rect.top+'px',width:rect.width+'px',height:rect.height+'px'})); }
+  async function goContents(bookId,card=null) {
+    if (busy || (view.page === 'chapters' && view.bookId === bookId)) return;
+    const fromReader = view.page === 'reader';
+    const sourceCover = card?.querySelector('.am-cover');
+    const sourceRect = sourceCover?.getBoundingClientRect();
+    remember(); busy = true;
+    const old = current, book = bookById(bookId), next = applyView({page:'chapters',bookId,chapter:0});
+    stage.append(next); current = next; icons();
+    if (sourceRect && design.motion === '空间延展' && !reducedMotion.matches) {
+      const targetCover = next.querySelector('.am-mini-cover .am-cover');
+      const destination = stageRect(targetCover.getBoundingClientRect());
+      const origin = stageRect(sourceRect);
+      const overlay = sharedCover(book,origin);
+      sourceCover.style.visibility = 'hidden'; targetCover.style.visibility = 'hidden';
+      await Promise.all([
+        animate(overlay,coverFrames(origin,destination),design.expand),
+        animate(old,[{opacity:1,transform:'translateX(0px)'},{opacity:0,transform:'translateX(-14px)'}],Math.min(300,design.expand)),
+        animate(next,[{opacity:0,transform:'translateX(18px)'},{opacity:1,transform:'translateX(0px)'}],design.expand)
+      ]);
+      targetCover.style.visibility = ''; overlay.remove();
+    } else if (fromReader && design.motion === '空间延展' && !reducedMotion.matches) {
+      old.style.zIndex = '2';
+      await animate(old,[{clipPath:'inset(0 0 0 0)'},{clipPath:'inset(0 0 100% 0)'}],design.reveal);
+    } else await animate(next,[{opacity:0,transform:'translateY(10px)'},{opacity:1,transform:'translateY(0px)'}],220);
+    old?.remove(); busy = false; updateNumbers(); announce(book.name+'，篇章目录'); save();
+  }
+  async function goReader(index,resume=false,targetBookId=view.bookId,origin=null) {
+    if (busy || !targetBookId) return;
+    const book = bookById(targetBookId);
+    if (!book.chapters[index]) return;
+    if (origin && view.page === 'reader' && view.bookId === book.id && view.chapter === index) {
+      await animate(origin,[{background:'var(--am-goldwash)'},{background:'transparent'}],260);
+      announce('正在阅读：' + book.chapters[index].code + ' ' + book.chapters[index].name); return;
+    }
+    const fromReader = view.page === 'reader';
+    const originRect = origin?.getBoundingClientRect();
+    remember(); busy = true;
+    const rec = records[book.id], target = resume && rec.last?.chapter === index ? rec.last.word : 0;
+    rec.last = {chapter:index,word:target}; rec.touched = Date.now();
+    const old = current, next = applyView({page:'reader',bookId:book.id,chapter:index});
+    stage.append(next); current = next; icons(); bindReader(next,target);
+    if (originRect && design.motion === '空间延展' && !reducedMotion.matches) {
+      const edge = document.createElement('div'); edge.className = 'am-curtain-edge'; edge.dataset.resume = 'true'; stage.append(edge);
+      const start = stageRect(originRect), left = Math.max(0,Math.min(stage.clientWidth-40,start.left)), width = Math.max(40,Math.min(start.width,stage.clientWidth-left));
+      const ms = design.reveal;
+      await Promise.all([
+        animate(old,[{opacity:1,transform:'translateY(0px)'},{opacity:0,transform:'translateY(10px)'}],Math.min(300,ms)),
+        animate(next,[{clipPath:'inset(0 0 100% 0)',transform:'translateY(-6px)'},{clipPath:'inset(0 0 0 0)',transform:'translateY(0px)'}],ms),
+        animate(edge,[{left:left+'px',width:width+'px',transform:'translateY(0px)',opacity:1},{left:'0px',width:stage.clientWidth+'px',transform:'translateY(0px)',opacity:1,offset:.14},{left:'0px',width:stage.clientWidth+'px',transform:'translateY('+stage.clientHeight+'px)',opacity:0}],ms)
+      ]);
+      edge.remove();
+    } else if (!fromReader && design.motion === '空间延展' && !reducedMotion.matches) {
+      const edge = document.createElement('div'); edge.className = 'am-curtain-edge'; stage.append(edge);
+      await Promise.all([animate(next,[{clipPath:'inset(0 0 100% 0)'},{clipPath:'inset(0 0 0 0)'}],design.reveal),animate(edge,[{transform:'translateY(0px)',opacity:1},{transform:'translateY('+stage.clientHeight+'px)',opacity:0}],design.reveal)]);
+      edge.remove();
+    } else await animate(next,[{opacity:0,transform:'translateY(12px)'},{opacity:1,transform:'translateY(0px)'}],fromReader ? 200 : 260);
+    old?.remove(); busy = false; updateNumbers();
+    if (autoImages) next.querySelectorAll('[data-cg]').forEach(block => { const rect = block.getBoundingClientRect(), frame = next.getBoundingClientRect(); if (rect.top < frame.bottom+100 && rect.bottom > frame.top-100) showCg(block,true); });
+    announce(book.chapters[index].code+' '+book.chapters[index].name); save();
+  }
+  async function goHome() {
+    if (busy || view.page === 'home') return;
+    const sourceCover = view.page === 'chapters' ? current.querySelector('.am-mini-cover .am-cover') : null;
+    const sourceRect = sourceCover?.getBoundingClientRect();
+    remember(); busy = true;
+    const book = bookById(view.bookId), old = current, next = applyView({page:'home',bookId:book?.id || null,chapter:0});
+    stage.append(next); current = next; icons();
+    const scroll = next.querySelector('.am-home-scroll'); scroll.scrollTop = homeScroll;
+    if (book && design.motion === '空间延展' && !reducedMotion.matches) {
+      const card = next.querySelector('[data-book="'+book.id+'"]');
+      const scrollerRect = scroll.getBoundingClientRect();
+      if (card.getBoundingClientRect().top < scrollerRect.top || card.getBoundingClientRect().bottom > scrollerRect.bottom) scroll.scrollTop += card.getBoundingClientRect().top-scrollerRect.top-25;
+      const targetCover = card.querySelector('.am-cover');
+      let overlay = null;
+      if (sourceRect) { overlay = sharedCover(book,stageRect(sourceRect)); sourceCover.style.visibility = 'hidden'; targetCover.style.visibility = 'hidden'; }
+      const destination = stageRect(targetCover.getBoundingClientRect());
+      const tasks = [
+        animate(old,[{opacity:1,transform:'translateX(0px)'},{opacity:0,transform:'translateX(14px)'}],Math.min(280,design.expand)),
+        animate(next,[{opacity:0,transform:'translateX(-14px)'},{opacity:1,transform:'translateX(0px)'}],sourceRect ? design.expand : 300)
+      ];
+      if (overlay) tasks.push(animate(overlay,coverFrames(stageRect(sourceRect),destination),design.expand));
+      await Promise.all(tasks);
+      targetCover.style.visibility = ''; overlay?.remove();
+    } else await animate(next,[{opacity:0,transform:'translateY(-9px)'},{opacity:1,transform:'translateY(0px)'}],220);
+    old?.remove(); busy = false; announce('剧情总目录'); save();
+  }
+  function hidePortrait() {
+    portrait.hidden = true; delete portrait.dataset.owner;
+    root.querySelectorAll('.am-name[aria-expanded="true"]').forEach(button => { button.setAttribute('aria-expanded','false'); button.closest('.am-namebox').querySelector('.am-name-hint').textContent = '点击查看立绘'; });
+  }
+  function showPortrait(box) {
+    if (view.page !== 'reader') return;
+    const name = box.dataset.name;
+    hidePortrait();
+    portrait.querySelector('.am-portrait-head span').textContent = name;
+    portrait.dataset.owner = box.dataset.personId;
+    const trigger = box.querySelector('.am-name'); trigger.setAttribute('aria-expanded','true'); box.querySelector('.am-name-hint').textContent = '再次点击关闭';
+    portrait.hidden = false;
+    const rect = box.getBoundingClientRect(), parent = app.getBoundingClientRect();
+    let left = rect.right-parent.left+12;
+    if (left+205 > app.clientWidth-8) left = Math.max(8,rect.left-parent.left-205);
+    let top = rect.top-parent.top;
+    top = Math.max(8,Math.min(top,app.clientHeight-310));
+    portrait.style.left = left+'px'; portrait.style.top = top+'px';
+    pictureCache.add(view.bookId+':'+view.chapter+':'+name);
+    animate(portrait,[{opacity:0,transform:'translateY(5px)'},{opacity:1,transform:'translateY(0px)'}],150);
+  }
+  function showCg(block,automatic=false) {
+    const art = block.querySelector('.am-cg-art');
+    if (!art.hidden) return;
+    const anchor = currentWord();
+    readerRestoring = true; art.hidden = false;
+    block.querySelector('[data-act="cg"]').innerHTML = icon('image')+'收起 CG'; icons();
+    pictureCache.add(view.bookId+':'+view.chapter+':cg');
+    requestAnimationFrame(() => { setWord(current,anchor); readerRestoring = false; });
+    animate(art,[{opacity:0,transform:'translateY(-8px)'},{opacity:1,transform:'translateY(0px)'}],automatic ? 180 : 240);
+  }
+  function closeSettings() {
+    shade.hidden = true;
+    if (restoreFocus && restoreFocus.isConnected) restoreFocus.focus();
+    if (view.page === 'reader' && autoImages) current.querySelectorAll('[data-cg]').forEach(block => {
+      const rect = block.getBoundingClientRect(), frame = current.getBoundingClientRect();
+      if (rect.top < frame.bottom+100 && rect.bottom > frame.top-100) showCg(block,true);
+    });
+  }
+  function showSettings(mode='main') {
+    hidePortrait(); restoreFocus = document.activeElement;
+    if (mode === 'history') {
+      const history = books.filter(book => records[book.id].last).sort((a,b) => (records[b.id].touched || 0)-(records[a.id].touched || 0));
+      settingsPanel.innerHTML = `<div class="am-panel-head"><h2>最近阅读</h2><button type="button" class="cursor-interaction" data-act="settings">返回设置</button></div>${history.length ? history.map(book => { const last = records[book.id].last, chapter = book.chapters[last.chapter]; return `<div class="am-history-item"><strong>${book.name}</strong><span class="am-small">${escape(chapter.code)} ${escape(chapter.name)}</span><button type="button" class="cursor-interaction" data-act="history-read" data-book="${book.id}">继续阅读${icon('arrow-right')}</button></div>`; }).join('') : '<p class="am-small">暂无阅读记录</p>'}<button type="button" class="cursor-interaction" data-act="close-settings">关闭</button><p class="am-message" role="status"></p>`;
+    } else {
+      settingsPanel.innerHTML = `<div class="am-panel-head"><h2>设置</h2><button type="button" class="cursor-interaction" data-act="close-settings" aria-label="关闭设置">关闭</button></div><div class="am-eyebrow">READING / 阅读偏好</div><div class="am-setting-row"><label>自动显示图片<input type="checkbox" data-pref="images" ${autoImages ? 'checked' : ''}></label></div><p class="am-small" style="margin-top:9px">关闭时，立绘与 CG 由你手动查看。</p><button type="button" class="am-action cursor-interaction" data-act="refresh" ${view.page !== 'reader' ? 'disabled' : ''}>刷新本章${icon('refresh-cw')}</button><h3>阅读记录 / RECORDS</h3><button type="button" class="am-action cursor-interaction" data-act="history">最近阅读${icon('arrow-right')}</button><h3>内容缓存 / CACHE</h3><div class="am-setting-row"><label>未使用后保留天数<input type="number" min="1" max="365" value="${keepDays}" data-pref="days" aria-label="缓存保留天数"></label></div><button type="button" class="am-action cursor-interaction" data-act="clear-images">清理图片缓存<span class="am-small">${pictureCache.size} 项示例</span></button><button type="button" class="am-action cursor-interaction" data-act="clear-content">清理全部内容缓存${icon('trash-2')}</button><p class="am-small" style="margin-top:9px">清理缓存保留阅读记录与进度。</p><h3>阅读数据 / HISTORY</h3><button type="button" class="am-action cursor-interaction" data-act="ask-clear-history">清除阅读记录${icon('trash-2')}</button><div class="am-clear-confirm" hidden><p class="am-small" style="margin:12px 0">清除这份交互示例中的所有阅读记录和进度？</p><button type="button" class="cursor-interaction" data-act="clear-history">确认清除</button> <button type="button" class="cursor-interaction" data-act="cancel-clear-history">取消</button></div><p class="am-message" role="status"></p>`;
+    }
+    settingsPanel.setAttribute('aria-label',mode === 'history' ? '最近阅读' : '设置');
+    shade.hidden = false; icons();
+    animate(settingsPanel,[{transform:'translateX(22px)',opacity:0},{transform:'translateX(0px)',opacity:1}],200);
+    settingsPanel.querySelector('button')?.focus();
+  }
+  root.addEventListener('click',async event => {
+    const button = event.target.closest('button[data-act]');
+    const clickedName = event.target.closest('[data-act="name"]');
+    if (!portrait.contains(event.target) && !clickedName) hidePortrait();
+    if (view.page === 'reader' && current.dataset.indexOpen === 'true' && !event.target.closest('.am-read-index,[data-act="toggle-index"]')) { current.dataset.indexOpen = 'false'; current.querySelectorAll('[data-act="toggle-index"]').forEach(item => item.setAttribute('aria-expanded','false')); }
+    if (!button || !root.contains(button) || button.disabled || busy) return;
+    const action = button.dataset.act;
+    if (action === 'book') await goContents(button.dataset.book,button);
+    else if (action === 'home') { closeSettings(); await goHome(); }
+    else if (action === 'contents') { closeSettings(); if (view.bookId) await goContents(view.bookId); }
+    else if (action === 'recent-read') { const recent = recentReading(); closeSettings(); if (recent) await goReader(recent.last.chapter,true,recent.book.id,button); }
+    else if (action === 'chapter') await goReader(Number(button.dataset.chapter));
+    else if (action === 'continue') { const last = records[view.bookId].last; if (last) await goReader(last.chapter,true); }
+    else if (action === 'previous') await goReader(view.chapter-1);
+    else if (action === 'next') await goReader(view.chapter+1);
+    else if (action === 'category') {
+      const scroller = current.querySelector('.am-home-scroll'), section = current.querySelector('[data-category-section="'+button.dataset.category+'"]');
+      scroller.scrollTo({top:section.offsetTop-20,behavior:reducedMotion.matches ? 'instant' : 'smooth'});
+    }
+    else if (action === 'toggle-index') { const open = current.dataset.indexOpen !== 'true'; current.dataset.indexOpen = String(open); current.querySelectorAll('[data-act="toggle-index"]').forEach(item => item.setAttribute('aria-expanded',String(open))); }
+    else if (action === 'settings') showSettings();
+    else if (action === 'close-settings') closeSettings();
+    else if (action === 'history') showSettings('history');
+    else if (action === 'history-read') { const id = button.dataset.book, last = records[id].last; closeSettings(); if (last) await goReader(last.chapter,true,id); }
+    else if (action === 'name') { const box = button.closest('.am-namebox'); if (!portrait.hidden && portrait.dataset.owner === box.dataset.personId) hidePortrait(); else showPortrait(box); }
+    else if (action === 'close-portrait') hidePortrait();
+    else if (action === 'cg') {
+      const block = button.closest('[data-cg]'), art = block.querySelector('.am-cg-art');
+      if (art.hidden) showCg(block); else { const anchor = currentWord(); readerRestoring = true; art.hidden = true; button.innerHTML = icon('image')+'查看 CG'; icons(); requestAnimationFrame(() => { setWord(current,anchor); readerRestoring = false; }); }
+    }
+    else if (action === 'refresh') { updateReading(); settingsPanel.querySelector('.am-message').textContent = '示例正文已刷新，阅读位置已保留。'; }
+    else if (action === 'clear-images' || action === 'clear-content') { pictureCache.clear(); showSettings(); settingsPanel.querySelector('.am-message').textContent = '示例缓存已清理，阅读记录和进度保留。'; }
+    else if (action === 'ask-clear-history') settingsPanel.querySelector('.am-clear-confirm').hidden = false;
+    else if (action === 'cancel-clear-history') settingsPanel.querySelector('.am-clear-confirm').hidden = true;
+    else if (action === 'clear-history') {
+      closeSettings(); if (view.page !== 'home') await goHome();
+      books.forEach(book => { records[book.id] = {max:book.chapters.map(() => 0),last:null}; });
+      updateHeader(); announce('示例阅读记录已清除'); save();
+    }
+  });
+  root.addEventListener('change',event => {
+    if (event.target.dataset.pref === 'images') { autoImages = event.target.checked; save(); }
+    if (event.target.dataset.pref === 'days') { keepDays = Math.max(1,Math.min(365,Number(event.target.value) || 7)); event.target.value = keepDays; save(); }
+  });
+  shade.addEventListener('click',event => { if (event.target === shade) closeSettings(); });
+  root.addEventListener('keydown',event => {
+    if (event.key === 'Escape') { if (!portrait.hidden) hidePortrait(); else if (!shade.hidden) closeSettings(); else if (view.page === 'reader') { current.dataset.indexOpen = 'false'; current.querySelectorAll('[data-act="toggle-index"]').forEach(item => item.setAttribute('aria-expanded','false')); } }
+    if (event.key === 'Tab' && !shade.hidden) {
+      const controls = [...settingsPanel.querySelectorAll('button,input')].filter(item => !item.disabled && !item.closest('[hidden]'));
+      const first = controls[0], last = controls[controls.length-1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    }
+  });
+  function applyDesign() {
+    app.style.setProperty('--am-copy-size',design.textSize+'px');
+    app.style.colorScheme = design.theme === '深色档案' ? 'dark' : design.theme === '纸感浅色' ? 'light' : 'light dark';
+  }
+  function acceptState(incoming) {
+    if (!validSaved(incoming)) return;
+    books.forEach(book => {
+      const rec = incoming.records[book.id];
+      if (!rec || !Array.isArray(rec.max)) return;
+      records[book.id].max = book.chapters.map((chapter,i) => Math.max(0,Math.min(chapter.total,Number(rec.max[i]) || 0)));
+      records[book.id].last = rec.last && Number.isInteger(rec.last.chapter) && book.chapters[rec.last.chapter] ? {chapter:rec.last.chapter,word:Math.max(0,Math.min(book.chapters[rec.last.chapter].total,Number(rec.last.word) || 0))} : null;
+      records[book.id].touched = Number(rec.touched) || 0;
+    });
+    autoImages = !!incoming.autoImages;
+    keepDays = Math.max(1,Math.min(365,Number(incoming.keepDays) || 7));
+    if (incoming.design) {
+      design.expand = Math.max(280,Math.min(900,Number(incoming.design.expand) || 560));
+      design.reveal = Math.max(220,Math.min(800,Number(incoming.design.reveal) || 480));
+      design.textSize = Math.max(15,Math.min(21,Number(incoming.design.textSize) || 17));
+      if (['空间延展','轻柔过渡'].includes(incoming.design.motion)) design.motion = incoming.design.motion;
+      if (['跟随系统','深色档案','纸感浅色'].includes(incoming.design.theme)) design.theme = incoming.design.theme;
+    }
+    applyDesign(); updateHeader();
+  }
+  acceptState(saved);
+  if (validSaved(saved)) {
+    homeScroll = Math.max(0,Number(saved.homeScroll) || 0);
+    if (saved.timelineScroll && typeof saved.timelineScroll === 'object') timelineScroll = saved.timelineScroll;
+    if (saved.view && ['home','chapters','reader'].includes(saved.view.page) && (saved.view.page === 'home' || (bookById(saved.view.bookId) && bookById(saved.view.bookId).chapters[saved.view.chapter]))) view = {...saved.view};
+  }
+  current = applyView(view); stage.append(current); current._restoreScroll?.(); icons(); applyDesign();
+  if (view.page === 'reader') bindReader(current,records[view.bookId].last?.chapter === view.chapter ? records[view.bookId].last.word : 0);
+  window.addEventListener('openai:set_globals',event => {
+    const incoming = event.detail?.globals?.widgetState?.privateContent;
+    if (!busy && incoming && incoming.owner !== stateOwner && incoming !== saved) { saved = incoming; acceptState(incoming); }
+  });
+  document.addEventListener('pointerdown',event => { if (!root.contains(event.target)) hidePortrait(); });
+  window.addEventListener('blur',hidePortrait);
+  if (globalThis.Tweak) {
+    const tweak = new Tweak({container:root,onChange:() => { applyDesign(); save(); }});
+    tweak.addSelect(design,'motion',{label:'页面过渡',options:['空间延展','轻柔过渡']});
+    tweak.addSlider(design,'expand',{label:'封面移动时长',min:280,max:900,step:20,unit:'ms'});
+    tweak.addSlider(design,'reveal',{label:'正文揭幕时长',min:220,max:800,step:20,unit:'ms'});
+    tweak.addSlider(design,'textSize',{label:'对白字号',min:15,max:21,unit:'px'});
+    tweak.addSelect(design,'theme',{label:'界面气质',options:['跟随系统','深色档案','纸感浅色']});
+  }
+})();
+</script>
+</div>

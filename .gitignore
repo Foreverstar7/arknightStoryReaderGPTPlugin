@@ -1,0 +1,35 @@
+# Dependencies and generated builds. Commit package manifests and lockfiles.
+node_modules/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+.npm/
+.pnpm-store/
+
+# Automated browser outputs and logs.
+playwright-report/
+test-results/
+*.log
+
+# Local secrets; safe example configurations stay versioned.
+.env
+.env.*
+!.env.example
+!.env.*.example
+!.env.template
+
+# Runtime downloads, caches, reading records, and machine-specific state.
+/.runtime/
+/.cache/
+/.local/
+/.tmp/
+/tmp/
+/.ai/local/
+
+# Editor and OS files. Do not ignore all shared AI configuration or docs.
+.idea/
+.vscode/*.local.json
+.DS_Store
+Thumbs.db
+Desktop.ini

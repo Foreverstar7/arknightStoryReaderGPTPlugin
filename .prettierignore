@@ -1,0 +1,6 @@
+docs/design/
+.ai/local/
+.runtime/
+node_modules/
+dist/
+package-lock.json

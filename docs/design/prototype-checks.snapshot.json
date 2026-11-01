@@ -1,0 +1,58 @@
+{
+  "errors": [],
+  "checks": [
+    {
+      "coverTransfer": {
+        "width": 192,
+        "height": 82
+      },
+      "coverNeverEnlargedBeyondCard": 427
+    },
+    {
+      "resumeScroll": 828
+    },
+    {
+      "recentReadingSurvivesDirectoryBrowsing": true,
+      "recentClickRestoresPosition": true,
+      "anchoredResumeTransition": true,
+      "sameChapterKeepsPosition": true
+    },
+    {
+      "progress": "本篇已读 100%\n全剧情已读 33%",
+      "chapterClickStartsAtTop": true,
+      "portraitHoverHint": true,
+      "portraitClickToggleAndOutsideDismiss": true,
+      "leftChapterList": true,
+      "cgInline": true,
+      "cacheKeepsProgress": true
+    },
+    {
+      "readerToHomeDoesNotZoomCover": true
+    },
+    {
+      "narrowFit": {
+        "width": 320,
+        "scroll": 320
+      },
+      "responsiveHeight": {
+        "tallHeight": 1016,
+        "shortHeight": 666
+      },
+      "mobileChapterDrawer": true
+    },
+    {
+      "unreadStoryHasNoContinue": true,
+      "homeReverseTransition": true
+    },
+    {
+      "viewRestoredAfterReload": true,
+      "recentChapterRestoredAfterReload": true
+    },
+    {
+      "noHistoryHidesRecentLink": true
+    },
+    {
+      "reducedMotionRespected": true
+    }
+  ]
+}
