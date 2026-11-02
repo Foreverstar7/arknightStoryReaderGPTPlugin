@@ -1,19 +1,84 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ReadingState, Story } from '../../shared/contracts.js';
 import { chapterProgress, progressLabel } from '../../domain/reading.js';
 import { Cover } from './Library.js';
+import { chapterInfoSchema } from '../../shared/contracts.js';
+import type { ReaderTransport } from '../transport.js';
+import { useVisible } from './SourceImage.js';
+import { storyTypeLabel } from '../catalog.js';
+
+function Summary({
+  chapter,
+  source,
+  transport,
+}: {
+  chapter: Story['chapters'][number];
+  source: Story['source'];
+  transport: ReaderTransport;
+}) {
+  const { ref, seen } = useVisible<HTMLSpanElement>(source === 'prts');
+  const [summary, setSummary] = useState(chapter.summary);
+  const [url, setUrl] = useState(chapter.summarySourceUrl);
+  const [error, setError] = useState('');
+  const [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    if (!seen || source !== 'prts') return;
+    let active = true;
+    void transport
+      .call('reader_chapter_info', { chapterId: chapter.id })
+      .then((value) => {
+        const info = chapterInfoSchema.parse(value);
+        if (active) {
+          setSummary(info.summary);
+          setUrl(info.sourceUrl);
+          setError('');
+        }
+      })
+      .catch((error) => {
+        if (active)
+          setError(error instanceof Error ? error.message : '简介读取失败');
+      });
+    return () => {
+      active = false;
+    };
+  }, [chapter.id, source, transport, seen, attempt]);
+  return (
+    <span ref={ref} className="summary-slot">
+      {summary && (
+        <span className="chapter-summary" title={summary} data-source={url}>
+          {summary}
+        </span>
+      )}
+      {error && (
+        <button
+          className="summary-error"
+          title={error}
+          onClick={() => setAttempt((value) => value + 1)}
+        >
+          简介未加载 · 重试
+        </button>
+      )}
+    </span>
+  );
+}
 
 export function ChapterList({
   story,
   state,
   open,
+  transport,
 }: {
   story: Story;
   state: ReadingState;
   open: (id: string, restore: boolean) => void;
+  transport: ReaderTransport;
 }) {
   const scroller = useRef<HTMLDivElement>(null);
-  const drag = useRef<{ x: number; scroll: number } | null>(null);
+  const drag = useRef<{
+    pointerId: number;
+    x: number;
+    scroll: number;
+  } | null>(null);
   const dragged = useRef(false);
   const [axis, setAxis] = useState(0);
   const recent = Object.values(state.records)
@@ -26,10 +91,10 @@ export function ChapterList({
     <main className="chapters page">
       <div className="book-intro">
         <div className="mini-cover">
-          <Cover story={story} />
+          <Cover story={story} transport={transport} retryable />
         </div>
         <div className="book-heading">
-          <span className="eyebrow">STORY / {story.type}</span>
+          <span className="eyebrow">STORY / {storyTypeLabel(story)}</span>
           <h1>{story.title}</h1>
           <p className="muted">{story.chapters.length} 篇记录 · 从左到右浏览</p>
           {recent && (
@@ -63,21 +128,29 @@ export function ChapterList({
           );
         }}
         onPointerDown={(event) => {
-          if (event.pointerType !== 'mouse' || event.button !== 0) return;
+          if (!event.isPrimary || event.button !== 0) return;
           drag.current = {
+            pointerId: event.pointerId,
             x: event.clientX,
             scroll: event.currentTarget.scrollLeft,
           };
           dragged.current = false;
         }}
         onPointerMove={(event) => {
-          if (!drag.current || event.buttons !== 1) return;
+          if (
+            !drag.current ||
+            drag.current.pointerId !== event.pointerId ||
+            event.buttons !== 1
+          )
+            return;
           const delta = drag.current.x - event.clientX;
           if (Math.abs(delta) > 5) {
             dragged.current = true;
-            event.currentTarget.setPointerCapture(event.pointerId);
+            if (event.pointerType === 'mouse')
+              event.currentTarget.setPointerCapture(event.pointerId);
           }
-          if (dragged.current)
+          // Touch uses native pan-x scrolling; only mouse dragging scrolls here.
+          if (dragged.current && event.pointerType === 'mouse')
             event.currentTarget.scrollLeft = drag.current.scroll + delta;
         }}
         onPointerUp={() => {
@@ -86,38 +159,45 @@ export function ChapterList({
         onPointerCancel={() => {
           drag.current = null;
         }}
+        onLostPointerCapture={() => {
+          drag.current = null;
+        }}
         onClickCapture={(event) => {
-          if (dragged.current) {
+          if (dragged.current && event.detail > 0) {
             event.preventDefault();
             event.stopPropagation();
-            dragged.current = false;
           }
+          dragged.current = false;
         }}
       >
         <div className="timeline">
           {story.chapters.map((chapter, index) => (
             <div className="timeline-node" key={chapter.id}>
               <span className="node-dot" />
-              <button
-                className="chapter-card"
-                onClick={() => open(chapter.id, false)}
-                aria-label={`阅读 ${chapter.code} ${chapter.title}`}
-              >
-                <span className="chapter-code">
-                  {chapter.code}
-                  <span>{String(index + 1).padStart(2, '0')}</span>
-                </span>
-                <strong>{chapter.title}</strong>
-                {chapter.summary && (
-                  <span className="chapter-summary">{chapter.summary}</span>
-                )}
+              <div className="chapter-card">
+                <button
+                  className="chapter-open"
+                  onClick={() => open(chapter.id, false)}
+                  aria-label={`阅读 ${chapter.code} ${chapter.title}`}
+                >
+                  <span className="chapter-code">
+                    {chapter.code}
+                    <span>{String(index + 1).padStart(2, '0')}</span>
+                  </span>
+                  <strong>{chapter.title}</strong>
+                </button>
+                <Summary
+                  chapter={chapter}
+                  source={story.source}
+                  transport={transport}
+                />
                 <span className="chapter-percent">
                   已读{' '}
                   {progressLabel(
                     chapterProgress(story, chapter.id, state.records),
                   )}
                 </span>
-              </button>
+              </div>
             </div>
           ))}
         </div>

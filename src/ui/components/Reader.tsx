@@ -6,6 +6,46 @@ import type {
   RecordInput,
   Story,
 } from '../../shared/contracts.js';
+import type { ReaderTransport } from '../transport.js';
+import { SourceImage, useVisible } from './SourceImage.js';
+import { PortraitPopover } from './PortraitPopover.js';
+
+function Cg({
+  block,
+  chapter,
+  autoImages,
+  transport,
+}: {
+  block: Extract<Block, { kind: 'cg' }>;
+  chapter: Chapter;
+  autoImages: boolean;
+  transport: ReaderTransport;
+}) {
+  const { ref, seen } = useVisible<HTMLDivElement>(autoImages, '240px 0px');
+  const [manual, setManual] = useState<boolean | null>(null);
+  const shown = manual ?? (autoImages && seen);
+  return (
+    <div className="cg-wrap" ref={ref}>
+      <button aria-expanded={shown} onClick={() => setManual(!shown)}>
+        ◇ {shown ? '收起 CG' : '查看 CG'}
+      </button>
+      {shown &&
+        (chapter.source === 'fixture' ? (
+          <div className="cg-art" role="img" aria-label={block.label}>
+            <span>{block.label}</span>
+          </div>
+        ) : (
+          <div className="cg-image">
+            <SourceImage
+              input={{ kind: 'cg', chapterId: chapter.id, blockId: block.id }}
+              transport={transport}
+              label={block.label}
+            />
+          </div>
+        ))}
+    </div>
+  );
+}
 
 type Position = ReadingRecord['last'];
 interface ReaderProps {
@@ -16,6 +56,7 @@ interface ReaderProps {
   open: (id: string, restore: boolean, direction?: 'next' | 'previous') => void;
   save: (input: RecordInput) => Promise<void>;
   registerFlush: (flush: () => Promise<void>) => void;
+  transport: ReaderTransport;
 }
 
 export function Reader({
@@ -26,12 +67,12 @@ export function Reader({
   open,
   save,
   registerFlush,
+  transport,
 }: ReaderProps) {
   const scroll = useRef<HTMLElement>(null);
   const nodes = useRef(new Map<string, HTMLDivElement>());
   const [sidebar, setSidebar] = useState(false);
   const [portrait, setPortrait] = useState<string | null>(null);
-  const [cg, setCg] = useState<string[]>([]);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const saving = useRef<Promise<void>>(Promise.resolve());
   const lastSaved = useRef('');
@@ -135,10 +176,27 @@ export function Reader({
   useEffect(() => {
     if (!portrait) return;
     const close = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setPortrait(null);
+      if (event.key === 'Escape') {
+        setPortrait(null);
+        document.getElementById(`name-${portrait}`)?.focus();
+      }
+    };
+    const outside = (event: PointerEvent) => {
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      if (
+        document.getElementById(`name-${portrait}`)?.contains(target) ||
+        document.querySelector('.portrait')?.contains(target)
+      )
+        return;
+      setPortrait(null);
     };
     document.addEventListener('keydown', close);
-    return () => document.removeEventListener('keydown', close);
+    document.addEventListener('pointerdown', outside);
+    return () => {
+      document.removeEventListener('keydown', close);
+      document.removeEventListener('pointerdown', outside);
+    };
   }, [portrait]);
 
   function showBlock(block: Block) {
@@ -169,16 +227,14 @@ export function Reader({
                 点击查看立绘
               </span>
               {portrait === block.id && (
-                <div
-                  className="portrait"
-                  role="dialog"
-                  aria-label={`${block.name} 立绘`}
-                  onClick={(event) => event.stopPropagation()}
+                <PortraitPopover
+                  anchorId={`name-${block.id}`}
+                  label={`${block.name} 立绘`}
                 >
                   <div className="portrait-head">
                     <span>{block.name}</span>
                     <button
-                      autoFocus
+                      autoFocus={!autoImages}
                       onClick={() => {
                         setPortrait(null);
                         document.getElementById(`name-${block.id}`)?.focus();
@@ -193,14 +249,25 @@ export function Reader({
                       <div className="portrait-art" />
                       <p className="muted">原创立绘位置示意</p>
                     </>
+                  ) : chapter.source === 'prts' ? (
+                    <div className="portrait-image">
+                      <SourceImage
+                        input={{
+                          kind: 'portrait',
+                          chapterId: chapter.id,
+                          blockId: block.id,
+                        }}
+                        transport={transport}
+                        label={`${block.name} · 当前场景立绘`}
+                      />
+                      <p className="muted">
+                        按此处场景资源显示，姓名保持原文。
+                      </p>
+                    </div>
                   ) : (
-                    <p className="muted">
-                      {chapter.source === 'prts'
-                        ? '立绘映射尚未接入，暂不展示。'
-                        : '没有可确认的立绘资源。'}
-                    </p>
+                    <p className="muted">没有可确认的立绘资源。</p>
                   )}
-                </div>
+                </PortraitPopover>
               )}
             </div>
             <div>
@@ -212,30 +279,12 @@ export function Reader({
         );
       case 'cg':
         return (
-          <div className="cg-wrap">
-            <button
-              aria-expanded={cg.includes(block.id) || autoImages}
-              onClick={() =>
-                setCg((current) =>
-                  current.includes(block.id)
-                    ? current.filter((id) => id !== block.id)
-                    : [...current, block.id],
-                )
-              }
-            >
-              ◇ {cg.includes(block.id) || autoImages ? '收起 CG' : '查看 CG'}
-            </button>
-            {(cg.includes(block.id) || autoImages) &&
-              (chapter.source === 'fixture' ? (
-                <div className="cg-art" role="img" aria-label={block.label}>
-                  <span>{block.label}</span>
-                </div>
-              ) : (
-                <p className="muted" role="status">
-                  已保留源站图片引用，图片暂不可用。
-                </p>
-              ))}
-          </div>
+          <Cg
+            block={block}
+            chapter={chapter}
+            autoImages={autoImages}
+            transport={transport}
+          />
         );
       case 'choices':
         return (

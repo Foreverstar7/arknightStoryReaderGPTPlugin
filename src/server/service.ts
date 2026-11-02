@@ -1,9 +1,15 @@
 import { z } from 'zod';
-import { ReaderError, type StorySource } from '../data/source.js';
+import {
+  ReaderError,
+  type StorySource,
+  type ImageTarget,
+} from '../data/source.js';
 import { blockWords, chapterWords } from '../domain/reading.js';
 import {
   cacheInputSchema,
   chapterInputSchema,
+  imageInputSchema,
+  imageResultSchema,
   chapterSchema,
   initialState,
   recordInputSchema,
@@ -12,6 +18,7 @@ import {
   type ReadingState,
   type Snapshot,
   type ToolName,
+  type ImageInput,
 } from '../shared/contracts.js';
 import { ContentCache } from '../storage/files.js';
 import { ReadingStore } from '../storage/reading-store.js';
@@ -19,6 +26,7 @@ import { ReadingStore } from '../storage/reading-store.js';
 export class ReaderService {
   readonly records: ReadingStore;
   readonly cache: ContentCache;
+  private readonly imageTargets = new Map<string, Map<string, ImageTarget>>();
   // Minimal indexes for pages already opened in this process, not a body cache.
   // Scroll saves must keep working after the user clears public content files.
   private readonly opened = new Map<
@@ -32,6 +40,26 @@ export class ReaderService {
     }
   >();
   private remember(chapter: Chapter) {
+    const targets = new Map<string, ImageTarget>();
+    for (const block of chapter.blocks) {
+      const leaves =
+        block.kind === 'choices'
+          ? [
+              ...block.options.flatMap((option) => option.blocks),
+              ...(block.shared?.flatMap((group) => group.blocks) ?? []),
+            ]
+          : [block];
+      for (const leaf of leaves) {
+        if (leaf.kind === 'speech')
+          targets.set(leaf.id, {
+            kind: 'portrait',
+            resources: leaf.scene?.slots.map((slot) => slot.resource) ?? [],
+          });
+        if (leaf.kind === 'cg')
+          targets.set(leaf.id, { kind: 'cg', resource: leaf.resource });
+      }
+    }
+    this.imageTargets.set(chapter.id, targets);
     const layout = {
       id: chapter.id,
       storyId: chapter.storyId,
@@ -55,6 +83,7 @@ export class ReaderService {
   async snapshot(): Promise<Snapshot> {
     const state = await this.records.read();
     await this.cache.expire(state.settings.retentionDays);
+    await this.source.expire?.(state.settings.retentionDays);
     return {
       stories: await this.source.catalog(state.settings.retentionDays),
       state,
@@ -133,6 +162,20 @@ export class ReaderService {
       };
     });
   }
+  async image(input: ImageInput) {
+    if (!this.source.image)
+      throw new ReaderError('resource_missing', '当前来源没有真实图片。');
+    const days = (await this.records.read()).settings.retentionDays;
+    if (input.kind !== 'cover' && !this.imageTargets.has(input.chapterId))
+      await this.chapter(input.chapterId);
+    const target =
+      input.kind === 'cover'
+        ? undefined
+        : this.imageTargets.get(input.chapterId)?.get(input.blockId);
+    return imageResultSchema.parse(
+      await this.source.image(input, target, days),
+    );
+  }
   async call(name: ToolName, input: unknown): Promise<object> {
     switch (name) {
       case 'reader_open':
@@ -144,6 +187,13 @@ export class ReaderService {
         const args = chapterInputSchema.parse(input);
         return this.chapter(args.chapterId, args.refresh);
       }
+      case 'reader_chapter_info': {
+        const args = chapterInputSchema.pick({ chapterId: true }).parse(input);
+        const days = (await this.records.read()).settings.retentionDays;
+        return (await this.source.chapterInfo?.(args.chapterId, days)) ?? {};
+      }
+      case 'reader_image':
+        return this.image(imageInputSchema.parse(input));
       case 'reader_record':
         return this.record(input);
       case 'reader_settings': {
@@ -152,11 +202,10 @@ export class ReaderService {
       }
       case 'reader_clear_cache': {
         const { scope } = cacheInputSchema.parse(input);
-        // No image files exist yet. Clear only public content, never reading/.
         if (scope === 'all') {
           await this.cache.clear();
           await this.source.clearCache?.();
-        }
+        } else await this.source.clearImages?.();
         return { cleared: scope };
       }
       case 'reader_clear_history':

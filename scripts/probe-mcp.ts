@@ -9,6 +9,7 @@ import {
   snapshotSchema,
   chapterSchema,
   readingStateSchema,
+  imageResultSchema,
 } from '../src/shared/contracts.js';
 
 const projectRoot = path.resolve(import.meta.dirname, '..');
@@ -58,7 +59,10 @@ try {
       JSON.stringify(tool._meta?.ui).includes('"visibility":["app"]'),
     ),
   );
-  const first = snapshot.stories[0]?.chapters[0];
+  const first = (
+    snapshot.stories.find((story) => story.id === 'prts:骑兵与猎人') ??
+    snapshot.stories[0]
+  )?.chapters[0];
   assert.ok(first);
   const chapter = chapterSchema.parse(
     (
@@ -84,6 +88,27 @@ try {
     ).structuredContent,
   );
   assert.equal(state.recentChapterId, chapter.id);
+  const cg = chapter.blocks.find((block) => block.kind === 'cg');
+  let image;
+  if (chapter.source === 'prts' && cg) {
+    const result = await client.callTool({
+      name: 'reader_image',
+      arguments: { kind: 'cg', chapterId: chapter.id, blockId: cg.id },
+    });
+    const parsed = imageResultSchema.parse(result._meta?.readerImage);
+    assert.ok(
+      typeof result.structuredContent === 'object' &&
+        result.structuredContent !== null,
+    );
+    assert.equal(Object.hasOwn(result.structuredContent, 'layers'), false);
+    image = {
+      resource: parsed.resource,
+      width: parsed.width,
+      height: parsed.height,
+      layers: parsed.layers.length,
+      binaryInAppMetaOnly: true,
+    };
+  }
   const resource = await client.readResource({ uri: RESOURCE_URI });
   const html = resource.contents.find((item) => 'text' in item);
   if (
@@ -104,6 +129,7 @@ try {
         resource: RESOURCE_URI,
         htmlBytes: Buffer.byteLength(html.text),
         source: snapshot.sourceLabel,
+        image,
         chapter: {
           id: chapter.id,
           source: chapter.source,

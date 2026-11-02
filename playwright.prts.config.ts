@@ -3,7 +3,8 @@ import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests/browser',
-  testMatch: 'prts.spec.ts',
+  testMatch: ['prts.spec.ts', 'prts-images.spec.ts'],
+  outputDir: 'test-results/prts',
   workers: 1,
   timeout: 45_000,
   use: {

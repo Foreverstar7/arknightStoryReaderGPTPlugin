@@ -391,6 +391,7 @@ export function ReaderApp({
         )}
         {snapshot && route.page === 'library' && (
           <Library
+            transport={transport}
             stories={snapshot.stories}
             state={snapshot.state}
             open={(story) => void browse({ page: 'chapters', story })}
@@ -398,6 +399,7 @@ export function ReaderApp({
         )}
         {snapshot && route.page === 'chapters' && (
           <ChapterList
+            transport={transport}
             story={route.story}
             state={snapshot.state}
             open={(id, restore) => void open(id, restore)}
@@ -405,6 +407,7 @@ export function ReaderApp({
         )}
         {snapshot && route.page === 'reader' && (
           <Reader
+            transport={transport}
             key={route.key}
             story={route.story}
             chapter={route.chapter}

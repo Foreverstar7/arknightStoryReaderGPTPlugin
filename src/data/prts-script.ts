@@ -140,7 +140,7 @@ export function parsePrtsChapter(
     storyId: string;
     title: string;
     pageTitle: string;
-    group: string;
+    group?: string;
   },
 ): Chapter {
   const start = /^\|?文本数据\s*=/mu.exec(wiki) ?? /\|文本数据\s*=/u.exec(wiki);
@@ -150,7 +150,8 @@ export function parsePrtsChapter(
     !wiki.startsWith('{{剧情模拟器|') ||
     !start ||
     !pathMatch?.[1] ||
-    group !== meta.group
+    !group ||
+    (meta.group !== undefined && group !== meta.group)
   )
     fail(meta.pageTitle, 1, '缺少剧情模拟器字段或剧情分组不匹配。');
   const tail = wiki.slice(start.index + start[0].length);
@@ -299,9 +300,10 @@ export function parsePrtsChapter(
       }
     } else if (name === 'character') {
       scene = { slots: [] };
-      if (args.name)
+      if (args.name && args.name !== 'char_empty')
         scene.slots.push({ slot: args.name2 ? 'l' : 'm', resource: args.name });
-      if (args.name2) scene.slots.push({ slot: 'r', resource: args.name2 });
+      if (args.name2 && args.name2 !== 'char_empty')
+        scene.slots.push({ slot: 'r', resource: args.name2 });
       if (args.focus !== undefined && /^-?\d+$/u.test(args.focus))
         scene.focus = Number(args.focus);
     } else if (name === 'charslot') {
@@ -318,11 +320,14 @@ export function parsePrtsChapter(
               : slot === 'middle'
                 ? 'm'
                 : slot;
-        scene = {
-          slots: scene.slots.filter((item) => item.slot !== normalized),
-        };
-        if (args.name && args.name !== 'char_empty')
-          scene.slots.push({ slot: normalized, resource: args.name });
+        if (args.name !== undefined) {
+          scene = {
+            ...scene,
+            slots: scene.slots.filter((item) => item.slot !== normalized),
+          };
+          if (args.name && args.name !== 'char_empty')
+            scene.slots.push({ slot: normalized, resource: args.name });
+        }
       }
     } else if (name === 'image') {
       if (args.image)

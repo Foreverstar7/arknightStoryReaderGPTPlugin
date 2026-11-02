@@ -21,7 +21,7 @@ test('SDK negotiation, app-only visibility, extension registration and persisten
     await server.connect(serverWire);
     await client.connect(clientWire);
     const tools = (await client.listTools()).tools;
-    assert.equal(tools.length, 7);
+    assert.equal(tools.length, 9);
     assert.ok(
       tools.every((tool) =>
         JSON.stringify(tool._meta?.ui).includes('"visibility":["app"]'),

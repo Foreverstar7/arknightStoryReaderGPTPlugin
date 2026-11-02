@@ -69,13 +69,20 @@ test('catalog uses the body row in source order, excludes footer duplication, an
   assert.equal(storyProgress(story, {}), null);
   assert.equal(chapterProgress(story, story.chapters[0]?.id ?? '', {}, 120), 0);
   assert.throws(() => parsePrtsCatalog('改版了', navigationWiki), /目录结构/);
+  assert.equal(
+    parsePrtsCatalog(
+      rootWiki,
+      navigationWiki.replaceAll('骑兵与猎人', '其他活动'),
+    )[0]?.title,
+    '其他活动',
+  );
   assert.throws(
     () =>
       parsePrtsCatalog(
         rootWiki,
-        navigationWiki.replaceAll('骑兵与猎人', '其他活动'),
+        navigationWiki.replaceAll('[[GT-1 取样/END|', '[[GT-1 取样/BEG|'),
       ),
-    /没有唯一/,
+    /重复篇目/,
   );
 });
 
@@ -157,6 +164,36 @@ test('mutually exclusive branches isolate scenes; subset and common continuation
       '走北边走南边等消息北边回话。南边回话。两边共有的信息。原地等待。共同后续。第二句。',
     ),
   );
+});
+
+test('slot-only visual changes retain resources and clearing one slot does not leak across branches', () => {
+  const chapter = parsePrtsChapter(
+    wiki(`[Character(name="unit_a",name2="unit_b",focus=2)]
+[CharSlot(slot="left",afrom=1,ato=0.5)]
+[name="？？？"]保留匿名显示名。
+[CharSlot(slot="right",name="char_empty")]
+[name="甲"]右侧已清空。
+[Character(name="char_empty")]
+[name="乙"]所有槽位清空。`),
+    meta,
+  );
+  const first = chapter.blocks[0];
+  const second = chapter.blocks[1];
+  const third = chapter.blocks[2];
+  assert.ok(
+    first?.kind === 'speech' &&
+      second?.kind === 'speech' &&
+      third?.kind === 'speech',
+  );
+  assert.deepEqual(first.scene, {
+    slots: [
+      { slot: 'l', resource: 'unit_a' },
+      { slot: 'r', resource: 'unit_b' },
+    ],
+    focus: 2,
+  });
+  assert.deepEqual(second.scene?.slots, [{ slot: 'l', resource: 'unit_a' }]);
+  assert.deepEqual(third.scene?.slots, []);
 });
 
 test('single and all-options predicates merge immediately; unknown commands and unsupported control flow fail visibly', () => {

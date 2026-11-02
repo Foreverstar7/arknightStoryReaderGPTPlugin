@@ -149,6 +149,13 @@ try {
     throw new Error('宿主没有发现全局侧栏入口声明。');
   if (metadata.ui.visibility.includes('model'))
     throw new Error('内部入口意外暴露给模型。');
+  for (const tool of Object.values(server.tools)) {
+    const { ui } = z
+      .object({ ui: z.object({ visibility: z.array(z.string()) }) })
+      .parse(tool._meta);
+    if (!ui.visibility.includes('app') || ui.visibility.includes('model'))
+      throw new Error(`内部工具可见性错误：${tool.name}`);
+  }
   console.info(
     JSON.stringify(
       {
@@ -156,6 +163,7 @@ try {
         mcpServers: plugin.mcpServers,
         serverName: server.name,
         tools: Object.keys(server.tools).length,
+        allToolsAppOnly: true,
         globalEntrypoint: true,
         resourceUri: metadata.ui.resourceUri,
       },

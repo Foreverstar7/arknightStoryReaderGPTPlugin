@@ -41,6 +41,7 @@ export const chapterMetaSchema = z.object({
   code: z.string(),
   title: z.string(),
   summary: z.string().optional(),
+  summarySourceUrl: z.string().url().optional(),
   wordCount: z.number().int().nonnegative().nullable(),
   sourceUrl: z.string().url().optional(),
 });
@@ -108,6 +109,35 @@ export const chapterInputSchema = z.object({
   refresh: z.boolean().default(false),
 });
 export const cacheInputSchema = z.object({ scope: z.enum(['images', 'all']) });
+export const chapterInfoSchema = z.object({
+  summary: z.string().optional(),
+  sourceUrl: z.string().url().optional(),
+});
+export const imageInputSchema = z.discriminatedUnion('kind', [
+  z.object({ kind: z.literal('cover'), storyId: z.string().min(1).max(200) }),
+  z.object({
+    kind: z.enum(['portrait', 'cg']),
+    chapterId: z.string().min(1).max(200),
+    blockId: z.string().min(1).max(200),
+  }),
+]);
+export const imageLayerSchema = z.object({
+  dataUrl: z.string().startsWith('data:image/png;base64,'),
+  sourceUrl: z.string().url(),
+  x: z.number().finite(),
+  y: z.number().finite(),
+  width: z.number().positive(),
+  height: z.number().positive(),
+});
+export const imageResultSchema = z.object({
+  width: z.number().positive(),
+  height: z.number().positive(),
+  layers: z.array(imageLayerSchema).min(1).max(2),
+  resource: z.string(),
+  sourceUrl: z.string().url(),
+});
+export type ImageInput = z.infer<typeof imageInputSchema>;
+export type ReaderImage = z.infer<typeof imageResultSchema>;
 export type Block = z.infer<typeof blockSchema>;
 export type Leaf = z.infer<typeof leafSchema>;
 export type Scene = z.infer<typeof sceneSchema>;
@@ -123,6 +153,8 @@ export const toolNames = [
   'reader_open',
   'reader_snapshot',
   'reader_chapter',
+  'reader_chapter_info',
+  'reader_image',
   'reader_record',
   'reader_settings',
   'reader_clear_cache',

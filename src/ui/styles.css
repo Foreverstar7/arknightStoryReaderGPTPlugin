@@ -301,13 +301,9 @@ button:disabled {
   background: var(--panel);
   overflow: hidden;
   border-radius: 4px;
-  transition:
-    transform 180ms,
-    border-color 180ms;
 }
 .story-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--gold);
+  background: var(--panel);
 }
 .cover {
   position: relative;
@@ -355,6 +351,32 @@ button:disabled {
   display: block;
   font-size: 10px;
   margin-top: 10px;
+}
+.cover:has(.source-image) > span:not(.image-error):not(.image-loading) {
+  display: none;
+}
+.cover .source-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  background: var(--panel);
+}
+.cover > .image-error,
+.cover > .image-loading {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  font:
+    10px/1.4 system-ui,
+    sans-serif;
+  letter-spacing: 0;
+}
+.cover .image-error button {
+  display: block;
+  font-size: 10px;
+  padding: 2px 5px;
 }
 .card-caption {
   padding: 15px 16px;
@@ -493,9 +515,8 @@ button:disabled {
   text-align: left;
   background: var(--panel);
   bottom: calc(50% + 22px);
-}
-.chapter-card:hover {
-  border-color: var(--gold);
+  isolation: isolate;
+  cursor: pointer;
 }
 .timeline-node:nth-child(even) .chapter-card {
   bottom: auto;
@@ -509,18 +530,59 @@ button:disabled {
   color: var(--muted);
   margin-bottom: 5px;
 }
-.chapter-card > strong {
-  font-weight: 500;
-  font-size: 16px;
-  display: block;
-  overflow-wrap: anywhere;
-}
 .chapter-summary {
   display: block;
   font-size: 12px;
   color: var(--muted);
   margin-top: 8px;
   line-height: 1.6;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+.summary-slot {
+  display: block;
+  min-height: 1px;
+}
+.chapter-open {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+.chapter-open:hover {
+  background: transparent;
+}
+/* Stretch the native button over the card; the retry stays a sibling above it. */
+.chapter-open::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 3px;
+}
+.chapter-open:focus-visible {
+  outline: none;
+}
+.chapter-open:focus-visible::after {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+.chapter-open > strong {
+  display: block;
+  font-size: 16px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.summary-error {
+  position: relative;
+  z-index: 2;
+  font-size: 11px;
+  margin-top: 8px;
+  padding: 3px 6px;
 }
 .chapter-percent {
   display: block;
@@ -749,15 +811,20 @@ button:disabled {
   color: var(--muted);
 }
 .portrait {
-  position: absolute;
+  position: fixed;
   top: 35px;
   left: 0;
   width: 200px;
+  max-width: calc(100vw - 24px);
+  max-height: calc(100dvh - 120px);
+  overflow: auto;
   padding: 11px;
   background: var(--panel);
   border: 1px solid var(--line);
   box-shadow: 0 12px 30px var(--shadow);
   z-index: 10;
+  font-size: 13px;
+  line-height: 1.8;
 }
 .portrait-head {
   display: flex;
@@ -774,6 +841,41 @@ button:disabled {
   background: linear-gradient(145deg, var(--soft), var(--panel));
   margin-top: 10px;
   overflow: hidden;
+}
+.source-image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.portrait-image .source-image {
+  height: min(225px, 42dvh);
+  margin-top: 10px;
+}
+.portrait-image > p {
+  font-size: 11px;
+  line-height: 1.6;
+  margin-top: 8px;
+}
+.cg-image {
+  margin-top: 12px;
+  min-height: 50px;
+}
+.image-loading,
+.image-error {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+  line-height: 1.6;
+}
+.image-error > button {
+  display: block;
+  margin-top: 8px;
+}
+.image-source {
+  display: block;
+  font-size: 10px;
+  margin-top: 5px;
 }
 .portrait-art::before {
   content: '';
@@ -1126,6 +1228,7 @@ fieldset {
   }
   .category-rail {
     flex-direction: row;
+    flex-wrap: wrap;
     align-items: center;
     padding: 8px 14px;
     border-right: none;
@@ -1138,6 +1241,8 @@ fieldset {
   }
   .category-rail > button {
     padding: 6px 10px;
+    flex: none;
+    white-space: nowrap;
   }
   .library-scroll {
     padding: 22px 16px;

@@ -1,6 +1,6 @@
 {
   "name": "arknights-story-reader",
-  "version": "0.1.7",
+  "version": "0.1.10",
   "private": true,
   "type": "module",
   "engines": {
@@ -25,6 +25,7 @@
     "probe:mcp": "tsx scripts/probe-mcp.ts",
     "probe:http": "tsx scripts/probe-http.ts",
     "probe:prts": "tsx scripts/probe-prts.ts",
+    "probe:prts:s3": "tsx scripts/probe-prts-s3.ts",
     "probe:host": "tsx scripts/probe-host.ts"
   },
   "dependencies": {

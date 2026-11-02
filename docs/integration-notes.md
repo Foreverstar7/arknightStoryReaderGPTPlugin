@@ -65,3 +65,10 @@
 - 本轮使用 OpenAI Docs skill 重新检索并读取 [当前插件参考](https://developers.openai.com/plugins/reference)，保留 `ui.visibility: ["app"]`，让入口返回实际来源而非 fixture 常量，并将可能读取公开 PRTS 的 snapshot／chapter／record 标记 `openWorldHint: true`。入口和 CSP 结构未扩展；正文数据仍经现有 SDK 读取，UI 不直连源站。
 - 0.1.7 已通过实际安装目录包内 Node 的 stdio 协商、真实首篇 64 块及隔离位置保存，UI 为 499719 字节；Streamable HTTP 取得相同真实正文。官方加载器发现 0.1.7、reader、7 个内部工具及全局入口。真实宿主当前窗口内的视觉与完整路径仍待复核。
 - Edge 原有 10 项回归、本轮最终 3 项真实数据页面检查及 18 项领域／存储／MCP 测试通过。已实际在隔离 Edge 打开交互预览并点击活动与篇目，对照桌面和 320px 画面；旧记录中的预览文件打开限制不等于本轮无法对照。
+
+## 2026-11-01：0.1.9 S3 目录与按需图片
+
+- 已重新读取 [OpenAI 当前 UI 接入说明](https://developers.openai.com/plugins/build/chatgpt-ui)和 [插件参考](https://developers.openai.com/plugins/reference)，使用 OpenAI Docs 与 create-mcp-app skill 核对 app-only、CSP 及工具结果。新增 `reader_image`、`reader_chapter_info`，9 个工具全部 app-only。入口、包内启动命令和 SDK 生命周期沿用已有实现。
+- PNG 图层放返回 `_meta.readerImage`，不进入模型可见结构化结果；UI 经 `callServerTool` 取得 data URL，以原生 SVG 图层渲染。不增加 UI 到 PRTS 的访问或外域 CSP；当前真实宿主的图片和完整操作仍须单独验收。
+- 实际 0.1.9 安装包内 Node stdio 返回 117 部、64 块真实首篇、真实 CG 和隔离位置保存，UI 506231 字节；预览 HTTP MCP 同样成功。官方加载器发现 reader、9 工具和 global 入口。完整证据见 [S3 记录](prts-s3.md)。
+- 24 项领域／缓存／存储／MCP 检查、10 项 fixture 浏览器与 6 项真实浏览器检查通过；宿主 UI 与浏览器结果分开记录。没有新增模型 API key、模型调用、RAG、对话侧进度工具或执行推送／发布。

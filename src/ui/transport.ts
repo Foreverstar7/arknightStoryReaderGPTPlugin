@@ -36,7 +36,9 @@ export function hostTransport(app: App): ReaderTransport {
           text?.type === 'text' ? text.text : '宿主调用失败，请重试。',
         );
       }
-      return result.structuredContent;
+      return name === 'reader_image'
+        ? result._meta?.readerImage
+        : result.structuredContent;
     },
   };
 }

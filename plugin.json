@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "arknights-story-reader",
-  "version": "0.1.7",
-  "description": "方舟剧情阅读器：按需读取 PRTS 骑兵与猎人，保存本机阅读位置。",
+  "version": "0.1.10",
+  "description": "方舟剧情阅读器：浏览 PRTS 剧情目录，按需读取正文与图片，保存本机阅读位置。",
   "extensions": {
     "com.openai": {
       "interface": {

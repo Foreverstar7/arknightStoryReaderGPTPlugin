@@ -8,7 +8,11 @@
 
 ## 当前状态
 
-当前 0.1.7 默认按需读取 PRTS「骑兵与猎人」16 篇目录，已实测首／次篇真实正文、分支样本解析和重启续读。三个正式页面、独立 SQLite 记录及正文／目录缓存沿用原实现。封面、立绘、CG 图片及更多目录仍待 S3，当前明确标注图片暂不可用；不会使用原创样例冒充真实数据。
+当前 0.1.10 将 PRTS 剧情一览正文范围的 117 部／1756 篇按“主线、支线、故事集、集成战略、生息演算、四月辑录、其他”展示，保留源顺序和 ID。篇目整卡可打开、简介重试独立，拖动不误开；两种卡片 hover 仅手形，窄屏七类入口换行。鼠标／触摸／键盘、各尺寸主题及原有转场回归见 [UI 验证](docs/ui-0.1.10.md)。
+
+「骑兵与猎人」已贯通真实封面、关卡简介、按需立绘和 CG。正文图片默认手动，自动模式只在 hover 姓名或接近 CG 时获取；目录封面进入可视区域独立加载。透明图片、表情叠加与独立图片缓存已有实测。三个页面、既有动效和 SQLite 阅读记录保留。
+
+目录覆盖不等于每篇正文兼容认证，也不表示每个封面都存在。本轮仍只取必要样本；没有可确认的封面显示“暂无封面”，缺少简介则隐藏，未知脚本明确报错。范围、实测结果和未覆盖项见 [S3 证据](docs/prts-s3.md)。
 
 原创 fixture 保留为显式开发来源：启动前设置 `$env:READER_SOURCE = 'fixture'`；恢复真实模式用 `$env:READER_SOURCE = 'prts'`。各来源使用不同篇目标识，切换不删除旧阅读记录。真实取数、支持语法、实测与未覆盖范围见 [S2 证据](docs/prts-s2.md)。
 
@@ -42,6 +46,7 @@ npm start
 ```powershell
 npm run check
 npm run probe:prts
+npm run probe:prts:s3
 node --import tsx scripts/probe-mcp.ts
 npx playwright install chromium
 npm run test:e2e
@@ -59,7 +64,7 @@ MCP 探针可额外传入安装目录，按该目录的 `mcp.json` 启动其实�
 
 安装后还需运行 `npm run probe:host`：它通过官方 `codex app-server` 的插件加载器与工具目录检查已启用的 reader 服务、app-only 可见性及全局入口。可用 `CODEX_CLI_PATH` 指定桌面客户端配套的 Codex CLI。独立 SDK 协商成功不能替代这项检查；后台发现成功也不能替代用户实际点击入口。
 
-fixture 浏览器回归使用独立端口 4319 和 `.ai/local/e2e-state/`；真实 PRTS 检查使用 4320 和每次独立的 `.ai/local/prts-browser/` 目录，不会清除实际用户记录。截图位于 `.ai/local/screenshots/`。`probe:prts` 只取目录、两篇实际打开正文及一个分支样本，不预取剩余正文。fixture、真实来源、注入失败和宿主验证分别报告。
+fixture 浏览器回归使用独立端口 4319 和 `.ai/local/e2e-state/`；真实 PRTS 检查使用 4320 和每次独立的 `.ai/local/prts-browser/` 目录，不会清除实际用户记录。两套测试输出分在 `test-results/fixture` 与 `test-results/prts`。截图位于 `.ai/local/screenshots/`。`probe:prts` 只取目录、两篇正文及一个分支样本；`probe:prts:s3` 校对全目录顺序，并取一篇正文、关卡简介、封面及少量人物／CG 样本，保留忽略的 JSON 证据。fixture、真实来源、注入失败和宿主验证分别报告。
 
 ## 本机开发插件
 
@@ -72,7 +77,7 @@ codex plugin add arknights-story-reader@arknights-reader-dev --json
 
 生成内容在被忽略的 `.local/marketplace/`；源清单为 `plugin.json` 和 `mcp.json`。Windows 生成包同时包含已校验的 Node 运行时并直接调用，避免宿主 PATH 选中较旧 Node。安装后重新加载桌面客户端，在本机来源“方舟阅读器本机开发”中查看“方舟剧情阅读器（开发）”，通过全局侧栏或会话面板入口打开。仅安装到本机，不发布到目录。生成包包含当前机器的运行时和依赖，仅供本机开发验证，跨平台分发属于 S6。
 
-Windows 包的启动命令必须使用包含在插件内的 `./runtime/node.exe`。当前宿主拒绝在 `command` 中使用 `${PLUGIN_ROOT}/runtime/node.exe`，尽管独立探针手动展开它后可以启动。0.1.4 已修正入口加载问题，用户确认主侧栏可打开；当前 0.1.7 已安装并通过官方加载器发现与安装包真实正文通信。新版宿主中的画面和完整阅读操作仍独立待复核。更新正在运行的本机包使用新版本目录，然后重新打开宿主阅读器以使用新版。
+Windows 包的启动命令必须使用包含在插件内的 `./runtime/node.exe`。当前宿主拒绝在 `command` 中使用 `${PLUGIN_ROOT}/runtime/node.exe`，尽管独立探针手动展开它后可以启动。0.1.4 已修正入口加载问题，用户确认主侧栏可打开；当前 0.1.10 已安装并通过官方加载器发现、安装包真实正文与 CG 通信，0.1.9 目录仍保留。新版宿主中的画面和完整阅读操作仍独立待复核。更新正在运行的本机包使用新版本目录，然后重新打开宿主阅读器以使用新版。
 
 stdio 配置直接运行 `node dist/server/main.js --stdio`，避免 npm 启动提示混入协议 stdout。`reader_open` 与其余内部工具均声明 `visibility: ["app"]`；唯一的模型可见剧情搜索工具留到 S5。
 
@@ -81,13 +86,13 @@ stdio 配置直接运行 `node dist/server/main.js --stdio`，避免 npm 启动�
 - 开发预览：项目 `.runtime/reading/records.sqlite` 保存阅读记录与偏好，`.runtime/cache/` 保存可清理内容。SQLite 事务保护多个宿主服务进程的并发更新，旧开发版本的 `state.json` 首次迁入时保留原文件。
 - 安装后的插件：Windows 使用 `%LOCALAPPDATA%/ArknightsStoryReader/`，不随插件版本缓存目录更换而删除记录。其他系统使用 XDG 用户数据目录。
 - `READER_DATA_DIR` 可显式覆盖数据根目录。历史和内容缓存始终分目录保存，清缓存不清历史。
-- 正文与原始目录默认按最后使用时间保留 7 天；首次加载页面检查过期缓存。真实正文保留原始 Wiki 和资源引用，图片／映射尚未接入。
+- 正文、目录、资源映射、简介及图片默认按最后使用时间保留 7 天；首次加载页面检查过期缓存。`cache/text`、`cache/prts`、`cache/mapping`、`cache/metadata`、`cache/images` 只保存公开内容。图片以资源 URL 为键去重；清图片保留映射，清全部内容同时清映射，均不访问 `reading/`。
 - 当前已打开篇目的字数可核实并保留；任一篇分母未知时，全剧情显示“总字数待核实”，不按篇数估算或预下载未读正文。清缓存保留位置、最远进度和已核实字数；当前进程内保存已打开正文无需重新取数。
 - 位置保存段落标识和段内比例，最远进度独立保存。当前对正文修订会明确报告版本冲突；跨版本定位迁移仍待实现。
 
 ## 开始开发
 
-1. 阅读 [AI 协作约定](AGENTS.md) 和 [当前状态](.ai/STATUS.md)。
+1. 先阅读 [当前状态](.ai/STATUS.md)，再读 [AI 协作约定](AGENTS.md)。
 2. 阅读 [需求](docs/requirements.md)，打开 [交互预览](docs/design/reader-preview.html)。
 3. 按 [实施切片](.ai/PLAN.md) 开始；新 Codex 对话可直接使用 [开发 prompt](.ai/START_PROMPT.md)。
 

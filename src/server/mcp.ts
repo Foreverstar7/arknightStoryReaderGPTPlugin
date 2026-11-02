@@ -12,6 +12,8 @@ import {
   cacheInputSchema,
   chapterInputSchema,
   chapterSchema,
+  chapterInfoSchema,
+  imageResultSchema,
   readingStateSchema,
   recordInputSchema,
   settingsSchema,
@@ -81,6 +83,8 @@ export function createReaderMcp(
             'reader_snapshot',
             'reader_chapter',
             'reader_record',
+            'reader_image',
+            'reader_chapter_info',
           ].includes(name),
         },
         _meta:
@@ -95,9 +99,16 @@ export function createReaderMcp(
       },
       async (args) => {
         try {
-          const result = output.parse(await service.call(name, args));
+          const value = await service.call(name, args);
+          const image =
+            name === 'reader_image'
+              ? imageResultSchema.parse(value)
+              : undefined;
+          const result = output.parse(value);
           return {
             structuredContent: result,
+            // Binary layers only hydrate the app; they are excluded from model context.
+            ...(image ? { _meta: { readerImage: image } } : {}),
             content: [
               {
                 type: 'text',
@@ -118,6 +129,25 @@ export function createReaderMcp(
       },
     );
   }
+  tool(
+    'reader_image',
+    '按需读取当前场景立绘、CG 或目录封面',
+    z.object({
+      kind: z.enum(['cover', 'portrait', 'cg']),
+      storyId: z.string().max(200).optional(),
+      chapterId: z.string().max(200).optional(),
+      blockId: z.string().max(200).optional(),
+    }),
+    imageResultSchema.omit({ layers: true }),
+    true,
+  );
+  tool(
+    'reader_chapter_info',
+    '按需读取可见篇目的关卡简介',
+    chapterInputSchema.pick({ chapterId: true }),
+    chapterInfoSchema,
+    true,
+  );
   tool(
     'reader_open',
     '打开方舟剧情阅读器',

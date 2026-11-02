@@ -27,6 +27,14 @@ export function SettingsPanel({
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
+  const [draft, setDraft] = useState(state.settings);
+  useEffect(() => {
+    setDraft(state.settings);
+  }, [
+    state.settings.autoImages,
+    state.settings.retentionDays,
+    state.settings.theme,
+  ]);
   useEffect(() => {
     dialog.current?.showModal();
   }, []);
@@ -40,6 +48,17 @@ export function SettingsPanel({
     } finally {
       setBusy(false);
     }
+  }
+  function preference(settings: Settings, success: string) {
+    setDraft(settings);
+    void perform(async () => {
+      try {
+        await update(settings);
+      } catch (error) {
+        setDraft(state.settings);
+        throw error;
+      }
+    }, success);
   }
   const recent = Object.values(state.records).sort((a, b) =>
     b.updatedAt.localeCompare(a.updatedAt),
@@ -67,7 +86,9 @@ export function SettingsPanel({
         <p className="environment">
           {environment}
           <br />
-          原创 fixture · 非游戏剧情
+          {stories.some((story) => story.source === 'prts')
+            ? 'PRTS 真实剧情 · 本机缓存与阅读记录'
+            : '原创 fixture · 非游戏剧情'}
         </p>
         <h3>阅读偏好</h3>
         <fieldset disabled={busy}>
@@ -75,14 +96,10 @@ export function SettingsPanel({
             自动显示图片
             <input
               type="checkbox"
-              checked={state.settings.autoImages}
+              checked={draft.autoImages}
               onChange={(event) =>
-                void perform(
-                  () =>
-                    update({
-                      ...state.settings,
-                      autoImages: event.target.checked,
-                    }),
+                preference(
+                  { ...draft, autoImages: event.target.checked },
                   '已保存图片显示设置。',
                 )
               }
@@ -91,14 +108,11 @@ export function SettingsPanel({
           <label className="setting-row">
             主题
             <select
-              value={state.settings.theme}
+              value={draft.theme}
               onChange={(event) => {
                 const theme = event.target.value;
                 if (theme === 'system' || theme === 'light' || theme === 'dark')
-                  void perform(
-                    () => update({ ...state.settings, theme }),
-                    '已保存主题。',
-                  );
+                  preference({ ...draft, theme }, '已保存主题。');
               }}
             >
               <option value="system">跟随系统</option>
@@ -109,14 +123,10 @@ export function SettingsPanel({
           <label className="setting-row">
             缓存保留期
             <select
-              value={state.settings.retentionDays}
+              value={draft.retentionDays}
               onChange={(event) =>
-                void perform(
-                  () =>
-                    update({
-                      ...state.settings,
-                      retentionDays: Number(event.target.value),
-                    }),
+                preference(
+                  { ...draft, retentionDays: Number(event.target.value) },
                   '已保存缓存保留期。',
                 )
               }

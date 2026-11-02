@@ -23,7 +23,7 @@ const read = async (title: string) => {
 };
 const service = new ReaderService(new PrtsSource(root, read), root);
 const snapshot = await service.snapshot();
-const story = snapshot.stories[0];
+const story = snapshot.stories.find((story) => story.id === 'prts:骑兵与猎人');
 assert.ok(story?.source === 'prts');
 assert.equal(requests.length, 2, 'catalog must not download chapter bodies');
 assert.equal(storyProgress(story, snapshot.state.records), null);

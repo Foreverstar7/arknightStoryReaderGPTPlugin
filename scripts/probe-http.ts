@@ -2,7 +2,11 @@ import {
   Client,
   StreamableHTTPClientTransport,
 } from '@modelcontextprotocol/client';
-import { snapshotSchema, chapterSchema } from '../src/shared/contracts.js';
+import {
+  snapshotSchema,
+  chapterSchema,
+  imageResultSchema,
+} from '../src/shared/contracts.js';
 import { RESOURCE_URI } from '../src/server/mcp.js';
 
 const url = new URL(process.argv[2] ?? 'http://127.0.0.1:4318/mcp');
@@ -15,7 +19,10 @@ try {
       .structuredContent,
   );
   const resource = await client.readResource({ uri: RESOURCE_URI });
-  const first = snapshot.stories[0]?.chapters[0];
+  const first = (
+    snapshot.stories.find((story) => story.id === 'prts:骑兵与猎人') ??
+    snapshot.stories[0]
+  )?.chapters[0];
   if (!first) throw new Error('目录缺少篇目。');
   const chapter = chapterSchema.parse(
     (
@@ -26,6 +33,24 @@ try {
     ).structuredContent,
   );
   if (resource.contents.length !== 1) throw new Error('UI 资源数不正确。');
+  const cg = chapter.blocks.find((block) => block.kind === 'cg');
+  let image;
+  if (chapter.source === 'prts' && cg) {
+    const result = await client.callTool({
+      name: 'reader_image',
+      arguments: { kind: 'cg', chapterId: chapter.id, blockId: cg.id },
+    });
+    const parsed = imageResultSchema.parse(result._meta?.readerImage);
+    image = {
+      resource: parsed.resource,
+      width: parsed.width,
+      height: parsed.height,
+      binaryInAppMetaOnly:
+        typeof result.structuredContent === 'object' &&
+        result.structuredContent !== null &&
+        !Object.hasOwn(result.structuredContent, 'layers'),
+    };
+  }
   console.info(
     JSON.stringify(
       {
@@ -35,6 +60,7 @@ try {
         stories: snapshot.stories.length,
         resource: RESOURCE_URI,
         source: snapshot.sourceLabel,
+        image,
         chapter: {
           id: chapter.id,
           source: chapter.source,

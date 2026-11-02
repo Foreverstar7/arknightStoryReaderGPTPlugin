@@ -7,74 +7,88 @@ export const PRTS_STORY_TITLE = '骑兵与猎人';
 export const chapterIdForPage = (title: string) =>
   `prts:${title.replaceAll('_', ' ')}`;
 
-/** S2 deliberately reads one row of the body table, not the repeated footer navbox. */
+/** Only the transcluded body tables; never follow or parse footer Navboxes. */
 export function parsePrtsCatalog(
   rootWiki: string,
   navigationWiki: string,
 ): Story[] {
-  if (!/\{\{剧情导航(?:\||\}\})/u.test(rootWiki)) {
+  if (!/\{\{剧情导航(?:\||\}\})/u.test(rootWiki))
     throw new ReaderError(
       'parse',
       'PRTS 剧情一览不再引用剧情导航，需核对目录结构。',
     );
+  const stories: Story[] = [];
+  const chapterIds = new Set<string>();
+  for (const table of navigationWiki.matchAll(/\{\|[\s\S]*?\|\}/gu)) {
+    const category = /\[\[剧情一览\|(主线|活动)剧情一览\]\]/u.exec(
+      table[0],
+    )?.[1];
+    if (!category) continue;
+    let section = '';
+    for (const row of table[0].split(/^\|-\s*$/mu)) {
+      if (row.includes('[[剧情一览|')) continue;
+      const headers = [...row.matchAll(/^!\s*(.*)$/gmu)].map((match) =>
+        (match[1] ?? '').replace(/^[^|]*\|/u, '').trim(),
+      );
+      if (headers.length === 0) continue;
+      const regular = /^!\s*width=/mu.test(row);
+      if (!regular && headers.length === 2) section = headers[0] ?? '';
+      const title = regular ? headers[0] : `${section} · ${headers.at(-1)}`;
+      const type = regular ? headers[1] : section;
+      if (!title || !type)
+        throw new ReaderError('parse', 'PRTS 目录行缺少剧情分类或名称。');
+      const chapters = [...row.matchAll(/\[\[([^\]|]+)\|([^\]]+)\]\]/gu)].map(
+        (match) => {
+          const page = match[1]?.trim().replaceAll('_', ' ');
+          const label = match[2]?.trim();
+          if (
+            !page ||
+            !label ||
+            /^(?:分类|文件|File|模板|Widget):/iu.test(page)
+          )
+            throw new ReaderError(
+              'parse',
+              `PRTS「${title}」篇目链接格式改变。`,
+            );
+          const id = chapterIdForPage(page);
+          if (chapterIds.has(id))
+            throw new ReaderError('parse', `PRTS 正文表存在重复篇目：${page}`);
+          chapterIds.add(id);
+          const code = /^(\S*\d[\w-]*)(?:\s|\/)/u.exec(page)?.[1] ?? 'STORY';
+          return {
+            id,
+            code,
+            title: label.startsWith(`${code} `)
+              ? label.slice(code.length + 1)
+              : label,
+            wordCount: null,
+            sourceUrl: prtsPageUrl(page),
+          };
+        },
+      );
+      if (chapters.length === 0)
+        throw new ReaderError('parse', `PRTS「${title}」目录为空。`);
+      stories.push(
+        storySchema.parse({
+          id: regular ? `prts:${title}` : `prts:${category}剧情/${title}`,
+          title,
+          category: `${category}剧情`,
+          type,
+          coverLabel: title,
+          source: 'prts',
+          sourceUrl: prtsPageUrl('剧情一览'),
+          chapters,
+        }),
+      );
+    }
   }
-  const bodyTable = [...navigationWiki.matchAll(/\{\|[\s\S]*?\|\}/gu)].find(
-    (table) => table[0].includes('[[剧情一览|活动剧情一览]]'),
-  )?.[0];
-  const rows = bodyTable?.split(/^\|-\s*$/mu) ?? [];
-  const matches = rows.filter((row) =>
-    /^!\s*(?:[^\n|]*\|)?骑兵与猎人\s*$/mu.test(row),
-  );
-  const row = matches[0];
   if (
-    matches.length !== 1 ||
-    !row ||
-    !/^!\s*(?:[^\n|]*\|)?支线\s*$/mu.test(row)
+    stories.length === 0 ||
+    new Set(stories.map((story) => story.id)).size !== stories.length
   )
     throw new ReaderError(
       'parse',
-      'PRTS 剧情导航中没有唯一的「骑兵与猎人」目录行，未使用示例目录代替。',
+      'PRTS 剧情正文表为空或有重复名称，请核对目录结构。',
     );
-  const chapters = [...row.matchAll(/\[\[([^\]|]+)\|([^\]]+)\]\]/gu)].map(
-    (match) => {
-      const page = match[1]?.trim();
-      const label = match[2]?.trim();
-      if (
-        !page ||
-        !label ||
-        !/^GT-(?:\d|EX-\d|HX-\d)[^\n]*\/(?:BEG|END)$/u.test(page)
-      )
-        throw new ReaderError('parse', 'PRTS 骑兵与猎人的篇目链接格式已改变。');
-      const code = label.split(' ')[0] ?? label;
-      return {
-        id: chapterIdForPage(page),
-        code,
-        title: label.startsWith(`${code} `)
-          ? label.slice(code.length + 1)
-          : label,
-        wordCount: null,
-        sourceUrl: prtsPageUrl(page),
-      };
-    },
-  );
-  if (
-    chapters.length === 0 ||
-    new Set(chapters.map((chapter) => chapter.id)).size !== chapters.length
-  )
-    throw new ReaderError(
-      'parse',
-      'PRTS 目录为空或存在重复篇目标识，请核对源站。',
-    );
-  return [
-    storySchema.parse({
-      id: PRTS_STORY_ID,
-      title: PRTS_STORY_TITLE,
-      category: '活动剧情',
-      type: '支线',
-      coverLabel: 'GRANI / GT',
-      source: 'prts',
-      sourceUrl: prtsPageUrl('剧情一览'),
-      chapters,
-    }),
-  ];
+  return stories;
 }
