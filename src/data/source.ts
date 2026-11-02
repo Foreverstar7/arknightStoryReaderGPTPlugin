@@ -26,17 +26,4 @@ export interface StorySource {
   clearCache?(): Promise<void>;
 }
 
-export class ReaderError extends Error {
-  constructor(
-    public readonly code:
-      | 'not_found'
-      | 'network'
-      | 'parse'
-      | 'resource_missing'
-      | 'storage'
-      | 'conflict',
-    message: string,
-  ) {
-    super(message);
-  }
-}
+export { ReaderError } from '../shared/errors.js';

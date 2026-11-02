@@ -6,6 +6,7 @@ import { FixtureSource } from '../src/data/fixture.js';
 import { createReaderMcp, RESOURCE_URI } from '../src/server/mcp.js';
 import { ReaderService } from '../src/server/service.js';
 import { readingStateSchema, snapshotSchema } from '../src/shared/contracts.js';
+import { readerFailureSchema } from '../src/shared/errors.js';
 import path from 'node:path';
 import { mkdir, mkdtemp, rm } from 'node:fs/promises';
 
@@ -60,6 +61,10 @@ test('SDK negotiation, app-only visibility, extension registration and persisten
       arguments: { chapterId: 'missing' },
     });
     assert.equal(missing.isError, true);
+    assert.equal(
+      readerFailureSchema.parse(missing._meta?.readerError).code,
+      'not_found',
+    );
   } finally {
     await client.close();
     await server.close();

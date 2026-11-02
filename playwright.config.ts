@@ -3,7 +3,7 @@ import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests/browser',
-  testIgnore: ['prts.spec.ts', 'prts-images.spec.ts'],
+  testIgnore: ['prts.spec.ts', 'prts-images.spec.ts', 'prts-covers.spec.ts'],
   outputDir: 'test-results/fixture',
   fullyParallel: false,
   workers: 1,

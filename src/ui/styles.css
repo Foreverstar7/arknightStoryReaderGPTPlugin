@@ -290,6 +290,9 @@ button:disabled {
   gap: var(--gap);
 }
 .story-card {
+  position: relative;
+  cursor: pointer;
+  border: 1px solid var(--line);
   width: 100%;
   text-align: left;
   padding: 0;
@@ -304,6 +307,22 @@ button:disabled {
 }
 .story-card:hover {
   background: var(--panel);
+}
+.story-open {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: none;
+  border-radius: inherit;
+}
+.story-open:hover {
+  background: transparent;
+}
+.story-open:focus-visible {
+  outline-offset: -3px;
 }
 .cover {
   position: relative;
@@ -352,7 +371,8 @@ button:disabled {
   font-size: 10px;
   margin-top: 10px;
 }
-.cover:has(.source-image) > span:not(.image-error):not(.image-loading) {
+.cover:has(.source-image) > .cover-label,
+.mini-cover .cover:has(.image-error) > .cover-label {
   display: none;
 }
 .cover .source-image {
@@ -364,7 +384,8 @@ button:disabled {
   background: var(--panel);
 }
 .cover > .image-error,
-.cover > .image-loading {
+.cover > .image-loading,
+.cover > .image-idle {
   position: absolute;
   bottom: 8px;
   right: 8px;
@@ -372,11 +393,19 @@ button:disabled {
     10px/1.4 system-ui,
     sans-serif;
   letter-spacing: 0;
+  z-index: 4;
+  pointer-events: none;
 }
 .cover .image-error button {
   display: block;
   font-size: 10px;
-  padding: 2px 5px;
+  padding: 4px 6px;
+  min-height: 24px;
+  margin-top: 3px;
+  pointer-events: auto;
+}
+.cover .image-error button:hover {
+  background: transparent;
 }
 .card-caption {
   padding: 15px 16px;
@@ -419,6 +448,11 @@ button:disabled {
 }
 .mini-cover .cover > span {
   font-size: 16px;
+}
+.mini-cover .cover > .image-error,
+.mini-cover .cover > .image-loading,
+.mini-cover .cover > .image-idle {
+  font-size: 10px;
 }
 .mini-cover .cover {
   padding: 12px;

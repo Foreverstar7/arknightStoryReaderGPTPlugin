@@ -8,7 +8,7 @@ import { groupStories, storyTypeLabel } from '../catalog.js';
 export function Cover({
   story,
   transport,
-  retryable = false,
+  retryable = true,
 }: {
   story: Story;
   transport: ReaderTransport;
@@ -22,16 +22,17 @@ export function Cover({
       ref={ref}
       style={{ viewTransitionName: transitionName }}
     >
-      {seen && (
+      {story.source === 'prts' && (
         <SourceImage
           input={{ kind: 'cover', storyId: story.id }}
           transport={transport}
           label={`${story.title} 封面`}
           cover
           retryable={retryable}
+          enabled={seen}
         />
       )}
-      <span>
+      <span className="cover-label">
         {story.coverLabel}
         <small>
           {story.source === 'prts' ? 'PRTS 剧情' : '原创档案 · 布局样例'}
@@ -96,12 +97,10 @@ export function Library({
             </div>
             <div className="card-grid">
               {group.map((story) => (
-                <button
+                <article
                   className="story-card"
                   key={story.id}
                   data-story-id={story.id}
-                  aria-label={`打开剧情：${story.title}`}
-                  onClick={() => open(story)}
                 >
                   <Cover story={story} transport={transport} />
                   <span className="card-caption">
@@ -115,7 +114,13 @@ export function Library({
                       </span>
                     </span>
                   </span>
-                </button>
+                  <button
+                    className="story-open"
+                    type="button"
+                    aria-label={`打开剧情：${story.title}`}
+                    onClick={() => open(story)}
+                  />
+                </article>
               ))}
             </div>
           </section>

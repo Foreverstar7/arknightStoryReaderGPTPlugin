@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 import { z } from 'zod';
@@ -13,6 +13,8 @@ import {
   parseImageIndex,
 } from '../src/data/prts-resources.js';
 import { PublicCache } from '../src/storage/public-cache.js';
+import { imageResultSchema } from '../src/shared/contracts.js';
+import { ReaderError } from '../src/shared/errors.js';
 
 // Original asset metadata, with the formats observed in PRTS's current player.
 const mapping = {
@@ -195,4 +197,112 @@ test('resource expiry slides with use and removes expired images without touchin
     now += 8 * 86_400_000;
     await cache.expire(7);
     assert.equal(await cache.get('one', z.string(), 7), null);
+  }));
+
+test('original JPEG/WebP/GIF and legacy alpha PNG retain bytes, MIME and dimensions across transport and offline restart; MIME mismatches fail retryably', async () =>
+  temporary(async (root) => {
+    // Original 2x3 colour swatches generated with Edge canvas; no PRTS art bundled.
+    const swatches = z
+      .record(z.string(), z.string())
+      .parse(JSON.parse(await readFile('tests/fixtures/raster.json', 'utf8')));
+    const samples = [
+      {
+        mime: 'image/jpeg',
+        data: swatches['image/jpeg'] ?? '',
+        width: 2,
+        height: 3,
+      },
+      {
+        mime: 'image/webp',
+        data: swatches['image/webp'] ?? '',
+        width: 2,
+        height: 3,
+      },
+      {
+        mime: 'image/gif',
+        data: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+        width: 1,
+        height: 1,
+      },
+      {
+        mime: 'image/png',
+        data: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==',
+        width: 1,
+        height: 1,
+      },
+    ];
+    for (const [index, sample] of samples.entries()) {
+      let calls = 0;
+      let wrongMime = true;
+      const url = `https://media.prts.wiki/original-${index}`;
+      const filename = `original-${index}`;
+      const resources = new PrtsResources(
+        root,
+        async () => '',
+        async (input) => {
+          calls++;
+          if (String(input).includes('/api.php'))
+            return Response.json({
+              query: { pages: { '1': { imageinfo: [{ url }] } } },
+            });
+          return new Response(
+            Buffer.from(sample.data.split(',')[1] ?? '', 'base64'),
+            {
+              headers: {
+                'content-type': wrongMime
+                  ? 'text/html'
+                  : `${sample.mime}; charset=binary`,
+              },
+            },
+          );
+        },
+      );
+      await assert.rejects(
+        () => resources.fileImage(filename, 7),
+        (error: unknown) =>
+          error instanceof ReaderError && error.code === 'parse',
+      );
+      wrongMime = false;
+      const image = imageResultSchema.parse(
+        await resources.fileImage(filename, 7),
+      );
+      assert.equal(image.layers[0]?.dataUrl, sample.data);
+      assert.equal(image.width, sample.width);
+      assert.equal(image.height, sample.height);
+      const before = calls;
+      const restarted = new PrtsResources(
+        root,
+        async () => {
+          throw new Error('offline');
+        },
+        async () => {
+          calls++;
+          throw new Error('offline');
+        },
+      );
+      assert.deepEqual(await restarted.fileImage(filename, 7), image);
+      assert.equal(calls, before);
+      // Old image entries had exactly dataUrl/width/height and no format version.
+      await resources.images.put(url, {
+        dataUrl: sample.data,
+        width: sample.width,
+        height: sample.height,
+      });
+      assert.deepEqual(await restarted.fileImage(filename, 7), image);
+    }
+    const jpeg = samples[0];
+    assert.ok(jpeg);
+    const mismatch = new PrtsResources(
+      root,
+      async () => 'scene,https://media.prts.wiki/mismatch.png',
+      async () =>
+        new Response(Buffer.from(jpeg.data.split(',')[1] ?? '', 'base64'), {
+          headers: { 'content-type': 'image/png' },
+        }),
+    );
+    await assert.rejects(
+      () => mismatch.cg('scene', 7),
+      (error: unknown) =>
+        error instanceof ReaderError && error.code === 'parse',
+    );
   }));

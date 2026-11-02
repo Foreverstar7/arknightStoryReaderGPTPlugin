@@ -124,7 +124,15 @@ export function createReaderMcp(
             error instanceof ReaderError
               ? error.message
               : '阅读器操作失败，请检查输入或本机服务后重试。';
-          return { isError: true, content: [{ type: 'text', text: message }] };
+          const failure =
+            error instanceof ReaderError
+              ? error.toFailure()
+              : { code: 'invalid_input', message };
+          return {
+            isError: true,
+            _meta: { readerError: failure },
+            content: [{ type: 'text', text: message }],
+          };
         }
       },
     );
@@ -137,6 +145,7 @@ export function createReaderMcp(
       storyId: z.string().max(200).optional(),
       chapterId: z.string().max(200).optional(),
       blockId: z.string().max(200).optional(),
+      refresh: z.boolean().optional(),
     }),
     imageResultSchema.omit({ layers: true }),
     true,

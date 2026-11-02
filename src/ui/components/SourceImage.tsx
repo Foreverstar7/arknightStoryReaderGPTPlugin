@@ -6,6 +6,7 @@ import {
   type ReaderImage,
 } from '../../shared/contracts.js';
 import type { ReaderTransport } from '../transport.js';
+import { ReaderError, type ReaderFailure } from '../../shared/errors.js';
 
 /** Observe the real scrolling container; do not fetch from a hidden card/chapter. */
 export function useVisible<T extends HTMLElement>(
@@ -53,6 +54,8 @@ export function ImageLayers({
       preserveAspectRatio={cover ? 'xMidYMid slice' : 'xMidYMid meet'}
       role="img"
       aria-label={label}
+      data-image-state="ready"
+      data-source-url={image.attribution?.sourceUrl ?? image.sourceUrl}
     >
       <title>{label}</title>
       {image.layers.map((layer, index) => (
@@ -76,79 +79,121 @@ export function SourceImage({
   label,
   cover = false,
   retryable = true,
+  enabled = true,
 }: {
   input: ImageInput;
   transport: ReaderTransport;
   label: string;
   cover?: boolean;
   retryable?: boolean;
+  enabled?: boolean;
 }) {
-  const [image, setImage] = useState<ReaderImage | null>(null);
-  const [error, setError] = useState('');
+  const [state, setState] = useState<ImageState>({ status: 'idle' });
   const [attempt, setAttempt] = useState(0);
   // The semantic key avoids re-fetching when the parent re-renders during scroll saves.
   const key = JSON.stringify(input);
   useEffect(() => {
     let active = true;
-    setError('');
-    setImage(null);
+    if (!enabled) {
+      setState({ status: 'idle' });
+      return;
+    }
+    setState({ status: 'loading' });
     async function read() {
       try {
         const args: unknown = JSON.parse(key);
-        const result = imageResultSchema.parse(
-          await transport.call('reader_image', { ...imageInput(args) }),
+        const result = imageResultSchema.safeParse(
+          await transport.call('reader_image', {
+            ...imageInput(args),
+            ...(attempt > 0 ? { refresh: true } : {}),
+          }),
         );
-        if (active) setImage(result);
+        if (!result.success)
+          throw new ReaderError('parse', '图片结果格式不兼容，请重试。');
+        if (active) setState({ status: 'ready', image: result.data });
       } catch (error) {
         if (active)
-          setError(
-            error instanceof Error ? error.message : '图片读取失败，请重试。',
-          );
+          setState({
+            status: 'error',
+            failure:
+              error instanceof ReaderError
+                ? error.toFailure()
+                : {
+                    code: 'unknown',
+                    message:
+                      error instanceof Error
+                        ? error.message
+                        : '图片读取失败，请重试。',
+                  },
+          });
       }
     }
     void read();
     return () => {
       active = false;
     };
-  }, [transport, key, attempt]);
-  if (error)
+  }, [transport, key, attempt, enabled]);
+  if (state.status === 'error')
     return (
       <span
         className="image-error"
         role={cover ? undefined : 'status'}
-        title={error}
+        title={state.failure.message}
+        data-image-state="error"
+        data-error-code={state.failure.code}
+        data-source-url={state.failure.sourceUrl}
       >
-        {cover ? '暂无封面' : error}
+        {cover ? coverFailureLabel(state.failure.code) : state.failure.message}
         {retryable && (
           <button
+            type="button"
+            aria-label={cover ? `重试${label}` : '重试图片'}
+            aria-description={`${state.failure.message}${state.failure.sourceUrl ? ` 来源：${state.failure.sourceUrl}` : ''}`}
             onClick={(event) => {
               event.stopPropagation();
-              setAttempt(attempt + 1);
+              setAttempt((value) => value + 1);
             }}
           >
-            重试图片
+            {cover ? '重试封面' : '重试图片'}
           </button>
         )}
       </span>
     );
-  if (!image)
+  if (state.status !== 'ready')
     return (
-      <span className="image-loading" role={cover ? undefined : 'status'}>
-        {cover ? '加载中…' : '正在读取图片…'}
+      <span
+        className={state.status === 'idle' ? 'image-idle' : 'image-loading'}
+        data-image-state={state.status}
+        role={cover ? undefined : 'status'}
+      >
+        {state.status === 'idle'
+          ? '封面待加载'
+          : cover
+            ? '加载中…'
+            : '正在读取图片…'}
       </span>
     );
   return (
     <>
       <ImageLayers
-        image={image}
+        image={state.image}
         label={label}
         cover={cover}
-        onError={() => setError('图片解码失败，请清理图片缓存后重试。')}
+        onError={() =>
+          setState({
+            status: 'error',
+            failure: {
+              code: 'parse',
+              message: '图片解码失败，重试会重新获取此图片，不清除阅读记录。',
+              sourceUrl: state.image.sourceUrl,
+            },
+          })
+        }
       />
       {!cover && (
         <a
           className="image-source muted"
-          href={image.sourceUrl}
+          href={state.image.sourceUrl}
           target="_blank"
           rel="noreferrer"
         >
@@ -157,6 +202,30 @@ export function SourceImage({
       )}
     </>
   );
+}
+
+type ImageState =
+  | { status: 'idle' | 'loading' }
+  | { status: 'ready'; image: ReaderImage }
+  | { status: 'error'; failure: ReaderFailure };
+
+function coverFailureLabel(code: ReaderFailure['code']) {
+  switch (code) {
+    case 'resource_missing':
+      return '封面资源缺失';
+    case 'not_found':
+      return '封面资料页缺失';
+    case 'network':
+      return '封面请求失败';
+    case 'parse':
+      return '封面解析不兼容';
+    case 'unsupported':
+      return '封面来源待适配';
+    case 'storage':
+      return '封面缓存读取失败';
+    default:
+      return '封面读取失败';
+  }
 }
 
 function imageInput(value: unknown): ImageInput {

@@ -81,6 +81,7 @@ if (process.argv.includes('--stdio')) {
               ? error.message
               : '页面请求失败，请检查输入后重试。',
           code: error instanceof ReaderError ? error.code : 'invalid_input',
+          sourceUrl: error instanceof ReaderError ? error.sourceUrl : undefined,
         });
     }
   });

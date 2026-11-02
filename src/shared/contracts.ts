@@ -114,15 +114,27 @@ export const chapterInfoSchema = z.object({
   sourceUrl: z.string().url().optional(),
 });
 export const imageInputSchema = z.discriminatedUnion('kind', [
-  z.object({ kind: z.literal('cover'), storyId: z.string().min(1).max(200) }),
+  z.object({
+    kind: z.literal('cover'),
+    storyId: z.string().min(1).max(200),
+    refresh: z.boolean().optional(),
+  }),
   z.object({
     kind: z.enum(['portrait', 'cg']),
     chapterId: z.string().min(1).max(200),
     blockId: z.string().min(1).max(200),
+    refresh: z.boolean().optional(),
   }),
 ]);
+export const rasterDataUrlSchema = z
+  .string()
+  .regex(/^data:image\/(?:png|jpeg|webp|gif);base64,[A-Za-z0-9+/]+=*$/u);
+export const coverMethodSchema = z.enum([
+  'activity-title-field',
+  'april-year-index',
+]);
 export const imageLayerSchema = z.object({
-  dataUrl: z.string().startsWith('data:image/png;base64,'),
+  dataUrl: rasterDataUrlSchema,
   sourceUrl: z.string().url(),
   x: z.number().finite(),
   y: z.number().finite(),
@@ -135,6 +147,13 @@ export const imageResultSchema = z.object({
   layers: z.array(imageLayerSchema).min(1).max(2),
   resource: z.string(),
   sourceUrl: z.string().url(),
+  // A file's URL and the metadata that selected it are distinct, traceable sources.
+  attribution: z
+    .object({
+      sourceUrl: z.string().url(),
+      method: coverMethodSchema,
+    })
+    .optional(),
 });
 export type ImageInput = z.infer<typeof imageInputSchema>;
 export type ReaderImage = z.infer<typeof imageResultSchema>;

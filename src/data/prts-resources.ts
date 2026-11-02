@@ -1,8 +1,9 @@
 import { z } from 'zod';
-import type { ReaderImage } from '../shared/contracts.js';
+import { rasterDataUrlSchema, type ReaderImage } from '../shared/contracts.js';
 import { PublicCache } from '../storage/public-cache.js';
 import { prtsPageUrl, type WikiReader } from './prts-client.js';
 import { ReaderError } from './source.js';
+import { inspectImage } from './image-format.js';
 
 export const CHARACTER_MAP =
   'https://torappu.prts.wiki/assets/avg/character.json';
@@ -34,8 +35,9 @@ const entrySchema = z.object({
     .default([]),
 });
 const mapSchema = z.record(z.string(), z.unknown());
-const pngSchema = z.object({
-  dataUrl: z.string().startsWith('data:image/png;base64,'),
+// Keep valid legacy PNG entries readable; adding formats must not evict portraits.
+const rasterSchema = z.object({
+  dataUrl: rasterDataUrlSchema,
   width: z.number().positive(),
   height: z.number().positive(),
 });
@@ -55,7 +57,7 @@ function characterUrl(key: string): string {
     !/^[a-zA-Z0-9_/$@#.-]+$/u.test(key) ||
     key.split('/').some((part) => part === '..' || !part)
   )
-    return unavailable('PRTS 立绘路径不兼容，未猜测文件名。');
+    throw new ReaderError('parse', 'PRTS 立绘路径不兼容，未猜测文件名。');
   return `https://torappu.prts.wiki/assets/avg/characters/${key.split('/').map(encodeURIComponent).join('/')}.png`;
 }
 
@@ -64,11 +66,18 @@ export function resolvePortrait(
   raw: unknown,
   reference: string,
 ): ResourceLayer[] {
-  const map = mapSchema.parse(raw);
+  const parsedMap = mapSchema.safeParse(raw);
+  if (!parsedMap.success)
+    throw new ReaderError('parse', 'PRTS 人物映射格式不兼容。');
+  const map = parsedMap.data;
   const match = /^([^#@$]+)(?:#([1-9]\d*)|@([^$]+))?(?:\$([1-9]\d*))?$/u.exec(
     reference.toLowerCase(),
   );
-  if (!match?.[1]) return unavailable(`不支持的 PRTS 立绘引用：${reference}`);
+  if (!match?.[1])
+    throw new ReaderError(
+      'unsupported',
+      `不支持的 PRTS 立绘引用：${reference}`,
+    );
   let base = match[1];
   let expression: string | undefined;
   if (!Object.hasOwn(map, base)) {
@@ -78,9 +87,11 @@ export function resolvePortrait(
       base = key;
     }
   }
+  if (!Object.hasOwn(map, base))
+    return unavailable(`PRTS 缺少可用立绘映射：${reference}`);
   const parsed = entrySchema.safeParse(map[base]);
   if (!parsed.success)
-    return unavailable(`PRTS 缺少可用立绘映射：${reference}`);
+    throw new ReaderError('parse', `PRTS 立绘映射格式不兼容：${reference}`);
   const entry = parsed.data;
   const body = Number(match[4] ?? '1') - 1;
   const index = Number(match[2] ?? '1') - 1;
@@ -105,7 +116,10 @@ export function resolvePortrait(
     !group.faceRect ||
     !selected.face
   )
-    return unavailable(`PRTS 立绘组合格式尚不兼容：${reference}`);
+    throw new ReaderError(
+      'unsupported',
+      `PRTS 立绘组合格式尚不兼容：${reference}`,
+    );
   return [
     { url: characterUrl(group.base), x: 0, y: 0 },
     {
@@ -141,7 +155,7 @@ export function parseImageIndex(wiki: string): Map<string, string> {
   }
   return result;
 }
-function safeImageUrl(raw: string) {
+export function safeImageUrl(raw: string) {
   try {
     const url = new URL(raw);
     return (
@@ -167,14 +181,19 @@ export async function publicResponse(
       signal: AbortSignal.timeout(20_000),
     });
   } catch {
-    throw new ReaderError('network', `PRTS 资源连接失败或超时：${url}`);
+    throw new ReaderError('network', `PRTS 资源连接失败或超时：${url}`, url);
   }
   if (response.status === 404)
-    return unavailable(`PRTS 资源不存在（HTTP 404）：${url}`);
+    throw new ReaderError(
+      'resource_missing',
+      `PRTS 资源不存在（HTTP 404）：${url}`,
+      url,
+    );
   if (!response.ok)
     throw new ReaderError(
       'network',
       `PRTS 资源返回 HTTP ${response.status}：${url}`,
+      url,
     );
   return response;
 }
@@ -218,8 +237,9 @@ export class PrtsResources {
     schema: z.ZodType<T>,
     days: number,
     fetchValue: () => Promise<T>,
+    refresh = false,
   ): Promise<T> {
-    const cached = await cache.get(key, schema, days);
+    const cached = refresh ? null : await cache.get(key, schema, days);
     if (cached) return cached;
     const existing = this.pending.get(key);
     if (existing) return schema.parse(await existing);
@@ -236,7 +256,11 @@ export class PrtsResources {
       if (this.pending.get(key) === task) this.pending.delete(key);
     }
   }
-  async portrait(reference: string, days: number): Promise<ReaderImage> {
+  async portrait(
+    reference: string,
+    days: number,
+    refresh = false,
+  ): Promise<ReaderImage> {
     const map = await this.cached(
       this.mappings,
       CHARACTER_MAP,
@@ -253,21 +277,28 @@ export class PrtsResources {
           throw new ReaderError('parse', 'PRTS 人物映射没有返回兼容 JSON。');
         }
       },
+      refresh,
     );
     return this.render(
       resolvePortrait(map, reference),
       reference,
       CHARACTER_MAP,
       days,
+      refresh,
     );
   }
-  async cg(reference: string, days: number): Promise<ReaderImage> {
+  async cg(
+    reference: string,
+    days: number,
+    refresh = false,
+  ): Promise<ReaderImage> {
     const text = await this.cached(
       this.mappings,
       'Widget:Data_Image',
       z.string(),
       days,
       () => this.wiki('Widget:Data_Image'),
+      refresh,
     );
     const url = parseImageIndex(text).get(reference.toLowerCase());
     if (!url) return unavailable(`PRTS 图片索引没有资源：${reference}`);
@@ -276,9 +307,14 @@ export class PrtsResources {
       reference,
       prtsPageUrl('Widget:Data_Image'),
       days,
+      refresh,
     );
   }
-  async fileImage(filename: string, days: number): Promise<ReaderImage> {
+  async fileImage(
+    filename: string,
+    days: number,
+    refresh = false,
+  ): Promise<ReaderImage> {
     const url = await this.cached(
       this.mappings,
       `file:${filename}`,
@@ -309,6 +345,7 @@ export class PrtsResources {
               pages: z.record(
                 z.string(),
                 z.object({
+                  missing: z.union([z.string(), z.boolean()]).optional(),
                   imageinfo: z
                     .array(z.object({ url: z.string().url() }))
                     .optional(),
@@ -319,19 +356,38 @@ export class PrtsResources {
           .safeParse(raw);
         if (!data.success)
           throw new ReaderError('parse', 'PRTS 文件信息格式改变。');
-        const urls = Object.values(data.data.query.pages).flatMap(
-          (page) => page.imageinfo ?? [],
-        );
-        if (urls.length !== 1 || !urls[0] || !safeImageUrl(urls[0].url))
-          return unavailable(`PRTS 没有可用封面文件：${filename}`);
-        return urls[0].url;
+        const pages = Object.values(data.data.query.pages);
+        const page = pages[0];
+        const sourceUrl = prtsPageUrl(`File:${filename}`);
+        if (pages.length !== 1 || !page)
+          throw new ReaderError(
+            'parse',
+            'PRTS 文件信息没有返回唯一文件条目。',
+            sourceUrl,
+          );
+        if (Object.hasOwn(page, 'missing'))
+          throw new ReaderError(
+            'resource_missing',
+            `PRTS 文件信息确认资源缺失：${filename}`,
+            sourceUrl,
+          );
+        const info = page.imageinfo?.[0];
+        if (page.imageinfo?.length !== 1 || !info || !safeImageUrl(info.url))
+          throw new ReaderError(
+            'parse',
+            'PRTS 文件信息缺少唯一且受支持的图片地址。',
+            sourceUrl,
+          );
+        return info.url;
       },
+      refresh,
     );
     return this.render(
       [{ url, x: 0, y: 0 }],
       filename,
       prtsPageUrl(`File:${filename}`),
       days,
+      refresh,
     );
   }
   private async render(
@@ -339,44 +395,43 @@ export class PrtsResources {
     resource: string,
     sourceUrl: string,
     days: number,
+    refresh = false,
   ): Promise<ReaderImage> {
     const rendered = [];
     for (const layer of layers) {
-      const png = await this.cached(
+      const image = await this.cached(
         this.images,
         layer.url,
-        pngSchema,
+        rasterSchema,
         days,
         async () => {
           if (!safeImageUrl(layer.url))
-            return unavailable('PRTS 图片来源不在已验证范围内。');
+            throw new ReaderError(
+              'unsupported',
+              'PRTS 图片来源不在已验证范围内。',
+            );
           const response = await publicResponse(layer.url, this.request);
           const bytes = await limitedBytes(response, 12_000_000);
-          if (
-            !response.headers.get('content-type')?.startsWith('image/png') ||
-            bytes.length < 24 ||
-            !bytes
-              .subarray(0, 8)
-              .equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))
-          )
-            throw new ReaderError(
-              'parse',
-              'PRTS 没有返回 PNG 图片，未将错误页面展示为图片。',
-            );
+          const info = inspectImage(
+            bytes,
+            response.headers.get('content-type'),
+            layer.url,
+          );
           return {
-            dataUrl: `data:image/png;base64,${bytes.toString('base64')}`,
-            width: bytes.readUInt32BE(16),
-            height: bytes.readUInt32BE(20),
+            dataUrl: `data:${info.mime};base64,${bytes.toString('base64')}`,
+            width: info.width,
+            height: info.height,
           };
         },
+        refresh,
       );
       rendered.push({
-        ...png,
+        ...image,
         sourceUrl: layer.url,
         x: layer.x,
         y: layer.y,
-        width: layer.width ?? png.width,
-        height: layer.height ?? png.height,
+        width: layer.width ?? image.width,
+        height: layer.height ?? image.height,
       });
     }
     const base = rendered[0];

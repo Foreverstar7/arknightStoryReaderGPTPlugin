@@ -92,21 +92,28 @@ export class PrtsSource implements StorySource {
       );
       if (!story)
         throw new ReaderError('not_found', '该剧情不在 PRTS 正文目录内。');
-      const filename = await this.metadata.cover(story.title, days);
-      if (!filename)
-        throw new ReaderError(
-          'resource_missing',
-          '来源页没有可确认的活动封面。',
-        );
-      return this.resources.fileImage(filename, days);
+      const cover = await this.metadata.cover(story, days, input.refresh);
+      const image = await this.resources.fileImage(
+        cover.filename,
+        days,
+        input.refresh,
+      );
+      return {
+        ...image,
+        attribution: { sourceUrl: cover.sourceUrl, method: cover.method },
+      };
     }
     if (input.kind !== target?.kind)
       throw new ReaderError('resource_missing', '该段落没有对应图片资源。');
     if (target.kind === 'portrait')
-      return this.resources.portrait(portraitReference(target.resources), days);
+      return this.resources.portrait(
+        portraitReference(target.resources),
+        days,
+        input.refresh,
+      );
     if (!target.resource)
       throw new ReaderError('resource_missing', '该段落缺少 CG 引用。');
-    return this.resources.cg(target.resource, days);
+    return this.resources.cg(target.resource, days, input.refresh);
   }
   async clearImages(): Promise<void> {
     await this.resources.clear('images');
