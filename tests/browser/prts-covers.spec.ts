@@ -37,7 +37,7 @@ test.beforeEach(async ({ request, page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
 });
 
-test('real JPEG, grouped PNG and April year illustrations resolve; main logos stay unsupported, without fetching chapter bodies', async ({
+test('real JPEG and PNG banners fit; April portrait covers stay deferred and main logos unsupported, without fetching chapter bodies', async ({
   page,
   request,
 }) => {
@@ -69,7 +69,7 @@ test('real JPEG, grouped PNG and April year illustrations resolve; main logos st
     'data-source-url',
     /#EP00$/u,
   );
-  for (const id of [targetId, ids[2], ids[3], ids[4], ids[5], ids[6]]) {
+  for (const id of [targetId, ids[2], ids[3], ids[5], ids[6]]) {
     const card = page.locator(`[data-story-id="${id}"]`);
     await card.scrollIntoViewIfNeeded();
     await expect(card.getByRole('img')).toBeVisible();
@@ -88,8 +88,12 @@ test('real JPEG, grouped PNG and April year illustrations resolve; main logos st
         height: image.naturalHeight,
       };
     });
-    expect(decoded.width).toBeGreaterThan(100);
-    expect(decoded.height).toBeGreaterThan(100);
+    expect(decoded.width).toBe(1560);
+    expect(decoded.height).toBe(500);
+    await expect(card.getByRole('img')).toHaveAttribute(
+      'preserveAspectRatio',
+      'xMidYMid meet',
+    );
     if (id === ids[5] || id === ids[6])
       expect(decoded.mime).toBe('data:image/jpeg');
     else expect(decoded.mime).toBe('data:image/png');
@@ -107,10 +111,45 @@ test('real JPEG, grouped PNG and April year illustrations resolve; main logos st
     }
   }
   const april = page.locator(`[data-story-id="${ids[4]}"]`);
-  await expect(april.getByRole('img')).toHaveAttribute(
+  await april.scrollIntoViewIfNeeded();
+  await expect(april.locator('[data-image-state="deferred"]')).toHaveText(
+    '封面尺寸待适配',
+  );
+  await expect(april.locator('.image-deferred')).toHaveAttribute(
     'data-source-url',
     /#2020$/u,
   );
+  await expect(april.getByRole('img')).toHaveCount(0);
+  await expect(april.getByRole('button', { name: /^重试/u })).toHaveCount(0);
+  for (const colorScheme of ['light', 'dark'] as const) {
+    await page.emulateMedia({ colorScheme });
+    for (const viewport of [
+      { width: 320, height: 760 },
+      { width: 768, height: 900 },
+      { width: 1440, height: 900 },
+      { width: 1024, height: 400 },
+    ]) {
+      await page.setViewportSize(viewport);
+      await april.scrollIntoViewIfNeeded();
+      const box = await april.locator('.cover').boundingBox();
+      if (!box) throw new Error('封面占位缺少布局');
+      expect(box.width / box.height).toBeCloseTo(1560 / 500, 2);
+      await april.getByRole('button', { name: /^打开剧情/u }).click();
+      const mini = page.locator('.mini-cover .cover');
+      await expect(mini.locator('.image-deferred')).toBeVisible();
+      const miniBox = await mini.boundingBox();
+      if (!miniBox) throw new Error('篇目页封面缺少布局');
+      expect(miniBox.width / miniBox.height).toBeCloseTo(1560 / 500, 2);
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth),
+      ).toBe(viewport.width);
+      await page.screenshot({
+        path: `.ai/local/screenshots/banner-deferred-${colorScheme}-${viewport.width}x${viewport.height}.png`,
+      });
+      await page.getByRole('button', { name: '⌂ 主页', exact: true }).click();
+      await expect(april).toBeInViewport();
+    }
+  }
   expect(bodies).toEqual([]);
   const snapshot = snapshotSchema.parse(
     await (
@@ -255,11 +294,11 @@ test('a decodable-result failure retries the asset, and the chapter-list cover h
     }
     requests++;
     if (requests === 1) {
-      // A truncated PNG passes the server's header check but cannot be decoded.
+      // Inject a declared banner with corrupt bytes to exercise browser decode retry.
       await route.fulfill({
         json: {
-          width: 1,
-          height: 1,
+          width: 1560,
+          height: 500,
           resource: 'original.png',
           sourceUrl: 'https://prts.wiki/w/File:original.png',
           layers: [
@@ -268,8 +307,8 @@ test('a decodable-result failure retries the asset, and the chapter-list cover h
               sourceUrl: 'https://media.prts.wiki/original.png',
               x: 0,
               y: 0,
-              width: 1,
-              height: 1,
+              width: 1560,
+              height: 500,
             },
           ],
         },
@@ -302,4 +341,69 @@ test('a decodable-result failure retries the asset, and the chapter-list cover h
   await expect(cover.getByRole('img')).toBeVisible();
   await expect(page.getByRole('region', { name: '横向篇目轴' })).toBeVisible();
   expect(bodies).toBe(0);
+});
+
+test('returning home preserves loaded covers in the incoming snapshot without re-fetching or exposing hidden library controls', async ({
+  page,
+}) => {
+  await limitCovers(page, [targetId]);
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.addInitScript(() => {
+    const original = document.startViewTransition.bind(document);
+    document.startViewTransition = (update) =>
+      original(async () => {
+        if (typeof update === 'function') await update();
+        else await update?.update?.();
+        const library = document.querySelector('.library-scroll');
+        if (library && library.getClientRects().length > 0)
+          document.documentElement.dataset.homeCoverState =
+            library
+              .querySelector(
+                '[data-story-id="prts:骑兵与猎人"] [data-image-state]',
+              )
+              ?.getAttribute('data-image-state') ?? 'missing';
+      });
+  });
+  const calls: string[] = [];
+  page.on('request', (request) => {
+    if (!request.url().endsWith('/api/tools')) return;
+    const data = request.postDataJSON();
+    if (data.name === 'reader_image')
+      calls.push(JSON.stringify(data.arguments));
+  });
+  await page.goto('/');
+  const card = targetCard(page);
+  await card.scrollIntoViewIfNeeded();
+  await expect(card.getByRole('img')).toBeVisible();
+  const position = await page
+    .locator('.library-scroll')
+    .evaluate((node) => node.scrollTop);
+  await card.getByRole('button', { name: '打开剧情：骑兵与猎人' }).click();
+  await expect(page.locator('.mini-cover').getByRole('img')).toBeVisible();
+  await expect(page.locator('.library')).toBeHidden();
+  await expect(
+    page.getByRole('button', { name: '打开剧情：骑兵与猎人' }),
+  ).toHaveCount(0);
+  await expect(page.locator('.library .source-image')).not.toHaveCount(0);
+  const beforeReturn = calls.length;
+  await page.getByRole('button', { name: '⌂ 主页', exact: true }).click();
+  await expect(page.locator('html')).toHaveAttribute(
+    'data-home-cover-state',
+    'ready',
+  );
+  await expect(card.getByRole('img')).toBeVisible();
+  await expect
+    .poll(() =>
+      page.locator('.library-scroll').evaluate((node) => node.scrollTop),
+    )
+    .toBe(position);
+  await page.evaluate(async () => {
+    await Promise.allSettled(
+      document.getAnimations().map((animation) => animation.finished),
+    );
+  });
+  expect(calls.length).toBe(beforeReturn);
+  await page.screenshot({
+    path: '.ai/local/screenshots/home-banner-return.png',
+  });
 });

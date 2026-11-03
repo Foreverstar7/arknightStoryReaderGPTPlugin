@@ -8,6 +8,11 @@ import {
 import type { ReaderTransport } from '../transport.js';
 import { ReaderError, type ReaderFailure } from '../../shared/errors.js';
 
+// User-confirmed temporary cover policy (2026-11-02), not a PRTS format limit.
+// Keep other assets intact; revisit together with --cover-ratio and requirements.
+const COVER_WIDTH = 1560;
+const COVER_HEIGHT = 500;
+
 /** Observe the real scrolling container; do not fetch from a hidden card/chapter. */
 export function useVisible<T extends HTMLElement>(
   enabled = true,
@@ -39,19 +44,17 @@ export function useVisible<T extends HTMLElement>(
 export function ImageLayers({
   image,
   label,
-  cover = false,
   onError,
 }: {
   image: ReaderImage;
   label: string;
-  cover?: boolean;
   onError?: () => void;
 }) {
   return (
     <svg
       className="source-image"
       viewBox={`0 0 ${image.width} ${image.height}`}
-      preserveAspectRatio={cover ? 'xMidYMid slice' : 'xMidYMid meet'}
+      preserveAspectRatio="xMidYMid meet"
       role="img"
       aria-label={label}
       data-image-state="ready"
@@ -173,12 +176,27 @@ export function SourceImage({
             : '正在读取图片…'}
       </span>
     );
+  if (
+    cover &&
+    (state.image.width !== COVER_WIDTH || state.image.height !== COVER_HEIGHT)
+  )
+    return (
+      <span
+        className="image-deferred"
+        data-image-state="deferred"
+        data-source-url={
+          state.image.attribution?.sourceUrl ?? state.image.sourceUrl
+        }
+        title={`原图 ${state.image.width} × ${state.image.height}；暂采用 ${COVER_WIDTH} × ${COVER_HEIGHT} 封面。`}
+      >
+        封面尺寸待适配
+      </span>
+    );
   return (
     <>
       <ImageLayers
         image={state.image}
         label={label}
-        cover={cover}
         onError={() =>
           setState({
             status: 'error',

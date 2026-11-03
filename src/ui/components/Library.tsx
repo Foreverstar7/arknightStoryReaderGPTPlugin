@@ -1,20 +1,48 @@
-import { useRef } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 import type { ReadingState, Story } from '../../shared/contracts.js';
 import { progressLabel, storyProgress } from '../../domain/reading.js';
 import type { ReaderTransport } from '../transport.js';
 import { SourceImage, useVisible } from './SourceImage.js';
 import { groupStories, storyTypeLabel } from '../catalog.js';
 
+export type LibraryPosition = {
+  scrollTop: number;
+  storyId?: string;
+  offset: number;
+};
+
+export function captureLibraryPosition(node: HTMLElement): LibraryPosition {
+  const bounds = node.getBoundingClientRect();
+  const anchor =
+    node.scrollTop > 0
+      ? Array.from(node.querySelectorAll<HTMLElement>('.story-card')).find(
+          (card) => {
+            const box = card.getBoundingClientRect();
+            return box.bottom > bounds.top && box.top < bounds.bottom;
+          },
+        )
+      : undefined;
+  return {
+    scrollTop: node.scrollTop,
+    storyId: anchor?.dataset.storyId,
+    offset: anchor ? anchor.getBoundingClientRect().top - bounds.top : 0,
+  };
+}
+
 export function Cover({
   story,
   transport,
   retryable = true,
+  active = true,
 }: {
   story: Story;
   transport: ReaderTransport;
   retryable?: boolean;
+  active?: boolean;
 }) {
-  const { ref, seen } = useVisible<HTMLDivElement>(story.source === 'prts');
+  const { ref, seen } = useVisible<HTMLDivElement>(
+    story.source === 'prts' && active,
+  );
   const transitionName = `cover-${Array.from(story.id, (letter) => letter.codePointAt(0)?.toString(16) ?? '').join('-')}`;
   return (
     <div
@@ -47,16 +75,38 @@ export function Library({
   state,
   open,
   transport,
+  active,
+  initialPosition,
 }: {
   stories: Story[];
   state: ReadingState;
   open: (story: Story) => void;
   transport: ReaderTransport;
+  active: boolean;
+  initialPosition: LibraryPosition | null;
 }) {
   const sections = useRef(new Map<string, HTMLElement>());
+  const scroller = useRef<HTMLElement>(null);
   const groups = groupStories(stories);
+  useLayoutEffect(() => {
+    const node = scroller.current;
+    if (!active || !node) return;
+    if (initialPosition) {
+      node.scrollTop = initialPosition.scrollTop;
+      const anchor = Array.from(
+        node.querySelectorAll<HTMLElement>('.story-card'),
+      ).find((card) => card.dataset.storyId === initialPosition.storyId);
+      if (anchor)
+        node.scrollTop +=
+          anchor.getBoundingClientRect().top -
+          node.getBoundingClientRect().top -
+          initialPosition.offset;
+    }
+    // Restore before the incoming snapshot if the grid reflowed while hidden.
+    // Keep the component mounted so loaded covers do not revert to placeholders.
+  }, [active, initialPosition]);
   return (
-    <div className="library page">
+    <div className="library page" hidden={!active}>
       <aside className="category-rail" aria-label="剧情分类">
         <span className="eyebrow">INDEX / 分类</span>
         {groups.map(({ category }) => (
@@ -75,7 +125,7 @@ export function Library({
           STORY ARCHIVE
         </small>
       </aside>
-      <main className="library-scroll">
+      <main className="library-scroll" ref={scroller}>
         <div className="library-intro">
           <span className="eyebrow">ARKNIGHTS / STORY ARCHIVE</span>
           <h1>剧情档案</h1>
@@ -102,7 +152,7 @@ export function Library({
                   key={story.id}
                   data-story-id={story.id}
                 >
-                  <Cover story={story} transport={transport} />
+                  <Cover story={story} transport={transport} active={active} />
                   <span className="card-caption">
                     <strong>{story.title}</strong>
                     <span className="card-meta">

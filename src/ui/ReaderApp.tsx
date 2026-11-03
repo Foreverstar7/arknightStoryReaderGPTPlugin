@@ -18,7 +18,11 @@ import {
   storyProgress,
 } from '../domain/reading.js';
 import type { ReaderTransport } from './transport.js';
-import { Library } from './components/Library.js';
+import {
+  Library,
+  captureLibraryPosition,
+  type LibraryPosition,
+} from './components/Library.js';
 import { ChapterList } from './components/ChapterList.js';
 import { Reader } from './components/Reader.js';
 import { SettingsPanel } from './components/SettingsPanel.js';
@@ -60,6 +64,7 @@ export function ReaderApp({
   const transition = useRef<ViewTransition | null>(null);
   const fallbackAnimation = useRef<Animation | null>(null);
   const stage = useRef<HTMLDivElement>(null);
+  const libraryPosition = useRef<LibraryPosition | null>(null);
   const registerFlush = useCallback((value: () => Promise<void>) => {
     flush.current = value;
   }, []);
@@ -149,6 +154,10 @@ export function ReaderApp({
     ).matches;
     const commit = () => {
       if (navigation.current !== navigationId) return;
+      const library =
+        stage.current?.querySelector<HTMLElement>('.library-scroll');
+      if (route.page === 'library' && next.page !== 'library' && library)
+        libraryPosition.current = captureLibraryPosition(library);
       flushSync(() => {
         if (data) setSnapshot(data);
         setBusy(false);
@@ -389,11 +398,13 @@ export function ReaderApp({
             {busy ? '正在打开剧情档案…' : '阅读器暂时不可用，请重试。'}
           </main>
         )}
-        {snapshot && route.page === 'library' && (
+        {snapshot && (
           <Library
             transport={transport}
             stories={snapshot.stories}
             state={snapshot.state}
+            active={route.page === 'library'}
+            initialPosition={libraryPosition.current}
             open={(story) => void browse({ page: 'chapters', story })}
           />
         )}
