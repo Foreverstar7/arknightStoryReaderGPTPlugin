@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from 'react';
 import type { ReadingState, Story } from '../../shared/contracts.js';
-import { progressLabel, storyProgress } from '../../domain/reading.js';
+import { storyProgress } from '../../domain/reading.js';
+import { ProgressRing } from './ProgressRing.js';
 import type { ReaderTransport } from '../transport.js';
 import { SourceImage, useVisible } from './SourceImage.js';
 import { groupStories, storyTypeLabel } from '../catalog.js';
@@ -159,9 +160,17 @@ export function Library({
                       <span>
                         {storyTypeLabel(story)} / {story.chapters.length} 篇
                       </span>
-                      <span>
-                        {progressLabel(storyProgress(story, state.records))}
-                      </span>
+                      <ProgressRing
+                        title={story.title}
+                        value={
+                          story.chapters.some(
+                            (chapter) =>
+                              state.records[chapter.id] !== undefined,
+                          )
+                            ? storyProgress(story, state.records)
+                            : 0
+                        }
+                      />
                     </span>
                   </span>
                   <button

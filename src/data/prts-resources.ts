@@ -222,7 +222,6 @@ export class PrtsResources {
   readonly mappings: PublicCache;
   readonly images: PublicCache;
   private readonly pending = new Map<string, Promise<unknown>>();
-  private generation = 0;
   constructor(
     root: string,
     private readonly wiki: WikiReader,
@@ -239,27 +238,48 @@ export class PrtsResources {
     fetchValue: () => Promise<T>,
     refresh = false,
   ): Promise<T> {
+    return cache.run(() =>
+      this.loadCached(cache, key, schema, days, fetchValue, refresh),
+    );
+  }
+  private async loadCached<T>(
+    cache: PublicCache,
+    key: string,
+    schema: z.ZodType<T>,
+    days: number,
+    fetchValue: () => Promise<T>,
+    refresh: boolean,
+  ): Promise<T> {
+    cache.assertCurrent();
     const cached = refresh ? null : await cache.get(key, schema, days);
     if (cached) return cached;
-    const existing = this.pending.get(key);
+    const pendingKey = `${cache.scope}:${cache.requestKey()}:${refresh}:${key}`;
+    const existing = this.pending.get(pendingKey);
     if (existing) return schema.parse(await existing);
-    const generation = this.generation;
     const task = (async () => {
       const value = schema.parse(await fetchValue());
-      if (generation === this.generation) await cache.put(key, value);
+      await cache.put(key, value);
       return value;
     })();
-    this.pending.set(key, task);
+    this.pending.set(pendingKey, task);
     try {
       return await task;
     } finally {
-      if (this.pending.get(key) === task) this.pending.delete(key);
+      if (this.pending.get(pendingKey) === task)
+        this.pending.delete(pendingKey);
     }
   }
   async portrait(
     reference: string,
     days: number,
     refresh = false,
+  ): Promise<ReaderImage> {
+    return this.images.run(() => this.loadPortrait(reference, days, refresh));
+  }
+  private async loadPortrait(
+    reference: string,
+    days: number,
+    refresh: boolean,
   ): Promise<ReaderImage> {
     const map = await this.cached(
       this.mappings,
@@ -292,6 +312,13 @@ export class PrtsResources {
     days: number,
     refresh = false,
   ): Promise<ReaderImage> {
+    return this.images.run(() => this.loadCg(reference, days, refresh));
+  }
+  private async loadCg(
+    reference: string,
+    days: number,
+    refresh: boolean,
+  ): Promise<ReaderImage> {
     const text = await this.cached(
       this.mappings,
       'Widget:Data_Image',
@@ -314,6 +341,13 @@ export class PrtsResources {
     filename: string,
     days: number,
     refresh = false,
+  ): Promise<ReaderImage> {
+    return this.images.run(() => this.loadFileImage(filename, days, refresh));
+  }
+  private async loadFileImage(
+    filename: string,
+    days: number,
+    refresh: boolean,
   ): Promise<ReaderImage> {
     const url = await this.cached(
       this.mappings,
@@ -445,9 +479,8 @@ export class PrtsResources {
     };
   }
   async clear(scope: 'images' | 'all') {
-    this.generation++;
-    this.pending.clear();
-    await this.images.clear();
-    if (scope === 'all') await this.mappings.clear();
+    await this.images.coordinator.clear(
+      scope === 'all' ? ['images', 'mapping'] : ['images'],
+    );
   }
 }

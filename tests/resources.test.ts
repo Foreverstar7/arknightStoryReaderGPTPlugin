@@ -1,3 +1,4 @@
+import { CacheCoordinator } from '../src/storage/cache-coordinator.js';
 import assert from 'node:assert/strict';
 import { mkdir, mkdtemp, readFile, rm } from 'node:fs/promises';
 import path from 'node:path';
@@ -58,6 +59,7 @@ async function temporary(run: (root: string) => Promise<void>) {
   try {
     await run(root);
   } finally {
+    new CacheCoordinator(root).close();
     await rm(root, { recursive: true, force: true });
   }
 }

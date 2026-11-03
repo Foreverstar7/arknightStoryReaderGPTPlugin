@@ -11,6 +11,7 @@ import { ReaderError } from '../data/source.js';
 import {
   cacheInputSchema,
   chapterInputSchema,
+  chapterCountSchema,
   chapterSchema,
   chapterInfoSchema,
   imageResultSchema,
@@ -82,7 +83,7 @@ export function createReaderMcp(
           openWorldHint: [
             'reader_snapshot',
             'reader_chapter',
-            'reader_record',
+            'reader_prepare_chapter',
             'reader_image',
             'reader_chapter_info',
           ].includes(name),
@@ -176,6 +177,13 @@ export function createReaderMcp(
     '按需读取一个篇目的正文',
     chapterInputSchema,
     chapterSchema,
+    true,
+  );
+  tool(
+    'reader_prepare_chapter',
+    '为当前打开的剧情缓存一篇正文并统计字数，不标记已读或获取图片',
+    chapterInputSchema.pick({ chapterId: true }),
+    chapterCountSchema,
     true,
   );
   tool(

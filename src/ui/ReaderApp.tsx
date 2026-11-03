@@ -18,6 +18,7 @@ import {
   storyProgress,
 } from '../domain/reading.js';
 import type { ReaderTransport } from './transport.js';
+import { ReaderError } from '../shared/errors.js';
 import {
   Library,
   captureLibraryPosition,
@@ -26,6 +27,8 @@ import {
 import { ChapterList } from './components/ChapterList.js';
 import { Reader } from './components/Reader.js';
 import { SettingsPanel } from './components/SettingsPanel.js';
+import { useStoryPreparation } from './useStoryPreparation.js';
+import { applyChapterCount, mergeStoryCounts } from './story-counts.js';
 
 type Route =
   | { page: 'library' }
@@ -65,6 +68,26 @@ export function ReaderApp({
   const fallbackAnimation = useRef<Animation | null>(null);
   const stage = useRef<HTMLDivElement>(null);
   const libraryPosition = useRef<LibraryPosition | null>(null);
+  const activeStory =
+    route.page === 'library'
+      ? undefined
+      : (snapshot?.stories.find((story) => story.id === route.story.id) ??
+        route.story);
+  const preparation = useStoryPreparation(activeStory, transport, (count) => {
+    setSnapshot((current) =>
+      current
+        ? { ...current, stories: applyChapterCount(current.stories, count) }
+        : current,
+    );
+  });
+  const acceptSnapshot = useCallback(
+    (data: Snapshot) =>
+      setSnapshot((current) => ({
+        ...data,
+        stories: mergeStoryCounts(data.stories, current?.stories ?? []),
+      })),
+    [],
+  );
   const registerFlush = useCallback((value: () => Promise<void>) => {
     flush.current = value;
   }, []);
@@ -83,7 +106,7 @@ export function ReaderApp({
           await transport.call('reader_snapshot', {}),
         );
         if (cancelled) return;
-        setSnapshot(data);
+        acceptSnapshot(data);
         const recent = data.state.recentChapterId
           ? data.state.records[data.state.recentChapterId]
           : undefined;
@@ -96,14 +119,19 @@ export function ReaderApp({
               chapterId: recent.chapterId,
             }),
           );
-          if (!cancelled)
+          const refreshed = snapshotSchema.parse(
+            await transport.call('reader_snapshot', {}),
+          );
+          if (!cancelled) {
+            acceptSnapshot(refreshed);
             setRoute({
               page: 'reader',
               story,
               chapter,
-              position: recent.last,
+              position: refreshed.state.records[chapter.id]?.last,
               key: ++key.current,
             });
+          }
         }
       } catch (error) {
         if (!cancelled) setError(errorText(error));
@@ -115,7 +143,7 @@ export function ReaderApp({
     return () => {
       cancelled = true;
     };
-  }, [transport, reload]);
+  }, [transport, reload, acceptSnapshot]);
 
   useEffect(() => {
     document.documentElement.dataset.theme =
@@ -130,6 +158,14 @@ export function ReaderApp({
       setSnapshot((current) => (current ? { ...current, state } : current));
     } catch (error) {
       setError(`阅读位置保存失败：${errorText(error)}`);
+      retry.current =
+        error instanceof ReaderError && error.code === 'conflict'
+          ? () => {
+              void open(input.chapterId, true, true).catch(() => undefined);
+            }
+          : () => {
+              void flush.current();
+            };
       throw error;
     }
   }
@@ -159,7 +195,7 @@ export function ReaderApp({
       if (route.page === 'library' && next.page !== 'library' && library)
         libraryPosition.current = captureLibraryPosition(library);
       flushSync(() => {
-        if (data) setSnapshot(data);
+        if (data) acceptSnapshot(data);
         setBusy(false);
         setRoute(next);
       });
@@ -235,7 +271,9 @@ export function ReaderApp({
     motion?: Motion,
   ) {
     if (!snapshot) return;
-    retry.current = () => void open(chapterId, restore, refresh, motion);
+    retry.current = () => {
+      void open(chapterId, restore, refresh, motion).catch(() => undefined);
+    };
     if (
       !refresh &&
       restore &&
@@ -273,6 +311,7 @@ export function ReaderApp({
       const position = restore
         ? data.state.records[chapterId]?.last
         : undefined;
+      setError('');
       // Commit data, chrome, position and page together inside the new snapshot.
       await changeRoute(
         {
@@ -286,7 +325,10 @@ export function ReaderApp({
         data,
       );
     } catch (error) {
-      if (navigation.current === navigationId) setError(errorText(error));
+      if (navigation.current === navigationId) {
+        setError(errorText(error));
+        if (refresh) throw error;
+      }
     } finally {
       if (navigation.current === navigationId) setBusy(false);
     }
@@ -307,6 +349,11 @@ export function ReaderApp({
   )?.title;
   const chapterNavigationStory =
     route.page === 'library' ? recentStory : route.story;
+  const currentRecord =
+    route.page === 'reader'
+      ? snapshot?.state.records[route.chapter.id]
+      : undefined;
+  const migration = currentRecord?.migration;
 
   return (
     <div className="app-shell" aria-busy={busy}>
@@ -357,12 +404,22 @@ export function ReaderApp({
                     snapshot.state.records,
                     chapterWords(route.chapter),
                   ),
+                  snapshot.state.records[route.chapter.id]?.progressKnown ===
+                    false,
                 )}
               </b>
               <span> · </span>全剧情已读{' '}
               <b>
                 {progressLabel(
-                  storyProgress(route.story, snapshot.state.records),
+                  storyProgress(
+                    activeStory ?? route.story,
+                    snapshot.state.records,
+                  ),
+                  route.story.chapters.some(
+                    (chapter) =>
+                      snapshot.state.records[chapter.id]?.progressKnown ===
+                      false,
+                  ),
                 )}
               </b>
             </span>
@@ -379,6 +436,17 @@ export function ReaderApp({
       <div className="source-note">
         {snapshot?.sourceLabel ?? '正在核对剧情来源…'}
       </div>
+      {migration && (
+        <div className="revision-notice" role="status">
+          正文已更新，
+          {migration.position === 'matched'
+            ? '已恢复到原段落'
+            : migration.position === 'preceding'
+              ? '原段落已改动，已恢复到前一个可确认段落'
+              : '原位置无法确认，已从篇首打开'}
+          。 原定位和进度已保留；无法确认的进度会显示待核实，读到篇末后确认。
+        </div>
+      )}
       {error && (
         <div className="error-banner" role="alert">
           <span>{error}</span>
@@ -411,8 +479,10 @@ export function ReaderApp({
         {snapshot && route.page === 'chapters' && (
           <ChapterList
             transport={transport}
-            story={route.story}
+            story={activeStory ?? route.story}
             state={snapshot.state}
+            preparation={preparation.status}
+            retryPreparation={preparation.retry}
             open={(id, restore) => void open(id, restore)}
           />
         )}
@@ -420,7 +490,7 @@ export function ReaderApp({
           <Reader
             transport={transport}
             key={route.key}
-            story={route.story}
+            story={activeStory ?? route.story}
             chapter={route.chapter}
             initialPosition={route.position}
             autoImages={snapshot.state.settings.autoImages}
@@ -446,6 +516,7 @@ export function ReaderApp({
           update={updateSettings}
           clearCache={async (scope) => {
             await flush.current();
+            if (scope === 'all') preparation.stop();
             await transport.call('reader_clear_cache', { scope });
           }}
           clearHistory={async () => {

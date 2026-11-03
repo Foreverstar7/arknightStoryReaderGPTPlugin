@@ -1,3 +1,4 @@
+import { CacheCoordinator } from '../src/storage/cache-coordinator.js';
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -16,6 +17,7 @@ async function temporary(run: (root: string) => Promise<void>) {
   try {
     await run(root);
   } finally {
+    new CacheCoordinator(root).close();
     await rm(root, { recursive: true, force: true });
   }
 }
@@ -118,6 +120,49 @@ test('invalid persistent records fail visibly without silently resetting the ori
     await writeFile(file, '{broken');
     await assert.rejects(() => new ReadingStore(root).read(), /原文件已保留/);
     assert.equal(await readFile(file, 'utf8'), '{broken');
+  }));
+
+test('saving without a validated local index never fetches a chapter, including legacy records after content clearing', async () =>
+  temporary(async (root) => {
+    let downloads = 0;
+    const fixture = new FixtureSource();
+    const service = new ReaderService(
+      {
+        label: fixture.label,
+        catalog: () => fixture.catalog(),
+        chapter: async (id) => {
+          downloads++;
+          return fixture.chapter(id);
+        },
+      },
+      root,
+    );
+    const input = {
+      chapterId: 'fixture-mist/1',
+      revision: 'original-fixture-v1',
+      last: { blockId: 'report', fraction: 0.5 },
+      atEnd: false,
+    };
+    await assert.rejects(() => service.record(input), /缺少可验证/u);
+    await service.records.change((state) => ({
+      ...state,
+      records: {
+        [input.chapterId]: {
+          chapterId: input.chapterId,
+          storyId: 'fixture-mist',
+          revision: input.revision,
+          last: input.last,
+          furthestWords: 100,
+          complete: false,
+          updatedAt: '2026-11-01T00:00:00.000Z',
+        },
+      },
+    }));
+    const original = await service.records.read();
+    await service.call('reader_clear_cache', { scope: 'all' });
+    await assert.rejects(() => service.record(input), /缺少可验证/u);
+    assert.equal(downloads, 0);
+    assert.deepEqual(await service.records.read(), original);
   }));
 
 test('legacy JSON migrates once without deleting its original or rolling back later database changes', async () =>

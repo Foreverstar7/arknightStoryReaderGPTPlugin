@@ -21,9 +21,7 @@ export interface StorySource {
     target: ImageTarget | undefined,
     retentionDays: number,
   ): Promise<ReaderImage>;
-  clearImages?(): Promise<void>;
   expire?(retentionDays: number): Promise<void>;
-  clearCache?(): Promise<void>;
 }
 
 export { ReaderError } from '../shared/errors.js';

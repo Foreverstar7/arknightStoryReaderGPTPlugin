@@ -167,7 +167,6 @@ export function parseStageSummary(wiki: string): string | undefined {
 
 export class PrtsMetadata {
   readonly cache: PublicCache;
-  private generation = 0;
   private readonly pending = new Map<string, Promise<unknown>>();
   constructor(
     root: string,
@@ -208,21 +207,34 @@ export class PrtsMetadata {
     read: () => Promise<T>,
     refresh = false,
   ): Promise<T> {
+    return this.cache.run(() =>
+      this.loadCached(key, schema, days, read, refresh),
+    );
+  }
+  private async loadCached<T>(
+    key: string,
+    schema: z.ZodType<T>,
+    days: number,
+    read: () => Promise<T>,
+    refresh: boolean,
+  ): Promise<T> {
+    this.cache.assertCurrent();
     const value = refresh ? null : await this.cache.get(key, schema, days);
     if (value) return value;
-    const existing = this.pending.get(key);
+    const pendingKey = `${this.cache.requestKey()}:${refresh}:${key}`;
+    const existing = this.pending.get(pendingKey);
     if (existing) return schema.parse(await existing);
-    const generation = this.generation;
     const task = (async () => {
       const result = schema.parse(await read());
-      if (generation === this.generation) await this.cache.put(key, result);
+      await this.cache.put(key, result);
       return result;
     })();
-    this.pending.set(key, task);
+    this.pending.set(pendingKey, task);
     try {
       return await task;
     } finally {
-      if (this.pending.get(key) === task) this.pending.delete(key);
+      if (this.pending.get(pendingKey) === task)
+        this.pending.delete(pendingKey);
     }
   }
   async chapterInfo(pageTitle: string, days: number) {
@@ -330,8 +342,6 @@ export class PrtsMetadata {
     );
   }
   async clear() {
-    this.generation++;
-    this.pending.clear();
     await this.cache.clear();
   }
 }

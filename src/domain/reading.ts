@@ -58,8 +58,12 @@ export function storyProgress(
   if (
     story.chapters.some(
       (chapter) =>
-        chapter.wordCount === null &&
-        records[chapter.id]?.totalWords === undefined,
+        records[chapter.id]?.progressKnown === false ||
+        (records[chapter.id] !== undefined &&
+          chapter.wordCountRevision !== undefined &&
+          records[chapter.id]?.revision !== chapter.wordCountRevision) ||
+        (chapter.wordCount === null &&
+          records[chapter.id]?.totalWords === undefined),
     )
   )
     return null;
@@ -68,7 +72,9 @@ export function storyProgress(
   let complete = story.chapters.length > 0;
   for (const chapter of story.chapters) {
     const record = records[chapter.id];
-    const words = chapter.wordCount ?? record?.totalWords ?? 0;
+    const words = chapter.wordCountRevision
+      ? (chapter.wordCount ?? 0)
+      : (record?.totalWords ?? chapter.wordCount ?? 0);
     total += words;
     read += Math.min(record?.furthestWords ?? 0, words);
     complete = complete && record?.complete === true;
@@ -84,11 +90,25 @@ export function chapterProgress(
 ): number | null {
   const meta = story.chapters.find((chapter) => chapter.id === chapterId);
   const record = records[chapterId];
-  const words = meta?.wordCount ?? openedWordCount ?? record?.totalWords;
+  if (record?.progressKnown === false) return null;
+  if (
+    record &&
+    meta?.wordCountRevision &&
+    record.revision !== meta.wordCountRevision
+  )
+    return null;
+  const words = openedWordCount ?? record?.totalWords ?? meta?.wordCount;
   if (words === undefined || words === null) return null;
   return percent(record?.furthestWords ?? 0, words, record?.complete ?? false);
 }
 
-export function progressLabel(progress: number | null): string {
-  return progress === null ? '总字数待核实' : `${progress}%`;
+export function progressLabel(
+  progress: number | null,
+  revisionUnknown = false,
+): string {
+  return progress === null
+    ? revisionUnknown
+      ? '修订进度待核实'
+      : '总字数待核实'
+    : `${progress}%`;
 }

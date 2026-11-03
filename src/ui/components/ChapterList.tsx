@@ -6,6 +6,7 @@ import { chapterInfoSchema } from '../../shared/contracts.js';
 import type { ReaderTransport } from '../transport.js';
 import { useVisible } from './SourceImage.js';
 import { storyTypeLabel } from '../catalog.js';
+import type { StoryPreparation } from '../useStoryPreparation.js';
 
 function Summary({
   chapter,
@@ -67,11 +68,15 @@ export function ChapterList({
   state,
   open,
   transport,
+  preparation,
+  retryPreparation,
 }: {
   story: Story;
   state: ReadingState;
   open: (id: string, restore: boolean) => void;
   transport: ReaderTransport;
+  preparation: StoryPreparation | null;
+  retryPreparation: () => void;
 }) {
   const scroller = useRef<HTMLDivElement>(null);
   const drag = useRef<{
@@ -97,6 +102,26 @@ export function ChapterList({
           <span className="eyebrow">STORY / {storyTypeLabel(story)}</span>
           <h1>{story.title}</h1>
           <p className="muted">{story.chapters.length} 篇记录 · 从左到右浏览</p>
+          <div className="story-preparation" role="status">
+            {preparation?.phase === 'ready'
+              ? `正文已加载 ${preparation.total} 篇 · 共 ${story.chapters.reduce((sum, chapter) => sum + (chapter.wordCount ?? 0), 0).toLocaleString()} 字`
+              : preparation?.phase === 'failed'
+                ? `正文已加载 ${preparation.loaded}/${preparation.total} 篇 · ${preparation.failures.length} 篇失败`
+                : preparation?.phase === 'paused'
+                  ? '正文加载已暂停'
+                  : `正在加载正文 ${preparation?.loaded ?? 0}/${story.chapters.length} 篇`}
+            {(preparation?.phase === 'failed' ||
+              preparation?.phase === 'paused') && (
+              <button
+                onClick={retryPreparation}
+                title={preparation.failures
+                  .map((failure) => failure.message)
+                  .join('\n')}
+              >
+                重试正文加载
+              </button>
+            )}
+          </div>
           {recent && (
             <button
               className="primary continue"
@@ -195,6 +220,7 @@ export function ChapterList({
                   已读{' '}
                   {progressLabel(
                     chapterProgress(story, chapter.id, state.records),
+                    state.records[chapter.id]?.progressKnown === false,
                   )}
                 </span>
               </div>
