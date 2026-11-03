@@ -61,6 +61,13 @@ test('weighted progress keeps unknown totals unknown and never rounds unfinished
     updatedAt: new Date().toISOString(),
   };
   assert.equal(storyProgress(story, { a: record }), 10);
+  // An opened revision's verified count overrides an older catalog count.
+  assert.equal(
+    storyProgress(story, {
+      a: { ...record, totalWords: 900, furthestWords: 900 },
+    }),
+    50,
+  );
   assert.equal(
     storyProgress(
       {

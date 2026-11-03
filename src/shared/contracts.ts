@@ -43,6 +43,8 @@ export const chapterMetaSchema = z.object({
   summary: z.string().optional(),
   summarySourceUrl: z.string().url().optional(),
   wordCount: z.number().int().nonnegative().nullable(),
+  wordCountRevision: z.string().optional(),
+  wordCountVerifiedAt: z.number().int().nonnegative().optional(),
   sourceUrl: z.string().url().optional(),
 });
 export const storySchema = z.object({
@@ -72,6 +74,21 @@ export const anchorSchema = z.object({
   blockId: z.string().max(200),
   fraction: z.number().min(0).max(1),
 });
+export const readingLayoutSchema = z.object({
+  id: z.string(),
+  storyId: z.string(),
+  revision: z.string(),
+  totalWords: z.number().int().nonnegative(),
+  blocks: z
+    .array(
+      z.object({
+        id: z.string(),
+        signature: z.string(),
+        words: z.number().int().nonnegative(),
+      }),
+    )
+    .min(1),
+});
 export const recordSchema = z.object({
   chapterId: z.string(),
   storyId: z.string(),
@@ -80,6 +97,22 @@ export const recordSchema = z.object({
   furthestWords: z.number().int().nonnegative(),
   complete: z.boolean(),
   totalWords: z.number().int().nonnegative().optional(),
+  furthest: anchorSchema.optional(),
+  layout: readingLayoutSchema.optional(),
+  progressKnown: z.boolean().optional(),
+  migration: z
+    .object({
+      position: z.enum(['matched', 'preceding', 'start']),
+      previous: z.object({
+        revision: z.string(),
+        last: anchorSchema,
+        furthestWords: z.number().int().nonnegative(),
+        complete: z.boolean(),
+        totalWords: z.number().int().nonnegative().optional(),
+        updatedAt: z.string().datetime(),
+      }),
+    })
+    .optional(),
   updatedAt: z.string().datetime(),
 });
 export const settingsSchema = z.object({
@@ -92,6 +125,7 @@ export const readingStateSchema = z.object({
   records: z.record(z.string(), recordSchema),
   recentChapterId: z.string().nullable(),
   settings: settingsSchema,
+  chapterRevisions: z.record(z.string(), z.string()).optional(),
 });
 export const snapshotSchema = z.object({
   stories: z.array(storySchema),
@@ -108,6 +142,14 @@ export const chapterInputSchema = z.object({
   chapterId: z.string().min(1).max(200),
   refresh: z.boolean().default(false),
 });
+export const chapterCountSchema = z.object({
+  chapterId: z.string(),
+  storyId: z.string(),
+  revision: z.string(),
+  wordCount: z.number().int().nonnegative(),
+  verifiedAt: z.number().int().nonnegative(),
+});
+export type ChapterCount = z.infer<typeof chapterCountSchema>;
 export const cacheInputSchema = z.object({ scope: z.enum(['images', 'all']) });
 export const chapterInfoSchema = z.object({
   summary: z.string().optional(),
@@ -165,6 +207,7 @@ export type Scene = z.infer<typeof sceneSchema>;
 export type Chapter = z.infer<typeof chapterSchema>;
 export type Story = z.infer<typeof storySchema>;
 export type ReadingRecord = z.infer<typeof recordSchema>;
+export type ReadingLayout = z.infer<typeof readingLayoutSchema>;
 export type ReadingState = z.infer<typeof readingStateSchema>;
 export type Settings = z.infer<typeof settingsSchema>;
 export type Snapshot = z.infer<typeof snapshotSchema>;
@@ -174,6 +217,7 @@ export const toolNames = [
   'reader_open',
   'reader_snapshot',
   'reader_chapter',
+  'reader_prepare_chapter',
   'reader_chapter_info',
   'reader_image',
   'reader_record',

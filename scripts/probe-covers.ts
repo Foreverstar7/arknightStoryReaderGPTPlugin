@@ -67,7 +67,7 @@ try {
     `Connected ${installed ? 'package stdio' : 'HTTP'} ${client.getServerVersion()?.version}`,
   );
   const tools = (await client.listTools()).tools;
-  assert.equal(tools.length, 9);
+  assert.equal(tools.length, 10);
   assert.ok(
     tools.every((tool) =>
       JSON.stringify(tool._meta?.ui).includes('"visibility":["app"]'),

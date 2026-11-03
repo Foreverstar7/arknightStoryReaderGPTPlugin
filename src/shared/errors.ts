@@ -24,8 +24,9 @@ export class ReaderError extends Error {
     public readonly code: ReaderFailure['code'],
     message: string,
     public readonly sourceUrl?: string,
+    options?: ErrorOptions,
   ) {
-    super(message);
+    super(message, options);
   }
   toFailure(): ReaderFailure {
     return {

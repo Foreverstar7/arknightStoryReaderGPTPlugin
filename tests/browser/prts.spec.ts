@@ -1,9 +1,4 @@
-import {
-  expect,
-  test,
-  type APIRequestContext,
-  type Page,
-} from '@playwright/test';
+import { expect, test, type APIRequestContext } from '@playwright/test';
 import { mkdir } from 'node:fs/promises';
 import {
   chapterInputSchema,
@@ -17,14 +12,6 @@ async function snapshot(request: APIRequestContext) {
   });
   expect(response.ok()).toBe(true);
   return snapshotSchema.parse(await response.json());
-}
-async function openFirst(page: Page) {
-  await page.goto('/');
-  await page.getByRole('button', { name: '打开剧情：骑兵与猎人' }).click();
-  await page.getByRole('button', { name: '阅读 GT-1 日正当中 行动前' }).click();
-  await expect(
-    page.getByRole('heading', { name: '日正当中 行动前', exact: true }),
-  ).toBeVisible();
 }
 test.beforeEach(async ({ request }) => {
   await request.post('/api/tools', {
@@ -195,7 +182,7 @@ test('summary retry only reloads metadata; the summary then opens the real chapt
   expect(chapterRequests).toHaveLength(1);
 });
 
-test('live PRTS catalog to two real bodies, persisted resume and unknown whole-story denominator', async ({
+test('live PRTS story prefetch supplies all 16 counts without reading or images, then weighted progress survives resume and cache clearing', async ({
   page,
   request,
 }) => {
@@ -205,7 +192,37 @@ test('live PRTS catalog to two real bodies, persisted resume and unknown whole-s
   page.on('request', (request) => {
     if (request.resourceType() === 'image') imageRequests.push(request.url());
   });
-  await openFirst(page);
+  test.setTimeout(90_000);
+  const preparationCalls: string[] = [];
+  const bodyImageCalls: string[] = [];
+  page.on('request', (request) => {
+    if (!request.url().endsWith('/api/tools')) return;
+    const input = toolRequestSchema.parse(request.postDataJSON());
+    if (input.name === 'reader_prepare_chapter')
+      preparationCalls.push(
+        chapterInputSchema.parse(input.arguments).chapterId,
+      );
+    if (
+      input.name === 'reader_image' &&
+      input.arguments &&
+      typeof input.arguments === 'object' &&
+      'kind' in input.arguments &&
+      input.arguments.kind !== 'cover'
+    )
+      bodyImageCalls.push(String(input.arguments.kind));
+  });
+  await page.goto('/');
+  await page.getByRole('button', { name: '打开剧情：骑兵与猎人' }).click();
+  await expect(page.locator('.story-preparation')).toContainText(
+    '正文已加载 16 篇',
+    { timeout: 60_000 },
+  );
+  expect(new Set(preparationCalls).size).toBe(16);
+  expect(bodyImageCalls).toEqual([]);
+  const prepared = await snapshot(request);
+  expect(prepared.state.records).toEqual({});
+  expect(prepared.state.recentChapterId).toBeNull();
+  await page.getByRole('button', { name: '阅读 GT-1 日正当中 行动前' }).click();
   await expect(page.locator('.source-note')).toContainText('PRTS 真实剧情');
   await expect(page.getByRole('link', { name: 'PRTS 原文' })).toHaveAttribute(
     'href',
@@ -213,9 +230,7 @@ test('live PRTS catalog to two real bodies, persisted resume and unknown whole-s
   );
   await expect(page.locator('.body-copy')).not.toContainText('[Character');
   await expect(page.locator('.body-copy')).not.toContainText('[delay');
-  await expect(page.locator('.progress')).toContainText(
-    '全剧情已读 总字数待核实',
-  );
+  await expect(page.locator('.progress')).toContainText(/全剧情已读\s+\d+%/);
   const name = page.getByRole('button', { name: '查看 ？？？ 的立绘' }).first();
   await name.hover();
   await expect(page.getByRole('dialog', { name: '？？？ 立绘' })).toHaveCount(
@@ -237,7 +252,7 @@ test('live PRTS catalog to two real bodies, persisted resume and unknown whole-s
     (story) => story.id === 'prts:骑兵与猎人',
   );
   expect(cavalry?.chapters).toHaveLength(16);
-  expect(cavalry?.chapters.every((chapter) => chapter.wordCount === null)).toBe(
+  expect(cavalry?.chapters.every((chapter) => chapter.wordCount !== null)).toBe(
     true,
   );
   expect(before.state.records[id]?.furthestWords).toBeGreaterThan(0);
@@ -257,7 +272,7 @@ test('live PRTS catalog to two real bodies, persisted resume and unknown whole-s
   await expect(
     page.getByRole('heading', { name: '日正当中 行动后', exact: true }),
   ).toBeVisible();
-  await expect(page.locator('.progress')).toContainText('总字数待核实');
+  await expect(page.locator('.progress')).toContainText(/全剧情已读\s+\d+%/);
   await page.getByRole('button', { name: '设置', exact: true }).click();
   await page
     .getByRole('button', { name: '清理全部内容缓存', exact: true })

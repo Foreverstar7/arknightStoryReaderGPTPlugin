@@ -1,0 +1,573 @@
+{
+  "checkedAt": "2026-11-03T13:32:46.770Z",
+  "version": "0.1.19",
+  "baseCommit": "b00b5b9471345420ff8210e586275caa001b2daa",
+  "s4Commit": "23c7208",
+  "coverCommit": "87f3930",
+  "installed": false,
+  "merged": false,
+  "stdioDefaultBufferUnchanged": true,
+  "maximumResultBytes": 1000575,
+  "recordsUnchanged": true,
+  "stdioAndHttpImageHashesEqual": true,
+  "bridge": {
+    "sdk": "ext-apps 2.0.4 AppBridge",
+    "targetDesktopHost": false,
+    "decoded": {
+      "width": 1560,
+      "height": 500,
+      "bytes": 17835330,
+      "sha256": "f0bee989d33c99b95d87da91169858d39aece3ca8a1a5f277aea0432922a9b7e"
+    },
+    "parts": 24,
+    "maxResultBytes": 1000575,
+    "preparation": "正文已加载 7 篇 · 共 43,270 字",
+    "preparationCalls": 7,
+    "recordsUnchanged": true,
+    "bodies": 0,
+    "diagnostics": []
+  },
+  "results": [
+    {
+      "storyId": "prts:黑暗时代·上",
+      "resource": "章节名称 序章.png",
+      "width": 512,
+      "height": 512,
+      "attribution": {
+        "sourceUrl": "https://prts.wiki/w/%E5%85%B3%E5%8D%A1%E4%B8%80%E8%A7%88/%E4%B8%BB%E9%A2%98%E6%9B%B2#EP00",
+        "method": "main-chapter-index"
+      },
+      "presentation": "contain",
+      "layers": [
+        {
+          "mime": "image/png",
+          "bytes": 151086,
+          "sha256": "286cd20762f0621dcab426d97d04965ce78fdf8acf1e28345c57ca9704febb5a"
+        }
+      ]
+    },
+    {
+      "storyId": "prts:黑暗时代·下",
+      "resource": "章节名称 第一章.png",
+      "width": 512,
+      "height": 512,
+      "attribution": {
+        "sourceUrl": "https://prts.wiki/w/%E5%85%B3%E5%8D%A1%E4%B8%80%E8%A7%88/%E4%B8%BB%E9%A2%98%E6%9B%B2#EP01",
+        "method": "main-chapter-index"
+      },
+      "presentation": "contain",
+      "layers": [
+        {
+          "mime": "image/png",
+          "bytes": 141392,
+          "sha256": "a82c1cd1e2bfeef69d4bf578b32cc59407f4c34882598621f8c3125a4bef17b2"
+        }
+      ]
+    },
+    {
+      "storyId": "prts:异卵同生",
+      "resource": "章节名称 第二章.png",
+      "width": 512,
+      "height": 512,
+      "attribution": {
+        "sourceUrl": "https://prts.wiki/w/%E5%85%B3%E5%8D%A1%E4%B8%80%E8%A7%88/%E4%B8%BB%E9%A2%98%E6%9B%B2#EP02",
+        "method": "main-chapter-index"
+      },
+      "presentation": "contain",
+      "layers": [
+        {
+          "mime": "image/png",
+          "bytes": 222415,
+          "sha256": "5f63194d41c0d994922f99aaf9995cfaf342445fcd3c4391823f1c0f00513609"
+        }
+      ]
+    },
+    {
+      "storyId": "prts:二次呼吸",
+      "resource": "章节名称 第三章.png",
+      "width": 512,
+      "height": 512,
+      "attribution": {
+        "sourceUrl": "https://prts.wiki/w/%E5%85%B3%E5%8D%A1%E4%B8%80%E8%A7%88/%E4%B8%BB%E9%A2%98%E6%9B%B2#EP03",
+        "method": "main-chapter-index"
+      },
+      "presentation": "contain",
+      "layers": [
+        {
+          "mime": "image/png",
+          "bytes": 207511,
+          "sha256": "9cf14f7dc236819f81fe96dfa60894f1ce0a55460203d5568e941cd2e177dcb3"
+        }
+      ]
+    },
+    {
+      "storyId": "prts:急性衰竭",
+      "resource": "章节名称 第四章.png",
+      "width": 512,
+      "height": 512,
+      "attribution": {
+        "sourceUrl": "https://prts.wiki/w/%E5%85%B3%E5%8D%A1%E4%B8%80%E8%A7%88/%E4%B8%BB%E9%A2%98%E6%9B%B2#EP04",
+        "method": "main-chapter-index"
+      },
+      "presentation": "contain",
+      "layers": [
+        {
+          "mime": "image/png",
+          "bytes": 182267,
+          "sha256": "57e54f864467c7abb2ddf181edbb540eb426a59516516c87180f934a4f813a05"
+        }
+      ]
+    },
+    {
+      "storyId": "prts:活动剧情/特殊 · 危机合约",
+      "resource": "活动名称 危机合约.png",
+      "width": 463,
+      "height": 121,
+      "attribution": {
+        "sourceUrl": "https://prts.wiki/w/%E5%85%B3%E5%8D%A1%E4%B8%80%E8%A7%88/%E6%B4%BB%E5%8A%A8%E5%85%B3%E5%8D%A1",
+        "method": "contingency-logo"
+      },
+      "presentation": "contain",
+      "layers": [
+        {
+          "mime": "image/png",
+          "bytes": 42695,
+          "sha256": "30bc2d28df31855ba0f931f287f4d97f2ebbda5c5bb6c4d1089ec9171fde4ee4"
+        }
+      ]
+    },
+    {
+      "storyId": "prts:活动剧情/四月辑录 · 断罪者的挑战状",
+      "resource": "标题图 四月辑录2020.png",
+      "width": 1560,
+      "height": 500,
+      "attribution": {
+        "sourceUrl": "https://prts.wiki/w/%E6%B4%BB%E5%8A%A8%E4%B8%80%E8%A7%88",
+        "method": "april-year-index"
+      },
+      "presentation": "banner",
+      "layers": [
+        {
+          "mime": "image/png",
+          "bytes": 610619,
+          "sha256": "36d64d2cc0c1194e9854de652a71f8ab2150862f7db762c6a94b6b1b158cd8a4"
+        }
+      ]
+    },
+    {
+      "storyId": "prts:活动剧情/四月辑录 · 泰拉 说唱之夜！",
+      "resource": "标题图 四月辑录2021.png",
+      "width": 1560,
+      "height": 500,
+      "attribution": {
+        "sourceUrl": "https://prts.wiki/w/%E6%B4%BB%E5%8A%A8%E4%B8%80%E8%A7%88",
+        "method": "april-year-index"
+      },
+      "presentation": "banner",
+      "layers": [
+        {
+          "mime": "image/png",
+          "bytes": 1026384,
+          "sha256": "c3aa10e0a972e7df53987f738c626c42a37b8303ab9aac0de028501e3f01a878"
+        }
+      ]
+    },
+    {
+      "storyId": "prts:活动剧情/四月辑录 · 狂弹要塞！罗德大兵集结",
+      "resource": "标题图 四月辑录2022.png",
+      "width": 1560,
+      "height": 500,
+      "attribution": {
+        "sourceUrl": "https://prts.wiki/w/%E6%B4%BB%E5%8A%A8%E4%B8%80%E8%A7%88",
+        "method": "april-year-index"
+      },
+      "presentation": "banner",
+      "layers": [
+        {
+          "mime": "image/png",
+          "bytes": 530175,
+          "sha256": "9bbc68422b978d74f67e82f72cc79ce38f3ca283fc645c5993f7e26f799c9f04"
+        }
+      ]
+    },
+    {
+      "storyId": "prts:活动剧情/四月辑录 · 主播U：全能系美少女",
+      "resource": "标题图 四月辑录2023.png",
+      "width": 1560,
+      "height": 500,
+      "attribution": {
+        "sourceUrl": "https://prts.wiki/w/%E6%B4%BB%E5%8A%A8%E4%B8%80%E8%A7%88",
+        "method": "april-year-index"
+      },
+      "presentation": "banner",
+      "layers": [
+        {
+          "mime": "image/png",
+          "bytes": 978378,
+          "sha256": "a243e1b6cf7133f6ff6557244e2e3fa9bcd2d3d45afd6410cd54e1284a336353"
+        }
+      ]
+    },
+    {
+      "storyId": "prts:活动剧情/四月辑录 · 好得不能再好了！泰拉投资大师课",
+      "resource": "标题图 四月辑录2024.png",
+      "width": 1560,
+      "height": 500,
+      "attribution": {
+        "sourceUrl": "https://prts.wiki/w/%E6%B4%BB%E5%8A%A8%E4%B8%80%E8%A7%88",
+        "method": "april-year-index"
+      },
+      "presentation": "banner",
+      "layers": [
+        {
+          "mime": "image/png",
+          "bytes": 772230,
+          "sha256": "8afb38caee951f50aa12d13324711b00ab6a6c83b9565d9bf5e5a3620f1ce5c3"
+        }
+      ]
+    },
+    {
+      "storyId": "prts:活动剧情/四月辑录 · ARKnoNIGHTS",
+      "resource": "标题图 四月辑录2025.png",
+      "width": 1560,
+      "height": 500,
+      "attribution": {
+        "sourceUrl": "https://prts.wiki/w/%E6%B4%BB%E5%8A%A8%E4%B8%80%E8%A7%88",
+        "method": "april-year-index"
+      },
+      "presentation": "banner",
+      "layers": [
+        {
+          "mime": "image/png",
+          "bytes": 650004,
+          "sha256": "a51977b4c39d6286746cb2490fe18ec20c7e36b2169aae02a790dbace6bc7374"
+        }
+      ]
+    },
+    {
+      "storyId": "prts:活动剧情/四月辑录 · Rhodes Island Epic 黑色博士坠落",
+      "resource": "标题图 四月辑录2026.png",
+      "width": 1560,
+      "height": 500,
+      "attribution": {
+        "sourceUrl": "https://prts.wiki/w/%E6%B4%BB%E5%8A%A8%E4%B8%80%E8%A7%88",
+        "method": "april-year-index"
+      },
+      "presentation": "banner",
+      "layers": [
+        {
+          "mime": "image/png",
+          "bytes": 759950,
+          "sha256": "56bc589d7974c30e5c96e4d0e4e156851272cd7c9d7102b751f12b8cd732a051"
+        }
+      ]
+    },
+    {
+      "storyId": "prts:日暮寻路",
+      "resource": "活动预告 日暮寻路 01.jpg",
+      "width": 1560,
+      "height": 500,
+      "attribution": {
+        "sourceUrl": "https://prts.wiki/w/%E6%97%A5%E6%9A%AE%E5%AF%BB%E8%B7%AF",
+        "method": "activity-title-field"
+      },
+      "presentation": "banner",
+      "layers": [
+        {
+          "mime": "image/jpeg",
+          "bytes": 17835330,
+          "sha256": "f0bee989d33c99b95d87da91169858d39aece3ca8a1a5f277aea0432922a9b7e"
+        }
+      ]
+    },
+    {
+      "storyId": "prts:主线剧情/特殊 · 剧情",
+      "text": "主线补充剧情",
+      "chapters": 8,
+      "origin": "application"
+    },
+    {
+      "storyId": "prts:活动剧情/特殊 · 剧情",
+      "text": "活动补充剧情",
+      "chapters": 3,
+      "origin": "application"
+    }
+  ],
+  "packageFiles": [
+    {
+      "file": "data/fixture.js",
+      "bytes": 6698,
+      "sha256": "42adb63c1d35c1a000e5d5d00a29bdd6fa6308556ce58598f98a9d7864acab6f"
+    },
+    {
+      "file": "data/fixture.js.map",
+      "bytes": 3734,
+      "sha256": "71a9e5799055a47d322a5e7e44ab97a646c5d30c28ccd4b49a2eec7ba582c346"
+    },
+    {
+      "file": "data/image-format.js",
+      "bytes": 1298,
+      "sha256": "d01e3a6fd107aa6ea0e205d090319169d90ed694e4fbe71948dea4a3a1676b5c"
+    },
+    {
+      "file": "data/image-format.js.map",
+      "bytes": 1295,
+      "sha256": "f58b1b2bd162f5c1fec4ecbc0f0d5f7be0cda33ab39adb21a25d264076c25608"
+    },
+    {
+      "file": "data/prts-catalog.js",
+      "bytes": 3593,
+      "sha256": "0113695554d412bc9be69034f8cfc501bc698550e1fe3f44eacaaf8dfe13bc81"
+    },
+    {
+      "file": "data/prts-catalog.js.map",
+      "bytes": 3379,
+      "sha256": "1ecc510880324babacda6a9ab55622010c8b28dbd75cc53cf2c37d19cdd339a9"
+    },
+    {
+      "file": "data/prts-client.js",
+      "bytes": 1690,
+      "sha256": "f4d8c8d1a12ad186dd63c0c2055739197093cdb1efda2dfeb9bf9251b7af310f"
+    },
+    {
+      "file": "data/prts-client.js.map",
+      "bytes": 1509,
+      "sha256": "201259455f1d1c0d3cd90038a8c735e9ee0a8ba6a2aef95c629bfc4169bc9e11"
+    },
+    {
+      "file": "data/prts-metadata.js",
+      "bytes": 13559,
+      "sha256": "9d086e3dcfc614348027de5a61e91fa37a17b6061e5ce1165066c21b57149f12"
+    },
+    {
+      "file": "data/prts-metadata.js.map",
+      "bytes": 11664,
+      "sha256": "aa1aaf920e602ddf6db040325a33b47a71969ebcc77acd3c80bcdf0116249888"
+    },
+    {
+      "file": "data/prts-resources.js",
+      "bytes": 13707,
+      "sha256": "3a5fe8c066be4a074ffc50920d8ed9faffea4b06c8f9af161bba11024d540a34"
+    },
+    {
+      "file": "data/prts-resources.js.map",
+      "bytes": 14598,
+      "sha256": "36ba6f18536b302075b4d95963f8dfbc2fb05a072a01d671bdd87295ec239641"
+    },
+    {
+      "file": "data/prts-script.js",
+      "bytes": 12922,
+      "sha256": "4d7b6ddc1580f35e7bac768186fdb26ea73931c1caa4bb039b746c8e2c8a8d61"
+    },
+    {
+      "file": "data/prts-script.js.map",
+      "bytes": 13125,
+      "sha256": "2607521e8e45119e895ac36fbc819f16a5d899660c28c1726792b383f9d74961"
+    },
+    {
+      "file": "data/prts.js",
+      "bytes": 4630,
+      "sha256": "71f3bd582b04f44d259dce7944cb336c6ddb1a108580c7d3e8957f94c8be9632"
+    },
+    {
+      "file": "data/prts.js.map",
+      "bytes": 4781,
+      "sha256": "f3bf3913d84ff1b22342ca365ec268c852c8453d2da1cad528bfb6bb4463d912"
+    },
+    {
+      "file": "data/source.js",
+      "bytes": 85,
+      "sha256": "3bab8caed9ad64b4f15d218c44b91c13238c957033cc9ce44cebb3763a820528"
+    },
+    {
+      "file": "data/source.js.map",
+      "bytes": 154,
+      "sha256": "0e3af8aecf7d21759697725f1d603f4a194bd037fea965068de725601efe81c7"
+    },
+    {
+      "file": "domain/reading.js",
+      "bytes": 3042,
+      "sha256": "34d77ff72c444d1fe544fcf80e465fbb7b4ef068e79d2ce32b561f71a6151cf1"
+    },
+    {
+      "file": "domain/reading.js.map",
+      "bytes": 3444,
+      "sha256": "23dbf1013b22598eb91299ab8c63985ea9c2c189ee1ced278f108d791f290125"
+    },
+    {
+      "file": "domain/revisions.js",
+      "bytes": 6246,
+      "sha256": "b505aacc0a89ff7da0b9464dcdf012123003603aa287461d63b8949c88041b27"
+    },
+    {
+      "file": "domain/revisions.js.map",
+      "bytes": 7109,
+      "sha256": "dd041186f4bc194f2c435fc3607f2abc74fa0413a9622c5b9c89360532900f52"
+    },
+    {
+      "file": "server/image-transfer.js",
+      "bytes": 1438,
+      "sha256": "847a40e49314f4dd44394407f0eb35d2a3e9d7ac93bbc5a8e8977fbc8485f135"
+    },
+    {
+      "file": "server/image-transfer.js.map",
+      "bytes": 1281,
+      "sha256": "763d8ddeaa06f5c68b9fb764a6e1cf0a3dc0cf23ff6045907231d45f98b9a9b6"
+    },
+    {
+      "file": "server/main.js",
+      "bytes": 4260,
+      "sha256": "41b9e5df3ca63cef81e0afa233e52a38e5d173b611562865990c8165ad008c2e"
+    },
+    {
+      "file": "server/main.js.map",
+      "bytes": 4490,
+      "sha256": "749a65ce516f95526875cf4649349ec9bae30c75f023bdf4684cd0961d639fd0"
+    },
+    {
+      "file": "server/mcp.js",
+      "bytes": 6458,
+      "sha256": "fe4130afd5653d0d99e9b87acb001b825690e281288c443a37098d9900101fb4"
+    },
+    {
+      "file": "server/mcp.js.map",
+      "bytes": 5093,
+      "sha256": "2a9dc2e1dfd3a9fb0337ea92071971b9b5851466ce864a08724a3a3fe3d1ba61"
+    },
+    {
+      "file": "server/service.js",
+      "bytes": 13579,
+      "sha256": "d03ccae50b39609e70e5662a00786db718efbd2fe313e0532289ed247a2acda0"
+    },
+    {
+      "file": "server/service.js.map",
+      "bytes": 12343,
+      "sha256": "71f60b166695dd1a565694e0098cc578f9eb1998fac641ee3465c66b54921b31"
+    },
+    {
+      "file": "shared/contracts.js",
+      "bytes": 6926,
+      "sha256": "411cfffba0f9b71e9b0ccddea7dbce7bed75e123044827755b01876a3e4fe850"
+    },
+    {
+      "file": "shared/contracts.js.map",
+      "bytes": 9174,
+      "sha256": "07aafbac9e6119e29512ce1e9d126a3425e037722e2372298497b2547bc4d834"
+    },
+    {
+      "file": "shared/cover-policy.js",
+      "bytes": 1420,
+      "sha256": "a3d53b7cb080dd0866bf729da3862c2c406c4f18d43ede4abb8ef537c8e54928"
+    },
+    {
+      "file": "shared/cover-policy.js.map",
+      "bytes": 871,
+      "sha256": "e52585a8b117616bed0a0469e47f3d93af311380595e3de666e68f4248d6768a"
+    },
+    {
+      "file": "shared/errors.js",
+      "bytes": 884,
+      "sha256": "911573255ce7ed9f2b33f35009bb035604bd1d6800628aed770d2a32e51e88a7"
+    },
+    {
+      "file": "shared/errors.js.map",
+      "bytes": 835,
+      "sha256": "1dfa04338a6841bc59e5c010e24e1c738978cb85a55fd3c12b20f5151a49abb3"
+    },
+    {
+      "file": "shared/image-transfer.js",
+      "bytes": 2932,
+      "sha256": "e934277b63ac8304e0f8e2533a6d15c7f7af94f82ef8b7aaa121fef65160e2ad"
+    },
+    {
+      "file": "shared/image-transfer.js.map",
+      "bytes": 2917,
+      "sha256": "032e3829e4d6f95947541e294f863486b2790f46e1dd9796d2c91acfa39ec42a"
+    },
+    {
+      "file": "shared/version.js",
+      "bytes": 68,
+      "sha256": "445897025c456a88d45223fa32d1b42d686c580f1e7bea2849d5a7dd416aa2e4"
+    },
+    {
+      "file": "shared/version.js.map",
+      "bytes": 155,
+      "sha256": "6ebeb7556b190793aaaecc9e793e9187a74c6553b3328805bd8b78b3c41d9da8"
+    },
+    {
+      "file": "storage/cache-coordinator.js",
+      "bytes": 6819,
+      "sha256": "ab6559e60e98e653f1f71cf3aac6913b2180b4258bc67932a3774a774028ab6e"
+    },
+    {
+      "file": "storage/cache-coordinator.js.map",
+      "bytes": 5700,
+      "sha256": "a2a1ac50a389932e37f9823a78247b04e2ab7bc3b9fff9816f96a9c93fdf8d9a"
+    },
+    {
+      "file": "storage/files.js",
+      "bytes": 549,
+      "sha256": "c8729a1a4aa37343426463ed58fafe53a02c13252d8f972e139bb80d78fe9032"
+    },
+    {
+      "file": "storage/files.js.map",
+      "bytes": 750,
+      "sha256": "ea0141338d2f82291f5cd0dcc95a5041dea4326d2ee426b925de733bbabd83c4"
+    },
+    {
+      "file": "storage/json-cache.js",
+      "bytes": 6114,
+      "sha256": "35f2bb1bcd9340a0d9b82331862637f8771973fb76a7ef937afd6f1b7a621288"
+    },
+    {
+      "file": "storage/json-cache.js.map",
+      "bytes": 6023,
+      "sha256": "b2e43efe79dd250f780348f172c4c1b197c9d9289838696a319396afc61601c2"
+    },
+    {
+      "file": "storage/prts-catalog.js",
+      "bytes": 690,
+      "sha256": "9b7685740f618104745ce7bffedee00559b6e07ebd7f60ee8ad5bddc34a589b6"
+    },
+    {
+      "file": "storage/prts-catalog.js.map",
+      "bytes": 937,
+      "sha256": "a0f107ade9e275ae6932bb983514fd6c1ca848a77502ce8ca9f8a27fc1096bd7"
+    },
+    {
+      "file": "storage/public-cache.js",
+      "bytes": 216,
+      "sha256": "43e79877d242df5e8d6bd186dcba9db2c45c12c02f83501394339aef601cab0c"
+    },
+    {
+      "file": "storage/public-cache.js.map",
+      "bytes": 323,
+      "sha256": "55aef21ee4cba86cfd7e7c462be3a9946529b99be9efff53b22b06915bfa0e40"
+    },
+    {
+      "file": "storage/reading-store.js",
+      "bytes": 2785,
+      "sha256": "55d4d1cb7bb1f63910b1b8a7b01031cec6f443fdfde7533f77a09673a2394795"
+    },
+    {
+      "file": "storage/reading-store.js.map",
+      "bytes": 2307,
+      "sha256": "003b0ef92eb5bf2464529788c8656d55dd847f031f3a55551f34698047221500"
+    },
+    {
+      "file": "storage/word-counts.js",
+      "bytes": 2924,
+      "sha256": "4a295e2c6291bde1734dfff677d9ed005f8b3ce32f0438b6ea5d896f99acec24"
+    },
+    {
+      "file": "storage/word-counts.js.map",
+      "bytes": 2647,
+      "sha256": "4e62d991662b51e1a594e90721ae36be52a89f88f75d722f5e302098a693d39e"
+    },
+    {
+      "file": "ui/index.html",
+      "bytes": 520277,
+      "sha256": "79606a8f451f90c570f7991892627750203ffb487c3acaa3a33aef91a3916d16"
+    }
+  ]
+}

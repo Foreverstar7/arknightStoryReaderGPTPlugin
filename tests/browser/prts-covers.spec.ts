@@ -11,12 +11,18 @@ const targetCard = (page: Page) =>
   page.locator(`[data-story-id="${targetId}"]`);
 
 // Limit new cover scenarios to their named public samples. Other cover responses are
-// explicit test injections, not claims about those sources; no unread bodies are fetched.
+// explicit test injections, not claims about those sources. Story preparation is
+// disabled only in these cover tests; the S4 suites verify real preparation.
 async function limitCovers(page: Page, allowed: string[]) {
   await page.route('**/api/tools', async (route) => {
     const data = route.request().postDataJSON();
     const input = imageInputSchema.safeParse(data.arguments);
-    if (
+    if (data.name === 'reader_prepare_chapter')
+      await route.fulfill({
+        status: 400,
+        json: { code: 'unsupported', error: '封面专项测试不运行正文准备。' },
+      });
+    else if (
       data.name === 'reader_image' &&
       input.success &&
       input.data.kind === 'cover' &&

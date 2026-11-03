@@ -11,8 +11,10 @@ import { ReaderError } from '../data/source.js';
 import {
   cacheInputSchema,
   chapterInputSchema,
+  chapterCountSchema,
   chapterSchema,
   chapterInfoSchema,
+  imageInputSchema,
   imageResultSchema,
   readingStateSchema,
   recordInputSchema,
@@ -84,7 +86,7 @@ export function createReaderMcp(
           openWorldHint: [
             'reader_snapshot',
             'reader_chapter',
-            'reader_record',
+            'reader_prepare_chapter',
             'reader_image',
             'reader_chapter_info',
           ].includes(name),
@@ -101,16 +103,38 @@ export function createReaderMcp(
       },
       async (args) => {
         try {
-          const value = await service.call(name, args);
-          const image =
+          const part =
             name === 'reader_image'
-              ? imageResultSchema.parse(value)
+              ? imagePartRequestSchema.parse(args)
               : undefined;
+          if (
+            part &&
+            (part.partIndex ?? 0) > 0 &&
+            part.cacheEpoch === undefined
+          )
+            throw new ReaderError('parse', '图片后续分段缺少缓存代次。');
+          const transfer = part
+            ? await service.imageForTransfer(
+                imageInputSchema.parse(args),
+                part.cacheEpoch,
+              )
+            : undefined;
+          const value = transfer
+            ? transfer.image
+            : await service.call(name, args);
           const result = output.parse(value);
           return {
             structuredContent: result,
             // Binary layers only hydrate the app; they are excluded from model context.
-            ...(image ? { _meta: imageToolMetadata(image, args) } : {}),
+            ...(transfer
+              ? {
+                  _meta: imageToolMetadata(
+                    transfer.image,
+                    args,
+                    transfer.cacheEpoch,
+                  ),
+                }
+              : {}),
             content: [
               {
                 type: 'text',
@@ -179,6 +203,13 @@ export function createReaderMcp(
     '按需读取一个篇目的正文',
     chapterInputSchema,
     chapterSchema,
+    true,
+  );
+  tool(
+    'reader_prepare_chapter',
+    '为当前打开的剧情缓存一篇正文并统计字数，不标记已读或获取图片',
+    chapterInputSchema.pick({ chapterId: true }),
+    chapterCountSchema,
     true,
   );
   tool(

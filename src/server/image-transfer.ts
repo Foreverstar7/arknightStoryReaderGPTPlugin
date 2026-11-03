@@ -8,7 +8,11 @@ import {
 } from '../shared/image-transfer.js';
 
 /** No transfer sessions or extra persisted copies: reuse the normal image cache. */
-export function imageToolMetadata(image: ReaderImage, args: unknown) {
+export function imageToolMetadata(
+  image: ReaderImage,
+  args: unknown,
+  cacheEpoch: string,
+) {
   const request = imagePartRequestSchema.parse(args);
   const serialized = JSON.stringify(image);
   const count = Math.ceil(serialized.length / IMAGE_PART_CHARACTERS);
@@ -27,6 +31,7 @@ export function imageToolMetadata(image: ReaderImage, args: unknown) {
   if (count === 1) return { readerImage: image };
   return {
     readerImagePart: {
+      cacheEpoch,
       transferId,
       index,
       count,

@@ -1,3 +1,4 @@
+import { CacheCoordinator } from '../src/storage/cache-coordinator.js';
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { Client, InMemoryTransport } from '@modelcontextprotocol/client';
@@ -22,7 +23,7 @@ test('SDK negotiation, app-only visibility, extension registration and persisten
     await server.connect(serverWire);
     await client.connect(clientWire);
     const tools = (await client.listTools()).tools;
-    assert.equal(tools.length, 9);
+    assert.equal(tools.length, 10);
     assert.ok(
       tools.every((tool) =>
         JSON.stringify(tool._meta?.ui).includes('"visibility":["app"]'),
@@ -43,6 +44,10 @@ test('SDK negotiation, app-only visibility, extension registration and persisten
       snapshotSchema.parse(result.structuredContent).stories.length,
       3,
     );
+    await client.callTool({
+      name: 'reader_chapter',
+      arguments: { chapterId: 'fixture-mist/1' },
+    });
     const saved = await client.callTool({
       name: 'reader_record',
       arguments: {
@@ -68,6 +73,7 @@ test('SDK negotiation, app-only visibility, extension registration and persisten
   } finally {
     await client.close();
     await server.close();
+    new CacheCoordinator(root).close();
     await rm(root, { recursive: true, force: true });
   }
 });
@@ -98,8 +104,12 @@ test('two independent stdio processes preserve shared reading records under simu
       ),
     );
     await Promise.all(
-      clients.map((client, index) =>
-        client.callTool({
+      clients.map(async (client, index) => {
+        await client.callTool({
+          name: 'reader_chapter',
+          arguments: { chapterId: `fixture-mist/${index + 1}` },
+        });
+        return client.callTool({
           name: 'reader_record',
           arguments: {
             chapterId: `fixture-mist/${index + 1}`,
@@ -107,8 +117,8 @@ test('two independent stdio processes preserve shared reading records under simu
             last: { blockId: 'report', fraction: 0.5 },
             atEnd: false,
           },
-        }),
-      ),
+        });
+      }),
     );
     const client = clients[0];
     assert.ok(client);
@@ -121,6 +131,7 @@ test('two independent stdio processes preserve shared reading records under simu
     assert.ok(state.records['fixture-mist/2']);
   } finally {
     await Promise.all(clients.map((client) => client.close()));
+    new CacheCoordinator(root).close();
     await rm(root, { recursive: true, force: true });
   }
 });

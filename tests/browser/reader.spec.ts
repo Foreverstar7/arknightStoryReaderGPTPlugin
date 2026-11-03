@@ -229,22 +229,29 @@ test('320px, medium, desktop and low-height layouts in both themes remain usable
 test('every navigation animates, adjacent chapters sweep in opposite directions, and resize/reduced motion settle correctly', async ({
   page,
 }) => {
+  // The wave lasts 440ms; expect.poll's default backoff can skip it entirely.
+  // Observe actual CSS starts in the page instead of sampling only live frames.
+  await page.addInitScript(() => {
+    const names = new Set<string>();
+    document.addEventListener('animationstart', (event) => {
+      names.add(event.animationName);
+      document.documentElement.dataset.observedAnimations = [...names].join(
+        '\n',
+      );
+    });
+  });
+  const observedAnimations = () =>
+    page.evaluate(
+      () =>
+        document.documentElement.dataset.observedAnimations?.split('\n') ?? [],
+    );
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.setViewportSize({ width: 1100, height: 760 });
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('/');
   await page.getByRole('button', { name: '打开剧情：雾中来信' }).click();
-  await expect
-    .poll(() =>
-      page.evaluate(() =>
-        document
-          .getAnimations()
-          .filter((animation) => animation instanceof CSSAnimation)
-          .map((animation) => animation.animationName),
-      ),
-    )
-    .toContain('page-enter');
+  await expect.poll(observedAnimations).toContain('page-enter');
   await page
     .getByRole('button', { name: '阅读 档案 01 一封未寄出的信' })
     .click();
@@ -256,16 +263,7 @@ test('every navigation animates, adjacent chapters sweep in opposite directions,
     element.scrollTop = element.scrollHeight;
   });
   await page.getByRole('button', { name: '下一篇 →', exact: true }).click();
-  await expect
-    .poll(() =>
-      page.evaluate(() =>
-        document
-          .getAnimations()
-          .filter((animation) => animation instanceof CSSAnimation)
-          .map((animation) => animation.animationName),
-      ),
-    )
-    .toContain('reader-wave-next');
+  await expect.poll(observedAnimations).toContain('reader-wave-next');
   await page.screenshot({
     path: '.ai/local/screenshots/turn-next.png',
     animations: 'allow',
@@ -280,31 +278,13 @@ test('every navigation animates, adjacent chapters sweep in opposite directions,
     element.scrollTop = element.scrollHeight;
   });
   await page.getByRole('button', { name: '← 上一篇', exact: true }).click();
-  await expect
-    .poll(() =>
-      page.evaluate(() =>
-        document
-          .getAnimations()
-          .filter((animation) => animation instanceof CSSAnimation)
-          .map((animation) => animation.animationName),
-      ),
-    )
-    .toContain('reader-wave-previous');
+  await expect.poll(observedAnimations).toContain('reader-wave-previous');
   await page.setViewportSize({ width: 320, height: 600 });
   await expect
     .poll(() => reader.evaluate((element) => element.scrollTop))
     .toBe(0);
   await page.getByRole('button', { name: '⌂ 主页', exact: true }).click();
-  await expect
-    .poll(() =>
-      page.evaluate(() =>
-        document
-          .getAnimations()
-          .filter((animation) => animation instanceof CSSAnimation)
-          .map((animation) => animation.animationName),
-      ),
-    )
-    .toContain('home-enter');
+  await expect.poll(observedAnimations).toContain('home-enter');
   await expect(
     page.getByRole('button', { name: '篇章目录', exact: true }),
   ).toBeVisible();

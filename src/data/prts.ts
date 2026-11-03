@@ -17,7 +17,7 @@ export class PrtsSource implements StorySource {
   private readonly cache: PrtsCatalogCache;
   readonly resources: PrtsResources;
   private readonly metadata: PrtsMetadata;
-  private catalogPending: Promise<Story[]> | null = null;
+  private readonly catalogPending = new Map<string, Promise<Story[]>>();
   constructor(
     root: string,
     private readonly readWiki: WikiReader = readPrtsWiki,
@@ -28,7 +28,12 @@ export class PrtsSource implements StorySource {
     this.metadata = new PrtsMetadata(root, readWiki);
   }
   async catalog(retentionDays = 7): Promise<Story[]> {
-    if (this.catalogPending) return this.catalogPending;
+    return this.cache.run(() => this.loadCatalog(retentionDays));
+  }
+  private async loadCatalog(retentionDays: number): Promise<Story[]> {
+    const key = this.cache.requestKey();
+    const pending = this.catalogPending.get(key);
+    if (pending) return pending;
     const read = async () => {
       const cached = await this.cache.get(retentionDays);
       if (cached)
@@ -44,11 +49,13 @@ export class PrtsSource implements StorySource {
       await this.cache.put({ rootWiki, navigationWiki });
       return stories;
     };
-    this.catalogPending = read();
+    const task = read();
+    this.catalogPending.set(key, task);
     try {
-      return await this.catalogPending;
+      return await task;
     } finally {
-      this.catalogPending = null;
+      if (this.catalogPending.get(key) === task)
+        this.catalogPending.delete(key);
     }
   }
   async chapter(id: string, retentionDays = 7): Promise<Chapter> {
@@ -115,19 +122,11 @@ export class PrtsSource implements StorySource {
       throw new ReaderError('resource_missing', '该段落缺少 CG 引用。');
     return this.resources.cg(target.resource, days, input.refresh);
   }
-  async clearImages(): Promise<void> {
-    await this.resources.clear('images');
-  }
   async expire(days: number): Promise<void> {
     await Promise.all([
       this.resources.images.expire(days),
       this.resources.mappings.expire(days),
       this.metadata.cache.expire(days),
     ]);
-  }
-  async clearCache(): Promise<void> {
-    await this.cache.clear();
-    await this.metadata.clear();
-    await this.resources.clear('all');
   }
 }

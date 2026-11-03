@@ -7,7 +7,9 @@ import { ReaderError, readerFailureSchema } from './errors.js';
 // One million JSON characters is at most 4 MB UTF-8, below that default buffer.
 export const IMAGE_PART_CHARACTERS = 1_000_000;
 export const MAX_IMAGE_PARTS = 64; // two existing image layers, each <= 20 MB
+const cacheEpochSchema = z.string().max(20).regex(/^\d+$/u);
 export const imagePartRequestSchema = z.object({
+  cacheEpoch: cacheEpochSchema.optional(),
   partIndex: z
     .number()
     .int()
@@ -20,6 +22,7 @@ export const imagePartRequestSchema = z.object({
     .optional(),
 });
 export const imagePartSchema = z.object({
+  cacheEpoch: cacheEpochSchema,
   transferId: z.string().regex(/^[a-f0-9]{64}$/u),
   index: z
     .number()
@@ -40,16 +43,17 @@ export async function collectImageResult(
   next: (part: {
     partIndex: number;
     transferId: string;
+    cacheEpoch: string;
   }) => Promise<ImageToolResult>,
 ) {
   if (!first._meta?.readerImagePart) return first._meta?.readerImage;
   const initial = imagePartSchema.safeParse(first._meta.readerImagePart);
   if (!initial.success || initial.data.index !== 0)
     throw new ReaderError('parse', '图片传输首段不兼容，请重试。');
-  const { count, transferId } = initial.data;
+  const { count, transferId, cacheEpoch } = initial.data;
   const pieces = [initial.data.data];
   for (let index = 1; index < count; index++) {
-    const response = await next({ partIndex: index, transferId });
+    const response = await next({ partIndex: index, transferId, cacheEpoch });
     if (response.isError) {
       const failure = readerFailureSchema.safeParse(
         response._meta?.readerError,
@@ -65,7 +69,8 @@ export async function collectImageResult(
       !part.success ||
       part.data.index !== index ||
       part.data.count !== count ||
-      part.data.transferId !== transferId
+      part.data.transferId !== transferId ||
+      part.data.cacheEpoch !== cacheEpoch
     )
       throw new ReaderError('parse', '图片分段不完整或来源已变化，请重试。');
     pieces.push(part.data.data);

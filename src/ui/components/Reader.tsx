@@ -86,7 +86,10 @@ export function Reader({
       : undefined;
     if (element && node && initialPosition) {
       element.scrollTop =
-        node.offsetTop + node.offsetHeight * initialPosition.fraction;
+        initialPosition.blockId === chapter.blocks[0]?.id &&
+        initialPosition.fraction === 0
+          ? 0
+          : node.offsetTop + node.offsetHeight * initialPosition.fraction;
     }
   }, [initialPosition]);
 
