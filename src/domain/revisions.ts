@@ -17,6 +17,8 @@ function body(block: Block): unknown {
       return [block.kind, block.text];
     case 'cg':
       return [block.kind, block.resource ?? block.label];
+    case 'video':
+      return [block.kind, block.sourceUrl];
     case 'choices':
       return [
         block.kind,
@@ -25,6 +27,7 @@ function body(block: Block): unknown {
           group.labels,
           group.blocks.map(body),
         ]),
+        ...(block.when ? [block.when] : []),
       ];
   }
 }

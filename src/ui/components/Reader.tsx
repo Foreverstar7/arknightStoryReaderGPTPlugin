@@ -9,6 +9,7 @@ import type {
 import type { ReaderTransport } from '../transport.js';
 import { SourceImage, useVisible } from './SourceImage.js';
 import { PortraitPopover } from './PortraitPopover.js';
+import { chapterContentKind } from '../../domain/reading.js';
 
 function Cg({
   block,
@@ -76,6 +77,8 @@ export function Reader({
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const saving = useRef<Promise<void>>(Promise.resolve());
   const lastSaved = useRef('');
+  const lastQueued = useRef('');
+  const saveSequence = useRef(0);
   const saveRef = useRef(save);
   saveRef.current = save;
 
@@ -95,6 +98,7 @@ export function Reader({
 
   useEffect(() => {
     function position(): RecordInput | null {
+      if (chapterContentKind(chapter) === 'video') return null;
       const element = scroll.current;
       if (!element) return null;
       const end = chapter.blocks.at(-1);
@@ -108,6 +112,7 @@ export function Reader({
         return {
           chapterId: chapter.id,
           revision: chapter.revision,
+          historyToken: chapter.historyToken,
           last: { blockId: end.id, fraction: 1 },
           atEnd: true,
         };
@@ -132,6 +137,7 @@ export function Reader({
       return {
         chapterId: chapter.id,
         revision: chapter.revision,
+        historyToken: chapter.historyToken,
         last: { blockId: block.id, fraction },
         atEnd: false,
       };
@@ -139,17 +145,29 @@ export function Reader({
     async function flush() {
       if (timer.current) clearTimeout(timer.current);
       const input = position();
-      if (!input || JSON.stringify(input) === lastSaved.current) {
-        await saving.current;
-        return;
+      const fingerprint = input ? JSON.stringify(input) : '';
+      if (input && fingerprint !== (lastQueued.current || lastSaved.current)) {
+        const sequence = ++saveSequence.current;
+        lastQueued.current = fingerprint;
+        saving.current = saving.current
+          .catch(() => undefined)
+          .then(async () => {
+            try {
+              await saveRef.current(input);
+              lastSaved.current = fingerprint;
+            } finally {
+              if (saveSequence.current === sequence) lastQueued.current = '';
+            }
+          });
       }
-      const fingerprint = JSON.stringify(input);
-      saving.current = saving.current
-        .catch(() => undefined)
-        .then(() => saveRef.current(input));
       try {
-        await saving.current;
-        lastSaved.current = fingerprint;
+        // Restoration can fire a scroll while a navigation flush is awaiting IO.
+        // Drain that newer save too, so clearing history cannot race a late write.
+        let pending;
+        do {
+          pending = saving.current;
+          await pending;
+        } while (pending !== saving.current);
       } catch {
         /* Parent displays a retryable error. */
       }
@@ -204,6 +222,16 @@ export function Reader({
 
   function showBlock(block: Block) {
     switch (block.kind) {
+      case 'video':
+        return (
+          <div className="video-source">
+            <strong>视频内容</strong>
+            <p>此处的源内容为视频。阅读进度只统计文字，不记录视频观看进度。</p>
+            <a href={block.sourceUrl} target="_blank" rel="noreferrer">
+              前往 PRTS 查看视频 ↗
+            </a>
+          </div>
+        );
       case 'narration':
         return <p className="narration">{block.text}</p>;
       case 'speech':
@@ -292,7 +320,12 @@ export function Reader({
       case 'choices':
         return (
           <div className="choices">
-            <h3>选项 / 全部分支</h3>
+            <h3>{block.options.length ? '选项 / 全部分支' : '分支内容'}</h3>
+            {block.when && (
+              <p className="branch-condition">
+                选择 {block.when.join(' / ')} 后：
+              </p>
+            )}
             {block.options.map((option, index) => (
               <section key={index}>
                 <p className="option">{option.label}</p>
@@ -303,7 +336,10 @@ export function Reader({
             ))}
             {block.shared?.map((group, index) => (
               <section key={`shared-${index}`}>
-                <p className="option">共同分支：{group.labels.join(' / ')}</p>
+                <p className="option">
+                  {group.labels.length === 1 ? '分支' : '共同分支'}：
+                  {group.labels.join(' / ')}
+                </p>
                 {group.blocks.map((item) => (
                   <div key={item.id}>{showBlock(item)}</div>
                 ))}
@@ -371,6 +407,19 @@ export function Reader({
               )}
             </p>
           </header>
+          {chapter.diagnostics?.length ? (
+            <details className="source-diagnostics">
+              <summary>来源说明（{chapter.diagnostics.length}）</summary>
+              <p>以下源脚本有兼容差异，正文保留；未猜测缺失的选项或人物。</p>
+              <ul>
+                {chapter.diagnostics.map((item, i) => (
+                  <li key={i}>
+                    第 {item.line} 行：{item.message}
+                  </li>
+                ))}
+              </ul>
+            </details>
+          ) : null}
           <div className="body-copy">
             {chapter.blocks.map((block) => (
               <div

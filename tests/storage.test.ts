@@ -8,7 +8,8 @@ import { ReaderError, type StorySource } from '../src/data/source.js';
 import { ReaderService } from '../src/server/service.js';
 import { ContentCache } from '../src/storage/files.js';
 import { ReadingStore } from '../src/storage/reading-store.js';
-import { initialState } from '../src/shared/contracts.js';
+import { initialState, readingStateSchema } from '../src/shared/contracts.js';
+import { storyProgress } from '../src/domain/reading.js';
 
 async function temporary(run: (root: string) => Promise<void>) {
   const base = path.resolve('.ai/local/test-data');
@@ -21,6 +22,96 @@ async function temporary(run: (root: string) => Promise<void>) {
     await rm(root, { recursive: true, force: true });
   }
 }
+
+test('story and global history clearing reset the requested progress, preserve other stories/settings/content/counts and reject ambiguous input', async () =>
+  temporary(async (root) => {
+    const source = new FixtureSource();
+    const service = new ReaderService(source, root);
+    const settings = {
+      autoImages: true,
+      retentionDays: 30,
+      theme: 'dark' as const,
+    };
+    await service.call('reader_settings', settings);
+    for (const id of ['fixture-lights/1', 'fixture-mist/1', 'fixture-mist/2']) {
+      const chapter = await service.chapter(id);
+      const end = chapter.blocks.at(-1);
+      assert.ok(end);
+      await service.record({
+        chapterId: id,
+        revision: chapter.revision,
+        last: { blockId: end.id, fraction: 1 },
+        atEnd: true,
+      });
+    }
+    const before = await service.snapshot();
+    const other = before.state.records['fixture-lights/1'];
+    await assert.rejects(
+      service.call('reader_clear_history', { storyID: 'fixture-mist' }),
+    );
+    await assert.rejects(service.call('reader_clear_history', { storyId: '' }));
+    assert.deepEqual((await service.snapshot()).state, before.state);
+    const state = readingStateSchema.parse(
+      await service.call('reader_clear_history', { storyId: 'fixture-mist' }),
+    );
+    assert.deepEqual(state.records, { 'fixture-lights/1': other });
+    assert.equal(state.recentChapterId, 'fixture-lights/1');
+    assert.deepEqual(state.settings, settings);
+    const restarted = new ReaderService(source, root);
+    const after = await restarted.snapshot();
+    assert.deepEqual(after.state, state);
+    assert.deepEqual(after.stories, before.stories);
+    const story = after.stories.find((story) => story.id === 'fixture-mist');
+    assert.ok(story);
+    assert.equal(storyProgress(story, state.records), 0);
+    assert.ok(await restarted.cache.get('fixture-mist/1', 30));
+    assert.deepEqual(
+      readingStateSchema.parse(
+        await restarted.call('reader_clear_history', {
+          storyId: 'fixture-mist',
+        }),
+      ).records,
+      state.records,
+    );
+    const all = readingStateSchema.parse(
+      await restarted.call('reader_clear_history', {}),
+    );
+    assert.deepEqual(all.records, {});
+    assert.equal(all.recentChapterId, null);
+    assert.deepEqual(all.settings, settings);
+    assert.deepEqual((await restarted.snapshot()).stories, before.stories);
+    assert.ok(await restarted.cache.get('fixture-lights/1', 30));
+  }));
+
+test('a clear fences delayed saves in another service while unrelated stories and newly reopened pages can still save', async () =>
+  temporary(async (root) => {
+    const first = new ReaderService(new FixtureSource(), root);
+    const second = new ReaderService(new FixtureSource(), root);
+    const chapter = await first.chapter('fixture-mist/1');
+    const other = await first.chapter('fixture-lights/1');
+    const input = (chapter: typeof other) => ({
+      chapterId: chapter.id,
+      revision: chapter.revision,
+      historyToken: chapter.historyToken,
+      last: { blockId: 'report', fraction: 0.5 },
+      atEnd: false,
+    });
+    await first.record(input(chapter));
+    await second.call('reader_clear_history', { storyId: 'fixture-mist' });
+    await assert.rejects(first.record(input(chapter)), /阅读记录已清除/);
+    await first.record(input(other));
+    assert.equal(
+      (await second.snapshot()).state.records[chapter.id],
+      undefined,
+    );
+    const reopened = await first.chapter(chapter.id);
+    assert.notEqual(reopened.historyToken, chapter.historyToken);
+    await first.record(input(reopened));
+    await second.call('reader_clear_history', {});
+    await assert.rejects(first.record(input(reopened)), /阅读记录已清除/);
+    await assert.rejects(first.record(input(other)), /阅读记录已清除/);
+    assert.deepEqual((await second.snapshot()).state.records, {});
+  }));
 
 test('restart restores last position; rereading cannot reduce furthest progress; unopened chapters stay unread', async () =>
   temporary(async (root) => {

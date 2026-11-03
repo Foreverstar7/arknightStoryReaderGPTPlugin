@@ -158,7 +158,7 @@ test('automatic mode loads only nearby CG and hovered portraits; disabling keeps
   await first(page);
   expect(kinds).toHaveLength(0);
   await page.getByRole('button', { name: '设置', exact: true }).click();
-  await page.getByRole('checkbox', { name: /自动显示图片/u }).check();
+  await page.getByRole('switch', { name: /自动显示图片/u }).check();
   await page.keyboard.press('Escape');
   await expect(
     page.locator('.cg-image').first().getByRole('img'),
@@ -174,7 +174,7 @@ test('automatic mode loads only nearby CG and hovered portraits; disabling keeps
   ).toBeVisible();
   expect(kinds.filter((kind) => kind === 'portrait')).toHaveLength(1);
   await page.getByRole('button', { name: '设置', exact: true }).click();
-  await page.getByRole('checkbox', { name: /自动显示图片/u }).uncheck();
+  await page.getByRole('switch', { name: /自动显示图片/u }).uncheck();
   await page.keyboard.press('Escape');
   const count = kinds.length;
   await page.getByRole('main', { name: '剧情正文' }).evaluate((element) => {

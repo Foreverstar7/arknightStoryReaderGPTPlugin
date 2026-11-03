@@ -378,7 +378,7 @@ test('a decodable-result failure retries the asset, and the chapter-list cover h
   // image stays in place while a later mount can independently fail and retry.
   await page.getByRole('button', { name: '设置', exact: true }).click();
   await page
-    .getByRole('button', { name: '清理全部内容缓存', exact: true })
+    .getByRole('button', { name: '清理剧情文本和图片缓存', exact: true })
     .click();
   await expect(page.getByRole('status')).toContainText('阅读记录已保留');
   await page.keyboard.press('Escape');
@@ -554,7 +554,7 @@ test('a cover response started before clearing cannot repopulate image reuse for
     await expect.poll(() => ready).toBe(true);
     await page.getByRole('button', { name: '设置', exact: true }).click();
     await page
-      .getByRole('button', { name: '清理全部内容缓存', exact: true })
+      .getByRole('button', { name: '清理剧情文本和图片缓存', exact: true })
       .click();
     await expect(page.getByRole('status')).toContainText('阅读记录已保留');
     await page.keyboard.press('Escape');

@@ -105,7 +105,7 @@ test('manual portraits, inline CG, keyboard settings and cache clearing work wit
   await page.keyboard.press('Enter');
   await expect(page.getByRole('dialog', { name: '阅读设置' })).toBeVisible();
   await page
-    .getByRole('button', { name: '清理全部内容缓存', exact: true })
+    .getByRole('button', { name: '清理剧情文本和图片缓存', exact: true })
     .click();
   await expect(page.getByRole('status')).toContainText('阅读记录已保留');
   await page.keyboard.press('Escape');

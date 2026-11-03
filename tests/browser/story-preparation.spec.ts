@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { mkdir, mkdtemp, rm } from 'node:fs/promises';
+import { selectTheme } from './settings-helpers.js';
 import path from 'node:path';
 import { FixtureSource } from '../../src/data/fixture.js';
 import { ReaderService } from '../../src/server/service.js';
@@ -82,6 +83,13 @@ test('white progress rings and text-only story loading preserve unread state, pr
     expect(images).toBe(0);
     expect((await service.records.read()).records).toEqual({});
     expect((await service.records.read()).recentChapterId).toBeNull();
+    await page.getByText('查看失败篇目（1）', { exact: true }).click();
+    await expect(page.locator('.preparation-failures')).toContainText(
+      '隔离断网样例',
+    );
+    await expect(page.locator('.preparation-failures')).toContainText(
+      '整体进度暂时无法确认',
+    );
     fail = false;
     await page.getByRole('button', { name: '重试正文加载' }).click();
     await expect(page.locator('.story-preparation')).toContainText(
@@ -116,9 +124,9 @@ test('white progress rings and text-only story loading preserve unread state, pr
       `${expected} 100`,
     );
     await mkdir('.ai/local/screenshots', { recursive: true });
-    for (const theme of ['light', 'dark']) {
+    for (const theme of ['light', 'dark'] as const) {
       await page.getByRole('button', { name: '设置', exact: true }).click();
-      await page.getByRole('combobox', { name: /^主题/ }).selectOption(theme);
+      await selectTheme(page, theme);
       await page.keyboard.press('Escape');
       for (const viewport of [
         { width: 320, height: 760 },
@@ -207,7 +215,7 @@ test('clearing content cancels the queued story load and fences in-flight bodies
     await expect.poll(() => fetched.length).toBe(2);
     await page.getByRole('button', { name: '设置', exact: true }).click();
     await page
-      .getByRole('button', { name: '清理全部内容缓存', exact: true })
+      .getByRole('button', { name: '清理剧情文本和图片缓存', exact: true })
       .click();
     await expect(page.getByRole('dialog', { name: '阅读设置' })).toContainText(
       '阅读记录已保留',

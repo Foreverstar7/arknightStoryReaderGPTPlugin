@@ -23,6 +23,7 @@
   --motion-reveal: 480ms;
   --motion-page: 380ms;
   --motion-wave: 440ms;
+  --motion-control: 160ms;
   font:
     14px/1.55 system-ui,
     'Microsoft YaHei',
@@ -494,6 +495,46 @@ button:disabled {
 }
 .story-preparation button {
   font-size: inherit;
+}
+.preparation-failures {
+  max-width: 65ch;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.preparation-failures summary {
+  cursor: pointer;
+}
+.preparation-failures ul {
+  max-height: 160px;
+  overflow: auto;
+  padding-left: 20px;
+}
+.preparation-failures li {
+  margin: 10px 0;
+}
+.preparation-failures p {
+  margin-top: 6px;
+}
+.story-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+}
+.story-actions .continue {
+  margin-top: 0;
+}
+.story-clear {
+  font-size: 12px;
+  color: var(--muted);
+}
+.data-help {
+  font-size: 12px;
+  margin-top: 8px;
+  line-height: 1.6;
 }
 .chapters {
   display: flex;
@@ -1070,6 +1111,60 @@ fieldset {
   justify-content: space-between;
   padding: 11px 0;
   border-bottom: 1px solid var(--line);
+}
+.setting-toggle {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  min-height: 44px;
+  padding: 4px;
+  border: 0;
+  background: transparent;
+  font-size: 12px;
+}
+.toggle-track {
+  display: block;
+  width: 42px;
+  height: 24px;
+  padding: 3px;
+  border: 1px solid var(--muted);
+  border-radius: 20px;
+  background: var(--soft);
+}
+.toggle-thumb {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition:
+    transform var(--motion-control),
+    background var(--motion-control);
+}
+.setting-toggle[aria-checked='true'] .toggle-track {
+  border-color: var(--gold);
+  background: var(--gold-wash);
+}
+.setting-toggle[aria-checked='true'] .toggle-thumb {
+  transform: translateX(18px);
+  background: var(--gold);
+}
+.setting-toggle:disabled {
+  opacity: 0.55;
+}
+.video-source,
+.source-diagnostics {
+  margin: 16px 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  background: var(--soft);
+  overflow-wrap: anywhere;
+}
+.video-source p,
+.source-diagnostics p {
+  margin: 8px 0;
 }
 .setting-row input {
   width: 17px;

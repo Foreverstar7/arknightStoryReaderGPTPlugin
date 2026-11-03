@@ -61,6 +61,24 @@ test('SDK negotiation, app-only visibility, extension registration and persisten
       readingStateSchema.parse(saved.structuredContent).recentChapterId,
       'fixture-mist/1',
     );
+    const clear = tools.find((tool) => tool.name === 'reader_clear_history');
+    assert.ok(clear?.inputSchema.properties?.storyId);
+    const untouched = await client.callTool({
+      name: 'reader_clear_history',
+      arguments: { storyId: 'fixture-lights' },
+    });
+    assert.equal(
+      readingStateSchema.parse(untouched.structuredContent).recentChapterId,
+      'fixture-mist/1',
+    );
+    const cleared = await client.callTool({
+      name: 'reader_clear_history',
+      arguments: { storyId: 'fixture-mist' },
+    });
+    assert.deepEqual(
+      readingStateSchema.parse(cleared.structuredContent).records,
+      {},
+    );
     const missing = await client.callTool({
       name: 'reader_chapter',
       arguments: { chapterId: 'missing' },

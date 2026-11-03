@@ -70,6 +70,7 @@ export function ChapterList({
   transport,
   preparation,
   retryPreparation,
+  clearHistory,
 }: {
   story: Story;
   state: ReadingState;
@@ -77,6 +78,7 @@ export function ChapterList({
   transport: ReaderTransport;
   preparation: StoryPreparation | null;
   retryPreparation: () => void;
+  clearHistory: () => Promise<void>;
 }) {
   const scroller = useRef<HTMLDivElement>(null);
   const drag = useRef<{
@@ -86,6 +88,9 @@ export function ChapterList({
   } | null>(null);
   const dragged = useRef(false);
   const [axis, setAxis] = useState(0);
+  const [confirmClear, setConfirmClear] = useState(false);
+  const [clearing, setClearing] = useState(false);
+  const [clearMessage, setClearMessage] = useState('');
   const recent = Object.values(state.records)
     .filter((record) => record.storyId === story.id)
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
@@ -122,14 +127,98 @@ export function ChapterList({
               </button>
             )}
           </div>
-          {recent && (
+          {story.chapters.some(
+            (chapter) =>
+              chapter.contentKind === 'video' ||
+              chapter.contentKind === 'mixed',
+          ) && (
+            <p className="data-help muted">
+              含视频来源入口；字数与进度只统计文字，纯视频篇目不显示阅读百分比。
+            </p>
+          )}
+          {preparation?.failures.length ? (
+            <details className="preparation-failures">
+              <summary>查看失败篇目（{preparation.failures.length}）</summary>
+              <p>这些篇目尚未计入总字数，整体进度暂时无法确认。</p>
+              <ul>
+                {preparation.failures.map((failure) => (
+                  <li key={failure.chapterId}>
+                    <strong>
+                      {story.chapters.find(
+                        (chapter) => chapter.id === failure.chapterId,
+                      )?.title ?? failure.chapterId}
+                    </strong>
+                    <p>{failure.message}</p>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          ) : null}
+          <div className="story-actions">
+            {recent && (
+              <button
+                className="primary continue"
+                onClick={() => open(recent.chapterId, true)}
+                title={`继续阅读 ${recentTitle}`}
+              >
+                继续阅读 <span>{recentTitle}</span> ↗
+              </button>
+            )}
             <button
-              className="primary continue"
-              onClick={() => open(recent.chapterId, true)}
-              title={`继续阅读 ${recentTitle}`}
+              className="story-clear"
+              disabled={!recent || clearing}
+              aria-expanded={confirmClear}
+              onClick={() => {
+                setConfirmClear(true);
+                setClearMessage('');
+              }}
             >
-              继续阅读 <span>{recentTitle}</span> ↗
+              清除本剧情阅读记录
             </button>
+          </div>
+          {confirmClear && (
+            <div
+              className="clear-confirm"
+              role="group"
+              aria-label="确认清除本剧情阅读记录"
+            >
+              <p>
+                清除《{story.title}
+                》的阅读进度和续读位置？其他剧情、内容缓存和字数统计会保留。此操作无法撤销。
+              </p>
+              <button
+                disabled={clearing}
+                onClick={() => {
+                  setClearing(true);
+                  void clearHistory()
+                    .then(() => {
+                      setConfirmClear(false);
+                      setClearMessage('本剧情阅读记录已清除。');
+                    })
+                    .catch((error: unknown) => {
+                      setClearMessage(
+                        error instanceof Error
+                          ? error.message
+                          : '清除失败，请重试。',
+                      );
+                    })
+                    .finally(() => setClearing(false));
+                }}
+              >
+                确认清除此剧情
+              </button>
+              <button
+                disabled={clearing}
+                onClick={() => setConfirmClear(false)}
+              >
+                取消
+              </button>
+            </div>
+          )}
+          {clearMessage && (
+            <p className="data-help muted" role="status">
+              {clearMessage}
+            </p>
           )}
         </div>
       </div>
@@ -217,10 +306,16 @@ export function ChapterList({
                   transport={transport}
                 />
                 <span className="chapter-percent">
-                  已读{' '}
-                  {progressLabel(
-                    chapterProgress(story, chapter.id, state.records),
-                    state.records[chapter.id]?.progressKnown === false,
+                  {chapter.contentKind === 'video' ? (
+                    '视频 · 查看来源'
+                  ) : (
+                    <>
+                      已读{' '}
+                      {progressLabel(
+                        chapterProgress(story, chapter.id, state.records),
+                        state.records[chapter.id]?.progressKnown === false,
+                      )}
+                    </>
                   )}
                 </span>
               </div>

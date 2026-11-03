@@ -21,6 +21,7 @@ export function mergeStoryCounts(
             wordCount: old.wordCount,
             wordCountRevision: old.wordCountRevision,
             wordCountVerifiedAt: old.wordCountVerifiedAt,
+            contentKind: old.contentKind,
           }
         : chapter;
     }),
@@ -43,6 +44,7 @@ export function applyChapterCount(
                     wordCount: count.wordCount,
                     wordCountRevision: count.revision,
                     wordCountVerifiedAt: count.verifiedAt,
+                    contentKind: count.contentKind,
                   }
                 : chapter,
             ),

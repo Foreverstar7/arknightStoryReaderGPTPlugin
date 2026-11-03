@@ -18,6 +18,19 @@ export class PrtsSource implements StorySource {
   readonly resources: PrtsResources;
   private readonly metadata: PrtsMetadata;
   private readonly catalogPending = new Map<string, Promise<Story[]>>();
+  isCurrentRevision(revision: string): boolean {
+    return revision.startsWith('prts-script-v3:');
+  }
+  reparseCached(chapter: Chapter): Chapter | null {
+    if (this.isCurrentRevision(chapter.revision)) return chapter;
+    if (!chapter.original) return null;
+    return parsePrtsChapter(chapter.original.wiki, {
+      id: chapter.id,
+      storyId: chapter.storyId,
+      title: chapter.title,
+      pageTitle: chapter.original.pageTitle,
+    });
+  }
   constructor(
     root: string,
     private readonly readWiki: WikiReader = readPrtsWiki,

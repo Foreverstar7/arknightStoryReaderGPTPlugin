@@ -1,6 +1,6 @@
 {
   "name": "arknights-story-reader",
-  "version": "0.1.19",
+  "version": "0.1.21",
   "private": true,
   "type": "module",
   "engines": {
@@ -29,6 +29,7 @@
     "probe:prts:s4": "tsx scripts/probe-prts-s4.ts",
     "probe:s4:installed": "tsx scripts/probe-s4-installed.ts",
     "audit:covers": "tsx scripts/audit-prts-covers.ts",
+    "audit:chapters": "tsx scripts/audit-prts-chapters.ts",
     "probe:covers": "tsx scripts/probe-covers.ts",
     "probe:host": "tsx scripts/probe-host.ts"
   },

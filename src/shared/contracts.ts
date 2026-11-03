@@ -5,6 +5,11 @@ export const sceneSchema = z.object({
   focus: z.number().int().optional(),
 });
 export const leafSchema = z.discriminatedUnion('kind', [
+  z.object({
+    id: z.string(),
+    kind: z.literal('video'),
+    sourceUrl: z.string().url(),
+  }),
   z.object({ id: z.string(), kind: z.literal('narration'), text: z.string() }),
   z.object({
     id: z.string(),
@@ -26,6 +31,7 @@ export const blockSchema = z.union([
   z.object({
     id: z.string(),
     kind: z.literal('choices'),
+    when: z.array(z.string()).optional(),
     options: z.array(
       z.object({ label: z.string(), blocks: z.array(leafSchema) }),
     ),
@@ -45,6 +51,7 @@ export const chapterMetaSchema = z.object({
   wordCount: z.number().int().nonnegative().nullable(),
   wordCountRevision: z.string().optional(),
   wordCountVerifiedAt: z.number().int().nonnegative().optional(),
+  contentKind: z.enum(['text', 'video', 'mixed']).optional(),
   sourceUrl: z.string().url().optional(),
 });
 export const storySchema = z.object({
@@ -65,6 +72,11 @@ export const chapterSchema = z.object({
   source: z.enum(['fixture', 'prts']),
   sourceUrl: z.string().url().optional(),
   blocks: z.array(blockSchema),
+  diagnostics: z
+    .array(z.object({ line: z.number().int().positive(), message: z.string() }))
+    .optional(),
+  // Per-open save guard, returned by the service; not part of public source content.
+  historyToken: z.string().optional(),
   // Original public source is cached locally, never bundled into the plugin.
   original: z
     .object({ pageTitle: z.string(), textPath: z.string(), wiki: z.string() })
@@ -126,6 +138,10 @@ export const readingStateSchema = z.object({
   recentChapterId: z.string().nullable(),
   settings: settingsSchema,
   chapterRevisions: z.record(z.string(), z.string()).optional(),
+  historyEpoch: z.number().int().nonnegative().optional(),
+  storyHistoryEpochs: z
+    .record(z.string(), z.number().int().nonnegative())
+    .optional(),
 });
 export const snapshotSchema = z.object({
   stories: z.array(storySchema),
@@ -137,6 +153,7 @@ export const recordInputSchema = z.object({
   revision: z.string().min(1).max(200),
   last: anchorSchema,
   atEnd: z.boolean(),
+  historyToken: z.string().max(100).optional(),
 });
 export const chapterInputSchema = z.object({
   chapterId: z.string().min(1).max(200),
@@ -147,10 +164,16 @@ export const chapterCountSchema = z.object({
   storyId: z.string(),
   revision: z.string(),
   wordCount: z.number().int().nonnegative(),
+  contentKind: z.enum(['text', 'video', 'mixed']).optional(),
   verifiedAt: z.number().int().nonnegative(),
 });
 export type ChapterCount = z.infer<typeof chapterCountSchema>;
 export const cacheInputSchema = z.object({ scope: z.enum(['images', 'all']) });
+// Empty input retains the existing global action. Reject misspelled scope keys
+// instead of stripping them and accidentally turning a story clear into a global clear.
+export const clearHistoryInputSchema = z.strictObject({
+  storyId: z.string().min(1).max(200).optional(),
+});
 export const chapterInfoSchema = z.object({
   summary: z.string().optional(),
   sourceUrl: z.string().url().optional(),

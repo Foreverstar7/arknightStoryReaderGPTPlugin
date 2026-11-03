@@ -17,6 +17,7 @@ export function blockWords(block: Block): number {
     case 'speech':
       return block.paragraphs.reduce((n, text) => n + countText(text), 0);
     case 'cg':
+    case 'video':
       return 0;
     case 'choices':
       return (
@@ -40,6 +41,23 @@ export function chapterWords(chapter: Chapter): number {
   return chapter.blocks.reduce((n, block) => n + blockWords(block), 0);
 }
 
+/** Zero script words is only conclusive for an explicitly parsed video source.
+ * Video viewing is not tracked; progress describes text reading, not watching. */
+export function chapterContentKind(
+  chapter: Chapter,
+): 'text' | 'video' | 'mixed' {
+  const video = chapter.blocks.some(
+    (block) =>
+      block.kind === 'video' ||
+      (block.kind === 'choices' &&
+        [
+          ...block.options.flatMap((option) => option.blocks),
+          ...(block.shared ?? []).flatMap((group) => group.blocks),
+        ].some((leaf) => leaf.kind === 'video')),
+  );
+  return video ? (chapterWords(chapter) > 0 ? 'mixed' : 'video') : 'text';
+}
+
 /** Only an observed body end can display 100%; rounding must never promote 99.x to 100. */
 export function percent(
   words: number,
@@ -56,6 +74,11 @@ export function storyProgress(
   records: Record<string, ReadingRecord>,
 ): number | null {
   if (
+    story.chapters.length &&
+    story.chapters.every((chapter) => chapter.contentKind === 'video')
+  )
+    return null;
+  if (
     story.chapters.some(
       (chapter) =>
         records[chapter.id]?.progressKnown === false ||
@@ -71,6 +94,7 @@ export function storyProgress(
   let read = 0;
   let complete = story.chapters.length > 0;
   for (const chapter of story.chapters) {
+    if (chapter.contentKind === 'video') continue;
     const record = records[chapter.id];
     const words = chapter.wordCountRevision
       ? (chapter.wordCount ?? 0)
@@ -89,6 +113,7 @@ export function chapterProgress(
   openedWordCount?: number,
 ): number | null {
   const meta = story.chapters.find((chapter) => chapter.id === chapterId);
+  if (meta?.contentKind === 'video') return null;
   const record = records[chapterId];
   if (record?.progressKnown === false) return null;
   if (

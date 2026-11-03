@@ -14,6 +14,7 @@ import {
 import {
   chapterProgress,
   chapterWords,
+  chapterContentKind,
   progressLabel,
   storyProgress,
 } from '../domain/reading.js';
@@ -63,6 +64,8 @@ export function ReaderApp({
   const [reload, setReload] = useState(0);
   const retry = useRef<() => void>(() => setReload((value) => value + 1));
   const flush = useRef<() => Promise<void>>(async () => undefined);
+  const clearingHistory = useRef(false);
+  const historyGeneration = useRef(0);
   const coverImages = useContext(CoverImagesContext);
   const key = useRef(0);
   const navigation = useRef(0);
@@ -153,11 +156,14 @@ export function ReaderApp({
   }, [snapshot?.state.settings.theme]);
 
   async function save(input: RecordInput) {
+    if (clearingHistory.current) return;
+    const generation = historyGeneration.current;
     try {
       const state = readingStateSchema.parse(
         await transport.call('reader_record', input),
       );
-      setSnapshot((current) => (current ? { ...current, state } : current));
+      if (generation === historyGeneration.current)
+        setSnapshot((current) => (current ? { ...current, state } : current));
     } catch (error) {
       setError(`阅读位置保存失败：${errorText(error)}`);
       retry.current =
@@ -342,6 +348,27 @@ export function ReaderApp({
     );
     setSnapshot((current) => (current ? { ...current, state } : current));
   }
+  async function clearHistory(storyId?: string) {
+    ++navigation.current;
+    await flush.current();
+    clearingHistory.current = true;
+    ++historyGeneration.current;
+    try {
+      const state = readingStateSchema.parse(
+        await transport.call(
+          'reader_clear_history',
+          storyId ? { storyId } : {},
+        ),
+      );
+      flushSync(() => {
+        setSnapshot((current) => (current ? { ...current, state } : current));
+        setBusy(false);
+        if (!storyId) setRoute({ page: 'library' });
+      });
+    } finally {
+      clearingHistory.current = false;
+    }
+  }
   const recentId = snapshot?.state.recentChapterId;
   const recentStory = snapshot?.stories.find((story) =>
     story.chapters.some((chapter) => chapter.id === recentId),
@@ -397,19 +424,25 @@ export function ReaderApp({
         <div className="top-tools">
           {snapshot && route.page === 'reader' && (
             <span className="progress">
-              本篇已读{' '}
-              <b>
-                {progressLabel(
-                  chapterProgress(
-                    route.story,
-                    route.chapter.id,
-                    snapshot.state.records,
-                    chapterWords(route.chapter),
-                  ),
-                  snapshot.state.records[route.chapter.id]?.progressKnown ===
-                    false,
-                )}
-              </b>
+              {chapterContentKind(route.chapter) === 'video' ? (
+                '本篇视频'
+              ) : (
+                <>
+                  本篇已读{' '}
+                  <b>
+                    {progressLabel(
+                      chapterProgress(
+                        route.story,
+                        route.chapter.id,
+                        snapshot.state.records,
+                        chapterWords(route.chapter),
+                      ),
+                      snapshot.state.records[route.chapter.id]
+                        ?.progressKnown === false,
+                    )}
+                  </b>
+                </>
+              )}
               <span> · </span>全剧情已读{' '}
               <b>
                 {progressLabel(
@@ -480,11 +513,13 @@ export function ReaderApp({
         )}
         {snapshot && route.page === 'chapters' && (
           <ChapterList
+            key={route.story.id}
             transport={transport}
             story={activeStory ?? route.story}
             state={snapshot.state}
             preparation={preparation.status}
             retryPreparation={preparation.retry}
+            clearHistory={() => clearHistory(route.story.id)}
             open={(id, restore) => void open(id, restore)}
           />
         )}
@@ -522,14 +557,7 @@ export function ReaderApp({
             await transport.call('reader_clear_cache', { scope });
             coverImages?.clear();
           }}
-          clearHistory={async () => {
-            await flush.current();
-            const state = readingStateSchema.parse(
-              await transport.call('reader_clear_history', {}),
-            );
-            setSnapshot({ ...snapshot, state });
-            setRoute({ page: 'library' });
-          }}
+          clearHistory={() => clearHistory()}
           refresh={
             route.page === 'reader'
               ? () => open(route.chapter.id, true, true)

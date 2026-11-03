@@ -12,6 +12,8 @@ export interface StorySource {
   readonly label: string;
   catalog(retentionDays?: number): Promise<Story[]>;
   chapter(chapterId: string, retentionDays?: number): Promise<Chapter>;
+  isCurrentRevision?(revision: string): boolean;
+  reparseCached?(chapter: Chapter): Chapter | null;
   chapterInfo?(
     chapterId: string,
     retentionDays: number,

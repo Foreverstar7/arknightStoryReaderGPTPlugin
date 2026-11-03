@@ -156,7 +156,7 @@ test('S4 refresh/restart resumes migrated position, preserves furthest on reread
     });
     await page.getByRole('button', { name: '设置', exact: true }).click();
     await page
-      .getByRole('button', { name: '清理全部内容缓存', exact: true })
+      .getByRole('button', { name: '清理剧情文本和图片缓存', exact: true })
       .click();
     await expect(page.getByRole('dialog').getByRole('status')).toContainText(
       '阅读记录已保留',

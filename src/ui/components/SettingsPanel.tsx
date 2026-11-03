@@ -1,6 +1,64 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ReadingState, Settings, Story } from '../../shared/contracts.js';
 
+function Toggle({
+  label,
+  checked,
+  disabled,
+  change,
+}: {
+  label: string;
+  checked: boolean;
+  disabled?: boolean;
+  change: (checked: boolean) => void;
+}) {
+  return (
+    <div className="setting-row">
+      <span>{label}</span>
+      <button
+        type="button"
+        className="setting-toggle"
+        role="switch"
+        aria-label={label}
+        aria-checked={checked}
+        disabled={disabled}
+        onClick={() => change(!checked)}
+      >
+        <span className="toggle-track" aria-hidden="true">
+          <span className="toggle-thumb" />
+        </span>
+        <span aria-hidden="true">{checked ? '开启' : '关闭'}</span>
+      </button>
+    </div>
+  );
+}
+
+function useSystemDark() {
+  const read = () => {
+    const host = document.documentElement.dataset.hostTheme;
+    return (
+      host === 'dark' ||
+      (host !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches)
+    );
+  };
+  const [dark, setDark] = useState(read);
+  useEffect(() => {
+    const media = matchMedia('(prefers-color-scheme: dark)');
+    const update = () => setDark(read());
+    media.addEventListener('change', update);
+    const observer = new MutationObserver(update);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-host-theme'],
+    });
+    return () => {
+      media.removeEventListener('change', update);
+      observer.disconnect();
+    };
+  }, []);
+  return dark;
+}
+
 interface Props {
   state: ReadingState;
   stories: Story[];
@@ -28,6 +86,7 @@ export function SettingsPanel({
   const [busy, setBusy] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
   const [draft, setDraft] = useState(state.settings);
+  const systemDark = useSystemDark();
   useEffect(() => {
     setDraft(state.settings);
   }, [
@@ -92,34 +151,44 @@ export function SettingsPanel({
         </p>
         <h3>阅读偏好</h3>
         <fieldset disabled={busy}>
-          <label className="setting-row">
-            自动显示图片
-            <input
-              type="checkbox"
-              checked={draft.autoImages}
-              onChange={(event) =>
-                preference(
-                  { ...draft, autoImages: event.target.checked },
-                  '已保存图片显示设置。',
-                )
-              }
-            />
-          </label>
-          <label className="setting-row">
-            主题
-            <select
-              value={draft.theme}
-              onChange={(event) => {
-                const theme = event.target.value;
-                if (theme === 'system' || theme === 'light' || theme === 'dark')
-                  preference({ ...draft, theme }, '已保存主题。');
-              }}
-            >
-              <option value="system">跟随系统</option>
-              <option value="light">浅色</option>
-              <option value="dark">深色</option>
-            </select>
-          </label>
+          <Toggle
+            label="自动显示图片"
+            checked={draft.autoImages}
+            change={(autoImages) =>
+              preference({ ...draft, autoImages }, '已保存图片显示设置。')
+            }
+          />
+          <Toggle
+            label="主题跟随系统"
+            checked={draft.theme === 'system'}
+            change={(follow) =>
+              preference(
+                {
+                  ...draft,
+                  theme: follow ? 'system' : systemDark ? 'dark' : 'light',
+                },
+                '已保存主题。',
+              )
+            }
+          />
+          <Toggle
+            label="深色模式"
+            checked={
+              draft.theme === 'system' ? systemDark : draft.theme === 'dark'
+            }
+            disabled={draft.theme === 'system'}
+            change={(dark) =>
+              preference(
+                { ...draft, theme: dark ? 'dark' : 'light' },
+                '已保存主题。',
+              )
+            }
+          />
+          <p className="data-help muted">
+            {draft.theme === 'system'
+              ? '当前跟随系统。关闭跟随后可切换深色模式。'
+              : '深色模式关闭时使用浅色主题。'}
+          </p>
           <label className="setting-row">
             缓存保留期
             <select
@@ -156,7 +225,7 @@ export function SettingsPanel({
           >
             刷新本章 ↻
           </button>
-          <h3>缓存管理</h3>
+          <h3>数据管理</h3>
           <button
             className="panel-action"
             onClick={() =>
@@ -177,8 +246,44 @@ export function SettingsPanel({
               )
             }
           >
-            清理全部内容缓存
+            清理剧情文本和图片缓存
           </button>
+          <p className="data-help muted">
+            同时清理人物及资源映射。保留阅读记录、设置和已核验的字数统计。
+          </p>
+          <button
+            className="panel-action"
+            disabled={recent.length === 0}
+            onClick={() => setConfirmClear(true)}
+            aria-expanded={confirmClear}
+          >
+            清除全部阅读记录
+          </button>
+          <p className="data-help muted">
+            重置所有剧情的阅读进度、续读位置和最近阅读，保留内容缓存。
+          </p>
+          {confirmClear && (
+            <div
+              className="clear-confirm"
+              role="group"
+              aria-label="确认清除全部阅读记录"
+            >
+              <p>
+                确定清除所有剧情的阅读记录？此操作无法撤销，内容缓存和字数统计会保留。
+              </p>
+              <button
+                onClick={() =>
+                  void perform(async () => {
+                    await clearHistory();
+                    setConfirmClear(false);
+                  }, '全部阅读记录已清除。')
+                }
+              >
+                确认清除全部
+              </button>
+              <button onClick={() => setConfirmClear(false)}>取消</button>
+            </div>
+          )}
           <h3>最近阅读</h3>
           {recent.length === 0 && <p className="muted">还没有阅读记录。</p>}
           {recent.map((record) => {
@@ -200,29 +305,6 @@ export function SettingsPanel({
               </button>
             );
           })}
-          <button
-            className="panel-action"
-            disabled={recent.length === 0}
-            onClick={() => setConfirmClear(true)}
-          >
-            清除阅读记录
-          </button>
-          {confirmClear && (
-            <div className="clear-confirm">
-              <p>清除续读位置和全部阅读进度？内容缓存会保留。</p>
-              <button
-                onClick={() =>
-                  void perform(async () => {
-                    await clearHistory();
-                    setConfirmClear(false);
-                  }, '阅读记录已清除。')
-                }
-              >
-                确认清除
-              </button>
-              <button onClick={() => setConfirmClear(false)}>取消</button>
-            </div>
-          )}
         </fieldset>
         <p className="panel-message" role="status">
           {message}

@@ -8,6 +8,8 @@ import {
 } from '../shared/contracts.js';
 import { ReaderError } from './source.js';
 import { prtsPageUrl } from './prts-client.js';
+import { ScriptFlow } from './prts-flow.js';
+import { isReviewedSourceNoop } from './prts-compat.js';
 
 type Choice = Extract<Block, { kind: 'choices' }>;
 type Command = { name: string; args: Record<string, string>; text: string };
@@ -16,6 +18,14 @@ type Branch = {
   values: string[];
   states: Map<string, Scene>;
   selected: string[];
+};
+class ComplexFlow extends Error {}
+type ChapterMeta = {
+  id: string;
+  storyId: string;
+  title: string;
+  pageTitle: string;
+  group?: string;
 };
 const hash = (value: string) =>
   createHash('sha256').update(value).digest('hex').slice(0, 24);
@@ -32,6 +42,9 @@ function bodyText(text: string): string {
   return text
     .replace(/<\/?(?:color|size|b|i|u)(?:=[^>]+)?>/giu, '')
     .replace(/<br\s*\/?>/giu, '\n')
+    .replace(/\\n/gu, '\n')
+    .replace(/\{@nbs\}/giu, ' ')
+    .replace(/\{@s\}/giu, '')
     .trim();
 }
 
@@ -43,17 +56,25 @@ function argumentsOf(
   const args: Record<string, string> = {};
   let rest = raw.trim();
   while (rest) {
+    // Observed cut-in style typo uses ':'; it is a visual setting, never body
+    // or control flow. Constrain the exception to that key instead of accepting
+    // arbitrary malformed arguments. The runtime records it as a source warning.
+    rest = rest.replace(/^fadestyle\s*:\s*/iu, 'fadestyle=');
     const match =
       /^([\w]+)\s*=\s*(?:"((?:\\.|[^"\\])*)"|'((?:\\.|[^'\\])*)'|([^,]*?))\s*(?:,\s*|$)/u.exec(
         rest,
       );
     if (!match?.[1]) fail(page, line, '脚本参数格式不兼容。');
     const key = match[1].toLowerCase();
-    if (Object.hasOwn(args, key)) fail(page, line, `重复参数 ${key}。`);
-    args[key] = (match[2] ?? match[3] ?? match[4] ?? '').replace(
+    const value = (match[2] ?? match[3] ?? match[4] ?? '').replace(
       /\\([\\"'])/gu,
       '$1',
     );
+    // PRTS krliov.toolbox.js String.toObject assigns in source order: the last
+    // duplicate wins, including conflicting values. Never evaluate the arguments.
+    if (['__proto__', 'prototype', 'constructor'].includes(key))
+      fail(page, line, '不支持的参数名称。');
+    args[key] = value;
     rest = rest.slice(match[0].length);
   }
   return args;
@@ -128,33 +149,44 @@ export function mergeScenes(scenes: Scene[]): Scene {
 }
 
 const stageCommands = new Set(
-  'header dialog delay playmusic stopmusic musicvolume playsound stopsound soundvolume blocker background backgroundtween camerashake cameraeffect imagetween imagerotate showitem hideitem skiptothis startbattle tutorial endtip largeimage largeimg largebgtween largeimgtween curtain characteraction charactercutin interlude animtext avgdisplay focusout focusparam timersticker timerclear stickerclear spellsticker spellstickerclear theater bgeffect cgitem effect hidecgitem'.split(
+  'header dialog delay playmusic stopmusic musicvolume playsound stopsound soundvolume blocker background backgroundtween camerashake cameraeffect imagetween imagerotate showitem hideitem skiptothis startbattle tutorial endtip largeimage largeimg largebgtween largeimgtween curtain characteraction charactercutin interlude avgdisplay focusout focusparam timersticker timerclear stickerclear spellsticker spellstickerclear theater bgeffect cgitem effect hidecgitem animtextclean gridbg verticalbg largebg skipnode stickertween'.split(
     ' ',
   ),
 );
 
-export function parsePrtsChapter(
+export function parsePrtsChapter(wiki: string, meta: ChapterMeta): Chapter {
+  try {
+    return parseChapter(wiki, meta, false);
+  } catch (error) {
+    if (!(error instanceof ComplexFlow)) throw error;
+    return parseChapter(wiki, meta, true);
+  }
+}
+
+function parseChapter(
   wiki: string,
-  meta: {
-    id: string;
-    storyId: string;
-    title: string;
-    pageTitle: string;
-    group?: string;
-  },
+  meta: ChapterMeta,
+  complex: boolean,
 ): Chapter {
-  const start = /^\|?文本数据\s*=/mu.exec(wiki) ?? /\|文本数据\s*=/u.exec(wiki);
-  const pathMatch = /\|文本路径\s*=\s*([^|\n]+)/u.exec(wiki);
-  const group = /\|剧情分组\s*=\s*([^|\n]+)/u.exec(wiki)?.[1]?.trim();
+  // Source pages may put a notice/section before their one simulator template.
+  // Only the explicit template's text field is body; prefixed Wiki is not prose.
+  const templates = [...wiki.matchAll(/\{\{剧情模拟器\s*\|/gu)];
+  const template = templates[0];
+  const source = template ? wiki.slice(template.index) : '';
+  const start =
+    /^\|?文本数据\s*=/mu.exec(source) ?? /\|文本数据\s*=/u.exec(source);
+  const header = source.slice(0, start?.index ?? 0);
+  const pathMatch = /\|文本路径\s*=\s*([^|\n]+)/u.exec(header);
+  const group = /\|剧情分组\s*=\s*([^|\n]+)/u.exec(header)?.[1]?.trim();
   if (
-    !wiki.startsWith('{{剧情模拟器|') ||
+    templates.length !== 1 ||
     !start ||
     !pathMatch?.[1] ||
     !group ||
     (meta.group !== undefined && group !== meta.group)
   )
     fail(meta.pageTitle, 1, '缺少剧情模拟器字段或剧情分组不匹配。');
-  const tail = wiki.slice(start.index + start[0].length);
+  const tail = source.slice(start.index + start[0].length);
   const ending = /^\}\}\s*$/mu.exec(tail);
   if (
     !ending ||
@@ -167,12 +199,33 @@ export function parsePrtsChapter(
   let scene: Scene = { slots: [] };
   let branch: Branch | null = null;
   let previous: Leaf | null = null;
+  const diagnostics: { line: number; message: string }[] = [];
+  let multi: {
+    key: string;
+    name: string;
+    text: string;
+    scenes: Scene[];
+  } | null = null;
   const occurrences = new Map<string, number>();
   function identify(text: string): string {
     const digest = hash(text);
     const occurrence = (occurrences.get(digest) ?? 0) + 1;
     occurrences.set(digest, occurrence);
     return `prts-${digest}-${occurrence}`;
+  }
+  let currentLine = 1;
+  const flow = complex
+    ? new ScriptFlow(
+        blocks,
+        identify,
+        mergeScenes,
+        (message) => fail(meta.pageTitle, currentLine, message),
+        (message) => diagnostics.push({ line: currentLine, message }),
+      )
+    : null;
+  function addLeaf(leaf: Leaf) {
+    if (flow) flow.add(leaf);
+    else target.push(leaf);
   }
   function addText(name: string, raw: string) {
     const text = bodyText(raw);
@@ -195,8 +248,26 @@ export function parsePrtsChapter(
           scene: structuredClone(scene),
         }
       : { id: identify(`narration:${text}`), kind: 'narration', text };
-    target.push(leaf);
+    addLeaf(leaf);
     previous = leaf;
+  }
+  function flushMulti() {
+    if (!multi) return;
+    const pending = multi;
+    multi = null;
+    const current = scene;
+    scene = mergeScenes(pending.scenes);
+    previous = null;
+    addText(pending.name, pending.text);
+    scene = current;
+    previous = null;
+  }
+  function appendMulti(key: string, name: string, text: string, end = false) {
+    if (multi && (multi.key !== key || multi.name !== name)) flushMulti();
+    multi ??= { key, name, text: '', scenes: [] };
+    multi.text += text;
+    multi.scenes.push(structuredClone(scene));
+    if (end) flushMulti();
   }
   function commitBranch() {
     if (branch)
@@ -206,6 +277,8 @@ export function parsePrtsChapter(
   const lines = script.split(/\r?\n/u);
   for (const [index, raw] of lines.entries()) {
     const line = index + 1;
+    currentLine = line;
+    if (flow) scene = flow.scene();
     const text = raw.trim();
     if (!text || text.startsWith('//')) {
       previous = null;
@@ -213,22 +286,25 @@ export function parsePrtsChapter(
     }
     const command = commandOf(text, meta.pageTitle, line);
     if (!command) {
+      flushMulti();
       addText('', text);
       continue;
     }
     const { name, args } = command;
+    if (/fadestyle\s*:/iu.test(text))
+      diagnostics.push({
+        line,
+        message: '源脚本 fadestyle 使用冒号；仅兼容这一非文本样式参数。',
+      });
     if (name === 'name') {
+      flushMulti();
       addText(args.name ?? '', command.text);
       continue;
     }
     previous = null;
     if (name === 'decision') {
-      if (branch)
-        fail(
-          meta.pageTitle,
-          line,
-          '遇到嵌套或尚未合流的 Decision，当前切片不支持此控制流。',
-        );
+      flushMulti();
+      if (branch) throw new ComplexFlow();
       const labels = args.options
         ?.split(';')
         .map((label) => bodyText(label.replace(/^&/u, '')));
@@ -236,11 +312,26 @@ export function parsePrtsChapter(
       if (
         !labels?.length ||
         !values ||
-        values.length !== labels.length ||
-        values.some((value) => !/^[1-9]\d*$/u.test(value)) ||
-        new Set(values).size !== values.length
+        values.length < labels.length ||
+        values.some((value) => !/^[1-9]\d*$/u.test(value))
       )
         fail(meta.pageTitle, line, '选项与 values 不匹配或包含不支持的值。');
+      if (
+        !flow &&
+        (values.length !== labels.length ||
+          new Set(values).size !== values.length)
+      )
+        throw new ComplexFlow();
+      if (flow) {
+        if (values.length !== labels.length)
+          diagnostics.push({
+            line,
+            message:
+              'Decision 含多余 values，按来源的选项顺序对应；未虚构选项文字。',
+          });
+        flow.decision(labels, values);
+        continue;
+      }
       const choice: Choice = {
         id: identify(`choice:${labels.join(';')}`),
         kind: 'choices',
@@ -256,8 +347,12 @@ export function parsePrtsChapter(
       };
       target = blocks;
     } else if (name === 'predicate') {
-      if (!branch)
-        fail(meta.pageTitle, line, 'Predicate 没有可对应的 Decision。');
+      flushMulti();
+      if (flow) {
+        flow.predicate(args.references);
+        continue;
+      }
+      if (!branch) throw new ComplexFlow();
       if (args.references === '')
         fail(
           meta.pageTitle,
@@ -273,7 +368,7 @@ export function parsePrtsChapter(
         references.some((value) => !branch?.values.includes(value)) ||
         new Set(references).size !== references.length
       )
-        fail(meta.pageTitle, line, 'Predicate 引用了未知选项。');
+        throw new ComplexFlow();
       scene = mergeScenes(
         references.flatMap((value) => {
           const state = branch?.states.get(value);
@@ -306,11 +401,18 @@ export function parsePrtsChapter(
         scene.slots.push({ slot: 'r', resource: args.name2 });
       if (args.focus !== undefined && /^-?\d+$/u.test(args.focus))
         scene.focus = Number(args.focus);
+      flow?.update(() => structuredClone(scene));
     } else if (name === 'charslot') {
-      if (!args.slot) scene = { slots: [] };
-      else {
-        const slot = args.slot;
-        if (!['m', 'l', 'r', 'left', 'right', 'middle'].includes(slot))
+      if (!args.slot) {
+        scene = { slots: [] };
+        flow?.update(() => ({ slots: [] }));
+      } else {
+        const slot = args.slot.toLowerCase();
+        // `all` with no resource only adjusts focus; never infer a speaker from it.
+        if (slot === 'all' && args.name === undefined) continue;
+        // PRTS creates a named slot even for custom IDs. Preserve it literally;
+        // never turn a source `n` into a guessed `m` or infer speaker identity.
+        if (!/^[a-z][a-z0-9_]*$/u.test(slot))
           fail(meta.pageTitle, line, `尚未支持的 CharSlot 槽位 ${slot}。`);
         const normalized =
           slot === 'left'
@@ -321,29 +423,97 @@ export function parsePrtsChapter(
                 ? 'm'
                 : slot;
         if (args.name !== undefined) {
-          scene = {
-            ...scene,
-            slots: scene.slots.filter((item) => item.slot !== normalized),
-          };
-          if (args.name && args.name !== 'char_empty')
-            scene.slots.push({ slot: normalized, resource: args.name });
+          const update = (before: Scene): Scene => ({
+            ...before,
+            slots: [
+              ...before.slots.filter((item) => item.slot !== normalized),
+              ...(args.name && args.name !== 'char_empty'
+                ? [{ slot: normalized, resource: args.name }]
+                : []),
+            ],
+          });
+          scene = update(scene);
+          flow?.update(update);
         }
       }
-    } else if (name === 'image') {
+    } else if (name === 'image' || name === 'imgeffect') {
+      flushMulti();
       if (args.image)
-        target.push({
+        addLeaf({
           id: identify(`cg:${args.image}`),
           kind: 'cg',
           label: 'PRTS 场景图片',
           resource: args.image,
         });
     } else if (name === 'dialog' || name === 'aside') {
+      flushMulti();
       if (command.text)
         addText(name === 'dialog' ? (args.name ?? '') : '', command.text);
+    } else if (name === 'multiline') {
+      appendMulti(
+        'multiline',
+        args.name ?? '',
+        command.text,
+        args.end === 'true',
+      );
     } else if (name === 'subtitle' || name === 'sticker') {
-      if (args.multi === 'true')
-        fail(meta.pageTitle, line, '尚未支持多段字幕聚合。');
-      if (args.hidelog !== 'true' && args.text) addText('', args.text);
+      if (args.hidelog === 'true') continue;
+      if (args.multi === 'true' && args.text)
+        appendMulti(`${name}:${args.id ?? ''}`, '', args.text);
+      else {
+        flushMulti();
+        if (args.text) addText('', args.text);
+      }
+    } else if (name === 'animtext' || name === 'spellsticker') {
+      flushMulti();
+      if (name === 'spellsticker' && args.action === 'hide') continue;
+      // PRTS animtext contains visible <p=N> segments after the command, not in
+      // its timing/style parameters. Preserve every segment in source order.
+      const segments = [...command.text.matchAll(/<p=\d+>(.*?)<\/>/gu)];
+      const remaining = command.text.replace(/<p=\d+>.*?<\/>/gu, '').trim();
+      if (remaining) fail(meta.pageTitle, line, '动画文字分段格式不兼容。');
+      if (segments.length)
+        addText('', segments.map((part) => part[1]).join('\n'));
+    } else if (name === 'video') {
+      flushMulti();
+      if (!args.res || command.text)
+        fail(meta.pageTitle, line, '视频引用格式不兼容。');
+      addLeaf({
+        id: identify(`video:${args.res}`),
+        kind: 'video',
+        sourceUrl: prtsPageUrl(meta.pageTitle),
+      });
+    } else if (name === 'warp') {
+      // StoryPlayer jumps only when an explicit Label exists; all observed
+      // dangling Warp markers have none. Do not invent destinations or skip text.
+      if (
+        !args.name ||
+        command.text ||
+        lines.some((line) => /^\s*\[label(?:\(|\])/iu.test(line))
+      )
+        fail(meta.pageTitle, line, '存在需要核对的 Warp/Label 控制流。');
+      diagnostics.push({
+        line,
+        message: `Warp 目标 ${args.name} 在源脚本内没有 Label，按来源播放器保持顺序。`,
+      });
+    } else if (isReviewedSourceNoop(name, args, command.text)) {
+      diagnostics.push({
+        line,
+        message: `来源播放器未执行的非文本指令 ${name}；未据此猜测人物状态。`,
+      });
+    } else if (name === 'gotopage') {
+      // G2H/END ends with a game-UI return-home marker, not a story branch or
+      // another body to fetch. Only this observed terminal form is supported;
+      // new destinations or subsequent script lines require a source review.
+      if (
+        args.dest !== 'home' ||
+        Object.keys(args).length !== 1 ||
+        command.text ||
+        lines
+          .slice(index + 1)
+          .some((line) => line.trim() && !line.trim().startsWith('//'))
+      )
+        fail(meta.pageTitle, line, '尚未支持的页面跳转或非末尾 GotoPage。');
     } else if (!stageCommands.has(name)) {
       // Literal bracket text remains narration; unknown command calls fail explicitly.
       if (!text.slice(0, text.indexOf(']')).includes('(') && command.text)
@@ -351,12 +521,14 @@ export function parsePrtsChapter(
       else fail(meta.pageTitle, line, `尚未支持的脚本指令 ${name}。`);
     }
   }
+  flushMulti();
   if (
     !blocks.some(
       (block) =>
         block.kind === 'speech' ||
         block.kind === 'narration' ||
-        block.kind === 'choices',
+        block.kind === 'choices' ||
+        block.kind === 'video',
     )
   )
     fail(meta.pageTitle, 1, '正文为空。');
@@ -366,8 +538,9 @@ export function parsePrtsChapter(
     title: meta.title,
     source: 'prts',
     sourceUrl: prtsPageUrl(meta.pageTitle),
-    revision: `prts-script-v1:${hash(script)}`,
+    revision: `prts-script-v3:${hash(script)}`,
     blocks,
+    ...(diagnostics.length ? { diagnostics } : {}),
     original: {
       pageTitle: meta.pageTitle,
       textPath: pathMatch[1].trim(),

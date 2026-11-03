@@ -74,7 +74,8 @@ export class WordCountStore {
         );
       if (
         current?.revision === count.revision &&
-        current.wordCount === count.wordCount
+        current.wordCount === count.wordCount &&
+        current.contentKind === count.contentKind
       )
         return current;
       const verified = {

@@ -10,6 +10,7 @@ import { z } from 'zod';
 import { ReaderError } from '../data/source.js';
 import {
   cacheInputSchema,
+  clearHistoryInputSchema,
   chapterInputSchema,
   chapterCountSchema,
   chapterSchema,
@@ -235,8 +236,8 @@ export function createReaderMcp(
   );
   tool(
     'reader_clear_history',
-    '清除本机阅读记录',
-    z.object({}),
+    '清除本机阅读记录（指定剧情或全部）',
+    clearHistoryInputSchema,
     readingStateSchema,
     false,
   );

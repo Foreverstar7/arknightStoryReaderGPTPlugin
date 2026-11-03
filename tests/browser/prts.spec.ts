@@ -2,9 +2,68 @@ import { expect, test, type APIRequestContext } from '@playwright/test';
 import { mkdir } from 'node:fs/promises';
 import {
   chapterInputSchema,
+  chapterSchema,
   snapshotSchema,
   toolRequestSchema,
 } from '../../src/shared/contracts.js';
+import { chapterContentKind } from '../../src/domain/reading.js';
+
+test('live newly supported multiline, captions, animated text, source conditions and video entries remain readable', async ({
+  page,
+  request,
+}) => {
+  test.setTimeout(180_000);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  const ids = [
+    'prts:10-1 被追逐者/NBT',
+    'prts:12-1 火光热浪/NBT',
+    'prts:15-1 过去与现在的终点/NBT',
+    'prts:SR-2 月涌/BEG',
+    'prts:EP10/ENTRY',
+    'prts:17-18 灵魂悄然/END',
+  ];
+  for (const id of ids) {
+    const data = await snapshot(request);
+    const story = data.stories.find((s) => s.chapters.some((c) => c.id === id));
+    const meta = story?.chapters.find((c) => c.id === id);
+    if (!story || !meta) throw new Error(`Missing public sample ${id}`);
+    await page.getByRole('button', { name: '⌂ 主页', exact: true }).click();
+    await page
+      .locator(`[data-story-id="${story.id}"]`)
+      .getByRole('button', { name: `打开剧情：${story.title}`, exact: true })
+      .click();
+    await page
+      .getByRole('button', {
+        name: `阅读 ${meta.code} ${meta.title}`,
+        exact: true,
+      })
+      .click();
+    await expect(page.getByRole('main', { name: '剧情正文' })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: meta.title, exact: true }),
+    ).toBeVisible();
+    const response = await request.post('/api/tools', {
+      data: { name: 'reader_chapter', arguments: { chapterId: id } },
+    });
+    expect(response.ok()).toBe(true);
+    const body = chapterSchema.parse(await response.json());
+    expect(body.revision).toMatch(/^prts-script-v3:/);
+    await expect(page.locator('.body-copy')).not.toContainText('[multiline');
+    if (body.diagnostics?.length)
+      await expect(page.locator('.source-diagnostics')).toBeVisible();
+    if (chapterContentKind(body) !== 'text') {
+      await expect(
+        page.locator('.video-source').first().getByRole('link'),
+      ).toHaveAttribute('href', body.sourceUrl ?? '');
+      await expect(page.locator('video')).toHaveCount(0);
+    }
+    if (chapterContentKind(body) === 'video') {
+      await expect(page.locator('.top-tools')).toContainText('本篇视频');
+      expect((await snapshot(request)).state.records[id]).toBeUndefined();
+    }
+  }
+});
 
 async function snapshot(request: APIRequestContext) {
   const response = await request.post('/api/tools', {
@@ -23,6 +82,72 @@ test.beforeEach(async ({ request }) => {
       arguments: { autoImages: false, retentionDays: 7, theme: 'system' },
     },
   });
+});
+
+test('all Dark Age upper and Birth of Tragedy chapters prepare complete denominators and formerly rejected bodies open', async ({
+  page,
+  request,
+}) => {
+  test.setTimeout(90_000);
+  await page.goto('/');
+  for (const sample of [
+    {
+      title: '黑暗时代·上',
+      chapters: 14,
+      pages: ['prts:G2H/END', 'prts:0-4 混战/BEG'],
+    },
+    {
+      title: '苦难摇篮',
+      chapters: 20,
+      pages: [
+        'prts:7-2 别离之夜/BEG',
+        'prts:7-4 并肩之约-1/BEG',
+        'prts:7-10 暗淡者之火/END',
+      ],
+    },
+  ]) {
+    const before = await snapshot(request);
+    await page
+      .getByRole('button', { name: `打开剧情：${sample.title}`, exact: true })
+      .click();
+    await expect(page.locator('.story-preparation')).toContainText(
+      `正文已加载 ${sample.chapters} 篇`,
+      { timeout: 45_000 },
+    );
+    const prepared = await snapshot(request);
+    expect(prepared.state.records).toEqual(before.state.records);
+    expect(prepared.state.recentChapterId).toBe(before.state.recentChapterId);
+    const story = prepared.stories.find(
+      (story) => story.title === sample.title,
+    );
+    if (!story) throw new Error('Story missing from live catalog');
+    expect(story.chapters).toHaveLength(sample.chapters);
+    expect(
+      story.chapters.every(
+        (chapter) => chapter.wordCount !== null && chapter.wordCount > 0,
+      ),
+    ).toBe(true);
+    for (const id of sample.pages) {
+      const chapter = story.chapters.find((chapter) => chapter.id === id);
+      if (!chapter) throw new Error('Problem sample missing from live catalog');
+      await page
+        .getByRole('button', {
+          name: `阅读 ${chapter.code} ${chapter.title}`,
+          exact: true,
+        })
+        .click();
+      await expect(page.getByRole('main', { name: '剧情正文' })).toBeVisible();
+      await expect(page.locator('.progress')).toContainText(
+        /全剧情已读\s*\d+%/,
+      );
+      await expect(page.getByRole('alert')).toHaveCount(0);
+      await page.getByRole('button', { name: '篇章目录', exact: true }).click();
+    }
+    await page.getByRole('button', { name: '⌂ 主页', exact: true }).click();
+    await expect(
+      page.getByRole('progressbar', { name: `${sample.title}阅读进度` }),
+    ).toHaveText(/^\d+%$/);
+  }
 });
 
 test('the seven catalog groups preserve every source ID and the order inside each group', async ({
@@ -275,7 +400,7 @@ test('live PRTS story prefetch supplies all 16 counts without reading or images,
   await expect(page.locator('.progress')).toContainText(/全剧情已读\s+\d+%/);
   await page.getByRole('button', { name: '设置', exact: true }).click();
   await page
-    .getByRole('button', { name: '清理全部内容缓存', exact: true })
+    .getByRole('button', { name: '清理剧情文本和图片缓存', exact: true })
     .click();
   await expect(page.getByRole('status')).toContainText('阅读记录已保留');
   await page.keyboard.press('Escape');

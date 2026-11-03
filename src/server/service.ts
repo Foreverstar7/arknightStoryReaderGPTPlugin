@@ -5,7 +5,7 @@ import {
   type ImageTarget,
 } from '../data/source.js';
 import { migrateRecord, readingLayout, wordsAt } from '../domain/revisions.js';
-import { chapterWords } from '../domain/reading.js';
+import { chapterContentKind, chapterWords } from '../domain/reading.js';
 import { WordCountStore } from '../storage/word-counts.js';
 import {
   cacheInputSchema,
@@ -13,7 +13,7 @@ import {
   imageInputSchema,
   imageResultSchema,
   chapterSchema,
-  initialState,
+  clearHistoryInputSchema,
   recordInputSchema,
   settingsSchema,
   type Chapter,
@@ -28,6 +28,10 @@ import { CacheCoordinator, cacheScopes } from '../storage/cache-coordinator.js';
 import { ContentCache } from '../storage/files.js';
 import { ReadingStore } from '../storage/reading-store.js';
 
+function historyToken(state: ReadingState, storyId: string) {
+  return `${state.historyEpoch ?? 0}:${state.storyHistoryEpochs?.[storyId] ?? 0}`;
+}
+
 export class ReaderService {
   readonly records: ReadingStore;
   readonly cache: ContentCache;
@@ -37,6 +41,7 @@ export class ReaderService {
   // Minimal indexes for pages already opened in this process, not a body cache.
   // Scroll saves must keep working after the user clears public content files.
   private readonly opened = new Map<string, ReadingLayout>();
+  private readonly openedHistory = new Map<string, string>();
   private remember(chapter: Chapter) {
     const targets = new Map<string, ImageTarget>();
     for (const block of chapter.blocks) {
@@ -85,14 +90,21 @@ export class ReaderService {
         ...story,
         chapters: story.chapters.map((chapter) => {
           const count = counts.get(chapter.id);
-          return count?.storyId === story.id
+          return count?.storyId === story.id &&
+            this.source.isCurrentRevision?.(count.revision) !== false
             ? {
                 ...chapter,
                 wordCount: count.wordCount,
                 wordCountRevision: count.revision,
                 wordCountVerifiedAt: count.verifiedAt,
+                contentKind: count.contentKind,
               }
-            : chapter;
+            : state.records[chapter.id] &&
+                this.source.isCurrentRevision?.(
+                  state.records[chapter.id]?.revision ?? '',
+                ) === false
+              ? { ...chapter, wordCountRevision: 'source-reparse-pending' }
+              : chapter;
         }),
       })),
       state,
@@ -108,10 +120,18 @@ export class ReaderService {
       const state = await this.records.read();
       const known = this.counts.all().get(id);
       const cached = await this.cache.get(id, state.settings.retentionDays);
+      const upgraded =
+        cached &&
+        (this.source.reparseCached
+          ? this.source.reparseCached(cached)
+          : cached);
       this.coordinator.assertCurrent('text');
       const chapter =
-        cached && (!known || cached.revision === known.revision)
-          ? cached
+        upgraded &&
+        (!known ||
+          cached?.revision === known.revision ||
+          upgraded.revision === known.revision)
+          ? upgraded
           : chapterSchema.parse(
               await this.source.chapter(id, state.settings.retentionDays),
             );
@@ -126,6 +146,7 @@ export class ReaderService {
         storyId: chapter.storyId,
         revision: chapter.revision,
         wordCount: chapterWords(chapter),
+        contentKind: chapterContentKind(chapter),
       };
       const verified = this.counts.put(count, known?.revision);
       if (chapter !== cached) await this.cache.put(chapter);
@@ -138,6 +159,9 @@ export class ReaderService {
       before.chapterRevisions?.[id] ?? before.records[id]?.revision;
     const known = this.counts.all().get(id);
     const cached = await this.cache.get(id, before.settings.retentionDays);
+    const upgraded =
+      cached &&
+      (this.source.reparseCached ? this.source.reparseCached(cached) : cached);
     this.coordinator.assertCurrent('text');
     if (
       !refresh &&
@@ -151,8 +175,12 @@ export class ReaderService {
         '缓存正文与已保存的修订不同，请刷新本章；原阅读记录已保留。',
       );
     const chapter =
-      !refresh && cached && (!known || cached.revision === known.revision)
-        ? cached
+      !refresh &&
+      upgraded &&
+      (!known ||
+        cached?.revision === known.revision ||
+        upgraded.revision === known.revision)
+        ? upgraded
         : chapterSchema.parse(
             await this.source.chapter(id, before.settings.retentionDays),
           );
@@ -171,10 +199,19 @@ export class ReaderService {
         storyId: chapter.storyId,
         revision: chapter.revision,
         wordCount: layout.totalWords,
+        contentKind: chapterContentKind(chapter),
       },
       known?.revision,
     );
-    await this.records.change((state) => {
+    const openedState = await this.records.change((state) => {
+      if (
+        historyToken(state, chapter.storyId) !==
+        historyToken(before, chapter.storyId)
+      )
+        throw new ReaderError(
+          'conflict',
+          '阅读记录已清除，请重新打开篇目后继续。',
+        );
       const active =
         state.chapterRevisions?.[id] ?? state.records[id]?.revision;
       if (active !== expected && active !== chapter.revision)
@@ -196,7 +233,9 @@ export class ReaderService {
     });
     if (chapter !== cached) await this.cache.put(chapter);
     this.remember(chapter);
-    return chapter;
+    const token = historyToken(openedState, chapter.storyId);
+    this.openedHistory.set(id, token);
+    return { ...chapter, historyToken: token };
   }
   async record(input: unknown): Promise<ReadingState> {
     const change = recordInputSchema.parse(input);
@@ -239,6 +278,15 @@ export class ReaderService {
       change.last.fraction === 1;
     const words = wordsAt(chapter, change.last);
     return this.records.change((state) => {
+      // A clear in another process/window must also fence a delayed save. Older
+      // clients may reuse the token of a page explicitly opened in this process.
+      const expectedHistory =
+        change.historyToken ?? this.openedHistory.get(chapter.id) ?? '0:0';
+      if (expectedHistory !== historyToken(state, chapter.storyId))
+        throw new ReaderError(
+          'conflict',
+          '阅读记录已清除，请重新打开篇目后继续。',
+        );
       const previous = state.records[chapter.id];
       if (
         (previous && previous.revision !== chapter.revision) ||
@@ -346,12 +394,41 @@ export class ReaderService {
         );
         return { cleared: scope };
       }
-      case 'reader_clear_history':
-        z.object({}).parse(input);
-        return this.records.change((state) => ({
-          ...initialState(),
-          settings: state.settings,
-        }));
+      case 'reader_clear_history': {
+        const { storyId } = clearHistoryInputSchema.parse(input);
+        return this.records.change((state) => {
+          const records = Object.fromEntries(
+            Object.entries(state.records).filter(
+              ([, record]) =>
+                storyId !== undefined && record.storyId !== storyId,
+            ),
+          );
+          const recentChapterId =
+            state.recentChapterId && records[state.recentChapterId]
+              ? state.recentChapterId
+              : (Object.values(records).sort((a, b) =>
+                  b.updatedAt.localeCompare(a.updatedAt),
+                )[0]?.chapterId ?? null);
+          // Keep preferences and revision guards; public counts/content live in
+          // independent stores. Deletion and recent-entry selection are atomic.
+          return {
+            ...state,
+            records,
+            recentChapterId,
+            ...(storyId === undefined
+              ? {
+                  historyEpoch: (state.historyEpoch ?? 0) + 1,
+                  storyHistoryEpochs: {},
+                }
+              : {
+                  storyHistoryEpochs: {
+                    ...state.storyHistoryEpochs,
+                    [storyId]: (state.storyHistoryEpochs?.[storyId] ?? 0) + 1,
+                  },
+                }),
+          };
+        });
+      }
     }
   }
 }

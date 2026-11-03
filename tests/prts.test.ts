@@ -198,7 +198,7 @@ test('slot-only visual changes retain resources and clearing one slot does not l
   assert.deepEqual(third.scene?.slots, []);
 });
 
-test('single and all-options predicates merge immediately; unknown commands and unsupported control flow fail visibly', () => {
+test('single and all-options predicates merge immediately; unknown commands and predicates without a decision fail visibly', () => {
   const chapter = parsePrtsChapter(
     wiki(`[Decision(options="继续",values="1")]
 [Predicate(references="1")]
@@ -213,12 +213,116 @@ test('single and all-options predicates merge immediately; unknown commands and 
     2,
   );
   for (const script of [
-    '[Decision(options="一;二",values="1;2")]\n[Predicate(references="9")]',
-    '[Decision(options="一;二",values="1;2")]\n[Predicate(references="1")]\n[Decision(options="嵌套",values="1")]',
+    '[Predicate(references="1")]\n[name="甲"]没有选项来源。',
     '[UnknownControl(value="1")]',
     '[name="破损"',
   ])
     assert.throws(() => parsePrtsChapter(wiki(script), meta), ReaderError);
+});
+
+test('last duplicate parameter follows the source player; only terminal return-home markers are supported', () => {
+  const chapter = parsePrtsChapter(
+    wiki(`[Background(screenadapt="coverall",image="room",screenadapt="coverall")]
+[name="甲"]独立样例。
+[GotoPage(dest="home")]`),
+    meta,
+  );
+  assert.equal(chapterWords(chapter), countText('独立样例。'));
+  for (const script of [
+    '[GotoPage(dest="other")]\n[name="甲"]错误目的地。',
+    '[name="甲"]起点。\n[GotoPage(dest="home")]\n[name="甲"]跳转后有内容。',
+  ])
+    assert.throws(() => parsePrtsChapter(wiki(script), meta), ReaderError);
+});
+
+test('conditional decisions preserve source order, independent portraits and a single shared continuation without counting condition labels twice', () => {
+  const chapter = parsePrtsChapter(
+    wiki(`[Character(name="base")]
+[Decision(options="北;南",values="1;2")]
+[Predicate(references="1")]
+[Character(name="north")]
+[name="匿名"]北前。
+[Decision(options="问;等",values="4;5")]
+[Predicate(references="4")]
+[CharSlot(slot="m",name="child")]
+[name="匿名"]问答。
+[Predicate(references="5")]
+[name="匿名"]等答。
+[Predicate(references="2")]
+[name="匿名"]南前。
+[Decision(options="走;留",values="7;8")]
+[Predicate(references="7")]
+[name="匿名"]走答。
+[Predicate(references="8")]
+[name="匿名"]留答。
+[Predicate(references="4;5;7;8")]
+[name="匿名"]共同结尾。`),
+    meta,
+  );
+  const leaves = chapter.blocks.flatMap((block) =>
+    block.kind === 'choices'
+      ? [
+          ...block.options.flatMap((option) => option.blocks),
+          ...(block.shared ?? []).flatMap((group) => group.blocks),
+        ]
+      : [block],
+  );
+  const speech = leaves.filter((leaf) => leaf.kind === 'speech');
+  assert.deepEqual(
+    speech.map((leaf) => leaf.paragraphs.join('')),
+    ['北前。', '问答。', '等答。', '南前。', '走答。', '留答。', '共同结尾。'],
+  );
+  assert.deepEqual(
+    speech.map((leaf) => leaf.scene?.slots.map((slot) => slot.resource)),
+    [['north'], ['child'], ['north'], ['base'], ['base'], ['base'], []],
+  );
+  assert.equal(
+    chapterWords(chapter),
+    countText('北南问等走留北前。问答。等答。南前。走答。留答。共同结尾。'),
+  );
+  assert.deepEqual(
+    chapter.blocks.flatMap((block) =>
+      block.kind === 'choices' && block.when ? [block.when] : [],
+    ),
+    [['北'], ['南']],
+  );
+  assert.match(chapter.revision, /^prts-script-v3:/);
+});
+
+test('consecutive predicates and reused decision values retain all dialogue and conservative shared scenes', () => {
+  const chapter = parsePrtsChapter(
+    wiki(`[Decision(options="甲路;乙路",values="1;2")]
+[Predicate(references="1")]
+[Character(name="first")]
+[name="甲"]甲路正文。
+[Predicate(references="2")]
+[Character(name="second")]
+[name="乙"]乙路正文。
+[Decision(options="再问",values="1")]
+[Predicate(references="1")]
+[name="甲"]两路都能到达。
+[Decision(options="往前;停留",values="1;2")]
+[Predicate(references="1;2")]
+[Predicate(references="1")]
+[name="甲"]往前正文。
+[Predicate(references="2")]
+[name="乙"]停留正文。
+[Predicate(references="1;2")]
+[name="甲"]终点。`),
+    meta,
+  );
+  assert.equal(
+    chapterWords(chapter),
+    countText(
+      '甲路乙路甲路正文。乙路正文。再问两路都能到达。往前停留往前正文。停留正文。终点。',
+    ),
+  );
+  const common = chapter.blocks.find(
+    (block) =>
+      block.kind === 'speech' && block.paragraphs.includes('两路都能到达。'),
+  );
+  assert.ok(common?.kind === 'speech');
+  assert.deepEqual(common.scene?.slots, []);
 });
 
 test('native HTTP boundary distinguishes not found, network/HTTP failures and incompatible MIME', async () => {
