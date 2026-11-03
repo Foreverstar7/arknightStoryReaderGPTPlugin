@@ -5,6 +5,7 @@ import path from 'node:path';
 import { z } from 'zod';
 import { RESOURCE_URI } from '../src/server/mcp.js';
 import assert from 'node:assert/strict';
+import { collectImageResult } from '../src/shared/image-transfer.js';
 import {
   snapshotSchema,
   chapterSchema,
@@ -95,7 +96,19 @@ try {
       name: 'reader_image',
       arguments: { kind: 'cg', chapterId: chapter.id, blockId: cg.id },
     });
-    const parsed = imageResultSchema.parse(result._meta?.readerImage);
+    const parsed = imageResultSchema.parse(
+      await collectImageResult(result, (part) =>
+        client.callTool({
+          name: 'reader_image',
+          arguments: {
+            kind: 'cg',
+            chapterId: chapter.id,
+            blockId: cg.id,
+            ...part,
+          },
+        }),
+      ),
+    );
     assert.ok(
       typeof result.structuredContent === 'object' &&
         result.structuredContent !== null,

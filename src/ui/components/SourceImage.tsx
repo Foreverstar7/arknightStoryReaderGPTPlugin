@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import {
   imageInputSchema,
   imageResultSchema,
@@ -7,11 +7,8 @@ import {
 } from '../../shared/contracts.js';
 import type { ReaderTransport } from '../transport.js';
 import { ReaderError, type ReaderFailure } from '../../shared/errors.js';
-
-// User-confirmed temporary cover policy (2026-11-02), not a PRTS format limit.
-// Keep other assets intact; revisit together with --cover-ratio and requirements.
-const COVER_WIDTH = 1560;
-const COVER_HEIGHT = 500;
+import { coverPresentation } from '../../shared/cover-policy.js';
+import { CoverImagesContext } from '../cover-images.js';
 
 /** Observe the real scrolling container; do not fetch from a hidden card/chapter. */
 export function useVisible<T extends HTMLElement>(
@@ -45,10 +42,12 @@ export function ImageLayers({
   image,
   label,
   onError,
+  cover = false,
 }: {
   image: ReaderImage;
   label: string;
   onError?: () => void;
+  cover?: boolean;
 }) {
   return (
     <svg
@@ -59,6 +58,7 @@ export function ImageLayers({
       aria-label={label}
       data-image-state="ready"
       data-source-url={image.attribution?.sourceUrl ?? image.sourceUrl}
+      data-cover-presentation={cover ? coverPresentation(image) : undefined}
     >
       <title>{label}</title>
       {image.layers.map((layer, index) => (
@@ -91,12 +91,24 @@ export function SourceImage({
   retryable?: boolean;
   enabled?: boolean;
 }) {
-  const [state, setState] = useState<ImageState>({ status: 'idle' });
-  const [attempt, setAttempt] = useState(0);
   // The semantic key avoids re-fetching when the parent re-renders during scroll saves.
   const key = JSON.stringify(input);
+  const covers = useContext(CoverImagesContext);
+  const initialImage = cover ? covers?.get(key) : undefined;
+  const [state, setState] = useState<ImageState>(() =>
+    initialImage
+      ? { status: 'ready', image: initialImage }
+      : { status: 'idle' },
+  );
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     let active = true;
+    const generation = covers?.generation;
+    const loaded = cover && attempt === 0 ? covers?.get(key) : undefined;
+    if (loaded) {
+      setState({ status: 'ready', image: loaded });
+      return;
+    }
     if (!enabled) {
       setState({ status: 'idle' });
       return;
@@ -113,7 +125,13 @@ export function SourceImage({
         );
         if (!result.success)
           throw new ReaderError('parse', '图片结果格式不兼容，请重试。');
-        if (active) setState({ status: 'ready', image: result.data });
+        if (active) {
+          // A request begun before cache clearing may still finish visibly, but
+          // must not repopulate reuse for future mounts after that clear.
+          if (cover && covers?.generation === generation)
+            covers?.set(key, result.data);
+          setState({ status: 'ready', image: result.data });
+        }
       } catch (error) {
         if (active)
           setState({
@@ -135,7 +153,7 @@ export function SourceImage({
     return () => {
       active = false;
     };
-  }, [transport, key, attempt, enabled]);
+  }, [transport, key, attempt, enabled, cover, covers]);
   if (state.status === 'error')
     return (
       <span
@@ -176,10 +194,7 @@ export function SourceImage({
             : '正在读取图片…'}
       </span>
     );
-  if (
-    cover &&
-    (state.image.width !== COVER_WIDTH || state.image.height !== COVER_HEIGHT)
-  )
+  if (cover && coverPresentation(state.image) === 'deferred')
     return (
       <span
         className="image-deferred"
@@ -187,7 +202,7 @@ export function SourceImage({
         data-source-url={
           state.image.attribution?.sourceUrl ?? state.image.sourceUrl
         }
-        title={`原图 ${state.image.width} × ${state.image.height}；暂采用 ${COVER_WIDTH} × ${COVER_HEIGHT} 封面。`}
+        title={`原图 ${state.image.width} × ${state.image.height}；此来源尺寸尚未适配。`}
       >
         封面尺寸待适配
       </span>
@@ -197,7 +212,9 @@ export function SourceImage({
       <ImageLayers
         image={state.image}
         label={label}
-        onError={() =>
+        cover={cover}
+        onError={() => {
+          if (cover) covers?.delete(key);
           setState({
             status: 'error',
             failure: {
@@ -205,8 +222,8 @@ export function SourceImage({
               message: '图片解码失败，重试会重新获取此图片，不清除阅读记录。',
               sourceUrl: state.image.sourceUrl,
             },
-          })
-        }
+          });
+        }}
       />
       {!cover && (
         <a

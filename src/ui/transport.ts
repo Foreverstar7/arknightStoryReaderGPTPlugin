@@ -1,6 +1,7 @@
 import type { App } from '@modelcontextprotocol/ext-apps';
 import type { ToolName } from '../shared/contracts.js';
 import { ReaderError, readerFailureSchema } from '../shared/errors.js';
+import { collectImageResult } from '../shared/image-transfer.js';
 
 export interface ReaderTransport {
   call(name: ToolName, args: Record<string, unknown>): Promise<unknown>;
@@ -87,7 +88,19 @@ export function hostTransport(
         );
       }
       return name === 'reader_image'
-        ? result._meta?.readerImage
+        ? collectImageResult(result, async (part) => {
+            try {
+              return await app.callServerTool({
+                name,
+                arguments: { ...args, refresh: false, ...part },
+              });
+            } catch {
+              throw new ReaderError(
+                'unknown',
+                '宿主未能完成图片分段传输，请重试。',
+              );
+            }
+          })
         : result.structuredContent;
     },
   };

@@ -313,6 +313,17 @@ button:disabled {
 .story-card:hover {
   background: var(--panel);
 }
+.cover .source-image[data-cover-presentation='contain'] {
+  background: linear-gradient(125deg, var(--soft), var(--panel));
+}
+.cover[data-cover-kind='text'] > .cover-label {
+  color: var(--text);
+  font-size: clamp(16px, 2vw, 23px);
+  letter-spacing: 0.04em;
+}
+.mini-cover .cover[data-cover-kind='text'] > .cover-label {
+  font-size: 15px;
+}
 .story-open {
   position: absolute;
   inset: 0;

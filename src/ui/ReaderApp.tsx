@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import {
   chapterSchema,
@@ -26,6 +26,7 @@ import {
 import { ChapterList } from './components/ChapterList.js';
 import { Reader } from './components/Reader.js';
 import { SettingsPanel } from './components/SettingsPanel.js';
+import { CoverImagesContext } from './cover-images.js';
 
 type Route =
   | { page: 'library' }
@@ -59,6 +60,7 @@ export function ReaderApp({
   const [reload, setReload] = useState(0);
   const retry = useRef<() => void>(() => setReload((value) => value + 1));
   const flush = useRef<() => Promise<void>>(async () => undefined);
+  const coverImages = useContext(CoverImagesContext);
   const key = useRef(0);
   const navigation = useRef(0);
   const transition = useRef<ViewTransition | null>(null);
@@ -447,6 +449,7 @@ export function ReaderApp({
           clearCache={async (scope) => {
             await flush.current();
             await transport.call('reader_clear_cache', { scope });
+            coverImages?.clear();
           }}
           clearHistory={async () => {
             await flush.current();

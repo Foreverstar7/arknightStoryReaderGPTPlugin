@@ -132,6 +132,8 @@ export const rasterDataUrlSchema = z
 export const coverMethodSchema = z.enum([
   'activity-title-field',
   'april-year-index',
+  'main-chapter-index',
+  'contingency-logo',
 ]);
 export const imageLayerSchema = z.object({
   dataUrl: rasterDataUrlSchema,

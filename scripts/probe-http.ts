@@ -8,6 +8,7 @@ import {
   imageResultSchema,
 } from '../src/shared/contracts.js';
 import { RESOURCE_URI } from '../src/server/mcp.js';
+import { collectImageResult } from '../src/shared/image-transfer.js';
 
 const url = new URL(process.argv[2] ?? 'http://127.0.0.1:4318/mcp');
 const client = new Client({ name: 'reader-http-probe', version: '0.1.0' });
@@ -40,7 +41,19 @@ try {
       name: 'reader_image',
       arguments: { kind: 'cg', chapterId: chapter.id, blockId: cg.id },
     });
-    const parsed = imageResultSchema.parse(result._meta?.readerImage);
+    const parsed = imageResultSchema.parse(
+      await collectImageResult(result, (part) =>
+        client.callTool({
+          name: 'reader_image',
+          arguments: {
+            kind: 'cg',
+            chapterId: chapter.id,
+            blockId: cg.id,
+            ...part,
+          },
+        }),
+      ),
+    );
     image = {
       resource: parsed.resource,
       width: parsed.width,

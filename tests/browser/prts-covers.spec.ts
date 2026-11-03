@@ -37,90 +37,122 @@ test.beforeEach(async ({ request, page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
 });
 
-test('real JPEG and PNG banners fit; April portrait covers stay deferred and main logos unsupported, without fetching chapter bodies', async ({
+test('all approved remaining covers decode in full; text covers never request images; both pages preserve geometry, state and navigation', async ({
   page,
   request,
 }) => {
-  test.setTimeout(90_000);
-  const ids = [
-    targetId,
-    'prts:黑暗时代·上',
-    'prts:活动剧情/集成战略 · 傀影与猩红孤钻',
-    'prts:活动剧情/生息演算 · 沙中之火',
-    'prts:活动剧情/四月辑录 · 断罪者的挑战状',
-    'prts:活动剧情/集成战略 · 刻俄柏的灰蕈迷境',
-    'prts:局部坏死',
+  test.setTimeout(180_000);
+  const before = snapshotSchema.parse(
+    await (
+      await request.post('/api/tools', {
+        data: { name: 'reader_snapshot', arguments: {} },
+      })
+    ).json(),
+  );
+  const mainTitles = [
+    '黑暗时代·上',
+    '黑暗时代·下',
+    '异卵同生',
+    '二次呼吸',
+    '急性衰竭',
   ];
-  const bodies: string[] = [];
+  const textIds = ['prts:主线剧情/特殊 · 剧情', 'prts:活动剧情/特殊 · 剧情'];
+  const crisisId = 'prts:活动剧情/特殊 · 危机合约';
+  const samples = before.stories.filter(
+    (story) =>
+      story.type === '四月辑录' ||
+      mainTitles.includes(story.title) ||
+      story.title === '日暮寻路' ||
+      story.id === crisisId ||
+      textIds.includes(story.id),
+  );
+  expect(samples).toHaveLength(16);
+  expect(
+    samples
+      .filter((story) => textIds.includes(story.id))
+      .map((story) => story.chapters.length),
+  ).toEqual([8, 3]);
+  expect(samples.find((story) => story.id === crisisId)?.chapters).toHaveLength(
+    3,
+  );
+  const calls: { kind?: string; storyId?: string; name: string }[] = [];
   page.on('request', (req) => {
-    if (
-      req.url().endsWith('/api/tools') &&
-      req.postDataJSON().name === 'reader_chapter'
-    )
-      bodies.push(req.url());
+    if (req.url().endsWith('/api/tools')) {
+      const data = req.postDataJSON();
+      calls.push({ name: data.name, ...data.arguments });
+    }
   });
-  await limitCovers(page, ids);
+  await limitCovers(
+    page,
+    samples.map((story) => story.id),
+  );
+  await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
-  const main = page.locator(`[data-story-id="${ids[1]}"]`);
-  await expect(main.locator('[data-error-code="unsupported"]')).toContainText(
-    '封面来源待适配',
-  );
-  await expect(main.locator('.image-error')).toHaveAttribute(
-    'data-source-url',
-    /#EP00$/u,
-  );
-  for (const id of [targetId, ids[2], ids[3], ids[5], ids[6]]) {
-    const card = page.locator(`[data-story-id="${id}"]`);
+  await mkdir('.ai/local/screenshots', { recursive: true });
+  for (const [index, story] of samples.entries()) {
+    const card = page.locator(`[data-story-id="${story.id}"]`);
     await card.scrollIntoViewIfNeeded();
-    await expect(card.getByRole('img')).toBeVisible();
-    await expect(card.getByRole('img')).toHaveAttribute(
-      'data-source-url',
-      /^https:\/\/prts.wiki\/w\//u,
-    );
-    const decoded = await card.locator('image').evaluate(async (node) => {
-      const image = new Image();
-      const href = node.getAttribute('href') ?? '';
-      image.src = href;
-      await image.decode();
-      return {
-        mime: href.split(';')[0],
-        width: image.naturalWidth,
-        height: image.naturalHeight,
-      };
+    const isText = textIds.includes(story.id);
+    if (isText) {
+      await expect(card.locator('[data-cover-kind="text"]')).toBeVisible();
+      await expect(card.getByRole('img')).toHaveAccessibleName(
+        /补充剧情 · 应用文字封面/u,
+      );
+      await expect(
+        card.locator('.image-error,.image-loading,.image-idle,.image-deferred'),
+      ).toHaveCount(0);
+    } else {
+      await expect(card.getByRole('img')).toBeVisible({ timeout: 30_000 });
+      const decoded = await card.locator('image').evaluate(async (node) => {
+        const image = new Image();
+        image.src = node.getAttribute('href') ?? '';
+        await image.decode();
+        return {
+          width: image.naturalWidth,
+          height: image.naturalHeight,
+          mime: image.src.split(';')[0],
+          bytes: atob(image.src.split(',')[1] ?? '').length,
+        };
+      });
+      const isMain = mainTitles.includes(story.title);
+      const isCrisis = story.id === crisisId;
+      expect([decoded.width, decoded.height]).toEqual(
+        isMain ? [512, 512] : isCrisis ? [463, 121] : [1560, 500],
+      );
+      expect(decoded.mime).toBe(
+        story.title === '日暮寻路' ? 'data:image/jpeg' : 'data:image/png',
+      );
+      if (story.title === '日暮寻路') expect(decoded.bytes).toBe(17_835_330);
+      await expect(card.getByRole('img')).toHaveAttribute(
+        'preserveAspectRatio',
+        'xMidYMid meet',
+      );
+      await expect(card.getByRole('img')).toHaveAttribute(
+        'data-cover-presentation',
+        isMain || isCrisis ? 'contain' : 'banner',
+      );
+      await expect(card.getByRole('img')).toHaveAttribute(
+        'data-source-url',
+        /^https:\/\/prts.wiki\/w\//u,
+      );
+    }
+    await card.getByRole('button', { name: /^打开剧情/u }).focus();
+    await page.keyboard.press('Enter');
+    const mini = page.locator('.mini-cover .cover');
+    await expect(mini.getByRole('img')).toBeVisible({ timeout: 30_000 });
+    await expect(mini.locator('.image-error,.image-deferred')).toHaveCount(0);
+    if (!isText)
+      await mini.locator('image').evaluate(async (node) => {
+        const image = new Image();
+        image.src = node.getAttribute('href') ?? '';
+        await image.decode();
+      });
+    await page.screenshot({
+      path: `.ai/local/screenshots/remaining-cover-${index}.png`,
     });
-    expect(decoded.width).toBe(1560);
-    expect(decoded.height).toBe(500);
-    await expect(card.getByRole('img')).toHaveAttribute(
-      'preserveAspectRatio',
-      'xMidYMid meet',
-    );
-    if (id === ids[5] || id === ids[6])
-      expect(decoded.mime).toBe('data:image/jpeg');
-    else expect(decoded.mime).toBe('data:image/png');
-    if (id === ids[5]) {
-      await mkdir('.ai/local/screenshots', { recursive: true });
-      await page.screenshot({
-        path: '.ai/local/screenshots/covers-jpeg-real.png',
-      });
-    }
-    if (id === ids[2]) {
-      await mkdir('.ai/local/screenshots', { recursive: true });
-      await page.screenshot({
-        path: '.ai/local/screenshots/covers-real-grouped.png',
-      });
-    }
+    await page.getByRole('button', { name: '⌂ 主页', exact: true }).click();
+    await expect(card).toBeInViewport();
   }
-  const april = page.locator(`[data-story-id="${ids[4]}"]`);
-  await april.scrollIntoViewIfNeeded();
-  await expect(april.locator('[data-image-state="deferred"]')).toHaveText(
-    '封面尺寸待适配',
-  );
-  await expect(april.locator('.image-deferred')).toHaveAttribute(
-    'data-source-url',
-    /#2020$/u,
-  );
-  await expect(april.getByRole('img')).toHaveCount(0);
-  await expect(april.getByRole('button', { name: /^重试/u })).toHaveCount(0);
   for (const colorScheme of ['light', 'dark'] as const) {
     await page.emulateMedia({ colorScheme });
     for (const viewport of [
@@ -130,39 +162,45 @@ test('real JPEG and PNG banners fit; April portrait covers stay deferred and mai
       { width: 1024, height: 400 },
     ]) {
       await page.setViewportSize(viewport);
-      await april.scrollIntoViewIfNeeded();
-      const box = await april.locator('.cover').boundingBox();
-      if (!box) throw new Error('封面占位缺少布局');
-      expect(box.width / box.height).toBeCloseTo(1560 / 500, 2);
-      await april.getByRole('button', { name: /^打开剧情/u }).click();
-      const mini = page.locator('.mini-cover .cover');
-      await expect(mini.locator('.image-deferred')).toBeVisible();
-      const miniBox = await mini.boundingBox();
-      if (!miniBox) throw new Error('篇目页封面缺少布局');
-      expect(miniBox.width / miniBox.height).toBeCloseTo(1560 / 500, 2);
-      expect(
-        await page.evaluate(() => document.documentElement.scrollWidth),
-      ).toBe(viewport.width);
-      await page.screenshot({
-        path: `.ai/local/screenshots/banner-deferred-${colorScheme}-${viewport.width}x${viewport.height}.png`,
-      });
-      await page.getByRole('button', { name: '⌂ 主页', exact: true }).click();
-      await expect(april).toBeInViewport();
+      for (const id of ['prts:黑暗时代·上', textIds[0], crisisId]) {
+        const card = page.locator(`[data-story-id="${id}"]`);
+        await card.scrollIntoViewIfNeeded();
+        const frame = await card.locator('.cover').boundingBox();
+        if (!frame) throw new Error('missing home cover');
+        expect(frame.width / frame.height).toBeCloseTo(1560 / 500, 2);
+        await card.getByRole('button', { name: /^打开剧情/u }).click();
+        const mini = page.locator('.mini-cover .cover');
+        await expect(mini.getByRole('img')).toBeVisible();
+        const box = await mini.boundingBox();
+        if (!box) throw new Error('missing chapter cover');
+        expect(box.width / box.height).toBeCloseTo(1560 / 500, 2);
+        expect(
+          await page.evaluate(() => document.documentElement.scrollWidth),
+        ).toBe(viewport.width);
+        await page.screenshot({
+          path: `.ai/local/screenshots/remaining-${id === crisisId ? 'logo' : id === textIds[0] ? 'text' : 'square'}-${colorScheme}-${viewport.width}x${viewport.height}.png`,
+        });
+        await page.getByRole('button', { name: '⌂ 主页', exact: true }).click();
+        await expect(card).toBeInViewport();
+      }
     }
   }
-  expect(bodies).toEqual([]);
-  const snapshot = snapshotSchema.parse(
+  expect(calls.filter((call) => call.name === 'reader_chapter')).toEqual([]);
+  expect(
+    calls.filter(
+      (call) =>
+        call.name === 'reader_image' && textIds.includes(call.storyId ?? ''),
+    ),
+  ).toEqual([]);
+  const after = snapshotSchema.parse(
     await (
       await request.post('/api/tools', {
         data: { name: 'reader_snapshot', arguments: {} },
       })
     ).json(),
   );
-  expect(snapshot.state.records).toEqual({});
-  expect(snapshot.stories).toHaveLength(117);
-  expect(
-    snapshot.stories.reduce((count, story) => count + story.chapters.length, 0),
-  ).toBe(1756);
+  expect(after.stories).toEqual(before.stories);
+  expect(after.state).toEqual(before.state);
 });
 
 test('idle/loading, typed failures and independent mouse/keyboard retries fit both themes and all supported viewports', async ({
@@ -330,6 +368,14 @@ test('a decodable-result failure retries the asset, and the chapter-list cover h
   );
   await card.getByRole('button', { name: /^重试/u }).click();
   await expect(card.getByRole('img')).toBeVisible();
+  // Clearing storage also invalidates cover reuse for a new page; the visible
+  // image stays in place while a later mount can independently fail and retry.
+  await page.getByRole('button', { name: '设置', exact: true }).click();
+  await page
+    .getByRole('button', { name: '清理全部内容缓存', exact: true })
+    .click();
+  await expect(page.getByRole('status')).toContainText('阅读记录已保留');
+  await page.keyboard.press('Escape');
   miniFailure = true;
   await card.getByRole('button', { name: '打开剧情：骑兵与猎人' }).click();
   const cover = page.locator('.mini-cover');
@@ -406,4 +452,113 @@ test('returning home preserves loaded covers in the incoming snapshot without re
   await page.screenshot({
     path: '.ai/local/screenshots/home-banner-return.png',
   });
+});
+
+test('approved square, logo, text and large banner persist in the first chapter snapshot and survive rapid navigation and resize', async ({
+  page,
+}) => {
+  test.setTimeout(90_000);
+  const ids = [
+    'prts:黑暗时代·上',
+    'prts:活动剧情/特殊 · 危机合约',
+    'prts:主线剧情/特殊 · 剧情',
+    'prts:日暮寻路',
+  ];
+  await limitCovers(page, ids);
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.addInitScript(() => {
+    const original = document.startViewTransition.bind(document);
+    document.startViewTransition = (update) =>
+      original(async () => {
+        if (typeof update === 'function') await update();
+        else await update?.update?.();
+        const cover = document.querySelector('.mini-cover .cover');
+        if (cover)
+          document.documentElement.dataset.chapterCoverSnapshot =
+            cover.getAttribute('data-cover-kind') === 'text'
+              ? 'text'
+              : (cover
+                  .querySelector('[data-image-state]')
+                  ?.getAttribute('data-image-state') ?? 'missing');
+      });
+  });
+  const imageCalls: string[] = [];
+  page.on('request', (req) => {
+    if (
+      req.url().endsWith('/api/tools') &&
+      req.postDataJSON().name === 'reader_image'
+    )
+      imageCalls.push(req.postDataJSON().arguments.storyId);
+  });
+  await page.goto('/');
+  for (const id of ids) {
+    const card = page.locator(`[data-story-id="${id}"]`);
+    await card.scrollIntoViewIfNeeded();
+    await expect(card.getByRole('img')).toBeVisible({ timeout: 30_000 });
+    const before = imageCalls.filter((value) => value === id).length;
+    await card.getByRole('button', { name: /^打开剧情/u }).click();
+    await expect(page.locator('html')).toHaveAttribute(
+      'data-chapter-cover-snapshot',
+      id.includes('主线剧情/') ? 'text' : 'ready',
+    );
+    await page.setViewportSize({ width: 768, height: 640 });
+    await expect(page.locator('.mini-cover').getByRole('img')).toBeVisible();
+    await page.getByRole('button', { name: '⌂ 主页', exact: true }).click();
+    await expect(card).toBeInViewport();
+    await card.getByRole('button', { name: /^打开剧情/u }).click();
+    await page.getByRole('button', { name: '⌂ 主页', exact: true }).click();
+    await expect(card).toBeInViewport();
+    await page.evaluate(async () => {
+      await Promise.allSettled(document.getAnimations().map((a) => a.finished));
+    });
+    expect(imageCalls.filter((value) => value === id).length).toBe(before);
+    await expect(card.getByRole('img')).toBeVisible();
+  }
+});
+
+test('a cover response started before clearing cannot repopulate image reuse for later pages', async ({
+  page,
+}) => {
+  const id = 'prts:黑暗时代·上';
+  await limitCovers(page, [id]);
+  let release: (() => void) | undefined;
+  const blocked = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  let ready = false;
+  let calls = 0;
+  await page.route('**/api/tools', async (route) => {
+    const data = route.request().postDataJSON();
+    if (data.name !== 'reader_image' || data.arguments.storyId !== id) {
+      await route.fallback();
+      return;
+    }
+    calls++;
+    if (calls === 1) {
+      const response = await route.fetch();
+      ready = true;
+      await blocked;
+      await route.fulfill({ response });
+    } else await route.fallback();
+  });
+  try {
+    await page.goto('/');
+    const card = page.locator(`[data-story-id="${id}"]`);
+    await card.scrollIntoViewIfNeeded();
+    await expect.poll(() => ready).toBe(true);
+    await page.getByRole('button', { name: '设置', exact: true }).click();
+    await page
+      .getByRole('button', { name: '清理全部内容缓存', exact: true })
+      .click();
+    await expect(page.getByRole('status')).toContainText('阅读记录已保留');
+    await page.keyboard.press('Escape');
+    if (!release) throw new Error('missing response gate');
+    release();
+    await expect(card.getByRole('img')).toBeVisible();
+    await card.getByRole('button', { name: /^打开剧情/u }).click();
+    await expect(page.locator('.mini-cover').getByRole('img')).toBeVisible();
+    expect(calls).toBe(2);
+  } finally {
+    release?.();
+  }
 });

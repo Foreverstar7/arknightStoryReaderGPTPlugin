@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { defineConfig } from '@playwright/test';
+const port = process.env.READER_E2E_PORT ?? '4319';
 
 export default defineConfig({
   testDir: './tests/browser',
@@ -8,7 +9,7 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   use: {
-    baseURL: 'http://127.0.0.1:4319',
+    baseURL: `http://127.0.0.1:${port}`,
     browserName: 'chromium',
     channel: process.env.PLAYWRIGHT_CHANNEL,
     screenshot: 'only-on-failure',
@@ -18,11 +19,11 @@ export default defineConfig({
   webServer: {
     command: 'node dist/server/main.js',
     env: {
-      PORT: '4319',
+      PORT: port,
       READER_DATA_DIR: path.resolve('.ai/local/e2e-state'),
       READER_SOURCE: 'fixture',
     },
-    url: 'http://127.0.0.1:4319/health',
+    url: `http://127.0.0.1:${port}/health`,
     reuseExistingServer: false,
   },
 });

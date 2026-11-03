@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { defineConfig } from '@playwright/test';
+const port = process.env.READER_E2E_PRTS_PORT ?? '4320';
 
 export default defineConfig({
   testDir: './tests/browser',
@@ -8,7 +9,7 @@ export default defineConfig({
   workers: 1,
   timeout: 45_000,
   use: {
-    baseURL: 'http://127.0.0.1:4320',
+    baseURL: `http://127.0.0.1:${port}`,
     browserName: 'chromium',
     channel: process.env.PLAYWRIGHT_CHANNEL,
     screenshot: 'only-on-failure',
@@ -18,11 +19,11 @@ export default defineConfig({
   webServer: {
     command: 'node dist/server/main.js',
     env: {
-      PORT: '4320',
+      PORT: port,
       READER_SOURCE: 'prts',
       READER_DATA_DIR: path.resolve(`.ai/local/prts-browser/run-${Date.now()}`),
     },
-    url: 'http://127.0.0.1:4320/health',
+    url: `http://127.0.0.1:${port}/health`,
     reuseExistingServer: false,
   },
 });

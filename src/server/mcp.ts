@@ -22,6 +22,8 @@ import {
 } from '../shared/contracts.js';
 import type { ReaderService } from './service.js';
 import { VERSION } from '../shared/version.js';
+import { imageToolMetadata } from './image-transfer.js';
+import { imagePartRequestSchema } from '../shared/image-transfer.js';
 
 export const RESOURCE_URI = 'ui://arknights-reader/v1/index.html';
 export function createReaderMcp(
@@ -108,7 +110,7 @@ export function createReaderMcp(
           return {
             structuredContent: result,
             // Binary layers only hydrate the app; they are excluded from model context.
-            ...(image ? { _meta: { readerImage: image } } : {}),
+            ...(image ? { _meta: imageToolMetadata(image, args) } : {}),
             content: [
               {
                 type: 'text',
@@ -146,6 +148,7 @@ export function createReaderMcp(
       chapterId: z.string().max(200).optional(),
       blockId: z.string().max(200).optional(),
       refresh: z.boolean().optional(),
+      ...imagePartRequestSchema.shape,
     }),
     imageResultSchema.omit({ layers: true }),
     true,

@@ -5,6 +5,7 @@ import { ReaderApp } from './ReaderApp.js';
 import { hostTransport, previewTransport } from './transport.js';
 import './styles.css';
 import { VERSION } from '../shared/version.js';
+import { CoverImagesProvider } from './cover-images.js';
 
 function HostedReader() {
   const readingFlush = useRef<() => Promise<void>>(async () => undefined);
@@ -57,9 +58,11 @@ function HostedReader() {
 const root = document.getElementById('root');
 if (!root) throw new Error('页面缺少应用根节点。');
 createRoot(root).render(
-  window.parent === window ? (
-    <ReaderApp transport={previewTransport} environment="浏览器开发预览" />
-  ) : (
-    <HostedReader />
-  ),
+  <CoverImagesProvider>
+    {window.parent === window ? (
+      <ReaderApp transport={previewTransport} environment="浏览器开发预览" />
+    ) : (
+      <HostedReader />
+    )}
+  </CoverImagesProvider>,
 );

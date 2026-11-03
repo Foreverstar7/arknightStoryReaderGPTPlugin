@@ -11,12 +11,132 @@ import {
   portraitReference,
   resolvePortrait,
   parseImageIndex,
+  MAX_IMAGE_BYTES,
+  limitedBytes,
 } from '../src/data/prts-resources.js';
 import { PublicCache } from '../src/storage/public-cache.js';
 import { imageResultSchema } from '../src/shared/contracts.js';
 import { ReaderError } from '../src/shared/errors.js';
+import {
+  coverPresentation,
+  textCoverTitle,
+} from '../src/shared/cover-policy.js';
 
 // Original asset metadata, with the formats observed in PRTS's current player.
+test('20 MB raster budget accepts the exact boundary, rejects streamed overflow, and retries without caching failure', async () =>
+  temporary(async (root) => {
+    const png = Buffer.from(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==',
+      'base64',
+    );
+    const bytes = Buffer.alloc(MAX_IMAGE_BYTES);
+    png.copy(bytes);
+    let overflow = true;
+    let requests = 0;
+    const source = new PrtsResources(
+      root,
+      async () => 'large,https://media.prts.wiki/original-large.png',
+      async () => {
+        requests++;
+        return new Response(
+          new ReadableStream({
+            start(controller) {
+              controller.enqueue(bytes);
+              if (overflow) controller.enqueue(new Uint8Array([0]));
+              controller.close();
+            },
+          }),
+          { headers: { 'content-type': 'image/png' } },
+        );
+      },
+    );
+    await assert.rejects(
+      () => source.cg('large', 7),
+      (error: unknown) =>
+        error instanceof ReaderError &&
+        error.code === 'parse' &&
+        error.message.includes('取数上限'),
+    );
+    overflow = false;
+    const image = imageResultSchema.parse(await source.cg('large', 7, true));
+    assert.equal(
+      Buffer.from(image.layers[0]?.dataUrl.split(',')[1] ?? '', 'base64')
+        .length,
+      20_000_000,
+    );
+    assert.equal(requests, 2);
+    const offline = new PrtsResources(
+      root,
+      async () => {
+        throw new Error('offline');
+      },
+      async () => {
+        throw new Error('offline');
+      },
+    );
+    assert.deepEqual(await offline.cg('large', 7), image);
+    // JSON and mapping callers still supply their own, smaller byte budgets.
+    await assert.rejects(
+      () => limitedBytes(new Response(Buffer.alloc(100_001)), 100_000),
+      /取数上限/u,
+    );
+  }));
+
+test('cover display admits only approved shapes and text covers use source IDs, not the duplicate display title', () => {
+  const image = {
+    width: 512,
+    height: 512,
+    layers: [],
+    resource: '',
+    sourceUrl: 'https://prts.wiki/w/test',
+  };
+  assert.equal(coverPresentation(image), 'deferred');
+  assert.equal(
+    coverPresentation({ ...image, width: 1560, height: 500 }),
+    'banner',
+  );
+  assert.equal(
+    coverPresentation({
+      ...image,
+      attribution: { method: 'main-chapter-index', sourceUrl: image.sourceUrl },
+    }),
+    'contain',
+  );
+  assert.equal(
+    coverPresentation({
+      ...image,
+      width: 463,
+      height: 121,
+      attribution: { method: 'contingency-logo', sourceUrl: image.sourceUrl },
+    }),
+    'contain',
+  );
+  assert.equal(
+    coverPresentation({
+      ...image,
+      width: 513,
+      attribution: { method: 'main-chapter-index', sourceUrl: image.sourceUrl },
+    }),
+    'deferred',
+  );
+  assert.equal(
+    textCoverTitle({ source: 'prts', id: 'prts:主线剧情/特殊 · 剧情' }),
+    '主线补充剧情',
+  );
+  assert.equal(
+    textCoverTitle({ source: 'prts', id: 'prts:活动剧情/特殊 · 剧情' }),
+    '活动补充剧情',
+  );
+  assert.equal(
+    textCoverTitle({ source: 'fixture', id: 'prts:主线剧情/特殊 · 剧情' }),
+    undefined,
+  );
+  assert.equal(
+    textCoverTitle({ source: 'prts', id: '特殊 · 剧情' }),
+    undefined,
+  );
+});
+
 const mapping = {
   unit: {
     array: [

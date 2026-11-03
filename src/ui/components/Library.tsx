@@ -4,6 +4,7 @@ import { progressLabel, storyProgress } from '../../domain/reading.js';
 import type { ReaderTransport } from '../transport.js';
 import { SourceImage, useVisible } from './SourceImage.js';
 import { groupStories, storyTypeLabel } from '../catalog.js';
+import { textCoverTitle } from '../../shared/cover-policy.js';
 
 export type LibraryPosition = {
   scrollTop: number;
@@ -40,18 +41,21 @@ export function Cover({
   retryable?: boolean;
   active?: boolean;
 }) {
+  const textTitle = textCoverTitle(story);
   const { ref, seen } = useVisible<HTMLDivElement>(
-    story.source === 'prts' && active,
+    story.source === 'prts' && !textTitle && active,
   );
   const transitionName = `cover-${Array.from(story.id, (letter) => letter.codePointAt(0)?.toString(16) ?? '').join('-')}`;
   return (
     <div
       className="cover"
+      data-cover-kind={textTitle ? 'text' : 'image'}
       ref={ref}
       style={{ viewTransitionName: transitionName }}
     >
-      {story.source === 'prts' && (
+      {story.source === 'prts' && !textTitle && (
         <SourceImage
+          key={story.id}
           input={{ kind: 'cover', storyId: story.id }}
           transport={transport}
           label={`${story.title} 封面`}
@@ -60,10 +64,18 @@ export function Cover({
           enabled={seen}
         />
       )}
-      <span className="cover-label">
-        {story.coverLabel}
+      <span
+        className="cover-label"
+        role={textTitle ? 'img' : undefined}
+        aria-label={textTitle ? `${textTitle} · 应用文字封面` : undefined}
+      >
+        {textTitle ?? story.coverLabel}
         <small>
-          {story.source === 'prts' ? 'PRTS 剧情' : '原创档案 · 布局样例'}
+          {textTitle
+            ? '补充档案'
+            : story.source === 'prts'
+              ? 'PRTS 剧情'
+              : '原创档案 · 布局样例'}
         </small>
       </span>
     </div>

@@ -7,6 +7,9 @@ import { inspectImage } from './image-format.js';
 
 export const CHARACTER_MAP =
   'https://torappu.prts.wiki/assets/avg/character.json';
+// User-approved 20 MB image budget, including the 17,835,330-byte 日暮寻路
+// original. Applies only to each raster fetch; text, JSON and mapping limits stay.
+export const MAX_IMAGE_BYTES = 20_000_000;
 const point = z.object({ x: z.number().finite(), y: z.number().finite() });
 const entrySchema = z.object({
   array: z
@@ -411,7 +414,7 @@ export class PrtsResources {
               'PRTS 图片来源不在已验证范围内。',
             );
           const response = await publicResponse(layer.url, this.request);
-          const bytes = await limitedBytes(response, 12_000_000);
+          const bytes = await limitedBytes(response, MAX_IMAGE_BYTES);
           const info = inspectImage(
             bytes,
             response.headers.get('content-type'),

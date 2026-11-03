@@ -11,7 +11,7 @@ import { ReaderError } from './source.js';
 // v1 cached {} for every unrecognised page. Require evidence/version so those entries
 // are rechecked lazily, without clearing other public caches or any reading records.
 const coverSchema = z.object({
-  parserVersion: z.literal(3),
+  parserVersion: z.literal(4),
   filename: z.string().min(1),
   sourceUrl: z.string().url(),
   method: coverMethodSchema,
@@ -19,13 +19,22 @@ const coverSchema = z.object({
 
 // The story navigation has chapter labels, not links to main-story metadata pages.
 // This public index was verified on 2026-11-02. Only use its exact EP anchor/title
-// as evidence; chapter-name logos are not cover illustrations. If anchors change,
+// as evidence; EP00-EP04 chapter-name art is approved for full-image display.
+// Read the referenced file in its matching section, never fabricate a filename.
+// If anchors change,
 // fail explicitly and recheck this entry point (docs/prts-covers.md), never guess files.
 const MAIN_STORY_INDEX = '关卡一览/主题曲';
 // APF-YYYY chapter IDs come from the catalog. The dedicated public index supplies
-// its own year anchors and linked entrance illustrations; never fabricate a filename
-// or match the varying display titles. Recheck apr-entry + year links on source edits.
-const APRIL_INDEX = '愚人节活动';
+// explicit year links and banner filenames; never fabricate a filename or match
+// varying display titles. Recheck 活动一览 links on source edits (2026-11-03).
+const APRIL_INDEX = '活动一览';
+// The early three-story collection has no own activity title field. User approved
+// the generic logo used by 关卡一览/活动关卡, not a current season poster.
+// Exact catalog ID + source-verified file; imageinfo still resolves its URL.
+// If that index stops referencing it, report incompatibility and recheck the policy.
+const CONTINGENCY_ID = 'prts:活动剧情/特殊 · 危机合约';
+const CONTINGENCY_INDEX = '关卡一览/活动关卡';
+const CONTINGENCY_FILE = '活动名称 危机合约.png';
 
 /** A narrow activity-template reader; nested fields must not leak into title art. */
 export function parseActivityCover(wiki: string, sourceUrl: string) {
@@ -91,7 +100,7 @@ export function parseActivityCover(wiki: string, sourceUrl: string) {
     );
   validateCoverFilename(filename, sourceUrl);
   return coverSchema.parse({
-    parserVersion: 3,
+    parserVersion: 4,
     filename,
     sourceUrl,
     method: 'activity-title-field',
@@ -112,40 +121,82 @@ function validateCoverFilename(filename: string, sourceUrl: string) {
     );
 }
 
-/** Only the image explicitly linked to the catalog's APF year in its index card. */
+/** Only the activity banner explicitly linked to the catalog's unique APF year. */
 export function parseAprilCover(wiki: string, year: string, sourceUrl: string) {
   const text = wiki.replace(/<!--[\s\S]*?-->/gu, '');
-  const cards = [
-    ...text.matchAll(/<div\s+class="apr-entry"[^>]*>([\s\S]*?)<\/div>/gu),
-  ];
-  if (!cards.length)
-    throw new ReaderError(
-      'parse',
-      'PRTS 四月辑录年份索引结构改变。',
-      sourceUrl,
-    );
   const files: string[] = [];
-  for (const card of cards) {
-    for (const link of (card[1] ?? '').matchAll(
-      /\[\[(?:文件|File):([^\]|]+)\|([^\]]+)\]\]/giu,
-    )) {
-      const params = link[2]?.split('|').map((part) => part.trim()) ?? [];
-      if (params.includes(`link=${APRIL_INDEX}#${year}`) && link[1])
-        files.push(link[1].trim());
-    }
+  for (const link of text.matchAll(
+    /\[\[(?:文件|File):([^\]|]+)\|([^\]]+)\]\]/giu,
+  )) {
+    const params = link[2]?.split('|').map((part) => part.trim()) ?? [];
+    if (params.includes(`link=愚人节活动#${year}`) && link[1])
+      files.push(link[1].trim());
   }
   if (files.length !== 1 || !files[0])
     throw new ReaderError(
       'parse',
-      'PRTS 四月辑录未提供唯一的对应年份入口图。',
+      'PRTS 活动一览未提供唯一的对应年份横幅。',
       sourceUrl,
     );
   validateCoverFilename(files[0], sourceUrl);
   return coverSchema.parse({
-    parserVersion: 3,
+    parserVersion: 4,
     filename: files[0],
-    sourceUrl: `${sourceUrl}#${year}`,
+    sourceUrl,
     method: 'april-year-index',
+  });
+}
+
+export function parseMainCover(wiki: string, title: string, sourceUrl: string) {
+  const text = wiki.replace(/<!--[\s\S]*?-->/gu, '');
+  const sections = [
+    ...text.matchAll(
+      /\{\{锚点\|(EP\d+)\}\}([\s\S]*?)(?=\{\{锚点\|EP\d+\}\}|$)/gu,
+    ),
+  ];
+  if (!sections.length)
+    throw new ReaderError(
+      'parse',
+      'PRTS 主题曲索引的章节结构改变。',
+      sourceUrl,
+    );
+  const matches = sections.filter(
+    (item) =>
+      /<big>[^<>]*<big>([^<>]+)<\/big>/u.exec(item[2] ?? '')?.[1]?.trim() ===
+      title,
+  );
+  if (matches.length > 1)
+    throw new ReaderError(
+      'parse',
+      'PRTS 主题曲索引的章节标题有歧义。',
+      sourceUrl,
+    );
+  const section = matches[0];
+  if (!section || !/^EP0[0-4]$/u.test(section[1] ?? ''))
+    throw new ReaderError(
+      'unsupported',
+      '尚未识别此主线的已批准封面来源。',
+      sourceUrl,
+    );
+  const files = [
+    ...(section[2] ?? '').matchAll(
+      /\[\[(?:文件|File):(章节名称 [^\]|]+\.png)(?:\|[^\]]*)?\]\]/giu,
+    ),
+  ];
+  const filename = files[0]?.[1];
+  const sectionUrl = `${sourceUrl}#${section[1]}`;
+  if (files.length !== 1 || !filename)
+    throw new ReaderError(
+      'parse',
+      'PRTS 主线章节未提供唯一的章节原图。',
+      sectionUrl,
+    );
+  validateCoverFilename(filename, sectionUrl);
+  return coverSchema.parse({
+    parserVersion: 4,
+    filename,
+    sourceUrl: sectionUrl,
+    method: 'main-chapter-index',
   });
 }
 export function parseStageSummary(wiki: string): string | undefined {
@@ -257,6 +308,38 @@ export class PrtsMetadata {
       coverSchema,
       days,
       async () => {
+        if (story.id === CONTINGENCY_ID) {
+          const sourceUrl = prtsPageUrl(CONTINGENCY_INDEX);
+          const index = await this.cached(
+            `cover-index:${CONTINGENCY_INDEX}`,
+            z.string(),
+            days,
+            () => this.wiki(CONTINGENCY_INDEX),
+            refresh,
+          );
+          const files = [
+            ...index
+              .replace(/<!--[\s\S]*?-->/gu, '')
+              .matchAll(/\[\[(?:文件|File):([^\]|]+)(?:\|[^\]]*)?\]\]/giu),
+          ];
+          if (
+            !files.some(
+              (file) =>
+                file[1]?.replaceAll('_', ' ').trim() === CONTINGENCY_FILE,
+            )
+          )
+            throw new ReaderError(
+              'parse',
+              'PRTS 活动关卡索引不再引用已批准的危机合约通用图。',
+              sourceUrl,
+            );
+          return coverSchema.parse({
+            parserVersion: 4,
+            filename: CONTINGENCY_FILE,
+            sourceUrl,
+            method: 'contingency-logo',
+          });
+        }
         if (story.type === '四月辑录') {
           // A year also contains minigame stories with different IDs. The APF
           // entry anchors the source group; don't require every story to be APF.
@@ -295,30 +378,7 @@ export class PrtsMetadata {
             () => this.wiki(MAIN_STORY_INDEX),
             refresh,
           );
-          const sections = [
-            ...index.matchAll(
-              /\{\{锚点\|(EP\d+)\}\}([\s\S]*?)(?=\{\{锚点\|EP\d+\}\}|$)/gu,
-            ),
-          ];
-          if (!sections.length)
-            throw new ReaderError(
-              'parse',
-              'PRTS 主题曲索引的章节结构改变。',
-              sourceUrl,
-            );
-          const section = sections.find(
-            (item) =>
-              /<big>[^<>]*<big>([^<>]+)<\/big>/u
-                .exec(item[2] ?? '')?.[1]
-                ?.trim() === title,
-          );
-          throw new ReaderError(
-            'unsupported',
-            section
-              ? '主题曲索引提供章节标识图，尚无已确认的封面来源。'
-              : '尚未识别此主线的封面来源。',
-            section ? `${sourceUrl}#${section[1]}` : sourceUrl,
-          );
+          return parseMainCover(index, title, sourceUrl);
         }
         throw new ReaderError(
           'not_found',

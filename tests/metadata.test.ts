@@ -6,6 +6,7 @@ import {
   PrtsMetadata,
   parseActivityCover,
   parseAprilCover,
+  parseMainCover,
 } from '../src/data/prts-metadata.js';
 import { PrtsResources } from '../src/data/prts-resources.js';
 import { ReaderError } from '../src/shared/errors.js';
@@ -125,13 +126,13 @@ test('grouped names, redirect provenance and legacy empty/positive caches are re
     assert.equal(await readFile(record, 'utf8'), '独立阅读记录');
   }));
 
-test('April index links follow the APF year even with minigame chapters, never the display title or unrelated portraits', async () =>
+test('April activity banners follow the APF year; v3 portrait caches revalidate without title guessing', async () =>
   temporary(async (root) => {
-    const aprilUrl = 'https://prts.wiki/w/' + encodeURIComponent('愚人节活动');
-    const wiki = `<div class="apr-entry">[[文件:原始年份入口.webp|120px|link=愚人节活动#2022]]<br>[[文件:干员头像.png|link=其他页面]]</div>`;
+    const aprilUrl = 'https://prts.wiki/w/' + encodeURIComponent('活动一览');
+    const wiki = `|[[文件:原创年份横幅.png|link=愚人节活动#2022|650px]]\n[[文件:干员头像.png|link=其他页面]]`;
     assert.equal(
       parseAprilCover(wiki, '2022', aprilUrl).filename,
-      '原始年份入口.webp',
+      '原创年份横幅.png',
     );
     assert.throws(
       () => parseAprilCover(wiki + wiki, '2022', aprilUrl),
@@ -146,7 +147,7 @@ test('April index links follow the APF year even with minigame chapters, never t
       isCode('parse'),
     );
     const metadata = new PrtsMetadata(root, async (title) => {
-      assert.equal(title, '愚人节活动');
+      assert.equal(title, '活动一览');
       return wiki;
     });
     const chapter = { code: 'STORY', title: '原创', wordCount: null };
@@ -159,10 +160,14 @@ test('April index links follow the APF year even with minigame chapters, never t
         { ...chapter, id: 'prts:迷你游戏/剧情' },
       ],
     };
-    assert.equal(
-      (await metadata.cover(story, 7)).sourceUrl,
-      `${aprilUrl}#2022`,
-    );
+    await metadata.cache.put('cover:stable-april-id', {
+      parserVersion: 3,
+      filename: '旧竖图.png',
+      sourceUrl: aprilUrl,
+      method: 'april-year-index',
+    });
+    assert.equal((await metadata.cover(story, 7)).filename, '原创年份横幅.png');
+    assert.equal((await metadata.cover(story, 7)).sourceUrl, aprilUrl);
     await assert.rejects(
       () => metadata.cover({ ...story, id: 'no-year', chapters: [] }, 7),
       isCode('unsupported'),
@@ -184,7 +189,7 @@ test('April index links follow the APF year even with minigame chapters, never t
     );
   }));
 
-test('main-story title logos remain unsupported with index evidence; missing pages and request failures never become negative cache hits', async () =>
+test('approved main chapter art uses its unique section reference; missing pages and failures are not cached', async () =>
   temporary(async (root) => {
     let fail = true;
     const calls: string[] = [];
@@ -197,13 +202,10 @@ test('main-story title logos remain unsupported with index evidence; missing pag
       if (fail) throw new ReaderError('network', 'temporary');
       return activity;
     });
-    await assert.rejects(
-      () => metadata.cover({ title: '原创主线', type: '主线' }, 7),
-      (error: unknown) =>
-        isCode('unsupported')(error) &&
-        error instanceof ReaderError &&
-        error.sourceUrl?.endsWith('#EP00') === true,
-    );
+    const cover = await metadata.cover({ title: '原创主线', type: '主线' }, 7);
+    assert.equal(cover.filename, '章节名称 序章.png');
+    assert.equal(cover.method, 'main-chapter-index');
+    assert.ok(cover.sourceUrl.endsWith('#EP00'));
     await assert.rejects(
       () => metadata.cover({ title: '不存在', type: '支线' }, 7),
       isCode('not_found'),
@@ -219,6 +221,52 @@ test('main-story title logos remain unsupported with index evidence; missing pag
       '原创题图.png',
     );
     assert.equal(calls.filter((title) => title === '可重试活动').length, 2);
+  }));
+
+test('chapter art rejects duplicate titles/files and unapproved chapters; contingency is scoped by stable ID and verified source reference', async () =>
+  temporary(async (root) => {
+    const section =
+      '{{锚点|EP02}}<big>第二章 <big>原创章</big></big>[[文件:章节名称 原创.png|200px]]';
+    assert.equal(
+      parseMainCover(section, '原创章', sourceUrl).filename,
+      '章节名称 原创.png',
+    );
+    for (const wiki of [
+      section + section,
+      section + '[[文件:章节名称 另一张.png]]',
+      section.replace('章节名称', '无关插画'),
+    ])
+      assert.throws(
+        () => parseMainCover(wiki, '原创章', sourceUrl),
+        isCode('parse'),
+      );
+    assert.throws(
+      () =>
+        parseMainCover(section.replace('EP02', 'EP05'), '原创章', sourceUrl),
+      isCode('unsupported'),
+    );
+    let exists = true;
+    const metadata = new PrtsMetadata(root, async (title) => {
+      if (title === '关卡一览/活动关卡')
+        return exists
+          ? '[[文件:活动名称_危机合约.png|300px|link=危机合约]]'
+          : '[[文件:作战赛季.png]]';
+      throw new ReaderError('not_found', '404');
+    });
+    const story = {
+      id: 'prts:活动剧情/特殊 · 危机合约',
+      title: '显示名称可变',
+      type: '特殊',
+    };
+    const cover = await metadata.cover(story, 7);
+    assert.equal(cover.filename, '活动名称 危机合约.png');
+    assert.equal(cover.method, 'contingency-logo');
+    exists = false;
+    await assert.rejects(() => metadata.cover(story, 7, true), isCode('parse'));
+    await assert.rejects(
+      () => metadata.cover({ ...story, id: 'unrelated' }, 7),
+      isCode('not_found'),
+    );
   }));
 
 test('MediaWiki explicit missing flag differs from incompatible imageinfo, and refreshing only this asset replaces cached bytes', async () =>

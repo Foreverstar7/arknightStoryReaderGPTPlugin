@@ -12,6 +12,7 @@ import {
 } from '../src/data/prts-resources.js';
 import { ReaderError } from '../src/shared/errors.js';
 import { groupStories } from '../src/ui/catalog.js';
+import { textCoverTitle } from '../src/shared/cover-policy.js';
 
 // An explicit developer audit, never called by the reader. No chapter bodies or
 // image binaries: only metadata and batched MediaWiki file existence/MIME/size.
@@ -142,6 +143,25 @@ type CoverRow = {
 const rows: CoverRow[] = [];
 for (const { category, stories: group } of groupStories(stories)) {
   for (const story of group) {
+    const textTitle = textCoverTitle(story);
+    if (textTitle) {
+      rows.push({
+        id: story.id,
+        title: story.title,
+        category,
+        chapters: story.chapters.length,
+        status: 'application_text',
+        filename: '',
+        sourceUrl: '',
+        method: 'application-text',
+        message: textTitle,
+        fileUrl: '',
+        mime: '',
+        width: 0,
+        height: 0,
+      });
+      continue;
+    }
     try {
       const cover = await metadata.cover(story, 7, true);
       rows.push({
@@ -325,7 +345,9 @@ console.info(
       networkRequests,
       summary,
       unresolved: rows
-        .filter((row) => row.status !== 'file_verified')
+        .filter(
+          (row) => !['file_verified', 'application_text'].includes(row.status),
+        )
         .map(({ title, status, message }) => ({ title, status, message })),
     },
     null,
