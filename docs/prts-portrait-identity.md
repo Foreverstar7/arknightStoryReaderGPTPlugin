@@ -1,6 +1,6 @@
 # 多人场景中的可靠立绘匹配
 
-2026-11-04；原修复基线 `5d74ea1`／0.1.22，独立提交 `90b03ac`。用户随后授权合并，现已与目录刷新提交 `4e1fb8b` 一并纳入 main／0.1.23；准备包已重建，未安装。下方原验证记录与本轮集成验证分列。
+2026-11-04；原修复基线 `5d74ea1`／0.1.22，独立提交 `90b03ac`。用户随后授权合并，现已与目录刷新提交 `4e1fb8b` 一并纳入 main／0.1.23；准备包重建后已按追加授权安装 0.1.23，并清理备用 worktree。下方原验证、合并与安装记录分列。
 
 ## 结果与来源
 
@@ -32,3 +32,12 @@
 - `plugin:prepare`＋`probe:mcp -- .local/marketplace/plugins/arknights-story-reader`：合并后的包内 Node／stdio 通过；0.1.23、10 app-only 工具、刷新参数及状态保持、117 部目录、531,526 字节 UI、64 块真实首篇、1500×844 CG、隔离保存均通过。63 个 dist 文件及 Node 的哈希与当前构建完全一致。
 
 证据在 `.ai/local/merge-portrait-catalog/`，含首次失败 trace、复验日志和 `package-integrity.json`。所有验证使用隔离数据，未操作真实阅读记录。此次没有重跑全库身份审计、安装、推送、发布或删除工作树；真实桌面宿主 UI 仍未验。
+
+
+## 安装与清理（2026-11-04）
+
+用户回到主检出后授权清理无用 worktree 并安装。备用 worktree 为 detached `04e79a5`，与主检出相同且没有未提交改动；69 份验证资料（含日志与截图）先复制到 `.ai/local/worktree-evidence-portrait-identity-20261104/` 并核对哈希，再由 Codex 保存可恢复归档并移除检出。现在仅保留主检出，已切回 main；其他分支未删除。
+
+重新核对当前官方 CLI 0.166.0-alpha.6 的 `plugin add --help`，执行 `codex plugin add arknights-story-reader@arknights-reader-dev --json`；安装及清单均返回 0.1.23，installed／enabled 为 true。实际安装包的 63 个 dist 文件及 Node 哈希与合并构建一致。对安装路径运行 `probe:mcp`，并通过同一 CLI 运行 `probe:host`：10 app-only 工具、117 部目录、531,526 字节正式 UI、64 块真实首篇、1500×844 CG、隔离保存和 global 入口全部通过。三份真实阅读记录文件前后哈希一致。
+
+证据在 `.ai/local/install-0.1.23/`。当前客户端仍有 0.1.22 进程，未强行关闭会话；需正常重启客户端加载新版，真实桌面宿主 UI 未验。仅安装与本地记录提交，没有推送或发布。
