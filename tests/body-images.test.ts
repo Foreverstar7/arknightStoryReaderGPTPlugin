@@ -12,7 +12,9 @@ import {
   STORY_VARIABLES,
   resolvePortraitPlan,
   placeholderPortrait,
+  matchSpeakerPortrait,
 } from '../src/data/prts-portrait.js';
+import { parseOperatorIdentity } from '../src/data/prts-metadata.js';
 import { parsePrtsChapter } from '../src/data/prts-script.js';
 import { tiledCg } from '../src/data/prts-cg.js';
 import { imageResultSchema } from '../src/shared/contracts.js';
@@ -321,4 +323,131 @@ test('same-source v3 to v4 image additions preserve saved branch fractions, furt
     migrateRecord({ ...record, complete: true }, next).complete,
     true,
   );
+});
+
+test('only exact sourced operator identity can disambiguate a whole scene resource ID', () => {
+  const url = 'https://prts.wiki/w/原创角色';
+  const wiki =
+    '{{CharinfoV2|干员名=原创角色|干员id=char_900_reader|说明={{例子|干员id=char_901_other}}}}';
+  assert.equal(parseOperatorIdentity(wiki, '原创角色', url), 'char_900_reader');
+  assert.equal(parseOperatorIdentity(wiki, '？？？', url), null);
+  assert.equal(
+    parseOperatorIdentity(
+      '|干员名=原创角色|干员id=char_900_reader',
+      '原创角色',
+      url,
+    ),
+    null,
+  );
+  assert.throws(
+    () => parseOperatorIdentity(wiki + wiki, '原创角色', url),
+    /多组/u,
+  );
+  assert.throws(
+    () =>
+      parseOperatorIdentity(
+        '{{CharinfoV2|干员名=原创角色|干员id=char_900_reader|干员id=char_901_other}}',
+        '原创角色',
+        url,
+      ),
+    /重复/u,
+  );
+  assert.equal(
+    matchSpeakerPortrait(
+      ['char_901_other', ' CHAR_900_READER_1#5$2 '],
+      'char_900_reader',
+    ),
+    ' CHAR_900_READER_1#5$2 ',
+  );
+  assert.equal(
+    matchSpeakerPortrait(
+      ['char_900_readerx', 'char_901_other'],
+      'char_900_reader',
+    ),
+    null,
+  );
+  assert.equal(
+    matchSpeakerPortrait(
+      ['char_900_reader#1', 'char_900_reader#2'],
+      'char_900_reader',
+    ),
+    null,
+  );
+  assert.equal(
+    matchSpeakerPortrait(
+      ['char_900_reader#1', ' CHAR_900_READER#1 '],
+      'char_900_reader',
+    ),
+    ' CHAR_900_READER#1 ',
+  );
+});
+
+test('speaker matching preserves original expression and explicit default fallback, caches identity and retains network errors', async () => {
+  const base = path.resolve('.ai/local/test-data');
+  await mkdir(base, { recursive: true });
+  const root = await mkdtemp(path.join(base, 'speaker-images-'));
+  const wikiCalls: string[] = [];
+  let offline = false;
+  const png = Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==',
+    'base64',
+  );
+  const source = new PrtsResources(
+    root,
+    async (title) => {
+      wikiCalls.push(title);
+      if (offline) throw new ReaderError('network', '注入断网');
+      if (title === '原创角色')
+        return '{{CharinfoV2|干员名=原创角色|干员id=char_900_reader}}';
+      if (title === 'Widget:Data_Link') return JSON.stringify(legacy.link);
+      if (title === 'Widget:Data_Char')
+        return [...legacy.images].map(([k, v]) => k + ',' + v).join('\n');
+      throw new ReaderError('not_found', '没有干员资料');
+    },
+    async (input) => {
+      if (offline) throw new ReaderError('network', '注入断网');
+      if (String(input) === CHARACTER_MAP)
+        return Response.json({ char_900_reader: modern.Unit });
+      return new Response(png, { headers: { 'content-type': 'image/png' } });
+    },
+  );
+  try {
+    const refs = ['char_901_other', 'char_900_reader#5$2'];
+    const image = await source.speakerPortrait(refs, '原创角色', 7);
+    assert.equal(image?.portrait?.status, 'original');
+    assert.equal(image?.resource, 'char_900_reader#5$2');
+    assert.match(image?.layers[0]?.sourceUrl ?? '', /smile/u);
+    assert.ok(
+      image?.portrait?.evidence.includes(
+        'https://prts.wiki/w/%E5%8E%9F%E5%88%9B%E8%A7%92%E8%89%B2',
+      ),
+    );
+    const fallback = await source.speakerPortrait(
+      ['char_901_other', 'char_900_reader#99$2'],
+      '原创角色',
+      7,
+    );
+    assert.equal(fallback?.portrait?.status, 'default');
+    assert.match(fallback?.layers[0]?.sourceUrl ?? '', /body2-default/u);
+    assert.equal(await source.speakerPortrait(refs, '？？？', 7), null);
+    assert.equal(await source.speakerPortrait(refs, '无资料的人', 7), null);
+    assert.equal(await source.speakerPortrait(refs, '无资料的人', 7), null);
+    assert.equal(wikiCalls.filter((x) => x === '无资料的人').length, 1);
+    assert.equal(wikiCalls.filter((x) => x === '原创角色').length, 1);
+    const before = wikiCalls.length;
+    offline = true;
+    assert.equal(
+      (await source.speakerPortrait(refs, '原创角色', 7))?.portrait?.status,
+      'original',
+    );
+    assert.equal(wikiCalls.length, before);
+    await assert.rejects(
+      () => source.speakerPortrait(refs, '原创角色', 7, true),
+      (error: unknown) =>
+        error instanceof ReaderError && error.code === 'network',
+    );
+  } finally {
+    new CacheCoordinator(root).close();
+    await rm(root, { recursive: true, force: true });
+  }
 });

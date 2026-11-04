@@ -51,3 +51,8 @@ $env:PLAYWRIGHT_CHANNEL='msedge'
 证据：`.ai/local/catalog-refresh/probe-live.json`、同目录本轮探针；`.ai/local/screenshots/catalog-refresh/` 为原创 fixture 的四窗口／双主题截图。新增失败、乱序与清理竞态测试保存在正式 `tests/`，不打包源站正文或私人记录。
 
 源码、清单和锁文件统一为 0.1.23，准备包位于 `.local/marketplace/plugins/arknights-story-reader`。本轮本地实现与验证完成，尚未安装到桌面客户端；真实宿主 UI 未验。未推送、发布或开始 R0／S5。
+
+
+## 与立绘修复合并
+
+用户确认并行任务完成后，本提交 `4e1fb8b` 与立绘修复 `90b03ac` 合并为 main 的 0.1.23，保留本页目录行为。准备包已按合并结果重建，仍未安装。合并后 76 项检查、目录／阅读 10/10、真实图片场景及包内通信验证通过；首轮图片用例等待调整、复验与包哈希证据见 [立绘修复的合并验证](prts-portrait-identity.md#合并后验证0123)。

@@ -36,21 +36,24 @@ const CONTINGENCY_ID = 'prts:活动剧情/特殊 · 危机合约';
 const CONTINGENCY_INDEX = '关卡一览/活动关卡';
 const CONTINGENCY_FILE = '活动名称 危机合约.png';
 
-/** A narrow activity-template reader; nested fields must not leak into title art. */
-export function parseActivityCover(wiki: string, sourceUrl: string) {
+/** Read only direct fields; nested metadata must not become identity or art. */
+function parseInfoFields(
+  wiki: string,
+  template: '活动信息' | 'CharinfoV2',
+  sourceUrl: string,
+) {
   const text = wiki.replace(/<!--[\s\S]*?-->/gu, '');
-  const matches = [...text.matchAll(/\{\{\s*活动信息\s*(?=[|}])/gu)];
+  const matches = [
+    ...text.matchAll(
+      new RegExp('\\{\\{\\s*' + template + '\\s*(?=[|}])', 'gu'),
+    ),
+  ];
   const match = matches[0];
-  if (!match)
-    throw new ReaderError(
-      'unsupported',
-      '此资料页尚无已支持的封面字段。',
-      sourceUrl,
-    );
+  if (!match) return null;
   if (matches.length !== 1)
     throw new ReaderError(
       'parse',
-      'PRTS 资料页含多组活动信息，未选择其中一张图片。',
+      'PRTS 资料页含多组信息模板，无法确认对应资料。',
       sourceUrl,
     );
   let depth = 1;
@@ -83,7 +86,52 @@ export function parseActivityCover(wiki: string, sourceUrl: string) {
     }
   }
   if (!closed || links !== 0)
-    throw new ReaderError('parse', 'PRTS 活动信息模板未正确闭合。', sourceUrl);
+    throw new ReaderError('parse', 'PRTS 信息模板未正确闭合。', sourceUrl);
+  return fields;
+}
+
+/** Only an exact, explicit identity from the named operator page is accepted. */
+export function parseOperatorIdentity(
+  wiki: string,
+  name: string,
+  sourceUrl: string,
+): string | null {
+  const fields = parseInfoFields(wiki, 'CharinfoV2', sourceUrl);
+  if (!fields) return null;
+  const value = (key: string) => {
+    const matches = fields.filter(
+      (field) =>
+        field.includes('=') &&
+        field.slice(0, field.indexOf('=')).trim() === key,
+    );
+    if (matches.length > 1)
+      throw new ReaderError(
+        'parse',
+        'PRTS 干员资料有重复身份字段。',
+        sourceUrl,
+      );
+    const field = matches[0];
+    return field?.slice(field.indexOf('=') + 1).trim();
+  };
+  if (value('干员名') !== name) return null;
+  const id = value('干员id');
+  if (!id || !/^char_[0-9]+_[a-z0-9_]+$/u.test(id))
+    throw new ReaderError(
+      'parse',
+      'PRTS 干员资料缺少有效角色编号。',
+      sourceUrl,
+    );
+  return id;
+}
+
+export function parseActivityCover(wiki: string, sourceUrl: string) {
+  const fields = parseInfoFields(wiki, '活动信息', sourceUrl);
+  if (!fields)
+    throw new ReaderError(
+      'unsupported',
+      '此资料页尚无已支持的封面字段。',
+      sourceUrl,
+    );
   const titles = fields.filter((field) => /^\s*标题图文件名\s*=/u.test(field));
   if (titles.length > 1)
     throw new ReaderError(
