@@ -13,6 +13,7 @@ import {
   textCoverTitle,
 } from '../src/shared/cover-policy.js';
 import { collectImageResult } from '../src/shared/image-transfer.js';
+import { readReaderLaunch } from './reader-launch.js';
 
 const inputTarget = process.argv[2] ?? 'http://127.0.0.1:4321/mcp';
 const installed = !inputTarget.startsWith('http:');
@@ -22,16 +23,12 @@ await mkdir(output, { recursive: true });
 const dataRoot = installed
   ? await mkdtemp(path.join(output, 'stdio-'))
   : undefined;
-const wire = installed
+const launch = installed ? await readReaderLaunch(target) : undefined;
+const wire = launch
   ? new StdioClientTransport({
-      command: path.join(target, 'runtime/node.exe'),
-      args: [
-        path.join(target, 'dist/server/main.js'),
-        '--stdio',
-        '--installed',
-      ],
-      cwd: target,
+      ...launch,
       env: {
+        ...launch.env,
         ...(dataRoot ? { READER_DATA_DIR: dataRoot } : {}),
         READER_SOURCE: 'prts',
       },

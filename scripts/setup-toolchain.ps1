@@ -4,7 +4,7 @@ $nodeVersion = (Get-Content -LiteralPath (Join-Path $projectRoot '.node-version'
 $package = Get-Content -LiteralPath (Join-Path $projectRoot 'package.json') -Raw | ConvertFrom-Json
 $npmVersion = $package.packageManager -replace '^npm@', ''
 if ($nodeVersion -notmatch '^\d+\.\d+\.\d+$' -or $npmVersion -notmatch '^\d+\.\d+\.\d+$') { throw 'Toolchain versions must be exact stable versions.' }
-if (-not [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows)) { throw 'On other platforms use a Node version manager with .node-version, then install the pinned npm version.' }
+if (-not [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows)) { throw 'On macOS/Linux run sh scripts/setup-toolchain.sh.' }
 $architecture = [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLowerInvariant()
 if ($architecture -notin @('x64', 'arm64')) { throw "Unsupported architecture: $architecture" }
 $toolchainRoot = Join-Path $projectRoot '.local/toolchain'

@@ -1,4 +1,5 @@
 $ErrorActionPreference = 'Stop'
+if (-not [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows)) { throw 'On macOS/Linux run sh scripts/npm.sh instead.' }
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $nodeVersion = (Get-Content -LiteralPath (Join-Path $projectRoot '.node-version') -Raw).Trim()
 $architecture = [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLowerInvariant()

@@ -1,5 +1,13 @@
 # 决策记录
 
+## 2026-11-04：桌面多平台预适配与实测边界（0.1.24）
+
+- 用户要求先做假设性的全平台支持，并在 README 明确只测试了 Windows。本次目标为 Windows／macOS／Linux 的 x64／ARM64；每个目标原生安装依赖、构建和打包，不将 Windows 包当作通用包，不扩展移动原生端。当前仅 Windows x64 实测，其他目标与真实宿主入口分别待验。
+- 保留既有 Node 26.13.0／npm 12.2.1 与锁文件依赖。复用官方归档、系统 curl／tar／SHA256 工具及 Node 原生 cp／chmod／child_process；新增 POSIX sh 准备与 npm 包装脚本，没有自建归档／下载框架或新增依赖。六种归档名已对照本日官方 `https://nodejs.org/dist/v26.13.0/SHASUMS256.txt` 核对存在。固定目录名 `win`／`darwin`／`linux`、`bin/node`、`node.exe` 与 `lib/node_modules/npm` 来自官方发行包布局，范围仅上述目标；升级 `.node-version` 时须重新核对归档与内部布局，不为未知架构猜链接。
+- 打包先运行项目内 Node 验证系统／架构／版本及 SQLite，再写入 `./runtime/node.exe` 或 `./runtime/node`，保留许可证与目标元数据，Unix 设置可执行权限。依赖复制解引用符号链接，避免包指向原检出。沿用已通过 Windows 加载器验证的 contained `./` 命令形式；官方 stdio 的参数与 cwd 仍使用 `${PLUGIN_ROOT}`。当前官方依据见 `docs/integration-notes.md`。
+- MCP／封面／双进程探针共享实际清单读取，移除两个探针中的 `node.exe` 假设。保留 Windows 的 LOCALAPPDATA 与其他系统的既有 XDG 数据位置，macOS 不迁目录，避免已有记录看似丢失。源码预览的 `node` 探针继续使用当前测试进程 Node；包内相对命令按清单实际执行。
+- 本轮改动不涉及阅读 UI、业务数据与取数范围；源码版本升为 0.1.24 区分已安装的 0.1.23。用户随后明确授权本地提交本次改动；没有自动安装、推送或发布。Windows 的模拟分支／脚本测试只算代码验证，不能替代其他系统实测或 S6 分发验收。
+
 ## 2026-11-04：安装合并版并清理备用 worktree
 
 - 用户移动回主检出后明确要求清理无用 worktree 并安装。仅归档已合并、与主检出同提交且无未保存改动的一个备用工作树；先保留并校验被 Git 忽略的验证日志／截图，再使用 Codex 可恢复归档，不删除其他分支。

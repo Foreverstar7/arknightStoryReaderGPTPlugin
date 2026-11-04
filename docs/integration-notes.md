@@ -1,6 +1,13 @@
 # 接入参考与待验证事项
 
-资料核对日期：2026-11-01。以下链接用于开发时查证，具体 SDK、宿主版本和行为仍需在本仓库验证。
+初始资料核对日期：2026-11-01；多平台补充核对：2026-11-04。以下链接用于开发时查证，具体 SDK、宿主版本和行为仍需在本仓库验证。
+
+## 2026-11-04 多平台预适配补充
+
+- 本日重新检索并读取 [OpenAI 本地 stdio 插件文档](https://developers.openai.com/plugins/deploy/desktop-only)及[打包文档](https://developers.openai.com/plugins/build/plugins)：包中包含服务及依赖，参数／工作目录可使用 `${PLUGIN_ROOT}`。沿用本项目在 Windows 已验证的 contained `./` 可执行命令路径；不据此推断 macOS／Linux 宿主入口已经可用。
+- Node 26.13.0 的[官方校验清单](https://nodejs.org/dist/v26.13.0/SHASUMS256.txt)已确认包含 win／darwin／linux 的 x64 与 ARM64 六种归档。新 sh 脚本只取当前目标归档，SHA256 失败时不解压／执行；没有升级运行时或依赖。未在 macOS／Linux 上下载并运行归档。
+- 使用 [Node `fs.cp` 的 `dereference`](https://nodejs.org/api/fs.html#fspromisescpsrc-dest-options) 解引用依赖符号链接，避免复制后的包仍依赖原 checkout。Unix 二进制另设可执行位；真实 Unix 安装后的权限仍需实测。
+- 0.1.24 验证使用隔离目录。Windows 代码分支测试与 Git sh 模拟只证明预适配逻辑；README 明确 Windows x64 是唯一实测环境，其他系统／架构及完整桌面宿主 UI 均待验。0.1.23 的安装与加载器结果不作为 0.1.24 的已安装证明。
 
 ## 官方资料入口
 

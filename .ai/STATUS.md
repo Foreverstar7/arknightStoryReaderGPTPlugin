@@ -2,6 +2,18 @@
 
 更新：2026-11-04。
 
+## 最新交付：0.1.24 桌面多平台预适配（仅 Windows 实测，未安装）
+
+按用户要求在干净的 main `5837c77` 上完成 Windows／macOS／Linux x64／ARM64 的运行与本机打包预适配。源码、插件清单与锁文件版本统一 0.1.24，依赖／Node／npm 版本不变。README 明确只有 Windows x64 实测，其余目标尚未验证；各目标须原生安装依赖、构建和打包，不提供一个跨系统通用二进制包。
+
+新增 POSIX sh 工具链准备／npm 包装，官方归档 SHA256 校验；打包验证本机 Node 版本、架构、系统与 SQLite，三系统均带对应 Node／许可证／目标元数据，Unix 设置执行权限，复制依赖时解引用符号链接。三个探针统一读取实际 mcp.json。保留 Windows LOCALAPPDATA 与既有 macOS／Linux XDG 数据位置，未改阅读 UI／领域规则或真实用户记录。
+
+Windows 验证：`./scripts/setup-toolchain.ps1` 使用既有固定运行时成功；`run check` 79/79（含六目标选择、清单重定位与异常输入），类型与格式通过；`run build`、`run plugin:prepare` 通过。包复制至含中文／空格的新目录后，63 个 dist＋Node 哈希一致、无符号链接／私人状态，包内 Node 的 stdio、双进程存储探针及 HTTP MCP／正式 HTML 均通过；10 个 app-only 工具、3 部原创 fixture、531,526 字节 HTML，临时 HTTP 服务已关闭。
+
+Windows Git sh 的三个 `sh -n` 通过；四种 Unix 目标选择、参数传递、缺失运行时、不支持架构和错误 SHA256 阻止解压／执行均以离线模拟通过。这不等于 macOS／Linux 实测。HTTP 首轮被沙箱回环策略拒绝（EACCES），移至沙箱外仅复验 HTTP 后通过；Git sh 同样需要沙箱外 MSYS 系统对象权限。完整命令／日志／隔离样本在 `.ai/local/platform-0.1.24/`。
+
+用户随后明确授权本地提交，本次提交包含 0.1.24 源码、测试、README 与协作记录；没有安装、推送或发布，已安装版本仍以前次 0.1.23 记录为准。没有重跑真实 PRTS／封面全量探针、浏览器视觉检查或官方宿主加载器；本轮无阅读界面和数据解析改动，不能以本次 fixture 检查替代那些验收。macOS／Linux／Windows ARM64 干净安装、归档后的 Unix 权限与真实宿主完整路径待 S6。未启动 R0／S5。
+
 ## 最新交付：0.1.23 已安装与 worktree 清理
 
 用户已移动回主检出，追加授权清理无用 worktree 并安装。主检出已切回 main。唯一备用 portrait-identity-fallback worktree 与主检出均在 `04e79a5` 且无未保存改动；69 份验证资料（含日志与截图）先复制并逐文件校验，再通过 Codex 归档工具保存可恢复快照并移除检出。现在仅剩主检出，未删除其他分支。证据保留在 `.ai/local/worktree-evidence-portrait-identity-20261104/`。

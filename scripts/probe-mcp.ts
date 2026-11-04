@@ -1,8 +1,8 @@
 import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
-import { mkdir, mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm } from 'node:fs/promises';
 import path from 'node:path';
-import { z } from 'zod';
+import { readReaderLaunch } from './reader-launch.js';
 import { RESOURCE_URI } from '../src/server/mcp.js';
 import assert from 'node:assert/strict';
 import { collectImageResult } from '../src/shared/image-transfer.js';
@@ -19,30 +19,11 @@ const base = path.join(projectRoot, '.ai/local/probes');
 await mkdir(base, { recursive: true });
 const data = await mkdtemp(path.join(base, 'stdio-'));
 const client = new Client({ name: 'reader-stdio-probe', version: '0.1.0' });
-const configuration = z
-  .object({
-    mcpServers: z.object({
-      reader: z.object({
-        type: z.literal('stdio'),
-        command: z.string(),
-        args: z.array(z.string()),
-        cwd: z.string(),
-      }),
-    }),
-  })
-  .parse(JSON.parse(await readFile(path.join(root, 'mcp.json'), 'utf8')))
-  .mcpServers.reader;
-const expand = (value: string) => value.replaceAll('${PLUGIN_ROOT}', root);
-const executable = configuration.command.startsWith('./')
-  ? path.resolve(root, configuration.command)
-  : configuration.command === 'node'
-    ? process.execPath
-    : expand(configuration.command);
+const launch = await readReaderLaunch(root);
 const wire = new StdioClientTransport({
-  command: executable,
-  args: configuration.args.map(expand),
-  cwd: expand(configuration.cwd),
+  ...launch,
   env: {
+    ...launch.env,
     READER_DATA_DIR: data,
     READER_SOURCE: process.env.READER_SOURCE ?? 'prts',
   },
@@ -149,7 +130,7 @@ try {
     JSON.stringify(
       {
         transport: 'stdio',
-        packagedRuntime: configuration.command.startsWith('./runtime/'),
+        packagedRuntime: launch.packagedRuntime,
         server: client.getServerVersion(),
         tools: tools.length,
         stories: snapshot.stories.length,

@@ -8,15 +8,30 @@
 
 ## 当前状态
 
-当前 0.1.10 将 PRTS 剧情一览正文范围的 117 部／1756 篇按“主线、支线、故事集、集成战略、生息演算、四月辑录、其他”展示，保留源顺序和 ID。篇目整卡可打开、简介重试独立，拖动不误开；两种卡片 hover 仅手形，窄屏七类入口换行。鼠标／触摸／键盘、各尺寸主题及原有转场回归见 [UI 验证](docs/ui-0.1.10.md)。
+当前源码版本为 0.1.24，补齐桌面多平台运行／打包路径。阅读器已有七类剧情目录、打开时检查与手动刷新、正文／分支、按需封面／CG／立绘、设置及 SQLite 本机阅读记录；唯一的模型可见剧情搜索工具尚未接入。
 
 「骑兵与猎人」已贯通真实封面、关卡简介、按需立绘和 CG。正文图片默认手动，自动模式只在 hover 姓名或接近 CG 时获取；目录封面进入可视区域独立加载。透明图片、表情叠加与独立图片缓存已有实测。三个页面、既有动效和 SQLite 阅读记录保留。
 
-目录覆盖不等于每篇正文兼容认证，也不表示每个封面都存在。本轮仍只取必要样本；没有可确认的封面显示“暂无封面”，缺少简介则隐藏，未知脚本明确报错。范围、实测结果和未覆盖项见 [S3 证据](docs/prts-s3.md)。
+解析兼容与图片修复的历史验证分别见 [正文兼容](docs/prts-compatibility-0.1.21.md)、[图片修复](docs/prts-image-fixes-0.1.22.md)和 [立绘身份匹配](docs/prts-portrait-identity.md)。这些结果不代表所有图片或各系统宿主均已验收；当前交付与未覆盖项以 [状态](.ai/STATUS.md) 为准。
 
-原创 fixture 保留为显式开发来源：启动前设置 `$env:READER_SOURCE = 'fixture'`；恢复真实模式用 `$env:READER_SOURCE = 'prts'`。各来源使用不同篇目标识，切换不删除旧阅读记录。真实取数、支持语法、实测与未覆盖范围见 [S2 证据](docs/prts-s2.md)。
+原创 fixture 保留为显式开发来源：PowerShell 用 `$env:READER_SOURCE = 'fixture'`，macOS / Linux shell 用 `export READER_SOURCE=fixture`；将值改为 `prts` 恢复真实来源。默认是真实 PRTS，各来源使用不同篇目标识，切换不删除旧阅读记录。
 
 常规阅读不需要模型 API key。接入依据和实测边界见 [接入记录](docs/integration-notes.md)，当前验收与未覆盖项见 [状态](.ai/STATUS.md)。
+
+## 平台支持与测试范围
+
+**目前仅在 Windows x64 上进行过实际测试。macOS、Linux 和 Windows ARM64 只完成代码层面的预适配，尚未在对应系统／架构上验证安装、启动或阅读；不保证可用。**
+
+| 适配目标 | 工具链准备 | 插件内启动命令 | 验证状态 |
+| --- | --- | --- | --- |
+| Windows x64 | PowerShell | `./runtime/node.exe` | 本机实测；真实桌面宿主完整阅读路径仍单独待验 |
+| Windows ARM64 | PowerShell | `./runtime/node.exe` | 未实测 |
+| macOS Intel / Apple Silicon | POSIX shell | `./runtime/node` | 未实测 |
+| Linux x64 / ARM64 | POSIX shell | `./runtime/node` | 未实测 |
+
+这里的多平台指上述桌面系统。系统版本与 Linux 的 C 库等仍需满足固定 Node 官方二进制的要求；未提供 Android / iOS 原生包或 Alpine / musl 专用运行时。浏览器预览、MCP 通信、插件安装与真实宿主 UI 分别验收，宿主能否提供该系统的入口也需单独确认。
+
+**在每个目标系统／架构上分别准备工具链、执行 `npm ci`、构建并打包。** 产物带本机 Node 与依赖，不是可在不同系统间通用的一个安装包；不要复制 Windows 的 `node_modules` 或插件包到 macOS / Linux 使用。Windows 上的六目标路径测试只能验证分支选择，不能替代其他系统实测。
 
 ## 运行
 
@@ -29,9 +44,18 @@
 ./scripts/npm.ps1 start
 ```
 
-准备脚本从 Node 官方下载、核验 SHA256，将 Node 与 npm 放在被忽略的 `.local/toolchain/`。下文的 `npm` 命令均可替换为 `./scripts/npm.ps1`；已经切换到匹配版本时直接运行：
+macOS / Linux 使用以下入口（需要 `curl`、`tar` 及 `sha256sum` 或 `shasum`；这些命令尚未在真实 macOS / Linux 上验证）：
 
-```powershell
+```sh
+sh scripts/setup-toolchain.sh
+sh scripts/npm.sh ci
+sh scripts/npm.sh run build
+sh scripts/npm.sh start
+```
+
+两类准备脚本均从 Node 官方下载并核验 SHA256，将固定 Node 与 npm 放在被忽略的 `.local/toolchain/`，不修改系统安装。下文的 `npm` 命令在 Windows 可替换为 `./scripts/npm.ps1`，在 macOS / Linux 可替换为 `sh scripts/npm.sh`。已有版本管理工具并切换到匹配版本时，源码预览也可直接运行：
+
+```sh
 npm ci
 npm run build
 npm start
@@ -60,6 +84,8 @@ $env:PLAYWRIGHT_CHANNEL = 'msedge'
 npm run test:e2e
 ```
 
+使用项目内工具链时，浏览器下载命令可写为 `./scripts/npm.ps1 exec -- playwright install chromium` 或 `sh scripts/npm.sh exec -- playwright install chromium`。Linux 还需安装 Playwright 要求的浏览器系统依赖。
+
 MCP 探针可额外传入安装目录，按该目录的 `mcp.json` 启动其实际运行时与服务，用于核验安装产物。项目内工具链对应命令为 `./scripts/npm.ps1 run probe:mcp -- <安装目录>`。
 
 安装后还需运行 `npm run probe:host`：它通过官方 `codex app-server` 的插件加载器与工具目录检查已启用的 reader 服务、app-only 可见性及全局入口。可用 `CODEX_CLI_PATH` 指定桌面客户端配套的 Codex CLI。独立 SDK 协商成功不能替代这项检查；后台发现成功也不能替代用户实际点击入口。
@@ -75,20 +101,22 @@ codex plugin marketplace add ./.local/marketplace --json
 codex plugin add arknights-story-reader@arknights-reader-dev --json
 ```
 
-生成内容在被忽略的 `.local/marketplace/`；源清单为 `plugin.json` 和 `mcp.json`。Windows 生成包同时包含已校验的 Node 运行时并直接调用，避免宿主 PATH 选中较旧 Node。安装后重新加载桌面客户端，在本机来源“方舟阅读器本机开发”中查看“方舟剧情阅读器（开发）”，通过全局侧栏或会话面板入口打开。仅安装到本机，不发布到目录。生成包包含当前机器的运行时和依赖，仅供本机开发验证，跨平台分发属于 S6。
+打包前必须运行本系统的 `setup-toolchain` 脚本，即使源码预览使用自己的版本管理工具。生成内容在被忽略的 `.local/marketplace/`；源清单为 `plugin.json` 和 `mcp.json`。打包器先检查项目内 Node 的版本、系统、架构和 SQLite，再复制对应二进制与许可证；Unix 包设置可执行权限，依赖复制时解引用符号链接，`runtime/target.json` 记录目标。
 
-Windows 包的启动命令必须使用包含在插件内的 `./runtime/node.exe`。当前宿主拒绝在 `command` 中使用 `${PLUGIN_ROOT}/runtime/node.exe`，尽管独立探针手动展开它后可以启动。0.1.4 已修正入口加载问题，用户确认主侧栏可打开；当前 0.1.10 已安装并通过官方加载器发现、安装包真实正文与 CG 通信，0.1.9 目录仍保留。新版宿主中的画面和完整阅读操作仍独立待复核。更新正在运行的本机包使用新版本目录，然后重新打开宿主阅读器以使用新版。
+Windows 清单使用 `./runtime/node.exe`，macOS / Linux 使用 `./runtime/node`，均直接运行包内 Node。参数与工作目录保留 `${PLUGIN_ROOT}`；可执行命令沿用已验证的 `./` 相对路径形式。MCP、封面与双进程探针读取实际 `mcp.json`，不再自行写死 Windows 路径。
+
+以上安装命令仅在目标系统已有兼容的官方 CLI／桌面宿主时适用；**macOS / Linux 的宿主安装和入口未验证**。安装后重新加载桌面客户端，在本机来源“方舟阅读器本机开发”中查看“方舟剧情阅读器（开发）”。源码预适配不等于已完成跨平台分发；各系统干净安装、打包归档后的权限保持与真实宿主验收仍属 S6。当前没有自动安装、推送或发布 0.1.24。
 
 stdio 配置直接运行 `node dist/server/main.js --stdio`，避免 npm 启动提示混入协议 stdout。`reader_open` 与其余内部工具均声明 `visibility: ["app"]`；唯一的模型可见剧情搜索工具留到 S5。
 
 ## 本机数据
 
 - 开发预览：项目 `.runtime/reading/records.sqlite` 保存阅读记录与偏好，`.runtime/cache/` 保存可清理内容。SQLite 事务保护多个宿主服务进程的并发更新，旧开发版本的 `state.json` 首次迁入时保留原文件。
-- 安装后的插件：Windows 使用 `%LOCALAPPDATA%/ArknightsStoryReader/`，不随插件版本缓存目录更换而删除记录。其他系统使用 XDG 用户数据目录。
+- 安装后的插件：Windows 使用 `%LOCALAPPDATA%/ArknightsStoryReader/`；macOS / Linux 沿用 `$XDG_DATA_HOME/arknights-story-reader/`，未设置时为 `~/.local/share/arknights-story-reader/`。为保留旧记录，本次不把 macOS 改到另一个目录。数据不随插件版本缓存目录更换而删除。
 - `READER_DATA_DIR` 可显式覆盖数据根目录。历史和内容缓存始终分目录保存，清缓存不清历史。
 - 正文、目录、资源映射、简介及图片默认按最后使用时间保留 7 天；首次加载页面检查过期缓存。`cache/text`、`cache/prts`、`cache/mapping`、`cache/metadata`、`cache/images` 只保存公开内容。图片以资源 URL 为键去重；清图片保留映射，清全部内容同时清映射，均不访问 `reading/`。
-- 当前已打开篇目的字数可核实并保留；任一篇分母未知时，全剧情显示“总字数待核实”，不按篇数估算或预下载未读正文。清缓存保留位置、最远进度和已核实字数；当前进程内保存已打开正文无需重新取数。
-- 位置保存段落标识和段内比例，最远进度独立保存。当前对正文修订会明确报告版本冲突；跨版本定位迁移仍待实现。
+- 当前剧情会准备正文与公共字数；任一篇分母未知时，全剧情显示“总字数待核实”，不按篇数估算，不预下载整库。清缓存保留位置、最远进度和已核实字数；当前进程内保存已打开正文无需重新取数。
+- 位置保存段落标识和段内比例，最远进度独立保存。修订迁移只在可验证时保留定位与已读，无法确认时明确报告状态，不伪造百分比。
 
 ## 开始开发
 

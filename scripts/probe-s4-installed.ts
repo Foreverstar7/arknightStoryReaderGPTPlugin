@@ -13,6 +13,7 @@ import {
 import { ReadingStore } from '../src/storage/reading-store.js';
 import { ContentCache } from '../src/storage/files.js';
 import { PublicCache } from '../src/storage/public-cache.js';
+import { readReaderLaunch } from './reader-launch.js';
 
 const installed = path.resolve(
   process.argv[2] ?? '.local/marketplace/plugins/arknights-story-reader',
@@ -27,6 +28,7 @@ const clients = [
 const [first, second] = clients;
 assert.ok(first && second);
 const id = 'fixture-mist/1';
+const launch = await readReaderLaunch(installed);
 try {
   await new ReadingStore(data).change((state) => ({
     ...state,
@@ -48,14 +50,12 @@ try {
     clients.map((client) =>
       client.connect(
         new StdioClientTransport({
-          command: path.join(installed, 'runtime/node.exe'),
-          args: [
-            path.join(installed, 'dist/server/main.js'),
-            '--stdio',
-            '--installed',
-          ],
-          cwd: installed,
-          env: { READER_SOURCE: 'fixture', READER_DATA_DIR: data },
+          ...launch,
+          env: {
+            ...launch.env,
+            READER_SOURCE: 'fixture',
+            READER_DATA_DIR: data,
+          },
         }),
       ),
     ),
@@ -190,7 +190,7 @@ try {
     JSON.stringify(
       {
         server: first.getServerVersion(),
-        packagedRuntime: true,
+        packagedRuntime: launch.packagedRuntime,
         independentProcesses: clients.length,
         source: 'original fixture only',
         prefetchedChaptersWithoutReading: story.chapters.length,
