@@ -83,6 +83,26 @@ export function normalizePortraitReference(reference: string): string {
     .replace(/\s*([#@$])\s*/gu, '$1')
     .toLowerCase();
 }
+/** Match a sourced operator ID on a whole resource-ID boundary, never by name guesses.
+ * The current CharinfoV2 IDs share the char_ namespace with scene resources.
+ * Retain scene expressions/body; ambiguous variants remain unselected. */
+export function matchSpeakerPortrait(
+  references: string[],
+  characterId: string,
+): string | null {
+  const matches = new Map<string, string>();
+  for (const reference of references) {
+    const normalized = normalizePortraitReference(reference);
+    const base = normalized.split(/[#@$]/u)[0] ?? '';
+    if (
+      base === characterId ||
+      base.startsWith(characterId + '_') ||
+      base.startsWith(characterId + '-')
+    )
+      matches.set(normalized, reference);
+  }
+  return matches.size === 1 ? (matches.values().next().value ?? null) : null;
+}
 function referenceParts(raw: unknown, reference: string) {
   const map = foldedMap(raw);
   const normalized = normalizePortraitReference(reference);

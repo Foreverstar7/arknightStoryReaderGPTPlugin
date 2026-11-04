@@ -56,6 +56,7 @@ export class ReaderService {
         if (leaf.kind === 'speech')
           targets.set(leaf.id, {
             kind: 'portrait',
+            speaker: leaf.name,
             resources: leaf.scene?.slots.map((slot) => slot.resource) ?? [],
           });
         if (leaf.kind === 'cg')

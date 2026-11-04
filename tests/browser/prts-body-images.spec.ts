@@ -115,6 +115,7 @@ test('real repaired legacy, whitespace and variable portraits plus ambiguous sce
     const ambiguous = leaves.find(
       (block) =>
         block.kind === 'speech' &&
+        /^[?？]+$/u.test(block.name) &&
         new Set(block.scene?.slots.map((slot) => slot.resource)).size > 1,
     );
     if (ambiguous) {
@@ -324,4 +325,82 @@ test('injected default, neutral and network states remain distinct, retryable an
         await expect(button).toBeFocused();
       }
     }
+});
+
+test('4-1 Amiya and Kaltsit use exact sourced identity in a two-character scene without changing dialogue', async ({
+  page,
+  request,
+}) => {
+  test.setTimeout(180_000);
+  const chapter = await open(page, request, 'prts:4-1 免费拥抱/BEG');
+  const amiya = chapter.blocks.find(
+    (block) =>
+      block.kind === 'speech' &&
+      block.name === '阿米娅' &&
+      block.paragraphs.some((text) => text.trim() === '我，我……'),
+  );
+  const kaltsit = chapter.blocks.find(
+    (block) =>
+      block.kind === 'speech' &&
+      block.name === '凯尔希' &&
+      (block.scene?.slots.length ?? 0) > 1,
+  );
+  for (const [block, expected] of [
+    [amiya, 'char_002_amiya_1'],
+    [kaltsit, 'char_003_kalts_1'],
+  ] as const) {
+    if (!block || block.kind !== 'speech')
+      throw Error('Missing real two-character sample');
+    const image = imageResultSchema.parse(
+      await call(request, 'reader_image', {
+        kind: 'portrait',
+        chapterId: chapter.id,
+        blockId: block.id,
+      }),
+    );
+    expect(image.portrait?.status).toBe('original');
+    expect(image.resource).toBe(expected);
+    const button = page.locator('[id="name-' + block.id + '"]');
+    await button.click();
+    const dialog = page.getByRole('dialog');
+    await expect(
+      dialog.locator('[data-portrait-state="original"]'),
+    ).toBeVisible();
+    await expect(
+      dialog.getByRole('link', { name: 'PRTS', exact: true }),
+    ).toBeVisible();
+    await expect(button).toHaveText(block.name);
+    await page.keyboard.press('Escape');
+    await expect(button).toBeFocused();
+  }
+  if (!amiya) throw Error('Missing screenshot sample');
+  for (const theme of ['light', 'dark'] as const) {
+    await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
+    for (const viewport of [
+      { width: 320, height: 760 },
+      { width: 768, height: 900 },
+      { width: 1440, height: 900 },
+      { width: 1024, height: 400 },
+    ]) {
+      await page.setViewportSize(viewport);
+      await page.locator('[id="name-' + amiya.id + '"]').tap();
+      const dialog = page.getByRole('dialog');
+      await expect(
+        dialog.locator('[data-portrait-state="original"]'),
+      ).toBeVisible();
+      await mkdir('.ai/local/screenshots', { recursive: true });
+      await page.screenshot({
+        path:
+          '.ai/local/screenshots/portrait-identity-' +
+          theme +
+          '-' +
+          viewport.width +
+          'x' +
+          viewport.height +
+          '.png',
+      });
+      await page.locator('.source-note').tap();
+      await expect(dialog).toHaveCount(0);
+    }
+  }
 });

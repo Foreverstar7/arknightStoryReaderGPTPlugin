@@ -728,7 +728,7 @@ const report = {
   probe,
   publicRequests: requests,
   verification:
-    'Source mapping and HTTP range / MIME / raster dimensions. Does not assert full image decode or host UI.',
+    'Source mapping and HTTP range / MIME / raster dimensions. Does not assert full image decode or host UI. Portrait readerUses covers single-resource scenes only; identity matching is not performed, so unresolved scenes are not confirmed placeholders.',
   sources,
   revisionVerification: {
     verified: verifiedChapters.length,
@@ -761,7 +761,8 @@ const report = {
       singleScene: chapters.reduce((n, x) => n + x.singleScene, 0),
       noScene: chapters.reduce((n, x) => n + x.noScene, 0),
       ambiguousScene: chapters.reduce((n, x) => n + x.ambiguousScene, 0),
-      placeholder: chapters.reduce(
+      identityLookupPerformed: false,
+      unresolvedBeforeIdentityMatch: chapters.reduce(
         (n, x) => n + x.noScene + x.ambiguousScene,
         0,
       ),

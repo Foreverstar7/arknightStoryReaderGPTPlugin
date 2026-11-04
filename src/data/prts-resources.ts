@@ -8,6 +8,7 @@ import { PublicCache } from '../storage/public-cache.js';
 import { prtsPageUrl, type WikiReader } from './prts-client.js';
 import { ReaderError } from './source.js';
 import { inspectImage } from './image-format.js';
+import { parseOperatorIdentity } from './prts-metadata.js';
 
 import {
   CHARACTER_MAP,
@@ -16,6 +17,7 @@ import {
   LEGACY_CHAR,
   foldedMap,
   normalizePortraitReference,
+  matchSpeakerPortrait,
   resolvePortraitPlan,
   placeholderPortrait,
   UnresolvedPortraitReference,
@@ -172,6 +174,57 @@ export class PrtsResources {
       if (this.pending.get(pendingKey) === task)
         this.pending.delete(pendingKey);
     }
+  }
+  async speakerPortrait(
+    references: string[],
+    speaker: string | undefined,
+    days: number,
+    refresh = false,
+  ): Promise<ReaderImage | null> {
+    const name = speaker?.trim();
+    // Anonymous/group labels and Wiki control syntax must not become identity guesses.
+    if (!name || !/\p{L}/u.test(name) || /[\[\]{}<>|/#?:\r\n]/u.test(name))
+      return null;
+    const identity = await this.cached(
+      this.mappings,
+      'portrait-identity-v1:' + name,
+      z.object({
+        id: z
+          .string()
+          .regex(/^char_[0-9]+_[a-z0-9_]+$/u)
+          .nullable(),
+      }),
+      days,
+      async () => {
+        try {
+          return {
+            id: parseOperatorIdentity(
+              await this.wiki(name),
+              name,
+              prtsPageUrl(name),
+            ),
+          };
+        } catch (error) {
+          if (error instanceof ReaderError && error.code === 'not_found')
+            return { id: null };
+          throw error;
+        }
+      },
+      refresh,
+    );
+    if (!identity.id) return null;
+    const reference = matchSpeakerPortrait(references, identity.id);
+    if (!reference) return null;
+    const image = await this.portrait(reference, days, refresh);
+    return image.portrait
+      ? {
+          ...image,
+          portrait: {
+            ...image.portrait,
+            evidence: [prtsPageUrl(name), ...image.portrait.evidence],
+          },
+        }
+      : image;
   }
   async portrait(
     reference: string,

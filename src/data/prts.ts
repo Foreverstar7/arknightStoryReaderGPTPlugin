@@ -136,6 +136,15 @@ export class PrtsSource implements StorySource {
           error.code !== 'resource_missing'
         )
           throw error;
+        if (target.resources.length > 1) {
+          const matched = await this.resources.speakerPortrait(
+            target.resources,
+            target.speaker,
+            days,
+            input.refresh,
+          );
+          if (matched) return matched;
+        }
         return placeholderPortrait(
           target.resources.join(' / '),
           target.resources.length ? 'ambiguous_scene' : 'no_scene',

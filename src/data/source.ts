@@ -7,7 +7,7 @@ import type {
 } from '../shared/contracts.js';
 
 export type ImageTarget =
-  | { kind: 'portrait'; resources: string[] }
+  | { kind: 'portrait'; resources: string[]; speaker?: string }
   | { kind: 'cg'; resource?: string; composition?: CgComposition };
 
 export interface StorySource {
