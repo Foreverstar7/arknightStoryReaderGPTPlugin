@@ -175,7 +175,7 @@ export function createReaderMcp(
       refresh: z.boolean().optional(),
       ...imagePartRequestSchema.shape,
     }),
-    imageResultSchema.omit({ layers: true }),
+    z.object(imageResultSchema.shape).omit({ layers: true }),
     true,
   );
   tool(

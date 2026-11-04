@@ -73,6 +73,15 @@ export function anchorAt(
 }
 function matches(old: ReadingLayout, next: ReadingLayout): Map<number, number> {
   const result = new Map<number, number>();
+  if (imageOnlyUpgrade(old, next)) {
+    old.blocks.forEach((block, index) => {
+      const target = next.blocks.findIndex(
+        (item) => item.id === block.id && item.words === block.words,
+      );
+      if (target >= 0) result.set(index, target);
+    });
+    return result;
+  }
   if (
     old.blocks.length === next.blocks.length &&
     old.blocks.every(
@@ -104,6 +113,18 @@ function matches(old: ReadingLayout, next: ReadingLayout): Map<number, number> {
     }
   }
   return result;
+}
+function imageOnlyUpgrade(old: ReadingLayout, next: ReadingLayout): boolean {
+  // v4 only adds CG blocks. The full audited corpus preserves text, word counts
+  // and existing IDs. An identical source hash is required; edited prose still
+  // follows ordinary fingerprint migration. This also preserves branch anchors
+  // whose container signature includes newly inserted zero-word images.
+  return (
+    old.revision.startsWith('prts-script-v3:') &&
+    next.revision ===
+      old.revision.replace('prts-script-v3:', 'prts-script-v4:') &&
+    old.totalWords === next.totalWords
+  );
 }
 function relocate(
   old: ReadingLayout | undefined,
@@ -166,6 +187,10 @@ export function migrateRecord(
     old !== undefined &&
     next.blocks.every((block) => {
       if (block.words === 0) return true;
+      if (imageOnlyUpgrade(old, next))
+        return old.blocks.some(
+          (item) => item.id === block.id && item.words === block.words,
+        );
       const count = remaining.get(block.signature) ?? 0;
       remaining.set(block.signature, count - 1);
       return count > 0;

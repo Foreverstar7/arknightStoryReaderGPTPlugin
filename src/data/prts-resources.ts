@@ -1,149 +1,50 @@
 import { z } from 'zod';
-import { rasterDataUrlSchema, type ReaderImage } from '../shared/contracts.js';
+import {
+  rasterDataUrlSchema,
+  type ReaderImage,
+  type CgComposition,
+} from '../shared/contracts.js';
 import { PublicCache } from '../storage/public-cache.js';
 import { prtsPageUrl, type WikiReader } from './prts-client.js';
 import { ReaderError } from './source.js';
 import { inspectImage } from './image-format.js';
 
-export const CHARACTER_MAP =
-  'https://torappu.prts.wiki/assets/avg/character.json';
-// User-approved 20 MB image budget, including the 17,835,330-byte 日暮寻路
-// original. Applies only to each raster fetch; text, JSON and mapping limits stay.
+import {
+  CHARACTER_MAP,
+  STORY_VARIABLES,
+  LEGACY_LINK,
+  LEGACY_CHAR,
+  foldedMap,
+  normalizePortraitReference,
+  resolvePortraitPlan,
+  placeholderPortrait,
+  UnresolvedPortraitReference,
+  type ResourceLayer,
+} from './prts-portrait.js';
+export {
+  CHARACTER_MAP,
+  resolvePortrait,
+  type ResourceLayer,
+} from './prts-portrait.js';
 export const MAX_IMAGE_BYTES = 20_000_000;
-const point = z.object({ x: z.number().finite(), y: z.number().finite() });
-const entrySchema = z.object({
-  array: z
-    .array(
-      z.object({
-        name: z.string(),
-        alias: z.string().optional(),
-        group: z.number().int().default(-1),
-        image: z.string().optional(),
-        face: z.string().optional(),
-        body: z.number().int().nonnegative().optional(),
-        index: z.number().int().nonnegative().optional(),
-      }),
-    )
-    .min(1),
-  groups: z
-    .array(
-      z.object({
-        mode: z.string(),
-        base: z.string().optional(),
-        faceRect: point
-          .extend({ w: z.number().positive(), h: z.number().positive() })
-          .optional(),
-      }),
-    )
-    .default([]),
-});
 const mapSchema = z.record(z.string(), z.unknown());
-// Keep valid legacy PNG entries readable; adding formats must not evict portraits.
 const rasterSchema = z.object({
   dataUrl: rasterDataUrlSchema,
   width: z.number().positive(),
   height: z.number().positive(),
 });
-export type ResourceLayer = {
-  url: string;
-  x: number;
-  y: number;
-  width?: number;
-  height?: number;
-};
-
 const unavailable = (message: string): never => {
   throw new ReaderError('resource_missing', message);
 };
-function characterUrl(key: string): string {
-  if (
-    !/^[a-zA-Z0-9_/$@#.-]+$/u.test(key) ||
-    key.split('/').some((part) => part === '..' || !part)
-  )
-    throw new ReaderError('parse', 'PRTS 立绘路径不兼容，未猜测文件名。');
-  return `https://torappu.prts.wiki/assets/avg/characters/${key.split('/').map(encodeURIComponent).join('/')}.png`;
-}
-
-/** Resolve the exact sprite-hub body/index or alias; no invalid-index fallback. */
-export function resolvePortrait(
-  raw: unknown,
-  reference: string,
-): ResourceLayer[] {
-  const parsedMap = mapSchema.safeParse(raw);
-  if (!parsedMap.success)
-    throw new ReaderError('parse', 'PRTS 人物映射格式不兼容。');
-  const map = parsedMap.data;
-  const match = /^([^#@$]+)(?:#([1-9]\d*)|@([^$]+))?(?:\$([1-9]\d*))?$/u.exec(
-    reference.toLowerCase(),
-  );
-  if (!match?.[1])
-    throw new ReaderError(
-      'unsupported',
-      `不支持的 PRTS 立绘引用：${reference}`,
-    );
-  let base = match[1];
-  let expression: string | undefined;
-  if (!Object.hasOwn(map, base)) {
-    const key = Object.keys(map).find((key) => base.startsWith(`${key}-`));
-    if (key) {
-      expression = base.slice(key.length + 1);
-      base = key;
-    }
-  }
-  if (!Object.hasOwn(map, base))
-    return unavailable(`PRTS 缺少可用立绘映射：${reference}`);
-  const parsed = entrySchema.safeParse(map[base]);
-  if (!parsed.success)
-    throw new ReaderError('parse', `PRTS 立绘映射格式不兼容：${reference}`);
-  const entry = parsed.data;
-  const body = Number(match[4] ?? '1') - 1;
-  const index = Number(match[2] ?? '1') - 1;
-  const candidates = entry.array.filter((item) =>
-    expression
-      ? item.name.toLowerCase() === expression
-      : match[3]
-        ? item.alias?.toLowerCase() === match[3]
-        : item.body !== undefined && item.index !== undefined
-          ? item.body === body && item.index === index
-          : entry.array.indexOf(item) === index && body === 0,
-  );
-  const selected = candidates[0];
-  if (candidates.length !== 1 || !selected)
-    return unavailable(`PRTS 立绘条目不存在或有歧义：${reference}`);
-  if (selected.group === -1 && selected.image)
-    return [{ url: characterUrl(selected.image), x: 0, y: 0 }];
-  const group = entry.groups[selected.group];
-  if (
-    group?.mode !== 'face_overlay' ||
-    !group.base ||
-    !group.faceRect ||
-    !selected.face
-  )
-    throw new ReaderError(
-      'unsupported',
-      `PRTS 立绘组合格式尚不兼容：${reference}`,
-    );
-  return [
-    { url: characterUrl(group.base), x: 0, y: 0 },
-    {
-      url: characterUrl(selected.face),
-      x: group.faceRect.x,
-      y: group.faceRect.y,
-      width: group.faceRect.w,
-      height: group.faceRect.h,
-    },
-  ];
-}
-
 export function portraitReference(values: string[]): string {
-  const resources = [...new Set(values)];
+  const resources = [...new Set(values.map(normalizePortraitReference))];
   if (resources.length !== 1 || !resources[0])
     return unavailable(
       resources.length > 1
         ? '此处有多种场景立绘，无法确认姓名对应资源。'
         : '此处没有可确认的场景立绘。',
     );
-  return resources[0];
+  return values[0] ?? resources[0];
 }
 
 export function parseImageIndex(wiki: string): Map<string, string> {
@@ -284,6 +185,42 @@ export class PrtsResources {
     days: number,
     refresh: boolean,
   ): Promise<ReaderImage> {
+    let resolved = normalizePortraitReference(reference);
+    const evidence: string[] = [];
+    if (resolved.startsWith('$')) {
+      const variables = await this.cached(
+        this.mappings,
+        STORY_VARIABLES,
+        mapSchema,
+        days,
+        async () => {
+          const bytes = await limitedBytes(
+            await publicResponse(STORY_VARIABLES, this.request),
+            4_000_000,
+          );
+          try {
+            return mapSchema.parse(JSON.parse(bytes.toString('utf8')));
+          } catch {
+            throw new ReaderError(
+              'parse',
+              'PRTS 剧情变量表格式不兼容。',
+              STORY_VARIABLES,
+            );
+          }
+        },
+        refresh,
+      );
+      const value = foldedMap(variables)[resolved.slice(1)];
+      if (typeof value !== 'string' || value.startsWith('$'))
+        return placeholderPortrait(
+          reference,
+          'unresolved_variable',
+          '无法确认此处人物资源，显示中性占位。',
+          [STORY_VARIABLES],
+        );
+      resolved = normalizePortraitReference(value);
+      evidence.push(STORY_VARIABLES);
+    }
     const map = await this.cached(
       this.mappings,
       CHARACTER_MAP,
@@ -302,25 +239,131 @@ export class PrtsResources {
       },
       refresh,
     );
-    return this.render(
-      resolvePortrait(map, reference),
+    const legacy = async () => {
+      const linkText = await this.cached(
+        this.mappings,
+        LEGACY_LINK,
+        z.string(),
+        days,
+        () => this.wiki(LEGACY_LINK),
+        refresh,
+      );
+      let link: unknown;
+      try {
+        link = JSON.parse(linkText);
+      } catch {
+        throw new ReaderError(
+          'parse',
+          'PRTS 旧人物映射不是 JSON。',
+          prtsPageUrl(LEGACY_LINK),
+        );
+      }
+      const imageText = await this.cached(
+        this.mappings,
+        LEGACY_CHAR,
+        z.string(),
+        days,
+        () => this.wiki(LEGACY_CHAR),
+        refresh,
+      );
+      return { link, images: parseImageIndex(imageText) };
+    };
+    let old: Awaited<ReturnType<typeof legacy>> | undefined;
+    let plan;
+    try {
+      plan = resolvePortraitPlan(map, resolved);
+      if (!plan) {
+        old = await legacy();
+        plan = resolvePortraitPlan(map, resolved, old);
+      }
+    } catch (error) {
+      if (error instanceof UnresolvedPortraitReference)
+        return placeholderPortrait(
+          reference,
+          'unsupported_reference',
+          error.message,
+          [CHARACTER_MAP, ...evidence],
+        );
+      throw error;
+    }
+    if (!plan)
+      return placeholderPortrait(
+        reference,
+        'unconfirmed_resource',
+        '无法确认此处人物资源，显示中性占位。',
+        [CHARACTER_MAP, prtsPageUrl(LEGACY_LINK), ...evidence],
+      );
+    const missingUrls: string[] = [];
+    const attempted = new Set<string>();
+    const renderPlan = async (candidate: NonNullable<typeof plan>) => {
+      const key = JSON.stringify(candidate.layers);
+      if (attempted.has(key)) return null;
+      attempted.add(key);
+      try {
+        const image = await this.render(
+          candidate.layers,
+          reference,
+          candidate.portrait.evidence[0] ?? CHARACTER_MAP,
+          days,
+          refresh,
+        );
+        return {
+          ...image,
+          portrait: {
+            ...candidate.portrait,
+            requested: reference,
+            evidence: [
+              ...evidence,
+              ...candidate.portrait.evidence,
+              ...missingUrls,
+            ],
+          },
+        };
+      } catch (error) {
+        // Only confirmed HTTP 404 permits another sourced original/default.
+        // Network, decode/format, unsupported composition and storage failures
+        // remain errors and retain the normal retry path.
+        if (
+          !(error instanceof ReaderError) ||
+          error.code !== 'resource_missing'
+        )
+          throw error;
+        if (error.sourceUrl) missingUrls.push(error.sourceUrl);
+        return null;
+      }
+    };
+    const original = await renderPlan(plan);
+    if (original) return original;
+    old ??= await legacy();
+    for (const mode of ['legacy', 'default'] as const) {
+      const candidate = resolvePortraitPlan(map, resolved, old, mode);
+      if (!candidate) continue;
+      const recovered = await renderPlan(candidate);
+      if (recovered) return recovered;
+    }
+    return placeholderPortrait(
       reference,
-      CHARACTER_MAP,
-      days,
-      refresh,
+      'image_missing',
+      '来源已确认图片缺失，暂无可靠默认立绘。',
+      [...evidence, ...plan.portrait.evidence, ...missingUrls],
     );
   }
+
   async cg(
     reference: string,
     days: number,
     refresh = false,
+    composition?: CgComposition,
   ): Promise<ReaderImage> {
-    return this.images.run(() => this.loadCg(reference, days, refresh));
+    return this.images.run(() =>
+      this.loadCg(reference, days, refresh, composition),
+    );
   }
   private async loadCg(
     reference: string,
     days: number,
     refresh: boolean,
+    composition?: CgComposition,
   ): Promise<ReaderImage> {
     const text = await this.cached(
       this.mappings,
@@ -330,7 +373,25 @@ export class PrtsResources {
       () => this.wiki('Widget:Data_Image'),
       refresh,
     );
-    const url = parseImageIndex(text).get(reference.toLowerCase());
+    const index = parseImageIndex(text);
+    if (composition) {
+      const layers = composition.layers.map((layer) => {
+        const url = index.get(layer.resource.trim().toLowerCase());
+        if (!url || layer.kind !== 'image')
+          return unavailable(`PRTS 图片索引没有资源：${layer.resource}`);
+        return { ...layer, url };
+      });
+      const image = await this.render(
+        layers,
+        reference,
+        prtsPageUrl('Widget:Data_Image'),
+        days,
+        refresh,
+        composition,
+      );
+      return { ...image, description: composition.description };
+    }
+    const url = index.get(reference.trim().toLowerCase());
     if (!url) return unavailable(`PRTS 图片索引没有资源：${reference}`);
     return this.render(
       [{ url, x: 0, y: 0 }],
@@ -433,8 +494,10 @@ export class PrtsResources {
     sourceUrl: string,
     days: number,
     refresh = false,
+    canvas?: { width: number; height: number; fit?: 'layers' },
   ): Promise<ReaderImage> {
     const rendered = [];
+    let encodedLength = 0;
     for (const layer of layers) {
       const image = await this.cached(
         this.images,
@@ -462,20 +525,65 @@ export class PrtsResources {
         },
         refresh,
       );
+      encodedLength += image.dataUrl.length;
+      // Keep compositions within the existing 64 × 1M-character transport.
+      // This is an aggregate budget; per-original raster budget stays 20 MB.
+      if (encodedLength > 60_000_000)
+        throw new ReaderError(
+          'unsupported',
+          'CG 组合超过本次图片传输预算，请到 PRTS 查看。',
+          sourceUrl,
+        );
+      const width = (layer.width ?? image.width) * (layer.scale ?? 1);
+      const height = (layer.height ?? image.height) * (layer.scale ?? 1);
       rendered.push({
         ...image,
         sourceUrl: layer.url,
-        x: layer.x,
-        y: layer.y,
-        width: layer.width ?? image.width,
-        height: layer.height ?? image.height,
+        x: layer.x - (layer.centered ? width / 2 : 0),
+        y: layer.y - (layer.centered ? height / 2 : 0),
+        width,
+        height,
+        ...(layer.rotation === undefined ? {} : { rotation: layer.rotation }),
+        ...(layer.opacity === undefined ? {} : { opacity: layer.opacity }),
       });
     }
     const base = rendered[0];
     if (!base) return unavailable('PRTS 图片没有可显示图层。');
+    if (canvas?.fit === 'layers') {
+      // CGItem can traverse completely outside the stage. Keep all art visible
+      // in this static reader, preserving relative geometry and rotation, instead
+      // of presenting a blank camera crop as a successfully loaded image.
+      const bounds = rendered.map((layer) => {
+        const angle = ((layer.rotation ?? 0) * Math.PI) / 180;
+        const width =
+          Math.abs(layer.width * Math.cos(angle)) +
+          Math.abs(layer.height * Math.sin(angle));
+        const height =
+          Math.abs(layer.width * Math.sin(angle)) +
+          Math.abs(layer.height * Math.cos(angle));
+        const x = layer.x + layer.width / 2;
+        const y = layer.y + layer.height / 2;
+        return {
+          left: x - width / 2,
+          top: y - height / 2,
+          right: x + width / 2,
+          bottom: y + height / 2,
+        };
+      });
+      const left = Math.min(...bounds.map((bound) => bound.left));
+      const top = Math.min(...bounds.map((bound) => bound.top));
+      canvas = {
+        width: Math.max(...bounds.map((bound) => bound.right)) - left,
+        height: Math.max(...bounds.map((bound) => bound.bottom)) - top,
+      };
+      for (const layer of rendered) {
+        layer.x -= left;
+        layer.y -= top;
+      }
+    }
     return {
-      width: base.width,
-      height: base.height,
+      width: canvas?.width ?? base.width,
+      height: canvas?.height ?? base.height,
       layers: rendered,
       resource,
       sourceUrl,

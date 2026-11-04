@@ -986,20 +986,10 @@ button:disabled {
   font-size: 13px;
   line-height: 1.8;
 }
-.portrait-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 9px;
-}
-.portrait-head button {
-  padding: 1px 6px;
-}
 .portrait-art {
   height: 225px;
   position: relative;
   background: linear-gradient(145deg, var(--soft), var(--panel));
-  margin-top: 10px;
   overflow: hidden;
 }
 .source-image {
@@ -1009,7 +999,6 @@ button:disabled {
 }
 .portrait-image .source-image {
   height: min(225px, 42dvh);
-  margin-top: 10px;
 }
 .portrait-image > p {
   font-size: 11px;
@@ -1576,4 +1565,22 @@ fieldset {
   ::view-transition-new(*) {
     animation: none !important;
   }
+}
+.portrait-placeholder {
+  text-align: center;
+  padding: 8px;
+}
+.portrait-placeholder svg {
+  display: block;
+  width: 100%;
+  height: min(180px, 30vh);
+  color: var(--muted);
+  opacity: 0.45;
+}
+.portrait-placeholder p,
+.portrait-resolution,
+.image-description {
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
 }

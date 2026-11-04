@@ -1,4 +1,5 @@
-import type { Block, Leaf, Scene } from '../shared/contracts.js';
+import type { Block, Leaf } from '../shared/contracts.js';
+import type { ScriptScene as Scene } from './prts-cg.js';
 
 type Path = { value: string; labels: string[]; scene: Scene; active: boolean };
 

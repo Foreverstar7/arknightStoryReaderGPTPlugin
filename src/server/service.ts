@@ -59,7 +59,11 @@ export class ReaderService {
             resources: leaf.scene?.slots.map((slot) => slot.resource) ?? [],
           });
         if (leaf.kind === 'cg')
-          targets.set(leaf.id, { kind: 'cg', resource: leaf.resource });
+          targets.set(leaf.id, {
+            kind: 'cg',
+            resource: leaf.resource,
+            composition: leaf.composition,
+          });
       }
     }
     this.imageTargets.set(chapter.id, targets);

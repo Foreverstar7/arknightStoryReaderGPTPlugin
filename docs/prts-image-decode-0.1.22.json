@@ -1,0 +1,5611 @@
+{
+  "checkedAt": "2026-11-04T12:17:48.887Z",
+  "portraitCount": 169,
+  "cgReferences": 122,
+  "decodedImages": 302,
+  "bytes": 105635218,
+  "compositions": 207,
+  "requests": 0,
+  "portraits": [
+    {
+      "reference": "$ill_amiya_normal",
+      "cause": "special_reference",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_1508_Faust_1#1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_1507_Mephisto_1#6",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_1507_Mephisto_1#1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_1507_Mephisto_1#5",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_1507_Mephisto_1#2",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_1507_Mephisto_1#4",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_1508_Faust_1#2",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_002_amiya_1#7 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_1507_Mephisto_1#3",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_1508_Faust_1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_1507_Mephisto_1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_002_amiya_1#3 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_002_amiya_1#1 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_259_Jessica_1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_259_Jessica_1#4",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_259_Jessica_1#5",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_259_Jessica_1#3",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_259_Jessica_1#6",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_259_Jessica_1#1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_259_Jessica_1#2",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_4179_monstr_1#4$1 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_4179_monstr_1#6$1 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_4179_monstr_1#7$1 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_4145_Ulpia_1#2$1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "npc_2004_Alty",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "npc_2001_Aya_1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "npc_2003_Frost_1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "npc_2002_Dan_1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "npc_2002_Dan_rock",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "npc_2003_Frost_rock",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "npc_2001_Aya_rock",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "npc_2004_Alty_rock",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_214_kafka_1#2",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_214_kafka_1#3",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_214_kafka_1#4",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_214_kafka_1#5",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_264_Mountain_1#5",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_264_Mountain_1#7",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_440_Pinecone",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_264_Mountain_1#4",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_264_Mountain_1#1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_264_Mountain_1#6",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_264_Mountain_1#2",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_264_Mountain_1#3",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_264_Mountain_1#11",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_362_Saga#1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_362_Saga#3",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_362_Saga#2",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_362_Saga#6",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_362_Saga#5",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_362_Saga#4",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_362_Saga",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_274_Astesia_1#1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_274_Astesia_1#7",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_274_Astesia_1#4",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_502_Yato_1#5$1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_502_Yato_1#1$1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_502_Yato_1#4$1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_502_Yato_1#2$1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_502_Yato_1#7$1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_502_Yato_1#6$1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_502_Yato_1#5$2",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_502_Yato_1#2$2",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_502_Yato_1#4$2",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_502_Yato_1#1$2",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_1029_Yato2_1#4$1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_1029_Yato2_1#3$1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_1029_Yato2_1#12$1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_1029_Yato2_1#6$1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_1029_Yato2_1#11$1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_1029_Yato2_1#8$1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_1029_Yato2_1#9$1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_1029_Yato2_1#10$1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_1029_Yato2_1#2$1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_1029_Yato2_1#1$1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_1029_Yato2_1#5$1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_npc_366_1#1$1 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_npc_371_1#1$1 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_4145_Ulpia_1#1$1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_4145_Ulpia_1#3$1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_4145_Ulpia_1#8$1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_4145_Ulpia_1#4$1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_4145_Ulpia_1#5$1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_4145_Ulpia_1#6$1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_4145_Ulpia_1#7$1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_npc_1779_1#4$2 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_npc_1779_1#9$2 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_npc_1800_1#2$2 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_npc_357_1#5$1 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_npc_1800_1#6$2 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_npc_357_1#10$1 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_npc_1800_1#10$2 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_npc_357_1#1$1 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_npc_357_1#6$1 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_npc_1800_1#3$2 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_npc_357_1#2$1 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_1032_excu2_1#1$1 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_npc_1800_1#1$2 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_1032_excu2_1#10$1 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_1032_excu2_1#4$1 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_npc_1800_1#7$2 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_npc_1800_1#11$2 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_1041_angel2_1#7$2 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_npc_1778_1#1$1 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_1041_angel2_1#10$2 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_1041_angel2_1#11$2 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_npc_356_1#7$1 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_npc_356_1#12$1 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_npc_356_1#8$1 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_npc_1792_1#1$1 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_1041_angel2_1#2$2 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_1041_angel2_1#8$4 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_1041_angel2_1#7$4 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_1041_angel2_1#9$4 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_1041_angel2_1#12$4 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_4179_monstr_1#1$2 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_4179_monstr_1#6$2 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_4179_monstr_1#5$2 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_4179_monstr_1#4$2 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_4179_monstr_1#9$2 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_4179_monstr_1#10$2 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_4179_monstr_1#2$2 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_npc_1718_1#1$1 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_4215_buddyC_1#1$6",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_4215_buddyC_1#1$5",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_4215_buddyC_1#1$2",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_4215_buddyC_1#1$1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_4215_buddyC_1#1$3",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_4215_buddyC_1#1$4",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_4215_buddyC_1#1$7",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_4215_buddyD_1#1$1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_4215_buddyD_1#1$5",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_4215_buddyD_1#1$3",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_4215_buddyD_1#1$4",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_4215_buddyD_1#1$2",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_4215_buddyD_1#1$6",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_4215_buddyD_1#1$7",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_4236_tmslot_1#3 $1",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_4237_jcinta_1#1$1 ",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_npc_1793_1#10 $1",
+      "cause": "reference_whitespace",
+      "status": "original",
+      "layers": 2
+    },
+    {
+      "reference": "avg_6D5_1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_6D5_1#2",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_6D5_1#5",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_6D5_1#3",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_6D5_1#4",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_240_Vanilla_1#6",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_240_Vanilla_1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_240_Vanilla_1#5",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_240_Vanilla_1#3",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_240_Vanilla_1#2",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "char_254_Shamare_1",
+      "cause": "map_key_case",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_npc_598_1#2$1",
+      "cause": "modern_mapping_missing",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_npc_604_1#2$1",
+      "cause": "modern_mapping_missing",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_npc_598_1#10$1",
+      "cause": "modern_mapping_missing",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_npc_598_1#4$1",
+      "cause": "modern_mapping_missing",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_npc_598_1#1$1",
+      "cause": "modern_mapping_missing",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_npc_598_1#3$1",
+      "cause": "modern_mapping_missing",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_npc_598_1#9$1",
+      "cause": "modern_mapping_missing",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_npc_598_1#8$1",
+      "cause": "modern_mapping_missing",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_npc_598_1#7$1",
+      "cause": "modern_mapping_missing",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_npc_598_1#5$1",
+      "cause": "modern_mapping_missing",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_npc_598_1#6$1",
+      "cause": "modern_mapping_missing",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_npc_604_1#1$1",
+      "cause": "modern_mapping_missing",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_npc_604_1#4$1",
+      "cause": "modern_mapping_missing",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_npc_604_1#5$1",
+      "cause": "modern_mapping_missing",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_npc_604_1#7$1",
+      "cause": "modern_mapping_missing",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_npc_604_1#6$1",
+      "cause": "modern_mapping_missing",
+      "status": "original",
+      "layers": 1
+    },
+    {
+      "reference": "avg_npc_604_1#3$1",
+      "cause": "modern_mapping_missing",
+      "status": "original",
+      "layers": 1
+    }
+  ],
+  "compositionResults": [
+    {
+      "chapterId": "prts:15-17 “她”/END/SP1",
+      "blockId": "prts-b2ffa171ed326a4497030ff1-1",
+      "resource": "cgitem_60_i12_2",
+      "width": 345,
+      "height": 716,
+      "layers": 1,
+      "visiblePixels": 95049
+    },
+    {
+      "chapterId": "prts:15-17 “她”/END/SP1",
+      "blockId": "prts-0bd63765490fb40926f8e4ab-1",
+      "resource": "cgitem_60_i12_1",
+      "width": 1022.5,
+      "height": 864,
+      "layers": 2,
+      "visiblePixels": 283177
+    },
+    {
+      "chapterId": "prts:15-17 “她”/END/SP1",
+      "blockId": "prts-01e98e16dd36e15617c03125-1",
+      "resource": "cgitem_60_i12_3",
+      "width": 1324.8000000000002,
+      "height": 1296,
+      "layers": 3,
+      "visiblePixels": 884924
+    },
+    {
+      "chapterId": "prts:15-17 “她”/END/SP1",
+      "blockId": "prts-01e98e16dd36e15617c03125-2",
+      "resource": "cgitem_60_i12_3",
+      "width": 1022.5,
+      "height": 942,
+      "layers": 3,
+      "visiblePixels": 417807
+    },
+    {
+      "chapterId": "prts:15-17 “她”/END/SP2",
+      "blockId": "prts-b2ffa171ed326a4497030ff1-1",
+      "resource": "cgitem_60_i12_2",
+      "width": 345,
+      "height": 716,
+      "layers": 1,
+      "visiblePixels": 95049
+    },
+    {
+      "chapterId": "prts:15-17 “她”/END/SP2",
+      "blockId": "prts-0bd63765490fb40926f8e4ab-1",
+      "resource": "cgitem_60_i12_1",
+      "width": 1022.5,
+      "height": 864,
+      "layers": 2,
+      "visiblePixels": 283177
+    },
+    {
+      "chapterId": "prts:15-17 “她”/END/SP2",
+      "blockId": "prts-01e98e16dd36e15617c03125-1",
+      "resource": "cgitem_60_i12_3",
+      "width": 1324.8000000000002,
+      "height": 1296,
+      "layers": 3,
+      "visiblePixels": 884924
+    },
+    {
+      "chapterId": "prts:15-17 “她”/END/SP2",
+      "blockId": "prts-01e98e16dd36e15617c03125-2",
+      "resource": "cgitem_60_i12_3",
+      "width": 1022.5,
+      "height": 942,
+      "layers": 3,
+      "visiblePixels": 417807
+    },
+    {
+      "chapterId": "prts:15-17 “她”/END",
+      "blockId": "prts-b2ffa171ed326a4497030ff1-1",
+      "resource": "cgitem_60_i12_2",
+      "width": 345,
+      "height": 716,
+      "layers": 1,
+      "visiblePixels": 95049
+    },
+    {
+      "chapterId": "prts:15-17 “她”/END",
+      "blockId": "prts-0bd63765490fb40926f8e4ab-1",
+      "resource": "cgitem_60_i12_1",
+      "width": 1022.5,
+      "height": 864,
+      "layers": 2,
+      "visiblePixels": 283177
+    },
+    {
+      "chapterId": "prts:15-17 “她”/END",
+      "blockId": "prts-01e98e16dd36e15617c03125-1",
+      "resource": "cgitem_60_i12_3",
+      "width": 1324.8000000000002,
+      "height": 1296,
+      "layers": 3,
+      "visiblePixels": 884924
+    },
+    {
+      "chapterId": "prts:15-17 “她”/END",
+      "blockId": "prts-01e98e16dd36e15617c03125-2",
+      "resource": "cgitem_60_i12_3",
+      "width": 1022.5,
+      "height": 942,
+      "layers": 3,
+      "visiblePixels": 417807
+    },
+    {
+      "chapterId": "prts:15-2 执此剑者/END",
+      "blockId": "prts-ed69aa3ddab9e982bce8c8c2-1",
+      "resource": "cgitem_60_i01",
+      "width": 1280,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 413794
+    },
+    {
+      "chapterId": "prts:15-2 执此剑者/END",
+      "blockId": "prts-ed69aa3ddab9e982bce8c8c2-2",
+      "resource": "cgitem_60_i01",
+      "width": 1280,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 413794
+    },
+    {
+      "chapterId": "prts:15-9 减压症候/END",
+      "blockId": "prts-7a171d50ef00014e6e2e8279-1",
+      "resource": "cgitem_60_i06_1",
+      "width": 1408,
+      "height": 792,
+      "layers": 1,
+      "visiblePixels": 684475
+    },
+    {
+      "chapterId": "prts:15-9 减压症候/END",
+      "blockId": "prts-0b44d408fd0d3666f528a191-1",
+      "resource": "cgitem_60_i06_2",
+      "width": 1408,
+      "height": 792,
+      "layers": 2,
+      "visiblePixels": 769633
+    },
+    {
+      "chapterId": "prts:15-11 一段长梦将醒/BEG",
+      "blockId": "prts-7ec066634db58b89483dd554-1",
+      "resource": "cgitem_60_i07_1",
+      "width": 1280,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 491791
+    },
+    {
+      "chapterId": "prts:15-11 一段长梦将醒/BEG",
+      "blockId": "prts-38263d581d94fb69c7424e75-1",
+      "resource": "cgitem_60_i07_2",
+      "width": 1280,
+      "height": 720,
+      "layers": 2,
+      "visiblePixels": 539353
+    },
+    {
+      "chapterId": "prts:15-11 一段长梦将醒/BEG",
+      "blockId": "prts-38263d581d94fb69c7424e75-2",
+      "resource": "cgitem_60_i07_2",
+      "width": 1280,
+      "height": 720,
+      "layers": 2,
+      "visiblePixels": 539353
+    },
+    {
+      "chapterId": "prts:15-11 一段长梦将醒/BEG",
+      "blockId": "prts-38263d581d94fb69c7424e75-3",
+      "resource": "cgitem_60_i07_2",
+      "width": 1320,
+      "height": 720,
+      "layers": 2,
+      "visiblePixels": 548577
+    },
+    {
+      "chapterId": "prts:15-18 从未怀疑，从未远离/BEG",
+      "blockId": "prts-358682507de874b146ad1fd2-1",
+      "resource": "cgitem_60_i13_2",
+      "width": 1280,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 271310
+    },
+    {
+      "chapterId": "prts:15-18 从未怀疑，从未远离/BEG",
+      "blockId": "prts-c8fdcb430ed3b056d9d4eb93-1",
+      "resource": "cgitem_60_i13_1",
+      "width": 1920,
+      "height": 1080,
+      "layers": 2,
+      "visiblePixels": 531751
+    },
+    {
+      "chapterId": "prts:15-18 从未怀疑，从未远离/BEG",
+      "blockId": "prts-bc1fb877c171eb5dbbe1547b-1",
+      "resource": "cgitem_60_i16",
+      "width": 350.50665273117556,
+      "height": 308.9886978574418,
+      "layers": 1,
+      "visiblePixels": 50437
+    },
+    {
+      "chapterId": "prts:15-18 从未怀疑，从未远离/BEG",
+      "blockId": "prts-bc1fb877c171eb5dbbe1547b-2",
+      "resource": "cgitem_60_i16",
+      "width": 246,
+      "height": 204,
+      "layers": 1,
+      "visiblePixels": 32352
+    },
+    {
+      "chapterId": "prts:15-18 从未怀疑，从未远离/BEG",
+      "blockId": "prts-bc1fb877c171eb5dbbe1547b-3",
+      "resource": "cgitem_60_i16",
+      "width": 205,
+      "height": 170,
+      "layers": 1,
+      "visiblePixels": 22356
+    },
+    {
+      "chapterId": "prts:15-20 得以重回/END",
+      "blockId": "prts-358682507de874b146ad1fd2-1",
+      "resource": "cgitem_60_i13_2",
+      "width": 1280,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 271310
+    },
+    {
+      "chapterId": "prts:16-4 友人成众/END",
+      "blockId": "prts-0399c01dd870c52d0253e20a-1",
+      "resource": "cgitem_66_i04",
+      "width": 1369.6000000000004,
+      "height": 650.56,
+      "layers": 1,
+      "visiblePixels": 393120
+    },
+    {
+      "chapterId": "prts:16-12 深埋地底/BEG",
+      "blockId": "prts-a4fcb6dae8964729ae2fde97-1",
+      "resource": "cgitem_66_i11_1",
+      "width": 577,
+      "height": 645,
+      "layers": 1,
+      "visiblePixels": 163276
+    },
+    {
+      "chapterId": "prts:16-12 深埋地底/BEG",
+      "blockId": "prts-97f95de38331ef7621d6946c-1",
+      "resource": "cgitem_66_i11_2",
+      "width": 1365.5,
+      "height": 720,
+      "layers": 2,
+      "visiblePixels": 451682
+    },
+    {
+      "chapterId": "prts:16-16 示我以真/BEG",
+      "blockId": "prts-b7ec6da02600071b6e374492-1",
+      "resource": "cgitem_66_i21_1",
+      "width": 1280,
+      "height": 235,
+      "layers": 1,
+      "visiblePixels": 194247
+    },
+    {
+      "chapterId": "prts:16-16 示我以真/BEG",
+      "blockId": "prts-9fd670421cece730f8a1319e-1",
+      "resource": "cgitem_66_i21_2",
+      "width": 1280,
+      "height": 742.5,
+      "layers": 2,
+      "visiblePixels": 266378
+    },
+    {
+      "chapterId": "prts:16-17 力竭声嘶/BEG",
+      "blockId": "prts-b7ec6da02600071b6e374492-1",
+      "resource": "cgitem_66_i21_1",
+      "width": 1280,
+      "height": 235,
+      "layers": 1,
+      "visiblePixels": 194247
+    },
+    {
+      "chapterId": "prts:16-17 力竭声嘶/BEG",
+      "blockId": "prts-9fd670421cece730f8a1319e-1",
+      "resource": "cgitem_66_i21_2",
+      "width": 1280,
+      "height": 742.5,
+      "layers": 2,
+      "visiblePixels": 266378
+    },
+    {
+      "chapterId": "prts:17-2 救赎迟来/BEG",
+      "blockId": "prts-e5009cc2f87386b7ce62494c-1",
+      "resource": "cgitem_70_i02_3",
+      "width": 2560,
+      "height": 1440,
+      "layers": 1,
+      "visiblePixels": 475958
+    },
+    {
+      "chapterId": "prts:TA-2 大头鬼/END",
+      "blockId": "prts-713d18f85ed344937fd7a739-1",
+      "resource": "cgitem_70_i02_1",
+      "width": 960,
+      "height": 440.40000000000003,
+      "layers": 1,
+      "visiblePixels": 263220
+    },
+    {
+      "chapterId": "prts:TA-2 大头鬼/END",
+      "blockId": "prts-713d18f85ed344937fd7a739-2",
+      "resource": "cgitem_70_i02_1",
+      "width": 960,
+      "height": 440.40000000000003,
+      "layers": 1,
+      "visiblePixels": 263220
+    },
+    {
+      "chapterId": "prts:TA-2 大头鬼/END",
+      "blockId": "prts-bac436bcf23e4be8ec9f9970-1",
+      "resource": "cgitem_70_i02_2",
+      "width": 1280,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 116708
+    },
+    {
+      "chapterId": "prts:TA-2 大头鬼/END",
+      "blockId": "prts-e5009cc2f87386b7ce62494c-1",
+      "resource": "cgitem_70_i02_3",
+      "width": 1280,
+      "height": 720,
+      "layers": 2,
+      "visiblePixels": 121601
+    },
+    {
+      "chapterId": "prts:17-7 理性失衡/BEG",
+      "blockId": "prts-54643643f1430d575c25ddf6-1",
+      "resource": "cgitem_68_i17",
+      "width": 1280,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 921600
+    },
+    {
+      "chapterId": "prts:UR-ST-2 试飞日/NBT",
+      "blockId": "prts-54643643f1430d575c25ddf6-1",
+      "resource": "cgitem_68_i17",
+      "width": 1280,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 921600
+    },
+    {
+      "chapterId": "prts:TO-1 收信地：终点/END",
+      "blockId": "prts-9d84d6f47d63031fdf426bb1-1",
+      "resource": "cgitem_76_i16_4",
+      "width": 1280,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 387644
+    },
+    {
+      "chapterId": "prts:TO-1 收信地：终点/END",
+      "blockId": "prts-0237a5505b50e45c64de2f46-1",
+      "resource": "cgitem_76_i16_2",
+      "width": 3468.7999999999997,
+      "height": 1951.1999999999998,
+      "layers": 1,
+      "visiblePixels": 3858091
+    },
+    {
+      "chapterId": "prts:TO-1 收信地：终点/END",
+      "blockId": "prts-54643643f1430d575c25ddf6-1",
+      "resource": "cgitem_68_i17",
+      "width": 1280,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 921600
+    },
+    {
+      "chapterId": "prts:17-15 人的价值/BEG",
+      "blockId": "prts-c9fcbd8397922bba8915b48a-1",
+      "resource": "cgitem_73_i13_1",
+      "width": 773,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 451069
+    },
+    {
+      "chapterId": "prts:17-15 人的价值/BEG",
+      "blockId": "prts-ac65125b1afc68acde8de6cc-1",
+      "resource": "cgitem_73_i13_2",
+      "width": 1711,
+      "height": 720,
+      "layers": 2,
+      "visiblePixels": 927046
+    },
+    {
+      "chapterId": "prts:17-16 唯有向前/BEG",
+      "blockId": "prts-e4bbf7563f309fab46a32e77-1",
+      "resource": "cgitem_73_i10",
+      "width": 1280,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 40133
+    },
+    {
+      "chapterId": "prts:17-16 唯有向前/BEG",
+      "blockId": "prts-455c43eee14aa5e5239ad54f-1",
+      "resource": "cgitem_73_i10_1",
+      "width": 1280,
+      "height": 720,
+      "layers": 2,
+      "visiblePixels": 312165
+    },
+    {
+      "chapterId": "prts:17-16 唯有向前/BEG",
+      "blockId": "prts-821ecb30a1dd80cdcd0c706e-1",
+      "resource": "cgitem_73_i10_2",
+      "width": 1600,
+      "height": 954,
+      "layers": 3,
+      "visiblePixels": 1112233
+    },
+    {
+      "chapterId": "prts:17-16 唯有向前/BEG",
+      "blockId": "prts-455c43eee14aa5e5239ad54f-2",
+      "resource": "cgitem_73_i10_1",
+      "width": 1600,
+      "height": 1119.2,
+      "layers": 2,
+      "visiblePixels": 1186856
+    },
+    {
+      "chapterId": "prts:17-16 唯有向前/BEG",
+      "blockId": "prts-821ecb30a1dd80cdcd0c706e-2",
+      "resource": "cgitem_73_i10_2",
+      "width": 1920,
+      "height": 1144.8,
+      "layers": 2,
+      "visiblePixels": 1588413
+    },
+    {
+      "chapterId": "prts:17-18 灵魂悄然/END",
+      "blockId": "prts-419d7ead6605706b9f37ec01-1",
+      "resource": "cgitem_73_i16_1",
+      "width": 104,
+      "height": 291,
+      "layers": 1,
+      "visiblePixels": 12788
+    },
+    {
+      "chapterId": "prts:CV-8 告别往昔/END",
+      "blockId": "prts-fddebc8b5cdff21d6bce3c2a-1",
+      "resource": "cgitem_42_i11",
+      "width": 1239,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 579871
+    },
+    {
+      "chapterId": "prts:ZT-4 狂想曲“望想”/END",
+      "blockId": "prts-161a685a2088e024f97e8e8a-1",
+      "resource": "cgitem_44_i04",
+      "width": 434,
+      "height": 375,
+      "layers": 1,
+      "visiblePixels": 124603
+    },
+    {
+      "chapterId": "prts:ZT-4 狂想曲“望想”/END",
+      "blockId": "prts-161a685a2088e024f97e8e8a-2",
+      "resource": "cgitem_44_i04",
+      "width": 564.2,
+      "height": 487.5,
+      "layers": 1,
+      "visiblePixels": 210765
+    },
+    {
+      "chapterId": "prts:ZT-8 夜歌“未见的高塔”/END",
+      "blockId": "prts-3306401e30f9056ead204108-1",
+      "resource": "cgitem_44_i17",
+      "width": 1280,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 651893
+    },
+    {
+      "chapterId": "prts:ZT-ST-3 尾奏“晚霞”/NBT",
+      "blockId": "prts-77a51891b66550227f407af5-1",
+      "resource": "cgitem_44_i18",
+      "width": 1258,
+      "height": 689,
+      "layers": 1,
+      "visiblePixels": 250618
+    },
+    {
+      "chapterId": "prts:ZT-ST-3 尾奏“晚霞”/NBT",
+      "blockId": "prts-77a51891b66550227f407af5-2",
+      "resource": "cgitem_44_i18",
+      "width": 1258,
+      "height": 689,
+      "layers": 1,
+      "visiblePixels": 250618
+    },
+    {
+      "chapterId": "prts:AS-6 过往云烟/BEG",
+      "blockId": "prts-6f785f1a371e10d8d1e44149-1",
+      "resource": "cgitem_53_i04_1",
+      "width": 148.5,
+      "height": 972,
+      "layers": 1,
+      "visiblePixels": 120376
+    },
+    {
+      "chapterId": "prts:AS-6 过往云烟/BEG",
+      "blockId": "prts-70b5d7abf79db39e254b7d8d-1",
+      "resource": "cgitem_53_i04_2",
+      "width": 1292.7,
+      "height": 987.45,
+      "layers": 2,
+      "visiblePixels": 249320
+    },
+    {
+      "chapterId": "prts:AS-6 过往云烟/BEG",
+      "blockId": "prts-46b95932d2c56ac13c449617-1",
+      "resource": "cgitem_53_i04_3",
+      "width": 1292.7,
+      "height": 987.45,
+      "layers": 3,
+      "visiblePixels": 366963
+    },
+    {
+      "chapterId": "prts:AS-7 谁是宠物？/END",
+      "blockId": "prts-b32979f320d197c0db76217d-1",
+      "resource": "cgitem_53_i05_1",
+      "width": 1280,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 537910
+    },
+    {
+      "chapterId": "prts:AS-7 谁是宠物？/END",
+      "blockId": "prts-739ecc88d8221180336cb79b-1",
+      "resource": "cgitem_53_i05_2",
+      "width": 1280,
+      "height": 720,
+      "layers": 2,
+      "visiblePixels": 652932
+    },
+    {
+      "chapterId": "prts:AS-7 谁是宠物？/END",
+      "blockId": "prts-0e9aae13141fe47d672bfc3e-1",
+      "resource": "cgitem_53_i05_3",
+      "width": 1280,
+      "height": 720,
+      "layers": 3,
+      "visiblePixels": 781391
+    },
+    {
+      "chapterId": "prts:AS-7 谁是宠物？/END",
+      "blockId": "prts-739ecc88d8221180336cb79b-2",
+      "resource": "cgitem_53_i05_2",
+      "width": 1319.5,
+      "height": 720,
+      "layers": 3,
+      "visiblePixels": 788631
+    },
+    {
+      "chapterId": "prts:AS-7 谁是宠物？/END",
+      "blockId": "prts-0e9aae13141fe47d672bfc3e-2",
+      "resource": "cgitem_53_i05_3",
+      "width": 1319.5,
+      "height": 720,
+      "layers": 3,
+      "visiblePixels": 790211
+    },
+    {
+      "chapterId": "prts:AS-7 谁是宠物？/END",
+      "blockId": "prts-739ecc88d8221180336cb79b-3",
+      "resource": "cgitem_53_i05_2",
+      "width": 1319.5,
+      "height": 720,
+      "layers": 3,
+      "visiblePixels": 790211
+    },
+    {
+      "chapterId": "prts:AS-8 黄沙尽头/END",
+      "blockId": "prts-be78ede927c020a62ecc2d90-1",
+      "resource": "cgitem_53_i15",
+      "width": 1280,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 391769
+    },
+    {
+      "chapterId": "prts:AS-9 向过去告别/END",
+      "blockId": "prts-f4e1779994ccc97839841a3b-1",
+      "resource": "cgitem_53_i17",
+      "width": 1664,
+      "height": 936,
+      "layers": 1,
+      "visiblePixels": 529564
+    },
+    {
+      "chapterId": "prts:AS-9 向过去告别/END",
+      "blockId": "prts-f4e1779994ccc97839841a3b-2",
+      "resource": "cgitem_53_i17",
+      "width": 1280,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 309069
+    },
+    {
+      "chapterId": "prts:AS-ST-3 十字路口，再出发/NBT",
+      "blockId": "prts-37d4829d62602fe13a5c5d7f-1",
+      "resource": "cgitem_41_i12_1",
+      "width": 1028,
+      "height": 584,
+      "layers": 1,
+      "visiblePixels": 34989
+    },
+    {
+      "chapterId": "prts:TL-3 苦难的历程/BEG",
+      "blockId": "prts-37d4829d62602fe13a5c5d7f-1",
+      "resource": "cgitem_41_i12_1",
+      "width": 1007.44,
+      "height": 572.3199999999999,
+      "layers": 1,
+      "visiblePixels": 31973
+    },
+    {
+      "chapterId": "prts:TL-3 苦难的历程/BEG",
+      "blockId": "prts-37d4829d62602fe13a5c5d7f-2",
+      "resource": "cgitem_41_i12_1",
+      "width": 904.6399999999999,
+      "height": 513.9200000000001,
+      "layers": 1,
+      "visiblePixels": 25906
+    },
+    {
+      "chapterId": "prts:TL-3 苦难的历程/BEG",
+      "blockId": "prts-37d4829d62602fe13a5c5d7f-3",
+      "resource": "cgitem_41_i12_1",
+      "width": 945.7600000000001,
+      "height": 537.28,
+      "layers": 1,
+      "visiblePixels": 28524
+    },
+    {
+      "chapterId": "prts:DT-1 源石虫农家乐/END",
+      "blockId": "prts-cbfdc65f83cb2c4ff8e6c91a-1",
+      "resource": "cgitem_54_i2",
+      "width": 832,
+      "height": 362,
+      "layers": 1,
+      "visiblePixels": 113502
+    },
+    {
+      "chapterId": "prts:DT-2 雨林解毒炖汤/END",
+      "blockId": "prts-68a2696e821562767dcde5d0-1",
+      "resource": "cgitem_54_i3",
+      "width": 930,
+      "height": 474,
+      "layers": 1,
+      "visiblePixels": 93485
+    },
+    {
+      "chapterId": "prts:DT-3 黄金萝卜/END",
+      "blockId": "prts-2148f18a3fbed5d309a1ad2c-1",
+      "resource": "cgitem_54_i4",
+      "width": 899,
+      "height": 415,
+      "layers": 1,
+      "visiblePixels": 116339
+    },
+    {
+      "chapterId": "prts:DT-4 烤串与预言/END",
+      "blockId": "prts-1e2350e5a63699d563952873-1",
+      "resource": "cgitem_54_i5",
+      "width": 507,
+      "height": 450,
+      "layers": 1,
+      "visiblePixels": 118162
+    },
+    {
+      "chapterId": "prts:DT-5 会饮图/END",
+      "blockId": "prts-cf1ea4b930b730f0feab3b00-1",
+      "resource": "cgitem_54_i6",
+      "width": 526,
+      "height": 441,
+      "layers": 1,
+      "visiblePixels": 89413
+    },
+    {
+      "chapterId": "prts:DT-6 海鲜拼盘/END",
+      "blockId": "prts-f8fb0a182313f7473314121b-1",
+      "resource": "cgitem_54_i10",
+      "width": 963,
+      "height": 427,
+      "layers": 1,
+      "visiblePixels": 116614
+    },
+    {
+      "chapterId": "prts:DT-7 健康零食/END",
+      "blockId": "prts-e8f0f3db6403535464b5a629-1",
+      "resource": "cgitem_54_i9",
+      "width": 926,
+      "height": 440,
+      "layers": 1,
+      "visiblePixels": 100817
+    },
+    {
+      "chapterId": "prts:PV-ST-1 《新都市管理法案》/NBT",
+      "blockId": "prts-1eb9effee8df12d004e27899-1",
+      "resource": "cgitem_56_i01_1",
+      "width": 432,
+      "height": 118,
+      "layers": 1,
+      "visiblePixels": 31415
+    },
+    {
+      "chapterId": "prts:PV-ST-1 《新都市管理法案》/NBT",
+      "blockId": "prts-85cf0f22f6f2e35c49fc3765-1",
+      "resource": "cgitem_56_i01_2",
+      "width": 1232,
+      "height": 118,
+      "layers": 2,
+      "visiblePixels": 62852
+    },
+    {
+      "chapterId": "prts:PV-ST-1 《新都市管理法案》/NBT",
+      "blockId": "prts-9611d5b581728d29ce83c347-1",
+      "resource": "cgitem_56_i01_3",
+      "width": 1533.5,
+      "height": 720,
+      "layers": 2,
+      "visiblePixels": 304768
+    },
+    {
+      "chapterId": "prts:PV-9 狼群与群狼/END",
+      "blockId": "prts-0347d4683a994b42f406d0ca-1",
+      "resource": "cgitem_56_i12_1",
+      "width": 1664,
+      "height": 936,
+      "layers": 1,
+      "visiblePixels": 1148503
+    },
+    {
+      "chapterId": "prts:PV-9 狼群与群狼/END",
+      "blockId": "prts-0347d4683a994b42f406d0ca-2",
+      "resource": "cgitem_56_i12_1",
+      "width": 1280,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 674660
+    },
+    {
+      "chapterId": "prts:EP-ST-2 倾泻腐朽的花/NBT",
+      "blockId": "prts-1ba0b9d63243a415f123c1b2-1",
+      "resource": "cgitem_57_i06_1",
+      "width": 1280,
+      "height": 324,
+      "layers": 1,
+      "visiblePixels": 173701
+    },
+    {
+      "chapterId": "prts:EP-ST-2 倾泻腐朽的花/NBT",
+      "blockId": "prts-1ba0b9d63243a415f123c1b2-2",
+      "resource": "cgitem_57_i06_1",
+      "width": 1280,
+      "height": 324,
+      "layers": 1,
+      "visiblePixels": 173701
+    },
+    {
+      "chapterId": "prts:EP-ST-2 倾泻腐朽的花/NBT",
+      "blockId": "prts-b8faff8e0643df2735d6e468-1",
+      "resource": "cgitem_57_i06_2",
+      "width": 1280,
+      "height": 666,
+      "layers": 1,
+      "visiblePixels": 385158
+    },
+    {
+      "chapterId": "prts:MT-ST-1 “堕天”/NBT",
+      "blockId": "prts-e27c0809e4cde5cbfd4bfbd7-1",
+      "resource": "cgitem_61_i02",
+      "width": 385,
+      "height": 424,
+      "layers": 1,
+      "visiblePixels": 79906
+    },
+    {
+      "chapterId": "prts:MT-ST-1 “堕天”/NBT",
+      "blockId": "prts-e27c0809e4cde5cbfd4bfbd7-2",
+      "resource": "cgitem_61_i02",
+      "width": 385,
+      "height": 424,
+      "layers": 1,
+      "visiblePixels": 79906
+    },
+    {
+      "chapterId": "prts:MT-6 告解/BEG",
+      "blockId": "prts-335c9bacb6f9cc2aa049d6c9-1",
+      "resource": "61_i12/61_i11",
+      "width": 3200,
+      "height": 900,
+      "layers": 2,
+      "visiblePixels": 2880000
+    },
+    {
+      "chapterId": "prts:MT-6 告解/BEG",
+      "blockId": "prts-335c9bacb6f9cc2aa049d6c9-2",
+      "resource": "61_i12/61_i11",
+      "width": 3200,
+      "height": 900,
+      "layers": 2,
+      "visiblePixels": 2880000
+    },
+    {
+      "chapterId": "prts:MT-6 告解/BEG",
+      "blockId": "prts-335c9bacb6f9cc2aa049d6c9-3",
+      "resource": "61_i12/61_i11",
+      "width": 3200,
+      "height": 900,
+      "layers": 2,
+      "visiblePixels": 2880000
+    },
+    {
+      "chapterId": "prts:AD-4 一个荒唐的早晨/END",
+      "blockId": "prts-2b6577931c07886f235d3f7b-1",
+      "resource": "cgitem_62_i03",
+      "width": 1072,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 368278
+    },
+    {
+      "chapterId": "prts:AD-8 登台致礼/BEG",
+      "blockId": "prts-2b6577931c07886f235d3f7b-1",
+      "resource": "cgitem_62_i03",
+      "width": 1072,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 368278
+    },
+    {
+      "chapterId": "prts:AT-8 逝川/END",
+      "blockId": "prts-6fbc22e839ea226fa46dbac0-1",
+      "resource": "cgitem_64_i10",
+      "width": 890.5,
+      "height": 813.8000000000002,
+      "layers": 1,
+      "visiblePixels": 478161
+    },
+    {
+      "chapterId": "prts:AT-8 逝川/END",
+      "blockId": "prts-5c563a4457f8b07e8c8ab1aa-1",
+      "resource": "cgitem_64_i18_1",
+      "width": 862.2,
+      "height": 835.2,
+      "layers": 1,
+      "visiblePixels": 368903
+    },
+    {
+      "chapterId": "prts:AT-8 逝川/END",
+      "blockId": "prts-602c7db3169a0452f6b022ce-1",
+      "resource": "cgitem_64_i18_2",
+      "width": 3025.2999999999997,
+      "height": 835.2,
+      "layers": 2,
+      "visiblePixels": 656974
+    },
+    {
+      "chapterId": "prts:OS-2 甜蜜的邻人/BEG",
+      "blockId": "prts-db6dc1e30b652119a2449e37-1",
+      "resource": "67_i15_1/67_i15_2",
+      "width": 1600,
+      "height": 1800,
+      "layers": 2,
+      "visiblePixels": 2880000
+    },
+    {
+      "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+      "blockId": "prts-2fcc8ad4d826867ad7a5bfd1-1",
+      "resource": "cgitem_68_i01_2",
+      "width": 644,
+      "height": 591,
+      "layers": 1,
+      "visiblePixels": 270897
+    },
+    {
+      "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+      "blockId": "prts-2fcc8ad4d826867ad7a5bfd1-2",
+      "resource": "cgitem_68_i01_2",
+      "width": 644,
+      "height": 591,
+      "layers": 1,
+      "visiblePixels": 270897
+    },
+    {
+      "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+      "blockId": "prts-2fcc8ad4d826867ad7a5bfd1-3",
+      "resource": "cgitem_68_i01_2",
+      "width": 644,
+      "height": 591,
+      "layers": 1,
+      "visiblePixels": 270897
+    },
+    {
+      "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+      "blockId": "prts-73e66381dea57fa57b1139a4-1",
+      "resource": "cgitem_68_i01_1",
+      "width": 779,
+      "height": 594,
+      "layers": 1,
+      "visiblePixels": 291580
+    },
+    {
+      "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+      "blockId": "prts-73e66381dea57fa57b1139a4-2",
+      "resource": "cgitem_68_i01_1",
+      "width": 779,
+      "height": 594,
+      "layers": 1,
+      "visiblePixels": 291580
+    },
+    {
+      "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+      "blockId": "prts-3ec6b5ed6e8aac50b06b6b31-1",
+      "resource": "cgitem_68_i01_7",
+      "width": 480,
+      "height": 364,
+      "layers": 1,
+      "visiblePixels": 106190
+    },
+    {
+      "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+      "blockId": "prts-3ec6b5ed6e8aac50b06b6b31-2",
+      "resource": "cgitem_68_i01_7",
+      "width": 480,
+      "height": 364,
+      "layers": 1,
+      "visiblePixels": 106190
+    },
+    {
+      "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+      "blockId": "prts-3ec6b5ed6e8aac50b06b6b31-3",
+      "resource": "cgitem_68_i01_7",
+      "width": 480,
+      "height": 364,
+      "layers": 1,
+      "visiblePixels": 106190
+    },
+    {
+      "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+      "blockId": "prts-dc6418d7ccc54b08de5aee99-1",
+      "resource": "cgitem_68_i01_4",
+      "width": 554,
+      "height": 343,
+      "layers": 1,
+      "visiblePixels": 127565
+    },
+    {
+      "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+      "blockId": "prts-dc6418d7ccc54b08de5aee99-2",
+      "resource": "cgitem_68_i01_4",
+      "width": 554,
+      "height": 343,
+      "layers": 1,
+      "visiblePixels": 127565
+    },
+    {
+      "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+      "blockId": "prts-dc6418d7ccc54b08de5aee99-3",
+      "resource": "cgitem_68_i01_4",
+      "width": 554,
+      "height": 343,
+      "layers": 1,
+      "visiblePixels": 127565
+    },
+    {
+      "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+      "blockId": "prts-a78bf4dae950ad6f0f72ca48-1",
+      "resource": "cgitem_68_i01_5",
+      "width": 351,
+      "height": 678,
+      "layers": 1,
+      "visiblePixels": 164118
+    },
+    {
+      "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+      "blockId": "prts-a78bf4dae950ad6f0f72ca48-2",
+      "resource": "cgitem_68_i01_5",
+      "width": 351,
+      "height": 678,
+      "layers": 1,
+      "visiblePixels": 164118
+    },
+    {
+      "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+      "blockId": "prts-ce715b84a2888b8b850f7db6-1",
+      "resource": "cgitem_68_i01_6",
+      "width": 385,
+      "height": 573,
+      "layers": 1,
+      "visiblePixels": 139930
+    },
+    {
+      "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+      "blockId": "prts-ce715b84a2888b8b850f7db6-2",
+      "resource": "cgitem_68_i01_6",
+      "width": 385,
+      "height": 573,
+      "layers": 1,
+      "visiblePixels": 139930
+    },
+    {
+      "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+      "blockId": "prts-ce715b84a2888b8b850f7db6-3",
+      "resource": "cgitem_68_i01_6",
+      "width": 385,
+      "height": 573,
+      "layers": 1,
+      "visiblePixels": 139930
+    },
+    {
+      "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+      "blockId": "prts-1c717a2f6bef8cd48f23ec4b-1",
+      "resource": "cgitem_68_i01_3",
+      "width": 833,
+      "height": 601,
+      "layers": 1,
+      "visiblePixels": 305848
+    },
+    {
+      "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+      "blockId": "prts-1c717a2f6bef8cd48f23ec4b-2",
+      "resource": "cgitem_68_i01_3",
+      "width": 833,
+      "height": 601,
+      "layers": 1,
+      "visiblePixels": 305848
+    },
+    {
+      "chapterId": "prts:UR-8 栖脚地/END",
+      "blockId": "prts-6a5a4e37596a793e8ff6847e-1",
+      "resource": "cgitem_68_i13",
+      "width": 1664.0262771293242,
+      "height": 1664.0262771293242,
+      "layers": 1,
+      "visiblePixels": 1174503
+    },
+    {
+      "chapterId": "prts:UR-8 栖脚地/END",
+      "blockId": "prts-6a5a4e37596a793e8ff6847e-2",
+      "resource": "cgitem_68_i13",
+      "width": 1536,
+      "height": 1536,
+      "layers": 1,
+      "visiblePixels": 1175179
+    },
+    {
+      "chapterId": "prts:UR-8 栖脚地/END",
+      "blockId": "prts-6a5a4e37596a793e8ff6847e-3",
+      "resource": "cgitem_68_i13",
+      "width": 1853.5294890866217,
+      "height": 1853.5294890866217,
+      "layers": 1,
+      "visiblePixels": 1274521
+    },
+    {
+      "chapterId": "prts:UR-8 栖脚地/END",
+      "blockId": "prts-6a5a4e37596a793e8ff6847e-4",
+      "resource": "cgitem_68_i13",
+      "width": 1600,
+      "height": 1600,
+      "layers": 1,
+      "visiblePixels": 1274593
+    },
+    {
+      "chapterId": "prts:ME-3 无解的谜题/END",
+      "blockId": "prts-453265b5f7181f067f180262-1",
+      "resource": "cgitem_69_i04_1",
+      "width": 335,
+      "height": 244,
+      "layers": 1,
+      "visiblePixels": 13096
+    },
+    {
+      "chapterId": "prts:ME-3 无解的谜题/END",
+      "blockId": "prts-e4153fca448c10cce33007f8-1",
+      "resource": "cgitem_69_i04_2",
+      "width": 656.5,
+      "height": 568,
+      "layers": 2,
+      "visiblePixels": 54079
+    },
+    {
+      "chapterId": "prts:ME-3 无解的谜题/END",
+      "blockId": "prts-2ec815ad8e04cfc8b4d3a86d-1",
+      "resource": "cgitem_69_i04_3",
+      "width": 656.5,
+      "height": 568,
+      "layers": 3,
+      "visiblePixels": 68265
+    },
+    {
+      "chapterId": "prts:ME-3 无解的谜题/END",
+      "blockId": "prts-9bda50c33ab0f96a5160a370-1",
+      "resource": "cgitem_69_i04_4",
+      "width": 1001.5,
+      "height": 645.5,
+      "layers": 4,
+      "visiblePixels": 97475
+    },
+    {
+      "chapterId": "prts:ME-8 神谕示显/END",
+      "blockId": "prts-8c9946273c9b409560123042-1",
+      "resource": "69_i12_1/69_i12_2",
+      "width": 1600,
+      "height": 1800,
+      "layers": 2,
+      "visiblePixels": 2880000
+    },
+    {
+      "chapterId": "prts:TA-7 相思断/END",
+      "blockId": "prts-7cfa9c39041457fba28a968a-1",
+      "resource": "cgitem_70_i03_2",
+      "width": 42,
+      "height": 47,
+      "layers": 1,
+      "visiblePixels": 656
+    },
+    {
+      "chapterId": "prts:TA-7 相思断/END",
+      "blockId": "prts-ddc7f5fbb3ba093c81f0e032-1",
+      "resource": "cgitem_70_i03_1",
+      "width": 439.5,
+      "height": 145,
+      "layers": 2,
+      "visiblePixels": 4433
+    },
+    {
+      "chapterId": "prts:TA-7 相思断/END",
+      "blockId": "prts-ae0fd1b24d73da11c334c00d-1",
+      "resource": "cgitem_70_i03_3",
+      "width": 580.5,
+      "height": 202.5,
+      "layers": 3,
+      "visiblePixels": 15240
+    },
+    {
+      "chapterId": "prts:TA-10 镇神头/END",
+      "blockId": "prts-4b01768a183dc47f89a94050-1",
+      "resource": "cgitem_70_i17_1",
+      "width": 1225.4,
+      "height": 927.3000000000002,
+      "layers": 1,
+      "visiblePixels": 306506
+    },
+    {
+      "chapterId": "prts:TA-10 镇神头/END",
+      "blockId": "prts-08482bb6d790e9f6b5294d51-1",
+      "resource": "cgitem_70_i17_2",
+      "width": 1535.7,
+      "height": 927.3000000000002,
+      "layers": 2,
+      "visiblePixels": 499042
+    },
+    {
+      "chapterId": "prts:TA-10 镇神头/END",
+      "blockId": "prts-ea4e47da6887623f0751251e-1",
+      "resource": "cgitem_70_i17_3",
+      "width": 1654.45,
+      "height": 990,
+      "layers": 3,
+      "visiblePixels": 752364
+    },
+    {
+      "chapterId": "prts:TD-1 硬壳下的胆小鬼/END",
+      "blockId": "prts-4efb11064596ae55b4319367-1",
+      "resource": "cgitem_71_i01",
+      "width": 486,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 192062
+    },
+    {
+      "chapterId": "prts:PA-ST-1 群氓/NBT",
+      "blockId": "prts-c79443fe7e3b0616866925c1-1",
+      "resource": "cgitem_72_i01_1",
+      "width": 815,
+      "height": 658,
+      "layers": 1,
+      "visiblePixels": 338042
+    },
+    {
+      "chapterId": "prts:PA-ST-1 群氓/NBT",
+      "blockId": "prts-549502949a95f6702960356e-1",
+      "resource": "cgitem_72_i01_2",
+      "width": 1262.5,
+      "height": 702,
+      "layers": 2,
+      "visiblePixels": 515384
+    },
+    {
+      "chapterId": "prts:PA-ST-1 群氓/NBT",
+      "blockId": "prts-515a40ec94dbe00929520a9f-1",
+      "resource": "cgitem_72_i01_3",
+      "width": 1327.5,
+      "height": 733,
+      "layers": 3,
+      "visiblePixels": 659492
+    },
+    {
+      "chapterId": "prts:PA-1 “卡托加区欢迎你”/END",
+      "blockId": "prts-0c53bca079b1dae31a9d4342-1",
+      "resource": "cgitem_72_i04_1",
+      "width": 1280,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 605497
+    },
+    {
+      "chapterId": "prts:PA-1 “卡托加区欢迎你”/END",
+      "blockId": "prts-8a30f42cf85348a778f7b99d-1",
+      "resource": "cgitem_72_i04_2",
+      "width": 1295,
+      "height": 740,
+      "layers": 2,
+      "visiblePixels": 721320
+    },
+    {
+      "chapterId": "prts:PA-1 “卡托加区欢迎你”/END",
+      "blockId": "prts-9b5a15add26dab42d0b76697-1",
+      "resource": "cgitem_72_i04_3",
+      "width": 1295,
+      "height": 740,
+      "layers": 3,
+      "visiblePixels": 757683
+    },
+    {
+      "chapterId": "prts:PA-1 “卡托加区欢迎你”/END",
+      "blockId": "prts-0c53bca079b1dae31a9d4342-2",
+      "resource": "cgitem_72_i04_1",
+      "width": 1536,
+      "height": 864,
+      "layers": 3,
+      "visiblePixels": 1011375
+    },
+    {
+      "chapterId": "prts:PA-1 “卡托加区欢迎你”/END",
+      "blockId": "prts-8a30f42cf85348a778f7b99d-2",
+      "resource": "cgitem_72_i04_2",
+      "width": 1692,
+      "height": 874,
+      "layers": 3,
+      "visiblePixels": 1148276
+    },
+    {
+      "chapterId": "prts:PA-1 “卡托加区欢迎你”/END",
+      "blockId": "prts-9b5a15add26dab42d0b76697-2",
+      "resource": "cgitem_72_i04_3",
+      "width": 1692,
+      "height": 874,
+      "layers": 3,
+      "visiblePixels": 1149887
+    },
+    {
+      "chapterId": "prts:PA-4 一墙之隔/END",
+      "blockId": "prts-24173f08a9a41abaa415d7c0-1",
+      "resource": "cgitem_72_i06_3",
+      "width": 1118,
+      "height": 820,
+      "layers": 1,
+      "visiblePixels": 410182
+    },
+    {
+      "chapterId": "prts:PA-4 一墙之隔/END",
+      "blockId": "prts-24173f08a9a41abaa415d7c0-2",
+      "resource": "cgitem_72_i06_3",
+      "width": 950.3000000000001,
+      "height": 697,
+      "layers": 1,
+      "visiblePixels": 298620
+    },
+    {
+      "chapterId": "prts:PA-4 一墙之隔/END",
+      "blockId": "prts-3d66a42d10c8415028d7f300-1",
+      "resource": "cgitem_72_i06_1",
+      "width": 1200.65,
+      "height": 697,
+      "layers": 2,
+      "visiblePixels": 435392
+    },
+    {
+      "chapterId": "prts:PA-4 一墙之隔/END",
+      "blockId": "prts-ea42e20e9836aac2ff945473-1",
+      "resource": "cgitem_72_i06_2",
+      "width": 1282.5,
+      "height": 697,
+      "layers": 3,
+      "visiblePixels": 522306
+    },
+    {
+      "chapterId": "prts:PA-6 各自流亡/END",
+      "blockId": "prts-881a9d1a0d4fda540c79e9f3-1",
+      "resource": "cgitem_72_i08_1",
+      "width": 417.5999999999999,
+      "height": 657.5999999999999,
+      "layers": 1,
+      "visiblePixels": 114455
+    },
+    {
+      "chapterId": "prts:PA-6 各自流亡/END",
+      "blockId": "prts-bf0d63a292714bdb817066e2-1",
+      "resource": "cgitem_72_i08_3",
+      "width": 417.5999999999999,
+      "height": 660,
+      "layers": 2,
+      "visiblePixels": 140004
+    },
+    {
+      "chapterId": "prts:PA-6 各自流亡/END",
+      "blockId": "prts-68e59cdd4d87cb92484db82a-1",
+      "resource": "cgitem_72_i08_2",
+      "width": 477.5999999999999,
+      "height": 709.1999999999998,
+      "layers": 3,
+      "visiblePixels": 197392
+    },
+    {
+      "chapterId": "prts:TO-ST-1 一封想写的信/NBT",
+      "blockId": "prts-4b6aabccff8da7906132e92b-1",
+      "resource": "cgitem_76_i16_3",
+      "width": 1280,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 893150
+    },
+    {
+      "chapterId": "prts:TO-ST-1 一封想写的信/NBT",
+      "blockId": "prts-4b6aabccff8da7906132e92b-2",
+      "resource": "cgitem_76_i16_3",
+      "width": 1382.4,
+      "height": 777.5999999999999,
+      "layers": 1,
+      "visiblePixels": 1042470
+    },
+    {
+      "chapterId": "prts:TO-ST-1 一封想写的信/NBT",
+      "blockId": "prts-4b6aabccff8da7906132e92b-3",
+      "resource": "cgitem_76_i16_3",
+      "width": 1280,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 893150
+    },
+    {
+      "chapterId": "prts:TO-ST-1 一封想写的信/NBT",
+      "blockId": "prts-4b6aabccff8da7906132e92b-4",
+      "resource": "cgitem_76_i16_3",
+      "width": 1382.4,
+      "height": 777.5999999999999,
+      "layers": 1,
+      "visiblePixels": 1042470
+    },
+    {
+      "chapterId": "prts:TO-ST-1 一封想写的信/NBT",
+      "blockId": "prts-4b6aabccff8da7906132e92b-5",
+      "resource": "cgitem_76_i16_3",
+      "width": 1280,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 893150
+    },
+    {
+      "chapterId": "prts:TO-ST-1 一封想写的信/NBT",
+      "blockId": "prts-4b6aabccff8da7906132e92b-6",
+      "resource": "cgitem_76_i16_3",
+      "width": 1305.6,
+      "height": 734.4000000000001,
+      "layers": 1,
+      "visiblePixels": 930040
+    },
+    {
+      "chapterId": "prts:TO-ST-1 一封想写的信/NBT",
+      "blockId": "prts-4b6aabccff8da7906132e92b-7",
+      "resource": "cgitem_76_i16_3",
+      "width": 1382.4,
+      "height": 777.5999999999999,
+      "layers": 1,
+      "visiblePixels": 1042470
+    },
+    {
+      "chapterId": "prts:TO-ST-1 一封想写的信/NBT",
+      "blockId": "prts-4b6aabccff8da7906132e92b-8",
+      "resource": "cgitem_76_i16_3",
+      "width": 1280,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 893150
+    },
+    {
+      "chapterId": "prts:TO-ST-1 一封想写的信/NBT",
+      "blockId": "prts-4b6aabccff8da7906132e92b-9",
+      "resource": "cgitem_76_i16_3",
+      "width": 1280,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 893150
+    },
+    {
+      "chapterId": "prts:TO-ST-1 一封想写的信/NBT",
+      "blockId": "prts-2aa6b01bfdae44bd5533477e-1",
+      "resource": "cgitem_76_i01_2",
+      "width": 1851,
+      "height": 900,
+      "layers": 1,
+      "visiblePixels": 428589
+    },
+    {
+      "chapterId": "prts:TO-4 谷里升起太阳/BEG",
+      "blockId": "prts-4b6aabccff8da7906132e92b-1",
+      "resource": "cgitem_76_i16_3",
+      "width": 1280,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 893150
+    },
+    {
+      "chapterId": "prts:TO-6 最难坦诚/BEG",
+      "blockId": "prts-4b6aabccff8da7906132e92b-1",
+      "resource": "cgitem_76_i16_3",
+      "width": 1280,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 893150
+    },
+    {
+      "chapterId": "prts:TO-7 谎言的重量/BEG",
+      "blockId": "prts-4b6aabccff8da7906132e92b-1",
+      "resource": "cgitem_76_i16_3",
+      "width": 1280,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 893150
+    },
+    {
+      "chapterId": "prts:TO-8 以决心做邮戳/BEG",
+      "blockId": "prts-4b6aabccff8da7906132e92b-1",
+      "resource": "cgitem_76_i16_3",
+      "width": 1280,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 893150
+    },
+    {
+      "chapterId": "prts:TL-ST-2 激越的灵魂/NBT",
+      "blockId": "prts-4b6aabccff8da7906132e92b-1",
+      "resource": "cgitem_76_i16_3",
+      "width": 1280,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 893150
+    },
+    {
+      "chapterId": "prts:TL-ST-2 激越的灵魂/NBT",
+      "blockId": "prts-4b6aabccff8da7906132e92b-2",
+      "resource": "cgitem_76_i16_3",
+      "width": 1280,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 893150
+    },
+    {
+      "chapterId": "prts:TO-5 勇敢的短耳朵/BEG",
+      "blockId": "prts-2acff6009df68f458109ddec-1",
+      "resource": "cgitem_76_i16_5",
+      "width": 364,
+      "height": 364,
+      "layers": 1,
+      "visiblePixels": 100586
+    },
+    {
+      "chapterId": "prts:TO-5 勇敢的短耳朵/BEG",
+      "blockId": "prts-cecc6cd4b5b0ce475f18647d-1",
+      "resource": "cgitem_76_i16_7",
+      "width": 364,
+      "height": 364,
+      "layers": 1,
+      "visiblePixels": 100699
+    },
+    {
+      "chapterId": "prts:TO-5 勇敢的短耳朵/BEG",
+      "blockId": "prts-2acff6009df68f458109ddec-2",
+      "resource": "cgitem_76_i16_5",
+      "width": 364,
+      "height": 364,
+      "layers": 1,
+      "visiblePixels": 100586
+    },
+    {
+      "chapterId": "prts:TO-5 勇敢的短耳朵/BEG",
+      "blockId": "prts-cecc6cd4b5b0ce475f18647d-2",
+      "resource": "cgitem_76_i16_7",
+      "width": 364,
+      "height": 364,
+      "layers": 1,
+      "visiblePixels": 100699
+    },
+    {
+      "chapterId": "prts:TO-5 勇敢的短耳朵/BEG",
+      "blockId": "prts-2acff6009df68f458109ddec-3",
+      "resource": "cgitem_76_i16_5",
+      "width": 364,
+      "height": 364,
+      "layers": 1,
+      "visiblePixels": 100586
+    },
+    {
+      "chapterId": "prts:TO-5 勇敢的短耳朵/BEG",
+      "blockId": "prts-2acff6009df68f458109ddec-4",
+      "resource": "cgitem_76_i16_5",
+      "width": 109.20000000000005,
+      "height": 109.20000000000005,
+      "layers": 1,
+      "visiblePixels": 9390
+    },
+    {
+      "chapterId": "prts:TO-ST-2 糖纸星星/NBT",
+      "blockId": "prts-0eca924851990feccbdc53b0-1",
+      "resource": "cgitem_76_i07_1",
+      "width": 140,
+      "height": 101,
+      "layers": 1,
+      "visiblePixels": 4205
+    },
+    {
+      "chapterId": "prts:TO-ST-2 糖纸星星/NBT",
+      "blockId": "prts-0eca924851990feccbdc53b0-2",
+      "resource": "cgitem_76_i07_1",
+      "width": 126,
+      "height": 90.89999999999998,
+      "layers": 1,
+      "visiblePixels": 3637
+    },
+    {
+      "chapterId": "prts:TO-ST-2 糖纸星星/NBT",
+      "blockId": "prts-0eca924851990feccbdc53b0-3",
+      "resource": "cgitem_76_i07_1",
+      "width": 119,
+      "height": 85.85000000000002,
+      "layers": 1,
+      "visiblePixels": 3259
+    },
+    {
+      "chapterId": "prts:TO-9 绘我们的黎明/END",
+      "blockId": "prts-717716f6bf96c1a908b93b23-1",
+      "resource": "cgitem_76_i16_1",
+      "width": 1028,
+      "height": 584,
+      "layers": 1,
+      "visiblePixels": 92411
+    },
+    {
+      "chapterId": "prts:TO-9 绘我们的黎明/END",
+      "blockId": "prts-cef73518d1a4fcc4c5e2d3f9-1",
+      "resource": "cgitem_76_i16_8",
+      "width": 1280,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 921600
+    },
+    {
+      "chapterId": "prts:TO-9 绘我们的黎明/END",
+      "blockId": "prts-ba6527871a272a408b0c8788-1",
+      "resource": "item_act76_1",
+      "width": 1280,
+      "height": 720,
+      "layers": 2,
+      "visiblePixels": 921600
+    },
+    {
+      "chapterId": "prts:TO-9 绘我们的黎明/END",
+      "blockId": "prts-cef73518d1a4fcc4c5e2d3f9-2",
+      "resource": "cgitem_76_i16_8",
+      "width": 1280,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 921600
+    },
+    {
+      "chapterId": "prts:TO-9 绘我们的黎明/END",
+      "blockId": "prts-c0f1ffcf8da8b1c8dc407738-1",
+      "resource": "item_act76_2",
+      "width": 1280,
+      "height": 720,
+      "layers": 2,
+      "visiblePixels": 921600
+    },
+    {
+      "chapterId": "prts:TO-ST-3 祝好 终途的我/NBT",
+      "blockId": "prts-d4d131324c3e89fab3fb3e86-1",
+      "resource": "cgitem_76_i15_1",
+      "width": 1218.8000000000002,
+      "height": 792,
+      "layers": 1,
+      "visiblePixels": 447128
+    },
+    {
+      "chapterId": "prts:TO-ST-3 祝好 终途的我/NBT",
+      "blockId": "prts-0c5e6ceb0dcb04eae444aaba-1",
+      "resource": "cgitem_76_i15_4",
+      "width": 1218.8000000000002,
+      "height": 792,
+      "layers": 2,
+      "visiblePixels": 558173
+    },
+    {
+      "chapterId": "prts:TO-ST-3 祝好 终途的我/NBT",
+      "blockId": "prts-5a1f518fbd822da58b5e683d-1",
+      "resource": "cgitem_76_i16_6",
+      "width": 1505.116516877717,
+      "height": 932.4219750109417,
+      "layers": 1,
+      "visiblePixels": 224311
+    },
+    {
+      "chapterId": "prts:SR-8 月满/BEG",
+      "blockId": "prts-96f91e729236c4c678798bcd-1",
+      "resource": "cgitem_77_i12_1",
+      "width": 2880,
+      "height": 1620,
+      "layers": 1,
+      "visiblePixels": 1083932
+    },
+    {
+      "chapterId": "prts:SR-8 月满/BEG",
+      "blockId": "prts-34d666b1212845d1b5222275-1",
+      "resource": "cgitem_77_i12_2",
+      "width": 2880,
+      "height": 1620,
+      "layers": 2,
+      "visiblePixels": 2995343
+    },
+    {
+      "chapterId": "prts:SR-8 月满/BEG",
+      "blockId": "prts-36f5ec88e2be89c56dfeeec6-1",
+      "resource": "cgitem_77_i12_3",
+      "width": 2900,
+      "height": 1620,
+      "layers": 3,
+      "visiblePixels": 3217270
+    },
+    {
+      "chapterId": "prts:SR-8 月满/BEG",
+      "blockId": "prts-96f91e729236c4c678798bcd-2",
+      "resource": "cgitem_77_i12_1",
+      "width": 2240,
+      "height": 1260,
+      "layers": 1,
+      "visiblePixels": 655631
+    },
+    {
+      "chapterId": "prts:SR-8 月满/BEG",
+      "blockId": "prts-34d666b1212845d1b5222275-2",
+      "resource": "cgitem_77_i12_2",
+      "width": 2300,
+      "height": 1260,
+      "layers": 2,
+      "visiblePixels": 1861090
+    },
+    {
+      "chapterId": "prts:SR-8 月满/BEG",
+      "blockId": "prts-36f5ec88e2be89c56dfeeec6-2",
+      "resource": "cgitem_77_i12_3",
+      "width": 2330,
+      "height": 1260,
+      "layers": 3,
+      "visiblePixels": 2004850
+    },
+    {
+      "chapterId": "prts:YW-1 互助会/BEG",
+      "blockId": "prts-9f358714a03d9de3e83859ba-1",
+      "resource": "cgitem_74_i03_3",
+      "width": 261.79999999999995,
+      "height": 792,
+      "layers": 1,
+      "visiblePixels": 16367
+    },
+    {
+      "chapterId": "prts:YW-1 互助会/BEG",
+      "blockId": "prts-6bb27c94dbf782d109c4fefe-1",
+      "resource": "cgitem_74_i03_2",
+      "width": 476.9,
+      "height": 836,
+      "layers": 2,
+      "visiblePixels": 21720
+    },
+    {
+      "chapterId": "prts:YW-1 互助会/BEG",
+      "blockId": "prts-bb6d6f77d4603b9d520102b0-1",
+      "resource": "cgitem_74_i03_1",
+      "width": 476.9,
+      "height": 836,
+      "layers": 3,
+      "visiblePixels": 43885
+    },
+    {
+      "chapterId": "prts:YW-1 互助会/BEG",
+      "blockId": "prts-6bb27c94dbf782d109c4fefe-2",
+      "resource": "cgitem_74_i03_2",
+      "width": 459.29999999999995,
+      "height": 802,
+      "layers": 3,
+      "visiblePixels": 43182
+    },
+    {
+      "chapterId": "prts:YW-1 互助会/BEG",
+      "blockId": "prts-9f358714a03d9de3e83859ba-2",
+      "resource": "cgitem_74_i03_3",
+      "width": 442.4,
+      "height": 792,
+      "layers": 3,
+      "visiblePixels": 40376
+    },
+    {
+      "chapterId": "prts:YW-1 互助会/BEG",
+      "blockId": "prts-bb6d6f77d4603b9d520102b0-2",
+      "resource": "cgitem_74_i03_1",
+      "width": 442.4,
+      "height": 769,
+      "layers": 3,
+      "visiblePixels": 35824
+    },
+    {
+      "chapterId": "prts:YW-8 鳞的记忆/END",
+      "blockId": "prts-d2993fe41dc27d54d3de1267-1",
+      "resource": "cgitem_74_i12_2",
+      "width": 811,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 139247
+    },
+    {
+      "chapterId": "prts:YW-8 鳞的记忆/END",
+      "blockId": "prts-31de70c31b87bc8302db96ff-1",
+      "resource": "cgitem_74_i12_1",
+      "width": 1192.5,
+      "height": 720,
+      "layers": 2,
+      "visiblePixels": 307004
+    },
+    {
+      "chapterId": "prts:YW-8 鳞的记忆/END",
+      "blockId": "prts-76684dada085dcfa94ab15c4-1",
+      "resource": "cgitem_74_i12_3",
+      "width": 403.20000000000005,
+      "height": 432,
+      "layers": 1,
+      "visiblePixels": 47129
+    },
+    {
+      "chapterId": "prts:YW-8 鳞的记忆/END",
+      "blockId": "prts-76684dada085dcfa94ab15c4-2",
+      "resource": "cgitem_74_i12_3",
+      "width": 672,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 127261
+    },
+    {
+      "chapterId": "prts:TL-ST-3 孱弱的团结/NBT",
+      "blockId": "prts-d044ded9b6803f580bee2df3-1",
+      "resource": "cgitem_79_i221",
+      "width": 591,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 311890
+    },
+    {
+      "chapterId": "prts:TL-9 自由的黄昏/END",
+      "blockId": "prts-0616e1d75b65d0697c2a1aa4-1",
+      "resource": "cgitem_79_i25",
+      "width": 1279,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 549198
+    },
+    {
+      "chapterId": "prts:TL-9 自由的黄昏/END",
+      "blockId": "prts-0616e1d75b65d0697c2a1aa4-2",
+      "resource": "cgitem_79_i25",
+      "width": 1279,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 549198
+    },
+    {
+      "chapterId": "prts:TL-10 活着的重量/BEG",
+      "blockId": "prts-b55a7ae4c50c98e753f02bc7-1",
+      "resource": "cgitem_79_i121",
+      "width": 1280,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 389097
+    },
+    {
+      "chapterId": "prts:TL-10 活着的重量/BEG",
+      "blockId": "prts-b55a7ae4c50c98e753f02bc7-2",
+      "resource": "cgitem_79_i121",
+      "width": 1280,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 389097
+    },
+    {
+      "chapterId": "prts:TL-10 活着的重量/BEG",
+      "blockId": "prts-4bc027d6ea42ee39b470f43e-1",
+      "resource": "cgitem_79_i123",
+      "width": 887,
+      "height": 720,
+      "layers": 1,
+      "visiblePixels": 376085
+    },
+    {
+      "chapterId": "prts:TL-10 活着的重量/BEG",
+      "blockId": "prts-2e080c9fcc16104973b0ac2e-1",
+      "resource": "cgitem_79_i124",
+      "width": 1316,
+      "height": 720,
+      "layers": 2,
+      "visiblePixels": 570088
+    },
+    {
+      "chapterId": "prts:TL-10 活着的重量/BEG",
+      "blockId": "prts-4bc027d6ea42ee39b470f43e-2",
+      "resource": "cgitem_79_i123",
+      "width": 1336,
+      "height": 720,
+      "layers": 2,
+      "visiblePixels": 570294
+    },
+    {
+      "chapterId": "prts:TL-10 活着的重量/BEG",
+      "blockId": "prts-2e080c9fcc16104973b0ac2e-2",
+      "resource": "cgitem_79_i124",
+      "width": 1356,
+      "height": 720,
+      "layers": 2,
+      "visiblePixels": 570719
+    }
+  ],
+  "decoded": [
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_002_amiya_1/char_002_amiya_1.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 259917,
+      "sha256": "ccfd58007c8d5a2f97228b707728f64673152fe17ca761f90f10af582f6c22af"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_1508_Faust_1/char_1508_Faust_1.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 300221,
+      "sha256": "210203df8a7af2b64e56b2a40fc5f1325b8478f522d2cc47c96cf8db03d20ffb"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_1507_Mephisto_1/char_1507_Mephisto_6.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 201699,
+      "sha256": "1336e28f1b7be7162c10a51367dfa977145094286ae52d0e57757853d74f3fb6"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_1507_Mephisto_1/char_1507_Mephisto_1.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 263422,
+      "sha256": "57ff434c592b3cc4544d06c21cbac483933b2a4307651af367bf0e9f4bea21ce"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_1507_Mephisto_1/char_1507_Mephisto_5.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 262548,
+      "sha256": "0ff3e55496448bf2f1b38385930d70f6f4b53ac32c201e71776c3172e4e1b29f"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_1507_Mephisto_1/char_1507_Mephisto_2.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 262428,
+      "sha256": "a772ea14bfc54b3e85433fecff15e2b2deadecf7ad35d7de9f3efcd73362ed8a"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_1507_Mephisto_1/char_1507_Mephisto_4.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 262866,
+      "sha256": "4029a2a0e930d2080ef5d7e3ff449fc10b86295b3ea91e2b3931e8eceaa66149"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_1508_Faust_1/char_1508_Faust_2.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 229129,
+      "sha256": "005429979379403b3e66f35c2c95812cacddfb72a703bd655e65e690d93a5b8e"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_002_amiya_1/char_002_amiya_7.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 259246,
+      "sha256": "46fbb3cc0b4fc27b4a6f6d282a2ee6924c31a2ee762cbe77511afe62cdeea7c9"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_1507_Mephisto_1/char_1507_Mephisto_3.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 263890,
+      "sha256": "73f775d16ee50abebc36577ffd36c98b5243403871716d18d455560b460b83ed"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_002_amiya_1/char_002_amiya_3.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 259984,
+      "sha256": "b1e6a13ce9fa3d06422e6b1bf38e10e1bae375f046b2e2edba8d63af9980c1dd"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_259_Jessica_1/char_259_Jessica_1.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 209092,
+      "sha256": "1400518f268aab276c1ac8829c31b7e8d219802c79b1fc871f036bad1a9ec3e3"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_259_Jessica_1/char_259_Jessica_5.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 209203,
+      "sha256": "828add5d12303d1769e14c4fd1e34655a6676d86b645dfa3c6ae5573bcb7c905"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_259_Jessica_1/char_259_Jessica_4.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 208598,
+      "sha256": "ab2d49da77ca194ac3ba09d550563606c1359ec560927f887d816341d54bf515"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_259_Jessica_1/char_259_Jessica_6.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 209212,
+      "sha256": "c436478df8485bc00037adf56b1a98729ef1522621bb3c5df3fb0e5ae7131269"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4179_monstr_1/avg_4179_monstr_1%241.png",
+      "width": 1816,
+      "height": 1816,
+      "transparent": true,
+      "visible": true,
+      "bytes": 2198139,
+      "sha256": "5fc30dac559d800da6de54bbc09c681ad54c86c492363603279eef9a8157ec5a"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4179_monstr_1/4%241.png",
+      "width": 512,
+      "height": 512,
+      "transparent": true,
+      "visible": true,
+      "bytes": 447785,
+      "sha256": "217b828634cfbd7c9160cc56a57a50b5bb2048f05739949ffcb91165dc23214e"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4179_monstr_1/6%241.png",
+      "width": 512,
+      "height": 512,
+      "transparent": true,
+      "visible": true,
+      "bytes": 447605,
+      "sha256": "0dd86b23c8be9a21d27581b1001deec0c2843e32f7f3cd3e05c80c1a6ea1b520"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4179_monstr_1/7%241.png",
+      "width": 512,
+      "height": 512,
+      "transparent": true,
+      "visible": true,
+      "bytes": 449521,
+      "sha256": "b3f78bfd13a25e0fcf477d977e01e40f8bf7455b43599f1765621fbc477de831"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4145_Ulpia_1/avg_4145_Ulpia_1%241.png",
+      "width": 1428,
+      "height": 1428,
+      "transparent": true,
+      "visible": true,
+      "bytes": 1251301,
+      "sha256": "5d015ec45642465ce68976094b7162b5167127001610c4b47063d8c97e19d057"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4145_Ulpia_1/2%241.png",
+      "width": 64,
+      "height": 64,
+      "transparent": false,
+      "visible": true,
+      "bytes": 9038,
+      "sha256": "96f18dec87dbe6e1f275ca439d521d4bf7dd5918702b921f047003cc0ba5af21"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/npc_2004_Alty/npc_2004_Alty_1.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 260851,
+      "sha256": "4a9c24fcf144d95a970abef2e099a844ea902a7f3f7e29944b74fa5ddfe23e9d"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/npc_2001_Aya_1/npc_2001_Aya_1.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 198236,
+      "sha256": "be97ee9b2a1edd583cd3e99898e1d31004cb41ed9a3bd740baa00ae941bef300"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/npc_2003_Frost_1/npc_2003_Frost_1.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 183505,
+      "sha256": "30cee90042afff5b290cec858a068759bf7e9c4b53e993a74bc8a1c74da9b842"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/npc_2002_Dan_1/npc_2002_Dan_1.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 221487,
+      "sha256": "a0741bf1003a80449fa6498db5faa315356024c70d899c2e64dc2b6aaba5aad6"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/npc_2002_Dan_rock/npc_2002_Dan_rock.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 275757,
+      "sha256": "62037401cb464cef1ef8f158c4e9bd2301d8ee2f7966a8db60c4dfc0e8a05931"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/npc_2003_Frost_rock/npc_2003_Frost_rock.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 354595,
+      "sha256": "c0457710e5f6810e450df9cdcf2c96765d73ff58160aefb2c6bd924638fad5fe"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/npc_2001_Aya_rock/npc_2001_Aya_rock.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 318405,
+      "sha256": "b9988edf4fca585bc1b3e40282db4895c64374b0cb6df30ab320dbfc688bebae"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/npc_2004_Alty_rock/npc_2004_Alty_rock.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 417326,
+      "sha256": "531d18be6baad2051ac0a3334c9063f6f93050c6c83a84fb9b0f3e69a31c5bb3"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_214_Kafka_1/char_214_kafka_1%232.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 425478,
+      "sha256": "3341a88743a863f246e81d93976cc0e958e52228c8f0403246f9278072fa0067"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_214_Kafka_1/char_214_kafka_1%233.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 425150,
+      "sha256": "9f8b3fedc1a19da8f51b4ad607cd17498250a9aec4cf226db1b5854516613a4f"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_214_Kafka_1/char_214_kafka_1%234.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 425402,
+      "sha256": "219af09dc0e3edb6a7f189f93834f8a9188828c6f0d8d6bbafefa368063fa294"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_214_Kafka_1/char_214_kafka_1%235.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 425537,
+      "sha256": "234a7a476bc8ef6dad2c3100fe1e87b68b3e0023b04ea4dedbb3a4abcdb4752e"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_264_Mountain_1/char_264_Mountain_1%235.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 358992,
+      "sha256": "4a6cbcab554e3809e30fca3d4a29d89f59a7ce97ed274d7aceecb92e3286b5ca"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_264_Mountain_1/char_264_Mountain_1%237.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 440896,
+      "sha256": "e05808f8c0a78ec361498a1ce97be03a0273e77ed12ab0ebc74806daffc5cc52"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_440_Pinecone/char_440_Pinecone.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 405503,
+      "sha256": "065fae31a2e96072873e7079efc22466fbc0ead6b44c58ebccf6431bad5b549c"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_264_Mountain_1/char_264_Mountain_1%234.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 359280,
+      "sha256": "6fee2c9d97c4e8080868efdddd95c13f58eb59ce32a645eb194c2fd3cbb8841a"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_264_Mountain_1/char_264_Mountain_1%231.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 358956,
+      "sha256": "73ba89d8c147687e379a699a77c0a6d49a936f553428ee2f76143d704d1cae86"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_264_Mountain_1/char_264_Mountain_1%236.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 358993,
+      "sha256": "ac55f9afbdf9c4e01a736509572c6a4c40119cf88b666f82b5e6e4aa74116bb9"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_264_Mountain_1/char_264_Mountain_1%232.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 358932,
+      "sha256": "7cd5b8166ba2ab973012863bab983f4bdb451b91002ce43b72561d16dc5534ec"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_264_Mountain_1/char_264_Mountain_1%233.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 358731,
+      "sha256": "a0a26c19972cf3cedf85b2e0c3a572ac6e1a351379f104de01f460d8ffa94b16"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_264_Mountain_1/char_264_Mountain_1%2311.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 440783,
+      "sha256": "86510961b1d21f3729fcf1242a0fd6cb2cfb5252eb149605061da3633745efdb"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_362_Saga/char_362_Saga%231.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 206512,
+      "sha256": "cfa7f8d50945694dad26a0311c5a5abd313f9e1023577c9d62b5ae350ce90715"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_362_Saga/char_362_Saga%233.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 209178,
+      "sha256": "7dedcfc0f6da6893ee664f53bce4d108376ecb4e220587ac9b1638333719be62"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_362_Saga/char_362_Saga%232.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 206475,
+      "sha256": "e81bc8e859953c7642cf18bd2acc0e863bb6bd89e7037f98e698139728a7f0d3"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_362_Saga/char_362_Saga%236.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 267289,
+      "sha256": "e4d9cc7db8a7c016f44f020e38f98b401fb77f89534f3935e4b8ad28ae17dc4c"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_362_Saga/char_362_Saga%235.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 265830,
+      "sha256": "9e299ab3dd4f38af086052eee01d3926cf22af0d554fefe8b4808f7fc3648bca"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_362_Saga/char_362_Saga%234.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 205994,
+      "sha256": "f4778af0724e0281219a850ed12e9cee0211d1ed73582360b1d65e25a16e22cf"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_274_Astesia_1/avg_274_Astesia_1.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 374404,
+      "sha256": "91ac67fed55404acd22713cacf130c909ef817cef31536f3d357985c5239d292"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_274_Astesia_1/1.png",
+      "width": 64,
+      "height": 64,
+      "transparent": false,
+      "visible": true,
+      "bytes": 5424,
+      "sha256": "1ed216327ad97ce36b9b632d85c1e73db2238a8565791d0a9ef979a0ffa0666a"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_274_Astesia_1/7.png",
+      "width": 64,
+      "height": 64,
+      "transparent": false,
+      "visible": true,
+      "bytes": 5264,
+      "sha256": "6c8f24cfc2d4301da68041adf2a90eed5df6cd4f80530fc4404dfb520a63704a"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_274_Astesia_1/4.png",
+      "width": 64,
+      "height": 64,
+      "transparent": false,
+      "visible": true,
+      "bytes": 5391,
+      "sha256": "cedce99bd1360c87821abe9e370d464e9606d166a5923aa73f099e9e58a386c0"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_502_Yato_1/avg_502_Yato_1%241.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 219462,
+      "sha256": "995d78bbfbae8b20911a8d768378e1ae80426ff55c0436516f04452a85cdfe22"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_502_Yato_1/5%241.png",
+      "width": 128,
+      "height": 128,
+      "transparent": true,
+      "visible": true,
+      "bytes": 21928,
+      "sha256": "7bf8e7f5bb3f2daf429e35343ebd1d473b2d369b869641674a6fd91f1086ccd9"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_502_Yato_1/1%241.png",
+      "width": 128,
+      "height": 128,
+      "transparent": true,
+      "visible": true,
+      "bytes": 22009,
+      "sha256": "f3bef72fac37e88c3ac81a6ce585c50a97187f76130b727fc93cef77662f5d44"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_502_Yato_1/4%241.png",
+      "width": 128,
+      "height": 128,
+      "transparent": true,
+      "visible": true,
+      "bytes": 21961,
+      "sha256": "491e5251b2339006dc87ea7e3620d3790778728563d6cb38e0c49cc1092399f4"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_502_Yato_1/2%241.png",
+      "width": 128,
+      "height": 128,
+      "transparent": true,
+      "visible": true,
+      "bytes": 21920,
+      "sha256": "c8e8ff0842e76c8a3c9c857761477807775b087986662f12b6e2d7571d18e970"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_502_Yato_1/7%241.png",
+      "width": 128,
+      "height": 128,
+      "transparent": true,
+      "visible": true,
+      "bytes": 22039,
+      "sha256": "ef799c6ffaa908390c279183d41fc8082ae5e429458f2c745c017646d6f22833"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_502_Yato_1/6%241.png",
+      "width": 128,
+      "height": 128,
+      "transparent": true,
+      "visible": true,
+      "bytes": 22129,
+      "sha256": "bbc8732f1154abf36d0128e63a266b4c80d4e0989892ed3a52c3458c2d679dc3"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_502_Yato_1/avg_502_Yato_1%242.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 203492,
+      "sha256": "6799d5448e4808d06d98d4efcded14c4e3ce89ff7281cba4886e354ef351fa97"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_502_Yato_1/5%242.png",
+      "width": 32,
+      "height": 32,
+      "transparent": false,
+      "visible": true,
+      "bytes": 868,
+      "sha256": "fb8cc8300e0c7f9545fd6da11a1d8f3b7794894cf8656466fbde3aa3dbbf9b11"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_502_Yato_1/2%242.png",
+      "width": 32,
+      "height": 32,
+      "transparent": false,
+      "visible": true,
+      "bytes": 835,
+      "sha256": "3d6ec07842e9c4e2e77d5f5966aad33069acd5c0488b2a6f627ab624b944095a"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_502_Yato_1/4%242.png",
+      "width": 32,
+      "height": 32,
+      "transparent": false,
+      "visible": true,
+      "bytes": 902,
+      "sha256": "9a64ab925169c1d8216b2d4b2e43192316ff764845951c420be3ba75c10cfb28"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_502_Yato_1/1%242.png",
+      "width": 32,
+      "height": 32,
+      "transparent": false,
+      "visible": true,
+      "bytes": 1000,
+      "sha256": "f9f27f5b89872d7866def411142bc0d00b7a2cf90bd4b026e8f2875fd5a7d597"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_1029_Yato2_1/avg_1029_Yato2_1%241.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 490446,
+      "sha256": "1061f91fadedb58e18dfb81b4a12eedf56a53543b37742a52babc2038238d1db"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_1029_Yato2_1/4%241.png",
+      "width": 128,
+      "height": 128,
+      "transparent": false,
+      "visible": true,
+      "bytes": 20530,
+      "sha256": "9c6a57626e57a4cf6f5f09e4929724d8c2812d7017e70152ff2a72e6870ee4ba"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_1029_Yato2_1/3%241.png",
+      "width": 128,
+      "height": 128,
+      "transparent": false,
+      "visible": true,
+      "bytes": 19914,
+      "sha256": "ad8265f713868163d287af7d1d608890bc92ef1e538d2f3e161f945ba9238282"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_1029_Yato2_1/12%241.png",
+      "width": 128,
+      "height": 128,
+      "transparent": false,
+      "visible": true,
+      "bytes": 20585,
+      "sha256": "8e659174dab8452a566dfcaa0715e17f8507b30c5b80f61fd809e916368c20e9"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_1029_Yato2_1/6%241.png",
+      "width": 128,
+      "height": 128,
+      "transparent": false,
+      "visible": true,
+      "bytes": 20888,
+      "sha256": "10c10175d1586b716acb5c894a46feb35e169683a1688ae30132dbd512b43768"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_1029_Yato2_1/11%241.png",
+      "width": 128,
+      "height": 128,
+      "transparent": false,
+      "visible": true,
+      "bytes": 20508,
+      "sha256": "d3874e14f8c4c6694b9970f7eee72f4a25331d41f410159fb1a1850a4a80f89e"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_1029_Yato2_1/8%241.png",
+      "width": 128,
+      "height": 128,
+      "transparent": false,
+      "visible": true,
+      "bytes": 20715,
+      "sha256": "62eaea8a78cf1a142f16e76ab43bc6303cc32fd97544083f6013ca56b479fdcb"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_1029_Yato2_1/9%241.png",
+      "width": 128,
+      "height": 128,
+      "transparent": false,
+      "visible": true,
+      "bytes": 20877,
+      "sha256": "f07892da1efb81bfc0043d3dd4791bc7e3b1d3d509c15353f08d3b4ce75ab0c3"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_1029_Yato2_1/10%241.png",
+      "width": 128,
+      "height": 128,
+      "transparent": false,
+      "visible": true,
+      "bytes": 20455,
+      "sha256": "f7d7b59b4dd094cd05f82d7fe8e852783c55449445282e37ddf85ae101b147f7"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_1029_Yato2_1/2%241.png",
+      "width": 128,
+      "height": 128,
+      "transparent": false,
+      "visible": true,
+      "bytes": 20842,
+      "sha256": "6d3f5aca17da32367cb870e94d4eba886768fa96798b07ceead03f78d92fd455"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_1029_Yato2_1/1%241.png",
+      "width": 128,
+      "height": 128,
+      "transparent": false,
+      "visible": true,
+      "bytes": 20691,
+      "sha256": "57841492e4af4af11eb3da5dc51f247c41cb7ac29aacfa59f3f74db01d6a7aeb"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_1029_Yato2_1/5%241.png",
+      "width": 128,
+      "height": 128,
+      "transparent": false,
+      "visible": true,
+      "bytes": 20964,
+      "sha256": "a8f360a480321cd7a07a05146db1afe4fecdeb02ebcca4dc072b744a19cda150"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_npc_366_1/avg_npc_366_1%241.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 161152,
+      "sha256": "ffcdbf223a76d9b907d4f31fa29744d4a33df2427f71b1759b2b08b8265bac06"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_npc_371_1/avg_npc_371_1%241.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 215148,
+      "sha256": "d36677c998cb98dd43ba2d36caceb2f9c7045ca8d00bb8ed8dae449be5c79423"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4145_Ulpia_1/1%241.png",
+      "width": 64,
+      "height": 64,
+      "transparent": false,
+      "visible": true,
+      "bytes": 9392,
+      "sha256": "80c7559edaace170109bda3a2e63144c0f62a22a0b7ad83e986c480b69611e61"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4145_Ulpia_1/3%241.png",
+      "width": 64,
+      "height": 64,
+      "transparent": false,
+      "visible": true,
+      "bytes": 9367,
+      "sha256": "a43d8a86a6b149fdb6b49802ecdbece3dd30dc69ea8eaae1a16991105977c262"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4145_Ulpia_1/8%241.png",
+      "width": 64,
+      "height": 64,
+      "transparent": false,
+      "visible": true,
+      "bytes": 9278,
+      "sha256": "495304ca6e1702ebab02b5fe7a71ca772452fb419b82c5868747ad4ed66f01a7"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4145_Ulpia_1/4%241.png",
+      "width": 64,
+      "height": 64,
+      "transparent": false,
+      "visible": true,
+      "bytes": 9229,
+      "sha256": "6ad7b19d0ddd47133c1d391a2d30e6c95da4a5d2a380f1f9471688f59a482d82"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4145_Ulpia_1/5%241.png",
+      "width": 64,
+      "height": 64,
+      "transparent": false,
+      "visible": true,
+      "bytes": 9329,
+      "sha256": "8443ac13d4af459beb99fc2424b7e12d90adfc355c126ae98a5b6f52c06d7ef3"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4145_Ulpia_1/6%241.png",
+      "width": 64,
+      "height": 64,
+      "transparent": false,
+      "visible": true,
+      "bytes": 9358,
+      "sha256": "ccf04ec36b276bbeebdd08efab0c7a0913eb46aafb93a18439f136e86a22debd"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4145_Ulpia_1/7%241.png",
+      "width": 64,
+      "height": 64,
+      "transparent": false,
+      "visible": true,
+      "bytes": 9309,
+      "sha256": "c6cb5a4f1927a207655e1d7fc71dcdd6c0f2a0983d549b75064d56882f7b2cd8"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_npc_1779_1/avg_npc_1779_1%242.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 940408,
+      "sha256": "d21940e338a05242d67ede1757097eb5d9fd4e782ab80c149035b9860a34242f"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_npc_1779_1/4%242.png",
+      "width": 128,
+      "height": 128,
+      "transparent": true,
+      "visible": true,
+      "bytes": 33574,
+      "sha256": "7cf5a4f198d555250c023ae3ebc9ffa0f50e5eb9c29568558bbee566a06272ab"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_npc_1779_1/9%242.png",
+      "width": 128,
+      "height": 128,
+      "transparent": true,
+      "visible": true,
+      "bytes": 33507,
+      "sha256": "738d8a8b49bc3138d28a3cb11bf4aec638979e5d7e2ea90442f4c02223b25e55"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_npc_1800_1/avg_npc_1800_1%242.png",
+      "width": 1624,
+      "height": 1624,
+      "transparent": true,
+      "visible": true,
+      "bytes": 2018534,
+      "sha256": "183fbb7de21da19e34fe13f8715b899ce6a09066321baa749cf41dc13a592a12"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_npc_1800_1/2%242.png",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "visible": true,
+      "bytes": 106073,
+      "sha256": "6cade74742ca640912b83846b6a1422982661e8f905c2b00df0128a3cdd26fd3"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_npc_357_1/avg_npc_357_1%241.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 208613,
+      "sha256": "8162100a3df162c2e4d23277de80718e99e45a5549eff1ddba5ce153ac424628"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_npc_357_1/5%241.png",
+      "width": 128,
+      "height": 128,
+      "transparent": true,
+      "visible": true,
+      "bytes": 12801,
+      "sha256": "e464a9d61f029592b72c7b3f3db6971b175c610750f9d32a3f07ef9a496cc58d"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_npc_1800_1/6%242.png",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "visible": true,
+      "bytes": 106171,
+      "sha256": "84bd18c14d68194707b6b666fd15f5fc0129936a1d49479737f0f7f7566407de"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_npc_357_1/10%241.png",
+      "width": 128,
+      "height": 128,
+      "transparent": true,
+      "visible": true,
+      "bytes": 12801,
+      "sha256": "e1189c598ce1bd133fa8239fcd0ea22083c9f8ac1453c8c3ea1ee06c070a3bbf"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_npc_1800_1/10%242.png",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "visible": true,
+      "bytes": 106013,
+      "sha256": "79e361e5d58fc1dbadd8ed048e0cff38b834c087fce4f506522828d333f4b192"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_npc_357_1/1%241.png",
+      "width": 128,
+      "height": 128,
+      "transparent": true,
+      "visible": true,
+      "bytes": 12735,
+      "sha256": "252ac853b483f90a6445805dd8cc2b8f37acc7818370286d84a00414d63a722c"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_npc_357_1/6%241.png",
+      "width": 128,
+      "height": 128,
+      "transparent": true,
+      "visible": true,
+      "bytes": 12820,
+      "sha256": "02594d92c10aa67ca9db9dfe8615308d178203f95257e63252535d58218f79a8"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_npc_1800_1/3%242.png",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "visible": true,
+      "bytes": 105996,
+      "sha256": "4dd8e6a379055b3bb61f4c6ed2fbbca69bc9789fdfc81eb01c93cd89dc7a4c7b"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_npc_357_1/2%241.png",
+      "width": 128,
+      "height": 128,
+      "transparent": true,
+      "visible": true,
+      "bytes": 11571,
+      "sha256": "f964e07392d47266fd7bb7839b07f4b36b507f2b3fadcfde2556d1a2d7419546"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_1032_excu2_1/avg_1032_excu2_1%241.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 468538,
+      "sha256": "b6d2899bfdf8af4167e11a4f9e10d9a9441477b7d194434daa4c50ef063aeaca"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_1032_excu2_1/1%241.png",
+      "width": 128,
+      "height": 128,
+      "transparent": true,
+      "visible": true,
+      "bytes": 22081,
+      "sha256": "a164638a713be78584f5fa7a30b0b768a202ef0d06cd5d23dc135456287ae466"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_npc_1800_1/1%242.png",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "visible": true,
+      "bytes": 106148,
+      "sha256": "8907a435c320b9e3c82dbfdc62bf30453abe63bd79d6a9d169bee78b3db1adee"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_1032_excu2_1/10%241.png",
+      "width": 128,
+      "height": 128,
+      "transparent": true,
+      "visible": true,
+      "bytes": 22122,
+      "sha256": "b670feb13594f847278e10fa24d5a51c034fac510da4374cc53179c9ec013844"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_1032_excu2_1/4%241.png",
+      "width": 128,
+      "height": 128,
+      "transparent": true,
+      "visible": true,
+      "bytes": 22100,
+      "sha256": "36ceca941331a04832d1e9f42d25ee86252f50645c6828adc8c9932f4aa997b7"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_npc_1800_1/7%242.png",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "visible": true,
+      "bytes": 106145,
+      "sha256": "63e006b345936281c66266af47e8203dd4f1044a738f52daff388c09a733214b"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_npc_1800_1/11%242.png",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "visible": true,
+      "bytes": 106103,
+      "sha256": "32d6cae16417b81beb3ca24d9f9147d5620cfca48851e7b147073215f8670ddb"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_1041_angel2_1/avg_1041_angel2_1%242.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 826537,
+      "sha256": "fc500876bea4885247e4837279a10348e9e9ec876345ae13411e763a8b299ab7"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_1041_angel2_1/7%242.png",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "visible": true,
+      "bytes": 139945,
+      "sha256": "a4ca4e27ee081d3c8f5bf5ffd1785870e0170b4d69e320c11491cd33a06af958"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_npc_1778_1/avg_npc_1778_1%241.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 637564,
+      "sha256": "77c1e9e35c8dc68d1a7721ff06bbd366fb65047939fe32f5cb2ecb5987d88234"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_1041_angel2_1/10%242.png",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "visible": true,
+      "bytes": 139873,
+      "sha256": "f7cd96c6543ca3e63329d3b87da1791e01c48488ff0c291606cb95999207e766"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_1041_angel2_1/11%242.png",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "visible": true,
+      "bytes": 139788,
+      "sha256": "2104329bcb8330cdde804f7afc4259e980e6949a7b2d1b46dad80165d5177b34"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_npc_356_1/avg_npc_356_1%241.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 600236,
+      "sha256": "7c07285be21fa6976d4c1d3675ac839cfe88446bff273f56c4881d731ef6e373"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_npc_356_1/7%241.png",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "visible": true,
+      "bytes": 95171,
+      "sha256": "0de8de8f97f7cafadeb76c2edb85eb2ca093e30cad6cfa0c1f6d65c791974a6e"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_npc_356_1/12%241.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 608423,
+      "sha256": "6a07dd9a3e481350c6c11a2f8639f68f71f4cc6de960c23d26512fa3434cdd6f"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_npc_356_1/8%241.png",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "visible": true,
+      "bytes": 95169,
+      "sha256": "5fa58af994093ce0a8787134c8ec3f318042d7340678501fce805989fbb76114"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_npc_1792_1/avg_npc_1792_1%241.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 713884,
+      "sha256": "1f47445a8ae8e567e994f4fb28d28a0b25c679ee2760ea28bd44aec3688fc6fe"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_1041_angel2_1/2%242.png",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "visible": true,
+      "bytes": 139648,
+      "sha256": "8517f64e5afb37212aa183c45877ee18b76a06b27d5177b1d132308110bd7720"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_1041_angel2_1/avg_1041_angel2_1%244.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 912188,
+      "sha256": "35730d5800ec38903c9eb0dcefd88b97e9f660a7c95fbad396378ac27ec75e76"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_1041_angel2_1/8%244.png",
+      "width": 128,
+      "height": 128,
+      "transparent": true,
+      "visible": true,
+      "bytes": 38367,
+      "sha256": "194c7c884c34539b5de6bbb162c80237fa0a03f18c5b8dde95cd6bb42e337cf3"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_1041_angel2_1/7%244.png",
+      "width": 128,
+      "height": 128,
+      "transparent": true,
+      "visible": true,
+      "bytes": 38309,
+      "sha256": "22486c3071eaadac19806d90e053951abe2ba013019c89faf4f5d1aca686c0a9"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_1041_angel2_1/9%244.png",
+      "width": 128,
+      "height": 128,
+      "transparent": true,
+      "visible": true,
+      "bytes": 38393,
+      "sha256": "78e1808d9b78b9f7c270051831ec624779194cf75f7b7158b5c8ac80d56e137b"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_1041_angel2_1/12%244.png",
+      "width": 128,
+      "height": 128,
+      "transparent": true,
+      "visible": true,
+      "bytes": 38747,
+      "sha256": "272bdf0ee38d62b962985585d853d5d85480ee90f8d0ed4ffb1421daef2918c7"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4179_monstr_1/avg_4179_monstr_1%242.png",
+      "width": 1816,
+      "height": 1816,
+      "transparent": true,
+      "visible": true,
+      "bytes": 2216355,
+      "sha256": "779ee4faf39c1720c44f93395451896042c28872f4668121d37f85e263bf2cf5"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4179_monstr_1/1%242.png",
+      "width": 512,
+      "height": 512,
+      "transparent": true,
+      "visible": true,
+      "bytes": 447039,
+      "sha256": "6e368ab32be1dc8cb5126331e1daecdfc393181635c3821f7ec9d458aadbb245"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4179_monstr_1/6%242.png",
+      "width": 512,
+      "height": 512,
+      "transparent": true,
+      "visible": true,
+      "bytes": 447605,
+      "sha256": "0dd86b23c8be9a21d27581b1001deec0c2843e32f7f3cd3e05c80c1a6ea1b520"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4179_monstr_1/5%242.png",
+      "width": 512,
+      "height": 512,
+      "transparent": true,
+      "visible": true,
+      "bytes": 446873,
+      "sha256": "e36aa60a1631997b84ad66b15bb458c19190189ad1f65055034dd35689aab9be"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4179_monstr_1/4%242.png",
+      "width": 512,
+      "height": 512,
+      "transparent": true,
+      "visible": true,
+      "bytes": 447785,
+      "sha256": "217b828634cfbd7c9160cc56a57a50b5bb2048f05739949ffcb91165dc23214e"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4179_monstr_1/9%242.png",
+      "width": 512,
+      "height": 512,
+      "transparent": true,
+      "visible": true,
+      "bytes": 446335,
+      "sha256": "c417fd14a3aa41a31ae5bf24036cc647e81486b277f3b486d3f5516708752e33"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4179_monstr_1/10%242.png",
+      "width": 512,
+      "height": 512,
+      "transparent": true,
+      "visible": true,
+      "bytes": 447808,
+      "sha256": "a85426ef743dd80256fac52652b485aece42a18b10c013f271fc35f85952b13b"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4179_monstr_1/2%242.png",
+      "width": 512,
+      "height": 512,
+      "transparent": true,
+      "visible": true,
+      "bytes": 447706,
+      "sha256": "ec9653bbe75e694df22247f8683d60a2878128a10a93c916781d6e659ea25d29"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_npc_1718_1/avg_npc_1718_1%241.png",
+      "width": 1085,
+      "height": 1085,
+      "transparent": true,
+      "visible": true,
+      "bytes": 530224,
+      "sha256": "e90231303693bfb6ec2afca455bca9ba8a340031342dd3a8382fac9f4d6b9cd2"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_npc_1718_1/1%241.png",
+      "width": 128,
+      "height": 128,
+      "transparent": true,
+      "visible": true,
+      "bytes": 30383,
+      "sha256": "eec02163b58cfc8d74d75bdd38bb6a373229a2781cda68ec8f49120b3aa76b12"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4215_buddyC_1/avg_4215_buddyC_1%246.png",
+      "width": 512,
+      "height": 512,
+      "transparent": true,
+      "visible": true,
+      "bytes": 259701,
+      "sha256": "ae6aa53449f66cb50c6953584f1108b2a214d06936c7f2c9afe0f393d8c56461"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4215_buddyC_1/avg_4215_buddyC_1%245.png",
+      "width": 512,
+      "height": 512,
+      "transparent": true,
+      "visible": true,
+      "bytes": 263260,
+      "sha256": "65491e7f81c229d047fd9a2bfbbbd5e07f2fb38d85c9afcc868fa32c5e531633"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4215_buddyC_1/avg_4215_buddyC_1%242.png",
+      "width": 512,
+      "height": 512,
+      "transparent": true,
+      "visible": true,
+      "bytes": 263235,
+      "sha256": "6d32fbca4aee6d63c646fb462798250aef73afa0cf3daf3a503149135af401ba"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4215_buddyC_1/avg_4215_buddyC_1%241.png",
+      "width": 512,
+      "height": 512,
+      "transparent": true,
+      "visible": true,
+      "bytes": 263213,
+      "sha256": "739c280a1a78f0d46d091177b5e854d131cc95b996cae04855c7fb19cb463891"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4215_buddyC_1/avg_4215_buddyC_1%243.png",
+      "width": 512,
+      "height": 512,
+      "transparent": true,
+      "visible": true,
+      "bytes": 263048,
+      "sha256": "c62ce7d509524ce6563e855ef8b0568b8dd55a80ffb1105037ef4d0f07c4a6de"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4215_buddyC_1/avg_4215_buddyC_1%244.png",
+      "width": 512,
+      "height": 512,
+      "transparent": true,
+      "visible": true,
+      "bytes": 263301,
+      "sha256": "1f6ce3c9a9f21eaefe7e7edb27c1cd737eee24616c296d27b42b400e67ccb7e8"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4215_buddyC_1/avg_4215_buddyC_1%247.png",
+      "width": 512,
+      "height": 512,
+      "transparent": true,
+      "visible": true,
+      "bytes": 263923,
+      "sha256": "aeded67a24e1fb6e2ca93bd01f37a0b1bce2e6fcdbd6ad44a7d3c8b3337d0909"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4215_buddyD_1/avg_4215_buddyD_1%241.png",
+      "width": 1185,
+      "height": 1185,
+      "transparent": true,
+      "visible": true,
+      "bytes": 1354211,
+      "sha256": "5f5e638fe3b917348283f00ca84544e8ac4842985ccc54b205f800bd490882d1"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4215_buddyD_1/avg_4215_buddyD_1%245.png",
+      "width": 1185,
+      "height": 1185,
+      "transparent": true,
+      "visible": true,
+      "bytes": 1290098,
+      "sha256": "b653e698210c3cafb25b21cd52b679f18c9f29c562222bcd4911a9b321bd1b49"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4215_buddyD_1/avg_4215_buddyD_1%243.png",
+      "width": 1185,
+      "height": 1185,
+      "transparent": true,
+      "visible": true,
+      "bytes": 1378743,
+      "sha256": "bbb34edd45e7d65da289e7660750ee4f8d1ec24f5ae1fc7fe2469b46449cd1ac"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4215_buddyD_1/avg_4215_buddyD_1%244.png",
+      "width": 1185,
+      "height": 1185,
+      "transparent": true,
+      "visible": true,
+      "bytes": 1352811,
+      "sha256": "a0bea6cea39ed598fb8bc1fb76e63f1e6850760750ca5fd28d1cc561b459238e"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4215_buddyD_1/avg_4215_buddyD_1%242.png",
+      "width": 1185,
+      "height": 1185,
+      "transparent": true,
+      "visible": true,
+      "bytes": 1352581,
+      "sha256": "a074470ad84137fddf2177957fedadb48d3bc41d90892ba6bc21d52ae423a1d1"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4215_buddyD_1/avg_4215_buddyD_1%246.png",
+      "width": 1185,
+      "height": 1185,
+      "transparent": true,
+      "visible": true,
+      "bytes": 1306622,
+      "sha256": "a521e0c41a3ff76c758e7af5577a13a8903aaeb11c13667de8c837147c19a4c6"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4215_buddyD_1/avg_4215_buddyD_1%247.png",
+      "width": 1185,
+      "height": 1185,
+      "transparent": true,
+      "visible": true,
+      "bytes": 1330640,
+      "sha256": "485033b68aea2eecf61ec96c0b1d58e88abf93c236d259e01c4301201fedbf9e"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4236_tmslot_1/avg_4236_tmslot_1%241.png",
+      "width": 1176,
+      "height": 1176,
+      "transparent": true,
+      "visible": true,
+      "bytes": 1206101,
+      "sha256": "1081b67942969c7625d450d07a6379ad18601f0bbc171c61815e50bac2267c41"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4236_tmslot_1/3%241.png",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "visible": true,
+      "bytes": 145137,
+      "sha256": "f7c14be10a1e29da1436784d5dee0a0f51b698b6a48be5da05449a7e5fe3263e"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4237_jcinta_1/avg_4237_jcinta_1%241.png",
+      "width": 2048,
+      "height": 2048,
+      "transparent": true,
+      "visible": true,
+      "bytes": 3081162,
+      "sha256": "b6f6fdbbfde712cfc43e1b58e46c253474bb86be56ef98a909f8f766cf1e2b8c"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_4237_jcinta_1/1%241.png",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "visible": true,
+      "bytes": 103492,
+      "sha256": "3a834461ade9e60b8d6d6c09e1e043ece086e491db93e524bcb74878643f46b6"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_npc_1793_1/avg_npc_1793_1%241.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 695785,
+      "sha256": "bb833d0677a8a7f6caff26b0401152fd0933c64a368d711206cbed606edd415d"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_npc_1793_1/10%241.png",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "visible": true,
+      "bytes": 109629,
+      "sha256": "2ef31492f6467107ae68f9be0d73c3d561a6feaf423a457c3a30cafe334968d4"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_6D5_1/avg_6D5_1.png",
+      "width": 1280,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 48472,
+      "sha256": "91ae684a9cc15d8932815461a2dea516d40ee679bc03e663710629ca4b7bc8b8"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_6D5_1/avg_6D5_2.png",
+      "width": 1024,
+      "height": 576,
+      "transparent": true,
+      "visible": true,
+      "bytes": 40657,
+      "sha256": "2693a70e326981aac82a3841c851006b387e4d91573f34f373378812ba1912b3"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_6D5_1/avg_6D5_5.png",
+      "width": 1024,
+      "height": 576,
+      "transparent": true,
+      "visible": true,
+      "bytes": 45367,
+      "sha256": "a3aca5f2dba850df295e345507edf5e39ccd396b8fa88db5b8fe10a62d6a22cd"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_6D5_1/avg_6D5_3.png",
+      "width": 1024,
+      "height": 576,
+      "transparent": true,
+      "visible": true,
+      "bytes": 41573,
+      "sha256": "1b3074c672f4f9c12d23f517c96a0eb422f4f518ecd7d0f55c575ce13655bb31"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/avg_6D5_1/avg_6D5_4.png",
+      "width": 1024,
+      "height": 576,
+      "transparent": true,
+      "visible": true,
+      "bytes": 43647,
+      "sha256": "bf52d09a96a77ecde6453a3d214544b6b63a1637e60dd810a804a4d2e2610af5"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_240_Vanilla_1/char_240_Vanilla_6.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 166967,
+      "sha256": "48288fd69fbcaaf7836625cadc127bdd16c0dad67c98ff08528afc90c380460b"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_240_Vanilla_1/char_240_Vanilla_1.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 166566,
+      "sha256": "576e1f465df310cd38e9740b44d7f5e3b9f10fe299f53cf4639e7dc6cb558d61"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_240_Vanilla_1/char_240_Vanilla_5.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 166773,
+      "sha256": "87883052caf64bc3c8daf8bc01e9c17fcaeda143b2da4b003939d3bebb4575a0"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_240_Vanilla_1/char_240_Vanilla_3.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 166590,
+      "sha256": "c245ef44219e2a0d0bdebc266257ae8b411500105cd18a411c2bec3c0d917146"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_240_Vanilla_1/char_240_Vanilla_2.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 166824,
+      "sha256": "c4d8e57e17f2bb6aa5c45e73ad1c3feb72b22b56e3792a4871856966e514898d"
+    },
+    {
+      "url": "https://torappu.prts.wiki/assets/avg/characters/char_254_Shamare_1/char_254_Shamare_1.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 381237,
+      "sha256": "1eb443bfb18b2935a3f417d7423de18632fcd02521f8e7d6412c387e4407c0b2"
+    },
+    {
+      "url": "https://media.prts.wiki/7/7d/Avg_avg_npc_598_1-2$1.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 204402,
+      "sha256": "92a20d2b848dfcc98ac92f32ffddfaee2335f2ce39dd4949d044ee2fc17ea5aa"
+    },
+    {
+      "url": "https://media.prts.wiki/2/25/Avg_avg_npc_604_1-2$1.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 218510,
+      "sha256": "63e372ffc211f425c534ca33cf4ac3c2756229fd70acc8f7d5ecf3b42ff9c400"
+    },
+    {
+      "url": "https://media.prts.wiki/7/77/Avg_avg_npc_598_1-10$1.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 204226,
+      "sha256": "af2e1ca839d5a33625770c6e98bf0e7e30444629463eb970aa64ff0d453ab681"
+    },
+    {
+      "url": "https://media.prts.wiki/d/d6/Avg_avg_npc_598_1-4$1.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 204437,
+      "sha256": "1961d4a474bea24f8b088334c83f469941e4309fc2a374476af98e2bee5206b9"
+    },
+    {
+      "url": "https://media.prts.wiki/5/51/Avg_avg_npc_598_1-1$1.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 204288,
+      "sha256": "64d36e1a6c0f0bae270e48b3d33cfb46ecb23e7abedd2b0d8274e56198815bc7"
+    },
+    {
+      "url": "https://media.prts.wiki/1/12/Avg_avg_npc_598_1-3$1.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 202724,
+      "sha256": "ef36a3ffe0f5a903559e84aa60bca5104bf6680a5f5e0038d65fa7dad1bceab1"
+    },
+    {
+      "url": "https://media.prts.wiki/b/bc/Avg_avg_npc_598_1-9$1.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 204757,
+      "sha256": "295343e6dabaf40286e81dd49e5d5dfa697bb6e85bc6111fff3d5408b593cc43"
+    },
+    {
+      "url": "https://media.prts.wiki/8/81/Avg_avg_npc_598_1-8$1.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 204929,
+      "sha256": "e6815236cef7cc55977b9f2e4deb91172b883834d91de8407042b1b2fceda52f"
+    },
+    {
+      "url": "https://media.prts.wiki/d/d7/Avg_avg_npc_598_1-7$1.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 204424,
+      "sha256": "04fd2b8a423c174584f7e42b07c0de92a2df19fde1c7995550aa963245c5d1d2"
+    },
+    {
+      "url": "https://media.prts.wiki/0/0c/Avg_avg_npc_598_1-5$1.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 204158,
+      "sha256": "49117835b040cf95a33b750f59cfe8f22819fcff41b9b19df9b487abb2e0d1f4"
+    },
+    {
+      "url": "https://media.prts.wiki/b/b0/Avg_avg_npc_598_1-6$1.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 202376,
+      "sha256": "ac2e141ffb9ebb9474f0f89b11c16c0db2c30f6403941f344d22ddcf6a7b964f"
+    },
+    {
+      "url": "https://media.prts.wiki/e/e0/Avg_avg_npc_604_1-1$1.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 217221,
+      "sha256": "e85b74041b377f189822c54b65b7d605cb05f2ce9c826ece47f2d5790642a04e"
+    },
+    {
+      "url": "https://media.prts.wiki/3/39/Avg_avg_npc_604_1-4$1.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 215347,
+      "sha256": "c805f6548d69e364125b7d9170b6bfe180ef40be009bca42e18fa329e8563c58"
+    },
+    {
+      "url": "https://media.prts.wiki/b/bc/Avg_avg_npc_604_1-5$1.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 209299,
+      "sha256": "2f8ec5ac45534fedbca11dda6763a09e71ea151612c6e908b38dc5c161d7c404"
+    },
+    {
+      "url": "https://media.prts.wiki/c/cd/Avg_avg_npc_604_1-7$1.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 223705,
+      "sha256": "3e595438a33ebbfbb399a8a55fe50e017c41e605397701108e2814c9ef9ef300"
+    },
+    {
+      "url": "https://media.prts.wiki/f/f4/Avg_avg_npc_604_1-6$1.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 212055,
+      "sha256": "c803cc730bad27040d2ffcc30a480537a9a22b55b8dbb2a0f3f06a1b3c8e840c"
+    },
+    {
+      "url": "https://media.prts.wiki/c/c3/Avg_avg_npc_604_1-3$1.png",
+      "width": 1024,
+      "height": 1024,
+      "transparent": true,
+      "visible": true,
+      "bytes": 219092,
+      "sha256": "ebd739068282dab0bbc0e93a7f52cb24e81dac14d9ab2bc082aede312523d472"
+    },
+    {
+      "url": "https://media.prts.wiki/3/38/Avg_cgitem_60_i12_2.png",
+      "width": 345,
+      "height": 716,
+      "transparent": true,
+      "visible": true,
+      "bytes": 132206,
+      "sha256": "fd54403ffc8d22c27871535a66acfb0084994a969253722e7bb5f40846977cc6"
+    },
+    {
+      "url": "https://media.prts.wiki/d/dd/Avg_cgitem_60_i12_1.png",
+      "width": 700,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 205613,
+      "sha256": "0bcd503f8bfef2753b18dcadabfbab6297dc39bfa051dce1bd1abf75f7f3dc98"
+    },
+    {
+      "url": "https://media.prts.wiki/d/da/Avg_cgitem_60_i12_3.png",
+      "width": 736,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 321654,
+      "sha256": "5cc82bb562d19c02aab2ce4c663a2248cd56b8a21e18547630795d2cbfc4fa46"
+    },
+    {
+      "url": "https://media.prts.wiki/d/d5/Avg_cgitem_60_i01.png",
+      "width": 1280,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 330441,
+      "sha256": "611e23867ca324884fb28f6702d940721fa186611dede2e0081c438e173abdcc"
+    },
+    {
+      "url": "https://media.prts.wiki/7/70/Avg_cgitem_60_i06_1.png",
+      "width": 1280,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 490777,
+      "sha256": "5f46917fd65a66dca8fc621cd6c31e1ee86f95df5d06f9b31f36ea9dc344fe72"
+    },
+    {
+      "url": "https://media.prts.wiki/2/26/Avg_cgitem_60_i06_2.png",
+      "width": 411,
+      "height": 638,
+      "transparent": true,
+      "visible": true,
+      "bytes": 209373,
+      "sha256": "7ad7a96f2a0960ac59620f0bcce0892be4347333acf02e6396b21112596424a5"
+    },
+    {
+      "url": "https://media.prts.wiki/1/17/Avg_cgitem_60_i07_1.png",
+      "width": 1280,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 509375,
+      "sha256": "aa208f7f6acb13785a53b26faa351f6f47cf3d214b92320f2a407bf4dc8bc9d6"
+    },
+    {
+      "url": "https://media.prts.wiki/9/9d/Avg_cgitem_60_i07_2.png",
+      "width": 1280,
+      "height": 287,
+      "transparent": true,
+      "visible": true,
+      "bytes": 164033,
+      "sha256": "9b6028dcc07298727f2a4ebd28284072c6871f9880b01a598feefc7f1f20a390"
+    },
+    {
+      "url": "https://media.prts.wiki/9/92/Avg_cgitem_60_i13_2.png",
+      "width": 1280,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 359414,
+      "sha256": "d0ae7d7ac8dce71638af93c97e6014fc08825e9280bc4408e71a2459d7967f56"
+    },
+    {
+      "url": "https://media.prts.wiki/8/8b/Avg_cgitem_60_i13_1.png",
+      "width": 1280,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 184183,
+      "sha256": "b1f8cac29beba75b36c0c6b19eee73480074317407a50ca7517f0555c941784a"
+    },
+    {
+      "url": "https://media.prts.wiki/2/26/Avg_cgitem_60_i16.png",
+      "width": 205,
+      "height": 170,
+      "transparent": true,
+      "visible": true,
+      "bytes": 39349,
+      "sha256": "c113739595e2a21573180784bebe60a8c80035ad6ac1cdc649cf9f800ac0d6c6"
+    },
+    {
+      "url": "https://media.prts.wiki/6/65/Avg_cgitem_66_i04.png",
+      "width": 1280,
+      "height": 608,
+      "transparent": true,
+      "visible": true,
+      "bytes": 256620,
+      "sha256": "ced46f9080a781c5d224b68e9644ba3dfd8dfefff526a6987c427faba05e963f"
+    },
+    {
+      "url": "https://media.prts.wiki/d/db/Avg_cgitem_66_i11_1.png",
+      "width": 577,
+      "height": 645,
+      "transparent": true,
+      "visible": true,
+      "bytes": 148788,
+      "sha256": "55fbf0268ad400db1a3c4c5d7d7a9040c98d913691645a0c368b99e6327fb9ed"
+    },
+    {
+      "url": "https://media.prts.wiki/2/2a/Avg_cgitem_66_i11_2.png",
+      "width": 554,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 255556,
+      "sha256": "cdfd2669adf5ca4fa46bdfb3987548593b57447f4a2b67341e15bd3df5dc5412"
+    },
+    {
+      "url": "https://media.prts.wiki/2/23/Avg_cgitem_66_i21_1.png",
+      "width": 1280,
+      "height": 235,
+      "transparent": true,
+      "visible": true,
+      "bytes": 244547,
+      "sha256": "0fc458991262ab5e8d8adc57665cad0921c06f5f2ab9c2c8077b17a450afc768"
+    },
+    {
+      "url": "https://media.prts.wiki/3/39/Avg_cgitem_66_i21_2.png",
+      "width": 1210,
+      "height": 230,
+      "transparent": true,
+      "visible": true,
+      "bytes": 118057,
+      "sha256": "8b36a5452811dcfab0c446444e331637bea8b921948c936cb35a747969074385"
+    },
+    {
+      "url": "https://media.prts.wiki/0/03/Avg_cgitem_70_i02_3.png",
+      "width": 1280,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 135515,
+      "sha256": "1e1bf1a11e28c70f24acacc653a697ca66de8338bbd5fa171315d121fa823052"
+    },
+    {
+      "url": "https://media.prts.wiki/f/f3/Avg_cgitem_68_i17.png",
+      "width": 1280,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 203915,
+      "sha256": "4eeb59ba1d57ebb412c2600453418eff4432dbba00c633f8c618ef9a4a1c88cd"
+    },
+    {
+      "url": "https://media.prts.wiki/7/77/Avg_cgitem_73_i13_1.png",
+      "width": 773,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 274081,
+      "sha256": "a25edc06e04dcefd291b1d63c6602a7859fbb4ecf959c9d37af41df6b8d1a103"
+    },
+    {
+      "url": "https://media.prts.wiki/7/74/Avg_cgitem_73_i13_2.png",
+      "width": 809,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 241262,
+      "sha256": "02235bd25a62f0747a1f1c4ca6b15aaf1fe86c9b7d1e0e235d1a1799e08fa9df"
+    },
+    {
+      "url": "https://media.prts.wiki/5/5b/Avg_cgitem_73_i10.png",
+      "width": 1280,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 92836,
+      "sha256": "a8574be0bdc36f5d9933f49e85bdcaf947d8c1767680333581b0de062d7304d8"
+    },
+    {
+      "url": "https://media.prts.wiki/0/0c/Avg_cgitem_73_i10_1.png",
+      "width": 974,
+      "height": 687,
+      "transparent": true,
+      "visible": true,
+      "bytes": 481444,
+      "sha256": "7c4eadffcddff587721f5a68472cbe0f180d70e7fb65b28a4001750066d13640"
+    },
+    {
+      "url": "https://media.prts.wiki/f/f8/Avg_cgitem_73_i10_2.png",
+      "width": 1600,
+      "height": 954,
+      "transparent": true,
+      "visible": true,
+      "bytes": 1033801,
+      "sha256": "358cd237d7931faf225a12b6a02778a3b61fb55f89a03d4515269b537499665a"
+    },
+    {
+      "url": "https://media.prts.wiki/b/bd/Avg_cgitem_73_i16_1.png",
+      "width": 104,
+      "height": 291,
+      "transparent": true,
+      "visible": true,
+      "bytes": 29162,
+      "sha256": "546ec61f5fa201fc4551fe865cc11745e62edd3da8a01473eb6bb9e01ba42781"
+    },
+    {
+      "url": "https://media.prts.wiki/7/7b/Avg_cgitem_42_i11.png",
+      "width": 1239,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 484542,
+      "sha256": "d0f409d2bc4347750902e1177dbc9f0cd66bc032096944987e906e3a92858629"
+    },
+    {
+      "url": "https://media.prts.wiki/7/7f/Avg_cgitem_44_i04.png",
+      "width": 434,
+      "height": 375,
+      "transparent": true,
+      "visible": true,
+      "bytes": 120392,
+      "sha256": "5d36e176f9a4e72dc0fde010bed247edf333affbd42e7e13932e982dfe14a557"
+    },
+    {
+      "url": "https://media.prts.wiki/7/74/Avg_cgitem_44_i17.png",
+      "width": 1280,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 821108,
+      "sha256": "3ab45c7eccc7f863bdc7bfe0c09960c26f508a39ba56f554b268f3d63304e0b8"
+    },
+    {
+      "url": "https://media.prts.wiki/4/49/Avg_cgitem_44_i18.png",
+      "width": 1258,
+      "height": 689,
+      "transparent": true,
+      "visible": true,
+      "bytes": 506574,
+      "sha256": "aa786b7062b5b370b7ce3039fa42696dd15c551b32c09316df2028fbe37042fc"
+    },
+    {
+      "url": "https://media.prts.wiki/a/a8/Avg_cgitem_53_i04_1.png",
+      "width": 110,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 57990,
+      "sha256": "7282cc068079904e464d98e16f7cc8b78c5ac52e4166db96f27c8cc2443c76fc"
+    },
+    {
+      "url": "https://media.prts.wiki/3/37/Avg_cgitem_53_i04_2.png",
+      "width": 694,
+      "height": 254,
+      "transparent": true,
+      "visible": true,
+      "bytes": 106366,
+      "sha256": "6904902f384e8df918a7924f18b634ff9c34f504ab530b85316bc74a39b58b23"
+    },
+    {
+      "url": "https://media.prts.wiki/0/0e/Avg_cgitem_53_i04_3.png",
+      "width": 380,
+      "height": 402,
+      "transparent": true,
+      "visible": true,
+      "bytes": 195435,
+      "sha256": "e882b8441d81d6a0d471ed25e491913c4ab763e293780c8f5506e1b4a2f47a25"
+    },
+    {
+      "url": "https://media.prts.wiki/5/51/Avg_cgitem_53_i05_1.png",
+      "width": 1280,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 828367,
+      "sha256": "31438df14eae83ec39cb379e2993eb11a906b42511f3db6ca8460038ae58a818"
+    },
+    {
+      "url": "https://media.prts.wiki/7/75/Avg_cgitem_53_i05_2.png",
+      "width": 759,
+      "height": 715,
+      "transparent": true,
+      "visible": true,
+      "bytes": 512011,
+      "sha256": "9b31763497fafdec87d4ee62e38af7a58b7bd7a4b8b5dc1c3c1f4cf9c6fdb86c"
+    },
+    {
+      "url": "https://media.prts.wiki/5/56/Avg_cgitem_53_i05_3.png",
+      "width": 579,
+      "height": 544,
+      "transparent": true,
+      "visible": true,
+      "bytes": 373793,
+      "sha256": "d1311176bde0c27889af35ccab0ea72a9a528fe2246632749c95c4e6700a5abc"
+    },
+    {
+      "url": "https://media.prts.wiki/b/bc/Avg_cgitem_53_i15.png",
+      "width": 1280,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 620900,
+      "sha256": "5d49dd7a04b68e50b5b2cc063d1028ceefa4801900fb788e055744cde6e1dead"
+    },
+    {
+      "url": "https://media.prts.wiki/6/60/Avg_cgitem_53_i17.png",
+      "width": 1280,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 684719,
+      "sha256": "69328c45d7cc5bf4cf70f2d81151c4c89c5c157fe32b6848f6978978a1374ebf"
+    },
+    {
+      "url": "https://media.prts.wiki/9/9c/Avg_cgitem_41_i12_1.png",
+      "width": 1028,
+      "height": 584,
+      "transparent": true,
+      "visible": true,
+      "bytes": 37545,
+      "sha256": "a3565bf7f5b84b39172ffa579b74e9179121372ecd3b5da4ce5baccfb6ef81ec"
+    },
+    {
+      "url": "https://media.prts.wiki/f/f7/Avg_cgitem_54_i2.png",
+      "width": 832,
+      "height": 362,
+      "transparent": true,
+      "visible": true,
+      "bytes": 190917,
+      "sha256": "79b4f9d47275d7b255edd13b0eb42211d768a58fcc56f449f4ba9af9f5ab8d86"
+    },
+    {
+      "url": "https://media.prts.wiki/0/07/Avg_cgitem_54_i3.png",
+      "width": 930,
+      "height": 474,
+      "transparent": true,
+      "visible": true,
+      "bytes": 161999,
+      "sha256": "980062194178b2fb811273c8c820a37118f3cb4f7531c588cd7e1356cd4f2ca6"
+    },
+    {
+      "url": "https://media.prts.wiki/a/a4/Avg_cgitem_54_i4.png",
+      "width": 899,
+      "height": 415,
+      "transparent": true,
+      "visible": true,
+      "bytes": 198061,
+      "sha256": "874d7bdc8655b7a60b2a4d316abe35b48daecd0af16008159346bb9295759263"
+    },
+    {
+      "url": "https://media.prts.wiki/3/36/Avg_cgitem_54_i5.png",
+      "width": 507,
+      "height": 450,
+      "transparent": true,
+      "visible": true,
+      "bytes": 193602,
+      "sha256": "9c9276071eceaf530835fa6195c7ba534489a5129e2efa64a396f76eeccd4cce"
+    },
+    {
+      "url": "https://media.prts.wiki/0/0a/Avg_cgitem_54_i6.png",
+      "width": 526,
+      "height": 441,
+      "transparent": true,
+      "visible": true,
+      "bytes": 153431,
+      "sha256": "249946ca6ba611a21fc4a8bf0ff12ba58d09041ae8dbe2460ca5daf60fef9cf9"
+    },
+    {
+      "url": "https://media.prts.wiki/c/cb/Avg_cgitem_54_i10.png",
+      "width": 963,
+      "height": 427,
+      "transparent": true,
+      "visible": true,
+      "bytes": 197671,
+      "sha256": "5f2dee295925d35922a0857dac4f992cbbfc8b7a8dae9b26f86a07dfd4e0ed95"
+    },
+    {
+      "url": "https://media.prts.wiki/7/71/Avg_cgitem_54_i9.png",
+      "width": 926,
+      "height": 440,
+      "transparent": true,
+      "visible": true,
+      "bytes": 173559,
+      "sha256": "ec08287e6ee1812ef06d61af4dcfc75ba6306ebf207969b8e2b5eb8b8422b75b"
+    },
+    {
+      "url": "https://media.prts.wiki/e/e7/Avg_cgitem_56_i01_1.png",
+      "width": 216,
+      "height": 59,
+      "transparent": true,
+      "visible": true,
+      "bytes": 17832,
+      "sha256": "b60c2fffe8b1e54df2b5ce8e6f94ee2e66a6da37242b197c3b96783452722a19"
+    },
+    {
+      "url": "https://media.prts.wiki/3/3d/Avg_cgitem_56_i01_2.png",
+      "width": 216,
+      "height": 59,
+      "transparent": true,
+      "visible": true,
+      "bytes": 16028,
+      "sha256": "17e9ffd79a31c9833435ee8f28b2db58cfc72b45648300caccb3af7b59b86792"
+    },
+    {
+      "url": "https://media.prts.wiki/6/69/Avg_cgitem_56_i01_3.png",
+      "width": 825,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 274825,
+      "sha256": "7a7259528b5ba6897a79a661263831a80e47814d874030f4cb48b874e79cfae2"
+    },
+    {
+      "url": "https://media.prts.wiki/d/d9/Avg_cgitem_56_i12_1.png",
+      "width": 1280,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 965741,
+      "sha256": "88c8bd67ca46c7f79104ee9ce8096bf432baf9aee49afdf369b2b136d5567ce1"
+    },
+    {
+      "url": "https://media.prts.wiki/1/1e/Avg_cgitem_57_i06_1.png",
+      "width": 1280,
+      "height": 324,
+      "transparent": true,
+      "visible": true,
+      "bytes": 207023,
+      "sha256": "0fbbcbf7885f3bbcc5370d167c28642986a25e5545ec8b46601c5f37788af59d"
+    },
+    {
+      "url": "https://media.prts.wiki/3/37/Avg_cgitem_57_i06_2.png",
+      "width": 1280,
+      "height": 666,
+      "transparent": true,
+      "visible": true,
+      "bytes": 430611,
+      "sha256": "6ad2eb6d12abba4b786c2414af1aea4885c566c2f967b3d9b7a756e8fe217f86"
+    },
+    {
+      "url": "https://media.prts.wiki/9/93/Avg_cgitem_61_i02.png",
+      "width": 385,
+      "height": 424,
+      "transparent": true,
+      "visible": true,
+      "bytes": 131598,
+      "sha256": "87096081aaf227ae9fa3c11b0636697271e19aa74a0684cedbc62f04b1e85d2e"
+    },
+    {
+      "url": "https://media.prts.wiki/8/89/Avg_61_i12.png",
+      "width": 1600,
+      "height": 900,
+      "transparent": false,
+      "visible": true,
+      "bytes": 1631741,
+      "sha256": "a57d8b2b2513184e3e38dd8d4f512d6df31fc75c67bdd0ef83ac124ae612783e"
+    },
+    {
+      "url": "https://media.prts.wiki/2/2a/Avg_61_i11.png",
+      "width": 1600,
+      "height": 900,
+      "transparent": false,
+      "visible": true,
+      "bytes": 1571222,
+      "sha256": "40751fd7f5074d347e1955daa28e379dfd6f1116c3dfee96a688522f8380d673"
+    },
+    {
+      "url": "https://media.prts.wiki/6/67/Avg_cgitem_62_i03.png",
+      "width": 1072,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 591497,
+      "sha256": "840779a11040709d2039ccc2ffdcdca82692e59d6736ec1e7ee6b2d3daa51828"
+    },
+    {
+      "url": "https://media.prts.wiki/1/10/Avg_cgitem_64_i10.png",
+      "width": 685,
+      "height": 626,
+      "transparent": true,
+      "visible": true,
+      "bytes": 401244,
+      "sha256": "0883cbc47a875e2505e1bdd7e01a5cbecd71244661136f367953a814d07e9ba1"
+    },
+    {
+      "url": "https://media.prts.wiki/0/03/Avg_cgitem_64_i18_1.png",
+      "width": 479,
+      "height": 464,
+      "transparent": true,
+      "visible": true,
+      "bytes": 161258,
+      "sha256": "03939b0ad127d24b7fc75e7aa0bb602b94e6f33960e03098c9aebf04b0e9089b"
+    },
+    {
+      "url": "https://media.prts.wiki/e/e7/Avg_cgitem_64_i18_2.png",
+      "width": 438,
+      "height": 366,
+      "transparent": true,
+      "visible": true,
+      "bytes": 116440,
+      "sha256": "cc90a16b0a70d3088d4c521769b35da7990cda23a800b38529b1fa840848676e"
+    },
+    {
+      "url": "https://media.prts.wiki/8/8c/Avg_67_i15_1.png",
+      "width": 1600,
+      "height": 900,
+      "transparent": true,
+      "visible": true,
+      "bytes": 1570042,
+      "sha256": "8212f3dd5572baad142fd88aaf7d1bd937ab1f2430acfe35a6b5291591ab41d7"
+    },
+    {
+      "url": "https://media.prts.wiki/f/fd/Avg_67_i15_2.png",
+      "width": 1600,
+      "height": 900,
+      "transparent": true,
+      "visible": true,
+      "bytes": 2300850,
+      "sha256": "e3a2f02dcaa8351bc5c74480499a2b5ce6e1d12a2b27a4eaa462c598504d3cfc"
+    },
+    {
+      "url": "https://media.prts.wiki/4/4a/Avg_cgitem_68_i01_2.png",
+      "width": 644,
+      "height": 591,
+      "transparent": true,
+      "visible": true,
+      "bytes": 397691,
+      "sha256": "ca949cfd2f73c1713ba0239a77912ad4bd1d77bc183166d8c1a221ac85346537"
+    },
+    {
+      "url": "https://media.prts.wiki/7/74/Avg_cgitem_68_i01_1.png",
+      "width": 779,
+      "height": 594,
+      "transparent": true,
+      "visible": true,
+      "bytes": 444012,
+      "sha256": "741144a8ba06398a6eefcec36dfc6879ce5fd90ddb92b1dd152bccc0e279dcfc"
+    },
+    {
+      "url": "https://media.prts.wiki/d/d0/Avg_cgitem_68_i01_7.png",
+      "width": 480,
+      "height": 364,
+      "transparent": true,
+      "visible": true,
+      "bytes": 181627,
+      "sha256": "74ceba3469e5a355919244ae2d76cf73530e0980b944cdc1525465cee7478e64"
+    },
+    {
+      "url": "https://media.prts.wiki/9/9a/Avg_cgitem_68_i01_4.png",
+      "width": 554,
+      "height": 343,
+      "transparent": true,
+      "visible": true,
+      "bytes": 189988,
+      "sha256": "6367fdd26a62a2fce141e5d73b0366b362c7d1e4f1e3bd83d4fbaa83fb1594c9"
+    },
+    {
+      "url": "https://media.prts.wiki/8/80/Avg_cgitem_68_i01_5.png",
+      "width": 351,
+      "height": 678,
+      "transparent": true,
+      "visible": true,
+      "bytes": 227962,
+      "sha256": "be0e1b0404805333bb259e0c928052cbe2da33b8ec8585edad82d2097af46f2d"
+    },
+    {
+      "url": "https://media.prts.wiki/d/d6/Avg_cgitem_68_i01_6.png",
+      "width": 385,
+      "height": 573,
+      "transparent": true,
+      "visible": true,
+      "bytes": 198895,
+      "sha256": "77d72a5c6b923da6c5af65e8417d183257cbd0d08149d785c781b01044c584fb"
+    },
+    {
+      "url": "https://media.prts.wiki/5/56/Avg_cgitem_68_i01_3.png",
+      "width": 833,
+      "height": 601,
+      "transparent": true,
+      "visible": true,
+      "bytes": 407535,
+      "sha256": "57497b009d616c675d9b16a15ecc09ac9fc9688dbb3f387ef8ca4b3127e806f0"
+    },
+    {
+      "url": "https://media.prts.wiki/9/91/Avg_cgitem_68_i13.png",
+      "width": 1280,
+      "height": 1280,
+      "transparent": true,
+      "visible": true,
+      "bytes": 1032996,
+      "sha256": "fae3246a17943ed52a1b3f87f1077ab7b642fa42218933d5b886b662b7cb765e"
+    },
+    {
+      "url": "https://media.prts.wiki/2/2f/Avg_cgitem_69_i04_1.png",
+      "width": 335,
+      "height": 244,
+      "transparent": true,
+      "visible": true,
+      "bytes": 33064,
+      "sha256": "2b4cb9a4f45da58077c3695fb73c8683040d2c5e534f7d9fd74140f1caca5796"
+    },
+    {
+      "url": "https://media.prts.wiki/a/ad/Avg_cgitem_69_i04_2.png",
+      "width": 314,
+      "height": 568,
+      "transparent": true,
+      "visible": true,
+      "bytes": 99910,
+      "sha256": "3cdc070908b1ecc501577ac3fea088a51500022aba18e41abb7e66c0d99ee304"
+    },
+    {
+      "url": "https://media.prts.wiki/9/99/Avg_cgitem_69_i04_3.png",
+      "width": 237,
+      "height": 205,
+      "transparent": true,
+      "visible": true,
+      "bytes": 34716,
+      "sha256": "f34f8b80ec0ffb3ad8531d74eb86ae6a0f0f088aace375f6922f1ec6ad648e61"
+    },
+    {
+      "url": "https://media.prts.wiki/6/65/Avg_cgitem_69_i04_4.png",
+      "width": 725,
+      "height": 291,
+      "transparent": true,
+      "visible": true,
+      "bytes": 65326,
+      "sha256": "69e71f01c05cef743b6b0d3f2d3c9174e2a19d935c67b36d47a37868dec366f6"
+    },
+    {
+      "url": "https://media.prts.wiki/b/bb/Avg_69_i12_1.png",
+      "width": 1600,
+      "height": 1060,
+      "transparent": false,
+      "visible": true,
+      "bytes": 1346095,
+      "sha256": "3151865dc79824b7695d4a83eea322abe4d9372835ad887985f651220fea8597"
+    },
+    {
+      "url": "https://media.prts.wiki/2/2d/Avg_69_i12_2.png",
+      "width": 1600,
+      "height": 1060,
+      "transparent": false,
+      "visible": true,
+      "bytes": 1910129,
+      "sha256": "215eb1c98877b56dbc64b9767d278536139dfeba8b5ebd38db76bd24e30b633e"
+    },
+    {
+      "url": "https://media.prts.wiki/e/e9/Avg_cgitem_70_i02_1.png",
+      "width": 800,
+      "height": 367,
+      "transparent": true,
+      "visible": true,
+      "bytes": 162353,
+      "sha256": "99555a6b899efeca85d7751451df7eebff306693efb28a80eab078d7ca501236"
+    },
+    {
+      "url": "https://media.prts.wiki/7/72/Avg_cgitem_70_i02_2.png",
+      "width": 1280,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 116123,
+      "sha256": "8fdd0f62f1cc55152f89017b40d0e44059c70d2fc266261fe4942ef4ce4d93bb"
+    },
+    {
+      "url": "https://media.prts.wiki/4/4e/Avg_cgitem_70_i03_2.png",
+      "width": 42,
+      "height": 47,
+      "transparent": true,
+      "visible": true,
+      "bytes": 2337,
+      "sha256": "f23c53a5784bd8a15bed98ca9f423a1b7fd190bd0145c95eab5e26233924bb41"
+    },
+    {
+      "url": "https://media.prts.wiki/0/0c/Avg_cgitem_70_i03_1.png",
+      "width": 137,
+      "height": 145,
+      "transparent": true,
+      "visible": true,
+      "bytes": 9677,
+      "sha256": "339fd4e2fa9244d8d6ead5aeb460c548d3b84929b7af1abb43201fdfeb81ce44"
+    },
+    {
+      "url": "https://media.prts.wiki/9/90/Avg_cgitem_70_i03_3.png",
+      "width": 124,
+      "height": 160,
+      "transparent": true,
+      "visible": true,
+      "bytes": 20720,
+      "sha256": "e34e870b0e39e0d5786dcdad819c6e6ee615023514ca0f2081190c0cb018c010"
+    },
+    {
+      "url": "https://media.prts.wiki/a/a6/Avg_cgitem_70_i17_1.png",
+      "width": 1114,
+      "height": 843,
+      "transparent": true,
+      "visible": true,
+      "bytes": 422371,
+      "sha256": "68c74a25d92ccd175efa32098ed0951abb4c8bfded44dc6ec288b7c4df91c3b4"
+    },
+    {
+      "url": "https://media.prts.wiki/4/42/Avg_cgitem_70_i17_2.png",
+      "width": 1126,
+      "height": 900,
+      "transparent": true,
+      "visible": true,
+      "bytes": 397859,
+      "sha256": "88a96ae50c73c2d4a45264fe0174f8f75c128a1d62a24506e074bd10f13789b2"
+    },
+    {
+      "url": "https://media.prts.wiki/e/e1/Avg_cgitem_70_i17_3.png",
+      "width": 1185,
+      "height": 900,
+      "transparent": true,
+      "visible": true,
+      "bytes": 807621,
+      "sha256": "983b4e6a05ede433a713c52d9b197eec83715f4e9bc8032f8348e5b90d72a665"
+    },
+    {
+      "url": "https://media.prts.wiki/b/b9/Avg_cgitem_71_i01.png",
+      "width": 486,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 171987,
+      "sha256": "344a2b72411935e495ba774c60d8c32de24048ec1f4cbdcf2ba8233b08c98229"
+    },
+    {
+      "url": "https://media.prts.wiki/8/82/Avg_cgitem_72_i01_1.png",
+      "width": 815,
+      "height": 658,
+      "transparent": true,
+      "visible": true,
+      "bytes": 208795,
+      "sha256": "2d353adc5006ace54ee8a25519dee6839df6d8fe02b58469bb6116e08cadd62d"
+    },
+    {
+      "url": "https://media.prts.wiki/e/e1/Avg_cgitem_72_i01_2.png",
+      "width": 950,
+      "height": 386,
+      "transparent": true,
+      "visible": true,
+      "bytes": 247685,
+      "sha256": "b1690a807561dd9f4d7d3002ce9c1f94bd17c91802d00faa6cffd51c9366c2d2"
+    },
+    {
+      "url": "https://media.prts.wiki/4/46/Avg_cgitem_72_i01_3.png",
+      "width": 1280,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 253039,
+      "sha256": "2293eba3ed214311501197dcf364d006145975a0f4db8277aa16e06b289673a7"
+    },
+    {
+      "url": "https://media.prts.wiki/6/6d/Avg_cgitem_72_i04_1.png",
+      "width": 1280,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 453739,
+      "sha256": "791c9b74bcee0de330b8f567b4dd12ce7dcc6245b8d41b42ed64258034cafc96"
+    },
+    {
+      "url": "https://media.prts.wiki/e/eb/Avg_cgitem_72_i04_2.png",
+      "width": 590,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 383821,
+      "sha256": "f97b61aeeafaab948307027aa999407561dbaab8393ec95d63f40014473b97d6"
+    },
+    {
+      "url": "https://media.prts.wiki/c/c9/Avg_cgitem_72_i04_3.png",
+      "width": 618,
+      "height": 655,
+      "transparent": true,
+      "visible": true,
+      "bytes": 236818,
+      "sha256": "fd7fd14944fe521c8e030e59d03ddb4975ca400a9c14f8665e84e24d21a81cbb"
+    },
+    {
+      "url": "https://media.prts.wiki/f/f5/Avg_cgitem_72_i06_3.png",
+      "width": 1118,
+      "height": 820,
+      "transparent": true,
+      "visible": true,
+      "bytes": 693379,
+      "sha256": "04c544e7302f1c7b812b5bb08af57acec421ff6dcdc6b8bd74fea3fa77f4e650"
+    },
+    {
+      "url": "https://media.prts.wiki/f/fa/Avg_cgitem_72_i06_1.png",
+      "width": 411,
+      "height": 521,
+      "transparent": true,
+      "visible": true,
+      "bytes": 206960,
+      "sha256": "327bf949c8ba9d90db9bc32435ba0ebbf0737a4cc3fce6425493a9a5de723ce1"
+    },
+    {
+      "url": "https://media.prts.wiki/1/1d/Avg_cgitem_72_i06_2.png",
+      "width": 354,
+      "height": 459,
+      "transparent": true,
+      "visible": true,
+      "bytes": 153922,
+      "sha256": "b1b047c93fbc2315c8b018f23395a1a777021869da488ce654c2efbb9cb063c0"
+    },
+    {
+      "url": "https://media.prts.wiki/6/6a/Avg_cgitem_72_i08_1.png",
+      "width": 348,
+      "height": 548,
+      "transparent": true,
+      "visible": true,
+      "bytes": 113675,
+      "sha256": "f340ca786e3462c51fd63e0f9c9d22e197ecbee6d449ce8db51650782952781c"
+    },
+    {
+      "url": "https://media.prts.wiki/d/dd/Avg_cgitem_72_i08_3.png",
+      "width": 194,
+      "height": 550,
+      "transparent": true,
+      "visible": true,
+      "bytes": 82780,
+      "sha256": "7876e60baceb7f60108dd920339ea3138b6cd659b82c4bf6113c4ad698e3dd39"
+    },
+    {
+      "url": "https://media.prts.wiki/f/fc/Avg_cgitem_72_i08_2.png",
+      "width": 398,
+      "height": 591,
+      "transparent": true,
+      "visible": true,
+      "bytes": 156222,
+      "sha256": "1f0b0023187ea2a473eadc9bc675d299f460c1da1b9c10237b159d674fbaa29c"
+    },
+    {
+      "url": "https://media.prts.wiki/b/be/Avg_cgitem_76_i16_3.png",
+      "width": 1280,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 1473732,
+      "sha256": "223e88ef628d3c41fbc9bac6ec5856149e1b948700f2589c5b91ea9dfb2114c1"
+    },
+    {
+      "url": "https://media.prts.wiki/2/29/Avg_cgitem_76_i01_2.png",
+      "width": 1851,
+      "height": 900,
+      "transparent": true,
+      "visible": true,
+      "bytes": 1297001,
+      "sha256": "c485151218f23f5d933018ccbbe71b1e92af0d942f4f676373e9785192bf3252"
+    },
+    {
+      "url": "https://media.prts.wiki/9/99/Avg_cgitem_76_i16_4.png",
+      "width": 1280,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 1112656,
+      "sha256": "3b1a57c0179cacd07737e962d89824f9c7003745ee6579925e23f1a1e123ce87"
+    },
+    {
+      "url": "https://media.prts.wiki/8/8a/Avg_cgitem_76_i16_2.png",
+      "width": 1280,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 666376,
+      "sha256": "1ebd0767258f17d65fd4173199de7db311ea091209b9c6bdfbf5c18d4d781d1f"
+    },
+    {
+      "url": "https://media.prts.wiki/2/2f/Avg_cgitem_76_i16_5.png",
+      "width": 364,
+      "height": 364,
+      "transparent": true,
+      "visible": true,
+      "bytes": 122453,
+      "sha256": "b0b16935437e8e52d0d057427301a9411e1be4f436ec76acfb0a8c06087a3f9f"
+    },
+    {
+      "url": "https://media.prts.wiki/3/3d/Avg_cgitem_76_i16_7.png",
+      "width": 364,
+      "height": 364,
+      "transparent": true,
+      "visible": true,
+      "bytes": 123262,
+      "sha256": "66fac80b998d5fcee696dfd1edd32acdfec36c53afeb025060d93e84f76e42e6"
+    },
+    {
+      "url": "https://media.prts.wiki/7/7d/Avg_cgitem_76_i07_1.png",
+      "width": 140,
+      "height": 101,
+      "transparent": true,
+      "visible": true,
+      "bytes": 16782,
+      "sha256": "58659482eb0eccbe6cd3cfbe3df2fae6aeaef2f20435e3d0ac26e418beef3bbd"
+    },
+    {
+      "url": "https://media.prts.wiki/5/5f/Avg_cgitem_76_i16_1.png",
+      "width": 1028,
+      "height": 584,
+      "transparent": true,
+      "visible": true,
+      "bytes": 71163,
+      "sha256": "6ced4839ebac91c124035e76a20ba0203dfa2342e5cef9082112725cca6a1828"
+    },
+    {
+      "url": "https://media.prts.wiki/e/ea/Avg_cgitem_76_i16_8.png",
+      "width": 1280,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 5178,
+      "sha256": "eace9111cd092c5ad2f006bf1c8e6f309adf1ca6df7119ffed7be260cacfc68f"
+    },
+    {
+      "url": "https://media.prts.wiki/9/9c/Avg_item_act76_1.png",
+      "width": 500,
+      "height": 500,
+      "transparent": true,
+      "visible": true,
+      "bytes": 251573,
+      "sha256": "08122da7bc6ead6f6cd90260162b3c25570ae05a6b4a162697aaff3a38052867"
+    },
+    {
+      "url": "https://media.prts.wiki/a/a5/Avg_item_act76_2.png",
+      "width": 500,
+      "height": 500,
+      "transparent": true,
+      "visible": true,
+      "bytes": 326255,
+      "sha256": "e5dc4f4c00282b01a39490deafa9668b5124d50739f32fbc84d221d42905f95a"
+    },
+    {
+      "url": "https://media.prts.wiki/4/4f/Avg_cgitem_76_i15_1.png",
+      "width": 1108,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 967202,
+      "sha256": "8d6b504f8fcb566d5e5ecb48fa8860989bb4c621ad6c195d4fa1dbdcbbad9520"
+    },
+    {
+      "url": "https://media.prts.wiki/3/3f/Avg_cgitem_76_i15_4.png",
+      "width": 1108,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 432923,
+      "sha256": "8200763aea78fac8572821a26b858f74f0b0901a692a1d42696bc3e73c60b348"
+    },
+    {
+      "url": "https://media.prts.wiki/7/78/Avg_cgitem_76_i16_6.png",
+      "width": 1600,
+      "height": 900,
+      "transparent": true,
+      "visible": true,
+      "bytes": 32828,
+      "sha256": "de7bf612b7f7b1359a7cdb819bc391f55eb7ec0ad23648b53a94b36dd8310e92"
+    },
+    {
+      "url": "https://media.prts.wiki/7/79/Avg_cgitem_77_i12_1.png",
+      "width": 1600,
+      "height": 900,
+      "transparent": true,
+      "visible": true,
+      "bytes": 742719,
+      "sha256": "c5d3042827fa8d1190530d94d0865cb5884ab27cbd8ce93feeceb88e9ecac9f2"
+    },
+    {
+      "url": "https://media.prts.wiki/0/04/Avg_cgitem_77_i12_2.png",
+      "width": 1600,
+      "height": 900,
+      "transparent": true,
+      "visible": true,
+      "bytes": 1078801,
+      "sha256": "b5d7fbe2acd405cc85dc82b110111c10cc0ce7f73c9b4702e1cfaca68c7c659e"
+    },
+    {
+      "url": "https://media.prts.wiki/1/1d/Avg_cgitem_77_i12_3.png",
+      "width": 1600,
+      "height": 900,
+      "transparent": true,
+      "visible": true,
+      "bytes": 610967,
+      "sha256": "3a9aead5ebc80a96b1c7f74e0115c843eea320ac097815193a1ce00d4c1f2b43"
+    },
+    {
+      "url": "https://media.prts.wiki/9/9f/Avg_cgitem_74_i03_3.png",
+      "width": 238,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 143386,
+      "sha256": "730297650e9546262d5e38673dc572bfe7577f44451891bc8ff59f81f524d66e"
+    },
+    {
+      "url": "https://media.prts.wiki/7/77/Avg_cgitem_74_i03_2.png",
+      "width": 152,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 102080,
+      "sha256": "8729b87773654f6059b4702f31bf7ef3e3a0d3bdc310a70f23b57e1d3403360b"
+    },
+    {
+      "url": "https://media.prts.wiki/d/db/Avg_cgitem_74_i03_1.png",
+      "width": 308,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 68851,
+      "sha256": "6deaed294ce4fcdcef956ddee01cf7f0cc04ba2f61518aa1f4bf4cafb599f2cb"
+    },
+    {
+      "url": "https://media.prts.wiki/9/9d/Avg_cgitem_74_i12_2.png",
+      "width": 811,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 374214,
+      "sha256": "ba7ae5c3a64ea887207d3b36add7e0b1e357f862f996d931e697756eb7853071"
+    },
+    {
+      "url": "https://media.prts.wiki/3/3e/Avg_cgitem_74_i12_1.png",
+      "width": 654,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 426296,
+      "sha256": "9ceff7e2e68d1d8e79defcb134bf7c0e9f18cdde756823093097af244111c53d"
+    },
+    {
+      "url": "https://media.prts.wiki/8/87/Avg_cgitem_74_i12_3.png",
+      "width": 672,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 330328,
+      "sha256": "a859e98ab46f4269a08ef237a6cec886954551df2bc21aaa476c306fa1222bd7"
+    },
+    {
+      "url": "https://media.prts.wiki/8/89/Avg_cgitem_79_i221.png",
+      "width": 591,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 487970,
+      "sha256": "a4e51b5f14a7532d6f7ad02367fefd4af279a05e2fd7c637b050c3d26e5e0c00"
+    },
+    {
+      "url": "https://media.prts.wiki/5/53/Avg_cgitem_79_i25.png",
+      "width": 1279,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 269106,
+      "sha256": "94248eef519b8f2a5212b87494690986ee2efbac3575378a0292ccf3034ae0ac"
+    },
+    {
+      "url": "https://media.prts.wiki/3/39/Avg_cgitem_79_i121.png",
+      "width": 1280,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 891433,
+      "sha256": "bdce709d427a7014012638b0320213ca5f9bcb0584b924ce088ec1b90ee33c2c"
+    },
+    {
+      "url": "https://media.prts.wiki/d/de/Avg_cgitem_79_i123.png",
+      "width": 887,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 845637,
+      "sha256": "94c9ce2a07bd396a49768b4f97bfcff8422f8417fc1f4096d355aa6488a80e86"
+    },
+    {
+      "url": "https://media.prts.wiki/2/23/Avg_cgitem_79_i124.png",
+      "width": 545,
+      "height": 720,
+      "transparent": true,
+      "visible": true,
+      "bytes": 493834,
+      "sha256": "f5d12adadf79dcb8a2f9a4d948b027f61983c75f502772ab4c53197fce56a243"
+    }
+  ],
+  "verification": "Complete Edge raster decoding and SVG composition checks. Original bytes are fetched on first demand into an isolated verification cache; requests counts only this invocation. No full-library decode or desktop-host acceptance is asserted."
+}

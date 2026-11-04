@@ -48,7 +48,7 @@ test('live newly supported multiline, captions, animated text, source conditions
     });
     expect(response.ok()).toBe(true);
     const body = chapterSchema.parse(await response.json());
-    expect(body.revision).toMatch(/^prts-script-v3:/);
+    expect(body.revision).toMatch(/^prts-script-v4:/);
     await expect(page.locator('.body-copy')).not.toContainText('[multiline');
     if (body.diagnostics?.length)
       await expect(page.locator('.source-diagnostics')).toBeVisible();

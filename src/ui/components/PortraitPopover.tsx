@@ -1,18 +1,23 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 
-/** Keep the complete floating image and close control within the reader viewport. */
+/** Keep the complete floating image within the reader viewport. */
 export function PortraitPopover({
   anchorId,
   label,
+  focusOnOpen,
   children,
 }: {
   anchorId: string;
   label: string;
+  focusOnOpen: boolean;
   children: ReactNode;
 }) {
   const panel = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ left: 12, top: 110 });
+  useLayoutEffect(() => {
+    if (focusOnOpen) panel.current?.focus({ preventScroll: true });
+  }, [anchorId, focusOnOpen]);
   useLayoutEffect(() => {
     const anchor = document.getElementById(anchorId);
     const element = panel.current;
@@ -31,9 +36,12 @@ export function PortraitPopover({
           12,
           Math.min(rect.left, innerWidth - element.offsetWidth - 12),
         ),
-        top: Math.min(
-          top,
-          Math.max(minimum, innerHeight - element.offsetHeight - 12),
+        top: Math.max(
+          minimum,
+          Math.min(
+            top,
+            Math.max(minimum, innerHeight - element.offsetHeight - 12),
+          ),
         ),
       });
     };
@@ -56,6 +64,7 @@ export function PortraitPopover({
       style={position}
       role="dialog"
       aria-label={label}
+      tabIndex={-1}
       onClick={(event) => event.stopPropagation()}
     >
       {children}

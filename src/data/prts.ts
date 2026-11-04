@@ -10,6 +10,7 @@ import { readPrtsWiki, type WikiReader } from './prts-client.js';
 import { parsePrtsCatalog } from './prts-catalog.js';
 import { parsePrtsChapter } from './prts-script.js';
 import { PrtsResources, portraitReference } from './prts-resources.js';
+import { placeholderPortrait } from './prts-portrait.js';
 import { PrtsMetadata } from './prts-metadata.js';
 
 export class PrtsSource implements StorySource {
@@ -19,7 +20,7 @@ export class PrtsSource implements StorySource {
   private readonly metadata: PrtsMetadata;
   private readonly catalogPending = new Map<string, Promise<Story[]>>();
   isCurrentRevision(revision: string): boolean {
-    return revision.startsWith('prts-script-v3:');
+    return revision.startsWith('prts-script-v4:');
   }
   reparseCached(chapter: Chapter): Chapter | null {
     if (this.isCurrentRevision(chapter.revision)) return chapter;
@@ -125,15 +126,32 @@ export class PrtsSource implements StorySource {
     }
     if (input.kind !== target?.kind)
       throw new ReaderError('resource_missing', '该段落没有对应图片资源。');
-    if (target.kind === 'portrait')
-      return this.resources.portrait(
-        portraitReference(target.resources),
-        days,
-        input.refresh,
-      );
+    if (target.kind === 'portrait') {
+      let reference: string;
+      try {
+        reference = portraitReference(target.resources);
+      } catch (error) {
+        if (
+          !(error instanceof ReaderError) ||
+          error.code !== 'resource_missing'
+        )
+          throw error;
+        return placeholderPortrait(
+          target.resources.join(' / '),
+          target.resources.length ? 'ambiguous_scene' : 'no_scene',
+          error.message,
+        );
+      }
+      return this.resources.portrait(reference, days, input.refresh);
+    }
     if (!target.resource)
       throw new ReaderError('resource_missing', '该段落缺少 CG 引用。');
-    return this.resources.cg(target.resource, days, input.refresh);
+    return this.resources.cg(
+      target.resource,
+      days,
+      input.refresh,
+      target.composition,
+    );
   }
   async expire(days: number): Promise<void> {
     await Promise.all([

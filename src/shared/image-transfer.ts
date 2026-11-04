@@ -6,7 +6,7 @@ import { ReaderError, readerFailureSchema } from './errors.js';
 // Keep each tool message small without changing the original bytes or adding tools.
 // One million JSON characters is at most 4 MB UTF-8, below that default buffer.
 export const IMAGE_PART_CHARACTERS = 1_000_000;
-export const MAX_IMAGE_PARTS = 64; // two existing image layers, each <= 20 MB
+export const MAX_IMAGE_PARTS = 64; // Each raster <= 20 MB; compositions <= 60M encoded chars.
 const cacheEpochSchema = z.string().max(20).regex(/^\d+$/u);
 export const imagePartRequestSchema = z.object({
   cacheEpoch: cacheEpochSchema.optional(),

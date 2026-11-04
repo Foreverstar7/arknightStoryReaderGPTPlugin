@@ -57,6 +57,7 @@ export function ImageLayers({
       role="img"
       aria-label={label}
       data-image-state="ready"
+      data-portrait-state={image.portrait?.status}
       data-source-url={image.attribution?.sourceUrl ?? image.sourceUrl}
       data-cover-presentation={cover ? coverPresentation(image) : undefined}
     >
@@ -69,6 +70,13 @@ export function ImageLayers({
           y={layer.y}
           width={layer.width}
           height={layer.height}
+          preserveAspectRatio="none"
+          opacity={layer.opacity}
+          transform={
+            layer.rotation
+              ? `rotate(${layer.rotation} ${layer.x + layer.width / 2} ${layer.y + layer.height / 2})`
+              : undefined
+          }
           onError={onError}
         />
       ))}
@@ -207,6 +215,33 @@ export function SourceImage({
         封面尺寸待适配
       </span>
     );
+  if (state.image.portrait?.status === 'placeholder')
+    return (
+      <div
+        className="portrait-placeholder"
+        data-image-state="placeholder"
+        data-portrait-state="placeholder"
+        role="status"
+      >
+        <svg viewBox="0 0 160 180" role="img" aria-label="中性人物占位图">
+          <circle cx="80" cy="55" r="27" fill="currentColor" />
+          <path d="M28 155v-20a52 52 0 0 1 104 0v20z" fill="currentColor" />
+        </svg>
+        <p>暂无可确认的立绘</p>
+        <p className="muted">{state.image.portrait.message}</p>
+        {retryable && (
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              setAttempt((value) => value + 1);
+            }}
+          >
+            重新核验立绘
+          </button>
+        )}
+      </div>
+    );
   return (
     <>
       <ImageLayers
@@ -225,6 +260,27 @@ export function SourceImage({
           });
         }}
       />
+      {state.image.portrait?.status === 'default' && (
+        <p
+          className="portrait-resolution"
+          role="status"
+          data-portrait-state="default"
+        >
+          {state.image.portrait.message}
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              setAttempt((value) => value + 1);
+            }}
+          >
+            重试原立绘
+          </button>
+        </p>
+      )}
+      {state.image.description && (
+        <p className="muted image-description">{state.image.description}</p>
+      )}
       {!cover && (
         <a
           className="image-source muted"
@@ -232,7 +288,7 @@ export function SourceImage({
           target="_blank"
           rel="noreferrer"
         >
-          PRTS 资源来源
+          {input.kind === 'portrait' ? 'PRTS' : 'PRTS 资源来源'}
         </a>
       )}
     </>

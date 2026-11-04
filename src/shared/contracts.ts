@@ -1,5 +1,27 @@
 import { z } from 'zod';
 
+export const cgLayerSchema = z.object({
+  resource: z.string(),
+  kind: z.enum(['image', 'background']),
+  x: z.number().finite(),
+  y: z.number().finite(),
+  width: z.number().positive().optional(),
+  height: z.number().positive().optional(),
+  scale: z.number().positive().optional(),
+  rotation: z.number().finite().optional(),
+  opacity: z.number().min(0).max(1).optional(),
+  centered: z.boolean().optional(),
+});
+export const cgCompositionSchema = z.object({
+  width: z.number().positive(),
+  height: z.number().positive(),
+  layers: z.array(cgLayerSchema).min(1).max(32),
+  description: z.string(),
+  fit: z.literal('layers').optional(),
+});
+export type CgLayer = z.infer<typeof cgLayerSchema>;
+export type CgComposition = z.infer<typeof cgCompositionSchema>;
+
 export const sceneSchema = z.object({
   slots: z.array(z.object({ slot: z.string(), resource: z.string() })),
   focus: z.number().int().optional(),
@@ -16,6 +38,7 @@ export const leafSchema = z.discriminatedUnion('kind', [
     kind: z.literal('cg'),
     label: z.string(),
     resource: z.string().optional(),
+    composition: cgCompositionSchema.optional(),
   }),
   z.object({
     id: z.string(),
@@ -207,21 +230,41 @@ export const imageLayerSchema = z.object({
   y: z.number().finite(),
   width: z.number().positive(),
   height: z.number().positive(),
+  rotation: z.number().finite().optional(),
+  opacity: z.number().min(0).max(1).optional(),
 });
-export const imageResultSchema = z.object({
-  width: z.number().positive(),
-  height: z.number().positive(),
-  layers: z.array(imageLayerSchema).min(1).max(2),
-  resource: z.string(),
-  sourceUrl: z.string().url(),
-  // A file's URL and the metadata that selected it are distinct, traceable sources.
-  attribution: z
-    .object({
-      sourceUrl: z.string().url(),
-      method: coverMethodSchema,
-    })
-    .optional(),
+export const portraitResolutionSchema = z.object({
+  status: z.enum(['original', 'default', 'placeholder']),
+  requested: z.string(),
+  selected: z.string().optional(),
+  reason: z.string(),
+  message: z.string(),
+  evidence: z.array(z.string().url()),
 });
+export const imageResultSchema = z
+  .object({
+    width: z.number().positive(),
+    height: z.number().positive(),
+    layers: z.array(imageLayerSchema).max(32),
+    resource: z.string(),
+    sourceUrl: z.string().url(),
+    portrait: portraitResolutionSchema.optional(),
+    description: z.string().optional(),
+    // A file's URL and the metadata that selected it are distinct, traceable sources.
+    attribution: z
+      .object({
+        sourceUrl: z.string().url(),
+        method: coverMethodSchema,
+      })
+      .optional(),
+  })
+  .refine(
+    (image) =>
+      image.portrait?.status === 'placeholder'
+        ? image.layers.length === 0
+        : image.layers.length > 0,
+    'Only an explicit neutral portrait placeholder may have no image layers.',
+  );
 export type ImageInput = z.infer<typeof imageInputSchema>;
 export type ReaderImage = z.infer<typeof imageResultSchema>;
 export type Block = z.infer<typeof blockSchema>;

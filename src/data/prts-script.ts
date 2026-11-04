@@ -4,12 +4,18 @@ import {
   type Block,
   type Chapter,
   type Leaf,
-  type Scene,
 } from '../shared/contracts.js';
 import { ReaderError } from './source.js';
 import { prtsPageUrl } from './prts-client.js';
 import { ScriptFlow } from './prts-flow.js';
 import { isReviewedSourceNoop } from './prts-compat.js';
+import {
+  cgItem,
+  itemComposition,
+  mergeCgItems,
+  tiledCg,
+  type ScriptScene as Scene,
+} from './prts-cg.js';
 
 type Choice = Extract<Block, { kind: 'choices' }>;
 type Command = { name: string; args: Record<string, string>; text: string };
@@ -133,6 +139,7 @@ export function mergeScenes(scenes: Scene[]): Scene {
   const first = scenes[0];
   if (!first) return { slots: [] };
   return {
+    ...(first.cgItems ? { cgItems: mergeCgItems(scenes) } : {}),
     slots: first.slots.filter((slot) =>
       scenes.every((scene) =>
         scene.slots.some(
@@ -234,7 +241,11 @@ function parseChapter(
       name &&
       previous?.kind === 'speech' &&
       previous.name === name &&
-      JSON.stringify(previous.scene) === JSON.stringify(scene)
+      JSON.stringify(previous.scene) ===
+        JSON.stringify({
+          slots: scene.slots,
+          ...(scene.focus === undefined ? {} : { focus: scene.focus }),
+        })
     ) {
       previous.paragraphs.push(text);
       return;
@@ -245,7 +256,10 @@ function parseChapter(
           kind: 'speech',
           name,
           paragraphs: [text],
-          scene: structuredClone(scene),
+          scene: structuredClone({
+            slots: scene.slots,
+            ...(scene.focus === undefined ? {} : { focus: scene.focus }),
+          }),
         }
       : { id: identify(`narration:${text}`), kind: 'narration', text };
     addLeaf(leaf);
@@ -394,18 +408,22 @@ function parseChapter(
         target = shared.blocks;
       }
     } else if (name === 'character') {
-      scene = { slots: [] };
+      scene = { ...scene, slots: [], focus: undefined };
       if (args.name && args.name !== 'char_empty')
         scene.slots.push({ slot: args.name2 ? 'l' : 'm', resource: args.name });
       if (args.name2 && args.name2 !== 'char_empty')
         scene.slots.push({ slot: 'r', resource: args.name2 });
       if (args.focus !== undefined && /^-?\d+$/u.test(args.focus))
         scene.focus = Number(args.focus);
-      flow?.update(() => structuredClone(scene));
+      flow?.update((before) => ({
+        ...before,
+        slots: structuredClone(scene.slots),
+        focus: scene.focus,
+      }));
     } else if (name === 'charslot') {
       if (!args.slot) {
-        scene = { slots: [] };
-        flow?.update(() => ({ slots: [] }));
+        scene = { ...scene, slots: [], focus: undefined };
+        flow?.update((before) => ({ ...before, slots: [], focus: undefined }));
       } else {
         const slot = args.slot.toLowerCase();
         // `all` with no resource only adjusts focus; never infer a speaker from it.
@@ -436,6 +454,50 @@ function parseChapter(
           flow?.update(update);
         }
       }
+    } else if (name === 'cgitem' && args.image) {
+      flushMulti();
+      const { item, hiding } = cgItem(args);
+      const visible = [
+        ...(scene.cgItems ?? []).filter((other) => other.key !== item.key),
+        item,
+      ];
+      addLeaf({
+        id: identify(`cgitem:${args.image}`),
+        kind: 'cg',
+        label: 'PRTS CG 图层组合',
+        resource: args.image,
+        composition: itemComposition(visible),
+      });
+      const update = (before: Scene): Scene => ({
+        ...before,
+        cgItems: [
+          ...(before.cgItems ?? []).filter((other) => other.key !== item.key),
+          ...(hiding ? [] : [item]),
+        ],
+      });
+      scene = update(scene);
+      flow?.update(update);
+    } else if (name === 'hidecgitem') {
+      const key = args.id ? `${args.image ?? ''}_${args.id}` : args.image;
+      const update = (before: Scene): Scene => ({
+        ...before,
+        cgItems: key ? before.cgItems?.filter((item) => item.key !== key) : [],
+      });
+      scene = update(scene);
+      flow?.update(update);
+    } else if (
+      (name === 'largebg' || name === 'verticalbg') &&
+      args.cggroup &&
+      !args.imagegroup
+    ) {
+      flushMulti();
+      addLeaf({
+        id: identify(`cggroup:${args.cggroup}`),
+        kind: 'cg',
+        label: 'PRTS 拼接 CG',
+        resource: args.cggroup,
+        composition: tiledCg(name, args),
+      });
     } else if (name === 'image' || name === 'imgeffect') {
       flushMulti();
       if (args.image)
@@ -538,7 +600,7 @@ function parseChapter(
     title: meta.title,
     source: 'prts',
     sourceUrl: prtsPageUrl(meta.pageTitle),
-    revision: `prts-script-v3:${hash(script)}`,
+    revision: `prts-script-v4:${hash(script)}`,
     blocks,
     ...(diagnostics.length ? { diagnostics } : {}),
     original: {

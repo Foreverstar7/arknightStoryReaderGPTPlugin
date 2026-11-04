@@ -29,6 +29,7 @@ function Cg({
     <div className="cg-wrap" ref={ref}>
       <button aria-expanded={shown} onClick={() => setManual(!shown)}>
         ◇ {shown ? '收起 CG' : '查看 CG'}
+        {block.composition?.fit === 'layers' ? ' 图层' : ''}
       </button>
       {shown &&
         (chapter.source === 'fixture' ? (
@@ -261,20 +262,8 @@ export function Reader({
                 <PortraitPopover
                   anchorId={`name-${block.id}`}
                   label={`${block.name} 立绘`}
+                  focusOnOpen={!autoImages}
                 >
-                  <div className="portrait-head">
-                    <span>{block.name}</span>
-                    <button
-                      autoFocus={!autoImages}
-                      onClick={() => {
-                        setPortrait(null);
-                        document.getElementById(`name-${block.id}`)?.focus();
-                      }}
-                      aria-label="关闭立绘"
-                    >
-                      ×
-                    </button>
-                  </div>
                   {chapter.source === 'fixture' && block.portrait ? (
                     <>
                       <div className="portrait-art" />
@@ -291,9 +280,6 @@ export function Reader({
                         transport={transport}
                         label={`${block.name} · 当前场景立绘`}
                       />
-                      <p className="muted">
-                        按此处场景资源显示，姓名保持原文。
-                      </p>
                     </div>
                   ) : (
                     <p className="muted">没有可确认的立绘资源。</p>

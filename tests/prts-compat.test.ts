@@ -192,7 +192,7 @@ test('old cached scripts reparse offline on demand; prefetch never changes recor
     assert.ok(first?.kind === 'speech');
     const old: Chapter = {
       ...p,
-      revision: p.revision.replace('v3:', 'v1:'),
+      revision: p.revision.replace('v4:', 'v1:'),
       blocks: [{ ...first, paragraphs: ['前行。\\n后行。'] }],
     };
     const story = {
@@ -243,7 +243,7 @@ test('old cached scripts reparse offline on demand; prefetch never changes recor
     assert.equal(count.wordCount, 6);
     assert.deepEqual(await service.records.read(), before);
     const opened = await service.chapter(old.id);
-    assert.match(opened.revision, /v3:/);
+    assert.match(opened.revision, /v4:/);
     const after = await service.records.read();
     assert.equal(
       after.records[old.id]?.updatedAt,

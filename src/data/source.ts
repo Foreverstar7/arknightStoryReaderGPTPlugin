@@ -3,10 +3,12 @@ import type {
   Story,
   ImageInput,
   ReaderImage,
+  CgComposition,
 } from '../shared/contracts.js';
 
 export type ImageTarget =
-  { kind: 'portrait'; resources: string[] } | { kind: 'cg'; resource?: string };
+  | { kind: 'portrait'; resources: string[] }
+  | { kind: 'cg'; resource?: string; composition?: CgComposition };
 
 export interface StorySource {
   readonly label: string;

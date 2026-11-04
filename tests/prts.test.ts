@@ -286,7 +286,7 @@ test('conditional decisions preserve source order, independent portraits and a s
     ),
     [['北'], ['南']],
   );
-  assert.match(chapter.revision, /^prts-script-v3:/);
+  assert.match(chapter.revision, /^prts-script-v4:/);
 });
 
 test('consecutive predicates and reused decision values retain all dialogue and conservative shared scenes', () => {
