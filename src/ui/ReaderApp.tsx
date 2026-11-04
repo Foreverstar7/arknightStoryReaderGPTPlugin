@@ -30,6 +30,7 @@ import { Reader } from './components/Reader.js';
 import { SettingsPanel } from './components/SettingsPanel.js';
 import { CoverImagesContext } from './cover-images.js';
 import { useStoryPreparation } from './useStoryPreparation.js';
+import { useCatalogRefresh } from './useCatalogRefresh.js';
 import { applyChapterCount, mergeStoryCounts } from './story-counts.js';
 
 type Route =
@@ -89,10 +90,27 @@ export function ReaderApp({
     (data: Snapshot) =>
       setSnapshot((current) => ({
         ...data,
-        stories: mergeStoryCounts(data.stories, current?.stories ?? []),
+        // Ordinary snapshots update records/counts, never roll back a newer catalog.
+        stories: mergeStoryCounts(
+          current?.stories ?? data.stories,
+          data.stories,
+        ),
       })),
     [],
   );
+  const catalogRefresh = useCatalogRefresh(transport, (data) => {
+    const library =
+      stage.current?.querySelector<HTMLElement>('.library-scroll');
+    if (route.page === 'library' && library)
+      libraryPosition.current = captureLibraryPosition(library);
+    setSnapshot((current) => ({
+      // Refresh responses only replace the public catalog once the app is open.
+      // A slow response must not restore older records, settings or cleared history.
+      ...(current ?? data),
+      stories: mergeStoryCounts(data.stories, current?.stories ?? []),
+    }));
+  });
+  const refreshCatalog = catalogRefresh.refresh;
   const registerFlush = useCallback((value: () => Promise<void>) => {
     flush.current = value;
   }, []);
@@ -103,22 +121,32 @@ export function ReaderApp({
 
   useEffect(() => {
     let cancelled = false;
+    const initialNavigation = navigation.current;
     async function initialize() {
       setBusy(true);
       setError('');
+      // Run together: a warm cache renders immediately; cold loads share the
+      // source's pending catalog fetch instead of downloading the directory twice.
+      const cached = transport.call('reader_snapshot', {});
+      const fresh = refreshCatalog();
       try {
-        const data = snapshotSchema.parse(
-          await transport.call('reader_snapshot', {}),
+        const data = await cached.then(
+          (value) => snapshotSchema.parse(value),
+          async (error: unknown) => {
+            const recovered = await fresh;
+            if (!recovered) throw error;
+            return recovered;
+          },
         );
         if (cancelled) return;
-        acceptSnapshot(data);
+        setSnapshot((current) => current ?? data);
         const recent = data.state.recentChapterId
           ? data.state.records[data.state.recentChapterId]
           : undefined;
         const story = data.stories.find(
           (story) => story.id === recent?.storyId,
         );
-        if (recent && story) {
+        if (recent && story && navigation.current === initialNavigation) {
           const chapter = chapterSchema.parse(
             await transport.call('reader_chapter', {
               chapterId: recent.chapterId,
@@ -127,7 +155,7 @@ export function ReaderApp({
           const refreshed = snapshotSchema.parse(
             await transport.call('reader_snapshot', {}),
           );
-          if (!cancelled) {
+          if (!cancelled && navigation.current === initialNavigation) {
             acceptSnapshot(refreshed);
             setRoute({
               page: 'reader',
@@ -139,16 +167,18 @@ export function ReaderApp({
           }
         }
       } catch (error) {
-        if (!cancelled) setError(errorText(error));
+        if (!cancelled && navigation.current === initialNavigation)
+          setError(errorText(error));
       } finally {
-        if (!cancelled) setBusy(false);
+        if (!cancelled && navigation.current === initialNavigation)
+          setBusy(false);
       }
     }
     void initialize();
     return () => {
       cancelled = true;
     };
-  }, [transport, reload, acceptSnapshot]);
+  }, [transport, reload, acceptSnapshot, refreshCatalog]);
 
   useEffect(() => {
     document.documentElement.dataset.theme =
@@ -377,7 +407,7 @@ export function ReaderApp({
     (chapter) => chapter.id === recentId,
   )?.title;
   const chapterNavigationStory =
-    route.page === 'library' ? recentStory : route.story;
+    route.page === 'library' ? recentStory : activeStory;
   const currentRecord =
     route.page === 'reader'
       ? snapshot?.state.records[route.chapter.id]
@@ -508,6 +538,8 @@ export function ReaderApp({
             state={snapshot.state}
             active={route.page === 'library'}
             initialPosition={libraryPosition.current}
+            refreshStatus={catalogRefresh.status}
+            refresh={() => void refreshCatalog()}
             open={(story) => void browse({ page: 'chapters', story })}
           />
         )}
@@ -553,7 +585,10 @@ export function ReaderApp({
           update={updateSettings}
           clearCache={async (scope) => {
             await flush.current();
-            if (scope === 'all') preparation.stop();
+            if (scope === 'all') {
+              preparation.stop();
+              catalogRefresh.cancel();
+            }
             await transport.call('reader_clear_cache', { scope });
             coverImages?.clear();
           }}

@@ -12,7 +12,7 @@ export type ImageTarget =
 
 export interface StorySource {
   readonly label: string;
-  catalog(retentionDays?: number): Promise<Story[]>;
+  catalog(retentionDays?: number, refresh?: boolean): Promise<Story[]>;
   chapter(chapterId: string, retentionDays?: number): Promise<Chapter>;
   isCurrentRevision?(revision: string): boolean;
   reparseCached?(chapter: Chapter): Chapter | null;

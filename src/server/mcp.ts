@@ -21,6 +21,7 @@ import {
   recordInputSchema,
   settingsSchema,
   snapshotSchema,
+  snapshotInputSchema,
   type ToolName,
 } from '../shared/contracts.js';
 import type { ReaderService } from './service.js';
@@ -194,8 +195,8 @@ export function createReaderMcp(
   );
   tool(
     'reader_snapshot',
-    '读取页面目录与本机阅读记录',
-    z.object({}),
+    '读取页面目录与本机阅读记录，可主动刷新目录',
+    snapshotInputSchema,
     snapshotSchema,
     true,
   );

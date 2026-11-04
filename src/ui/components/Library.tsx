@@ -6,6 +6,7 @@ import type { ReaderTransport } from '../transport.js';
 import { SourceImage, useVisible } from './SourceImage.js';
 import { groupStories, storyTypeLabel } from '../catalog.js';
 import { textCoverTitle } from '../../shared/cover-policy.js';
+import type { CatalogRefreshStatus } from '../useCatalogRefresh.js';
 
 export type LibraryPosition = {
   scrollTop: number;
@@ -90,6 +91,8 @@ export function Library({
   transport,
   active,
   initialPosition,
+  refreshStatus,
+  refresh,
 }: {
   stories: Story[];
   state: ReadingState;
@@ -97,6 +100,8 @@ export function Library({
   transport: ReaderTransport;
   active: boolean;
   initialPosition: LibraryPosition | null;
+  refreshStatus: CatalogRefreshStatus;
+  refresh: () => void;
 }) {
   const sections = useRef(new Map<string, HTMLElement>());
   const scroller = useRef<HTMLElement>(null);
@@ -141,8 +146,35 @@ export function Library({
       <main className="library-scroll" ref={scroller}>
         <div className="library-intro">
           <span className="eyebrow">ARKNIGHTS / STORY ARCHIVE</span>
-          <h1>剧情档案</h1>
+          <div className="library-heading">
+            <h1>剧情档案</h1>
+            <button
+              type="button"
+              onClick={() => {
+                if (refreshStatus.phase !== 'loading') refresh();
+              }}
+              aria-disabled={refreshStatus.phase === 'loading'}
+              aria-busy={refreshStatus.phase === 'loading'}
+              aria-label="刷新目录"
+              aria-describedby="catalog-refresh-status"
+            >
+              <span aria-hidden="true">↻</span> 刷新目录
+            </button>
+          </div>
           <p className="muted">从一段记录开始，沿着故事继续。</p>
+          <p
+            className="catalog-refresh-status muted"
+            id="catalog-refresh-status"
+            role="status"
+          >
+            {refreshStatus.phase === 'loading'
+              ? '正在刷新目录…'
+              : refreshStatus.phase === 'ready'
+                ? '目录刷新成功'
+                : refreshStatus.phase === 'failed'
+                  ? `目录刷新失败，保留已有目录。${refreshStatus.message} 可点击“刷新目录”重试。`
+                  : '打开时自动检查目录更新'}
+          </p>
         </div>
         {stories.length === 0 && (
           <p className="empty">目录暂时没有可用剧情。</p>

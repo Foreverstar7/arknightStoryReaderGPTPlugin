@@ -87,7 +87,8 @@ button {
 button:hover {
   background: var(--soft);
 }
-button:disabled {
+button:disabled,
+button[aria-disabled='true'] {
   opacity: 0.4;
   cursor: default;
 }
@@ -272,6 +273,23 @@ button:disabled {
   font-weight: 500;
   letter-spacing: 0.05em;
   margin: 7px 0;
+}
+.library-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px var(--gap);
+}
+.library-heading > button {
+  flex-shrink: 0;
+  min-height: 44px;
+}
+.catalog-refresh-status {
+  margin-top: 8px;
+  min-height: 1.55em;
+  font-size: 12px;
+  overflow-wrap: anywhere;
 }
 .library-scroll section {
   scroll-margin-top: 20px;

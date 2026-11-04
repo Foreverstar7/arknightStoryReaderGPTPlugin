@@ -56,6 +56,20 @@ try {
   });
   const snapshot = snapshotSchema.parse(result.structuredContent);
   assert.ok(
+    tools.find((tool) => tool.name === 'reader_snapshot')?.inputSchema
+      .properties?.refreshCatalog,
+  );
+  const refreshed = snapshotSchema.parse(
+    (
+      await client.callTool({
+        name: 'reader_snapshot',
+        arguments: { refreshCatalog: true },
+      })
+    ).structuredContent,
+  );
+  assert.ok(refreshed.stories.length > 0);
+  assert.deepEqual(refreshed.state, snapshot.state);
+  assert.ok(
     tools.every((tool) =>
       JSON.stringify(tool._meta?.ui).includes('"visibility":["app"]'),
     ),

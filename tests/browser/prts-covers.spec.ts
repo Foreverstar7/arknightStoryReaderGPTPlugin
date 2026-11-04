@@ -380,7 +380,9 @@ test('a decodable-result failure retries the asset, and the chapter-list cover h
   await page
     .getByRole('button', { name: '清理剧情文本和图片缓存', exact: true })
     .click();
-  await expect(page.getByRole('status')).toContainText('阅读记录已保留');
+  await expect(
+    page.getByRole('dialog', { name: '阅读设置' }).getByRole('status'),
+  ).toContainText('阅读记录已保留');
   await page.keyboard.press('Escape');
   miniFailure = true;
   await card.getByRole('button', { name: '打开剧情：骑兵与猎人' }).click();
@@ -556,7 +558,9 @@ test('a cover response started before clearing cannot repopulate image reuse for
     await page
       .getByRole('button', { name: '清理剧情文本和图片缓存', exact: true })
       .click();
-    await expect(page.getByRole('status')).toContainText('阅读记录已保留');
+    await expect(
+      page.getByRole('dialog', { name: '阅读设置' }).getByRole('status'),
+    ).toContainText('阅读记录已保留');
     await page.keyboard.press('Escape');
     if (!release) throw new Error('missing response gate');
     release();

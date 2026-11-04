@@ -166,6 +166,9 @@ export const readingStateSchema = z.object({
     .record(z.string(), z.number().int().nonnegative())
     .optional(),
 });
+export const snapshotInputSchema = z
+  .object({ refreshCatalog: z.boolean().optional() })
+  .strict();
 export const snapshotSchema = z.object({
   stories: z.array(storySchema),
   state: readingStateSchema,

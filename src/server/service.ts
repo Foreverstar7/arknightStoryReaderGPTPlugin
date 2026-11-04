@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import {
   ReaderError,
   type StorySource,
@@ -16,6 +15,7 @@ import {
   clearHistoryInputSchema,
   recordInputSchema,
   settingsSchema,
+  snapshotInputSchema,
   type Chapter,
   type ReadingState,
   type Snapshot,
@@ -80,14 +80,20 @@ export class ReaderService {
     this.coordinator = new CacheCoordinator(root);
     this.counts = new WordCountStore(root);
   }
-  async snapshot(): Promise<Snapshot> {
-    return this.coordinator.run(() => this.loadSnapshot());
+  async snapshot(refreshCatalog = false): Promise<Snapshot> {
+    return this.coordinator.run(() => this.loadSnapshot(refreshCatalog));
   }
-  private async loadSnapshot(): Promise<Snapshot> {
+  private async loadSnapshot(refreshCatalog: boolean): Promise<Snapshot> {
+    const { settings } = await this.records.read();
+    if (!refreshCatalog) {
+      await this.cache.expire(settings.retentionDays);
+      await this.source.expire?.(settings.retentionDays);
+    }
+    const catalog = await this.source.catalog(
+      settings.retentionDays,
+      refreshCatalog,
+    );
     const state = await this.records.read();
-    await this.cache.expire(state.settings.retentionDays);
-    await this.source.expire?.(state.settings.retentionDays);
-    const catalog = await this.source.catalog(state.settings.retentionDays);
     const counts = this.counts.all();
     return {
       stories: catalog.map((story) => ({
@@ -364,9 +370,10 @@ export class ReaderService {
     switch (name) {
       case 'reader_open':
         return { ready: true, source: this.source.label };
-      case 'reader_snapshot':
-        z.object({}).parse(input);
-        return this.snapshot();
+      case 'reader_snapshot': {
+        const { refreshCatalog } = snapshotInputSchema.parse(input);
+        return this.snapshot(refreshCatalog);
+      }
       case 'reader_chapter': {
         const args = chapterInputSchema.parse(input);
         return this.chapter(args.chapterId, args.refresh);

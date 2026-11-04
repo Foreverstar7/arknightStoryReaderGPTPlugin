@@ -41,17 +41,24 @@ export class PrtsSource implements StorySource {
     this.resources = new PrtsResources(root, readWiki, request);
     this.metadata = new PrtsMetadata(root, readWiki);
   }
-  async catalog(retentionDays = 7): Promise<Story[]> {
-    return this.cache.run(() => this.loadCatalog(retentionDays));
+  async catalog(retentionDays = 7, refresh = false): Promise<Story[]> {
+    return this.cache.run(() => this.loadCatalog(retentionDays, refresh));
   }
-  private async loadCatalog(retentionDays: number): Promise<Story[]> {
+  private async loadCatalog(
+    retentionDays: number,
+    refresh: boolean,
+  ): Promise<Story[]> {
+    // A background refresh must not hold up readers of the usable cached catalog.
+    if (!refresh) {
+      const cached = await this.cache.get(retentionDays);
+      if (cached)
+        return parsePrtsCatalog(cached.rootWiki, cached.navigationWiki);
+    }
+    // Cold startup and explicit refresh share one fetch within this cache epoch.
     const key = this.cache.requestKey();
     const pending = this.catalogPending.get(key);
     if (pending) return pending;
     const read = async () => {
-      const cached = await this.cache.get(retentionDays);
-      if (cached)
-        return parsePrtsCatalog(cached.rootWiki, cached.navigationWiki);
       const rootWiki = await this.readWiki('剧情一览');
       if (!/\{\{剧情导航(?:\||\}\})/u.test(rootWiki))
         throw new ReaderError(
@@ -60,6 +67,7 @@ export class PrtsSource implements StorySource {
         );
       const navigationWiki = await this.readWiki('模板:剧情导航');
       const stories = parsePrtsCatalog(rootWiki, navigationWiki);
+      this.cache.assertCurrent();
       await this.cache.put({ rootWiki, navigationWiki });
       return stories;
     };

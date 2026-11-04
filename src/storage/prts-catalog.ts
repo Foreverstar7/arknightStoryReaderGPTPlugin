@@ -18,6 +18,9 @@ export class PrtsCatalogCache {
   requestKey(): string {
     return this.json.requestKey();
   }
+  assertCurrent(): void {
+    this.json.assertCurrent();
+  }
   get(days: number): Promise<CatalogText | null> {
     return this.json.get('catalog', catalogSchema, days);
   }

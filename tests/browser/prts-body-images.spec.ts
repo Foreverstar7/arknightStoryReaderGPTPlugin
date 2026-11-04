@@ -167,7 +167,9 @@ test('real omitted CGItem and cggroup render composed SVGs on demand and keep al
     await wrap.scrollIntoViewIfNeeded();
     await expect(wrap.locator('.source-image')).toHaveCount(0);
     await wrap.getByRole('button', { name: '查看 CG' }).click();
-    await expect(wrap.getByRole('img')).toBeVisible();
+    // Several original layers may still be downloading after the default 5 s.
+    // Allow the real request to settle; network/parse failures still fail this check.
+    await expect(wrap.getByRole('img')).toBeVisible({ timeout: 30_000 });
     await expect(wrap.locator('image')).toHaveCount(
       cg.composition.layers.length,
     );

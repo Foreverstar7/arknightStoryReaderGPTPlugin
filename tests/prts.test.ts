@@ -20,6 +20,10 @@ import {
 } from '../src/domain/reading.js';
 import { ReaderService } from '../src/server/service.js';
 import { PrtsCatalogCache } from '../src/storage/prts-catalog.js';
+import { PublicCache } from '../src/storage/public-cache.js';
+import { snapshotSchema } from '../src/shared/contracts.js';
+import { z } from 'zod';
+import { deferred } from './helpers/deferred.js';
 
 // Original test prose; syntax based on the public samples documented in docs/prts-s2.md.
 const rootWiki = '{{剧情导航|nocat=yes}}';
@@ -455,4 +459,134 @@ test('public catalog cache expires by last access, separately from reading recor
     assert.ok(await cache.get(7));
     now += 8 * 86_400_000;
     assert.equal(await cache.get(7), null);
+  }));
+
+test('catalog refresh shares cold fetches, serves warm cache immediately and updates only the directory', async () =>
+  temporary(async (root) => {
+    let navigation = navigationWiki;
+    let gate = deferred();
+    let started = deferred();
+    const requested: string[] = [];
+    const source = new PrtsSource(root, async (title) => {
+      requested.push(title);
+      if (title === '剧情一览') {
+        started.resolve();
+        await gate.promise;
+        return rootWiki;
+      }
+      if (title === '模板:剧情导航') return navigation;
+      return wiki('[name="甲"]原创缓存正文。');
+    });
+    const service = new ReaderService(source, root);
+    const cold = service.snapshot();
+    const refresh = service.call('reader_snapshot', { refreshCatalog: true });
+    await started.promise;
+    gate.resolve();
+    await Promise.all([cold, refresh]);
+    assert.deepEqual(requested, ['剧情一览', '模板:剧情导航']);
+    const chapter = await service.chapter(meta.id);
+    const first = chapter.blocks[0];
+    assert.ok(first);
+    await service.record({
+      chapterId: chapter.id,
+      revision: chapter.revision,
+      last: { blockId: first.id, fraction: 0.5 },
+      atEnd: false,
+    });
+    const records = await service.records.read();
+    const imageCache = new PublicCache(root, 'images');
+    const mappingCache = new PublicCache(root, 'mapping');
+    await imageCache.put('kept', 'original-image');
+    await mappingCache.put('kept', 'original-mapping');
+    requested.length = 0;
+    navigation = navigationWiki
+      .replace(
+        '{{Navbox',
+        `{|\n! [[剧情一览|活动剧情一览]]\n|-\n! width="120px"|原创新增活动\n! width="40px"|支线\n| [[TEST-1 原创/BEG|新增首篇]]\n|}\n{{Navbox`,
+      )
+      .replace(
+        '[[GT-1 取样/END|',
+        '[[GT-2 新增/BEG|新增篇目]]{{dot}}[[GT-1 取样/END|',
+      );
+    gate = deferred();
+    started = deferred();
+    const firstRefresh = service.snapshot(true);
+    const repeated = service.snapshot(true);
+    await started.promise;
+    const old = await service.snapshot();
+    assert.equal(old.stories.length, 1);
+    assert.equal(old.stories[0]?.chapters.length, 2);
+    gate.resolve();
+    const updated = snapshotSchema.parse(await firstRefresh);
+    assert.deepEqual(await repeated, updated);
+    assert.equal(updated.stories.length, 2);
+    assert.equal(updated.stories[0]?.chapters.length, 3);
+    assert.equal(updated.stories[0]?.chapters[1]?.wordCount, null);
+    assert.deepEqual(requested, ['剧情一览', '模板:剧情导航']);
+    assert.deepEqual(await service.records.read(), records);
+    assert.equal(
+      (await service.cache.get(chapter.id, 7))?.revision,
+      chapter.revision,
+    );
+    assert.equal(await imageCache.get('kept', z.string(), 7), 'original-image');
+    assert.equal(
+      await mappingCache.get('kept', z.string(), 7),
+      'original-mapping',
+    );
+    const restarted = new PrtsSource(root, async () => {
+      throw new Error('cached catalog must work offline');
+    });
+    assert.equal((await restarted.catalog()).length, 2);
+  }));
+
+test('network, malformed and empty refreshes preserve the last good catalog and allow retry', async () =>
+  temporary(async (root) => {
+    let failure = 'none';
+    const source = new PrtsSource(root, async (title) => {
+      if (failure === 'network') throw new ReaderError('network', '测试断网');
+      if (title === '剧情一览') return failure === 'root' ? '改版' : rootWiki;
+      return failure === 'empty' ? '' : navigationWiki;
+    });
+    const original = await source.catalog();
+    for (failure of ['network', 'root', 'empty']) {
+      await assert.rejects(() => source.catalog(7, true), ReaderError);
+      assert.deepEqual(await source.catalog(), original);
+    }
+    failure = 'none';
+    assert.deepEqual(await source.catalog(7, true), original);
+  }));
+
+test('clearing content fences pending catalog refreshes across independent services', async () =>
+  temporary(async (root) => {
+    const gate = deferred();
+    const started = deferred();
+    const oldSource = new PrtsSource(root, async (title) => {
+      if (title === '剧情一览') {
+        started.resolve();
+        await gate.promise;
+        return rootWiki;
+      }
+      return navigationWiki;
+    });
+    const old = new ReaderService(oldSource, root);
+    const current = new ReaderService(
+      new PrtsSource(root, async (title) =>
+        title === '剧情一览'
+          ? rootWiki
+          : navigationWiki.replaceAll('骑兵与猎人', '新版活动'),
+      ),
+      root,
+    );
+    const late = old.snapshot(true);
+    const rejected = assert.rejects(
+      late,
+      (error: unknown) =>
+        error instanceof ReaderError && error.code === 'conflict',
+    );
+    await started.promise;
+    await current.call('reader_clear_cache', { scope: 'all' });
+    assert.equal((await current.snapshot(true)).stories[0]?.title, '新版活动');
+    gate.resolve();
+    await rejected;
+    assert.equal((await old.snapshot()).stories[0]?.title, '新版活动');
   }));

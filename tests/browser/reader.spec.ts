@@ -118,10 +118,10 @@ test('manual portraits, inline CG, keyboard settings and cache clearing work wit
 test('empty data and a failed initial request expose clear states and retry', async ({
   page,
 }) => {
-  let first = true;
+  let unavailable = true;
   await page.route('**/api/tools', async (route) => {
-    if (first) {
-      first = false;
+    // Both the cached startup read and automatic directory refresh are offline.
+    if (unavailable) {
       await route.fulfill({
         status: 503,
         json: { error: '测试：本机服务暂时不可用' },
@@ -130,6 +130,7 @@ test('empty data and a failed initial request expose clear states and retry', as
   });
   await page.goto('/');
   await expect(page.getByRole('alert')).toContainText('本机服务暂时不可用');
+  unavailable = false;
   await page.getByRole('button', { name: '重试', exact: true }).click();
   await expect(page.getByRole('heading', { name: '剧情档案' })).toBeVisible();
   await page.unroute('**/api/tools');

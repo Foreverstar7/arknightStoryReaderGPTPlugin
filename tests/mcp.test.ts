@@ -44,6 +44,19 @@ test('SDK negotiation, app-only visibility, extension registration and persisten
       snapshotSchema.parse(result.structuredContent).stories.length,
       3,
     );
+    assert.ok(
+      tools.find((tool) => tool.name === 'reader_snapshot')?.inputSchema
+        .properties?.refreshCatalog,
+    );
+    const refreshed = await client.callTool({
+      name: 'reader_snapshot',
+      arguments: { refreshCatalog: true },
+    });
+    assert.equal(refreshed.isError, undefined);
+    assert.equal(
+      snapshotSchema.parse(refreshed.structuredContent).stories.length,
+      3,
+    );
     await client.callTool({
       name: 'reader_chapter',
       arguments: { chapterId: 'fixture-mist/1' },
