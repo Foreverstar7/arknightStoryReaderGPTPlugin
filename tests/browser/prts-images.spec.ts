@@ -86,7 +86,19 @@ test('live covers are viewport-triggered; manual portraits/CG stay idle on hover
   await page.keyboard.press('Enter');
   const portrait = page.getByRole('dialog', { name: '格拉尼 立绘' });
   await expect(portrait).toContainText('图片暂时不可达');
+  // A live source retry can outlast Playwright's 5s visibility assertion.
+  // Await the actual response, then separately check decoding and rendering.
+  const retried = page.waitForResponse((response) => {
+    if (!response.url().endsWith('/api/tools')) return false;
+    const data = response.request().postDataJSON();
+    return (
+      data.name === 'reader_image' &&
+      data.arguments.kind === 'portrait' &&
+      data.arguments.refresh === true
+    );
+  });
   await portrait.getByRole('button', { name: '重试图片' }).click();
+  expect((await retried).ok()).toBe(true);
   await expect(
     portrait.getByRole('img', { name: '格拉尼 · 当前场景立绘' }),
   ).toBeVisible();

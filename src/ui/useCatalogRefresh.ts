@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { snapshotSchema, type Snapshot } from '../shared/contracts.js';
+import type { Snapshot } from '../shared/contracts.js';
 import type { ReaderTransport } from './transport.js';
 
 export type CatalogRefreshStatus =
@@ -29,8 +29,7 @@ export function useCatalogRefresh(
     setStatus({ phase: 'loading' });
     const task = transport
       .call('reader_snapshot', { refreshCatalog: true })
-      .then((value) => {
-        const data = snapshotSchema.parse(value);
+      .then((data) => {
         if (generation.current !== run) return null;
         accept.current(data);
         setStatus({ phase: 'ready' });

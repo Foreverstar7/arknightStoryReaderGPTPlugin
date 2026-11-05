@@ -9,21 +9,11 @@ import {
 import { z } from 'zod';
 import { ReaderError } from '../data/source.js';
 import {
-  cacheInputSchema,
-  clearHistoryInputSchema,
-  chapterInputSchema,
-  chapterCountSchema,
-  chapterSchema,
-  chapterInfoSchema,
   imageInputSchema,
   imageResultSchema,
-  readingStateSchema,
-  recordInputSchema,
-  settingsSchema,
-  snapshotSchema,
-  snapshotInputSchema,
   type ToolName,
 } from '../shared/contracts.js';
+import { toolContracts } from '../shared/tools.js';
 import type { ReaderService } from './service.js';
 import { VERSION } from '../shared/version.js';
 import { imageToolMetadata } from './image-transfer.js';
@@ -67,12 +57,18 @@ export function createReaderMcp(
     }),
   );
 
-  function tool(
+  function register<
+    Args extends Record<string, unknown>,
+    Result extends Record<string, unknown>,
+  >(
     name: ToolName,
     title: string,
-    input: z.ZodObject,
-    output: z.ZodObject,
+    schemas: { input: z.ZodType<Args>; output: z.ZodType<Result> },
     readOnly: boolean,
+    run: (args: Args) => Promise<{
+      value: Result;
+      meta?: Record<string, unknown>;
+    }>,
   ) {
     registerAppTool(
       server,
@@ -80,8 +76,8 @@ export function createReaderMcp(
       {
         title,
         description: title,
-        inputSchema: input,
-        outputSchema: output,
+        inputSchema: schemas.input,
+        outputSchema: schemas.output,
         annotations: {
           readOnlyHint: readOnly,
           destructiveHint: name === 'reader_clear_history',
@@ -105,38 +101,10 @@ export function createReaderMcp(
       },
       async (args) => {
         try {
-          const part =
-            name === 'reader_image'
-              ? imagePartRequestSchema.parse(args)
-              : undefined;
-          if (
-            part &&
-            (part.partIndex ?? 0) > 0 &&
-            part.cacheEpoch === undefined
-          )
-            throw new ReaderError('parse', '图片后续分段缺少缓存代次。');
-          const transfer = part
-            ? await service.imageForTransfer(
-                imageInputSchema.parse(args),
-                part.cacheEpoch,
-              )
-            : undefined;
-          const value = transfer
-            ? transfer.image
-            : await service.call(name, args);
-          const result = output.parse(value);
+          const { value, meta } = await run(args);
           return {
-            structuredContent: result,
-            // Binary layers only hydrate the app; they are excluded from model context.
-            ...(transfer
-              ? {
-                  _meta: imageToolMetadata(
-                    transfer.image,
-                    args,
-                    transfer.cacheEpoch,
-                  ),
-                }
-              : {}),
+            structuredContent: value,
+            ...(meta ? { _meta: meta } : {}),
             content: [
               {
                 type: 'text',
@@ -165,82 +133,59 @@ export function createReaderMcp(
       },
     );
   }
-  tool(
+  function tool<Name extends Exclude<ToolName, 'reader_image'>>(
+    name: Name,
+    title: string,
+    readOnly: boolean,
+  ) {
+    register(name, title, toolContracts[name], readOnly, async (args) => ({
+      value: await service.execute(name, args),
+    }));
+  }
+  register(
     'reader_image',
     '按需读取当前场景立绘、CG 或目录封面',
-    z.object({
-      kind: z.enum(['cover', 'portrait', 'cg']),
-      storyId: z.string().max(200).optional(),
-      chapterId: z.string().max(200).optional(),
-      blockId: z.string().max(200).optional(),
-      refresh: z.boolean().optional(),
-      ...imagePartRequestSchema.shape,
-    }),
-    z.object(imageResultSchema.shape).omit({ layers: true }),
+    {
+      // Preserve the existing MCP object envelope. The logical contract below
+      // checks which identifiers the selected image kind requires.
+      input: z.object({
+        kind: z.enum(['cover', 'portrait', 'cg']),
+        storyId: z.string().max(200).optional(),
+        chapterId: z.string().max(200).optional(),
+        blockId: z.string().max(200).optional(),
+        refresh: z.boolean().optional(),
+        ...imagePartRequestSchema.shape,
+      }),
+      output: z.object(imageResultSchema.shape).omit({ layers: true }),
+    },
     true,
+    async (args) => {
+      if ((args.partIndex ?? 0) > 0 && args.cacheEpoch === undefined)
+        throw new ReaderError('parse', '图片后续分段缺少缓存代次。');
+      const transfer = await service.imageForTransfer(
+        imageInputSchema.parse(args),
+        args.cacheEpoch,
+      );
+      // Binary layers only hydrate the app; exclude them from structured content.
+      const { layers, ...summary } = transfer.image;
+      return {
+        value: summary,
+        meta: imageToolMetadata(transfer.image, args, transfer.cacheEpoch),
+      };
+    },
   );
-  tool(
-    'reader_chapter_info',
-    '按需读取可见篇目的关卡简介',
-    chapterInputSchema.pick({ chapterId: true }),
-    chapterInfoSchema,
-    true,
-  );
-  tool(
-    'reader_open',
-    '打开方舟剧情阅读器',
-    z.object({}),
-    z.object({ ready: z.boolean(), source: z.string() }),
-    true,
-  );
-  tool(
-    'reader_snapshot',
-    '读取页面目录与本机阅读记录，可主动刷新目录',
-    snapshotInputSchema,
-    snapshotSchema,
-    true,
-  );
-  tool(
-    'reader_chapter',
-    '按需读取一个篇目的正文',
-    chapterInputSchema,
-    chapterSchema,
-    true,
-  );
+  tool('reader_chapter_info', '按需读取可见篇目的关卡简介', true);
+  tool('reader_open', '打开方舟剧情阅读器', true);
+  tool('reader_snapshot', '读取页面目录与本机阅读记录，可主动刷新目录', true);
+  tool('reader_chapter', '按需读取一个篇目的正文', true);
   tool(
     'reader_prepare_chapter',
     '为当前打开的剧情缓存一篇正文并统计字数，不标记已读或获取图片',
-    chapterInputSchema.pick({ chapterId: true }),
-    chapterCountSchema,
     true,
   );
-  tool(
-    'reader_record',
-    '保存阅读器段落位置与最远进度',
-    recordInputSchema,
-    readingStateSchema,
-    false,
-  );
-  tool(
-    'reader_settings',
-    '保存阅读器设置',
-    settingsSchema,
-    readingStateSchema,
-    false,
-  );
-  tool(
-    'reader_clear_cache',
-    '清理本机内容缓存',
-    cacheInputSchema,
-    z.object({ cleared: z.enum(['images', 'all']) }),
-    false,
-  );
-  tool(
-    'reader_clear_history',
-    '清除本机阅读记录（指定剧情或全部）',
-    clearHistoryInputSchema,
-    readingStateSchema,
-    false,
-  );
+  tool('reader_record', '保存阅读器段落位置与最远进度', false);
+  tool('reader_settings', '保存阅读器设置', false);
+  tool('reader_clear_cache', '清理本机内容缓存', false);
+  tool('reader_clear_history', '清除本机阅读记录（指定剧情或全部）', false);
   return server;
 }

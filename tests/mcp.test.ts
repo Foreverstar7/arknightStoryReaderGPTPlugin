@@ -6,7 +6,11 @@ import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 import { FixtureSource } from '../src/data/fixture.js';
 import { createReaderMcp, RESOURCE_URI } from '../src/server/mcp.js';
 import { ReaderService } from '../src/server/service.js';
-import { readingStateSchema, snapshotSchema } from '../src/shared/contracts.js';
+import {
+  readingStateSchema,
+  snapshotSchema,
+  type ToolName,
+} from '../src/shared/contracts.js';
 import { readerFailureSchema } from '../src/shared/errors.js';
 import path from 'node:path';
 import { mkdir, mkdtemp, rm } from 'node:fs/promises';
@@ -74,6 +78,44 @@ test('SDK negotiation, app-only visibility, extension registration and persisten
       readingStateSchema.parse(saved.structuredContent).recentChapterId,
       'fixture-mist/1',
     );
+    const beforeInvalid = await service.records.read();
+    const invalidCalls: {
+      name: ToolName;
+      arguments: Record<string, unknown>;
+    }[] = [
+      { name: 'reader_snapshot', arguments: { refreshCatalog: 'yes' } },
+      { name: 'reader_chapter', arguments: { chapterId: '' } },
+      { name: 'reader_prepare_chapter', arguments: {} },
+      { name: 'reader_chapter_info', arguments: { chapterId: 1 } },
+      {
+        name: 'reader_image',
+        arguments: { kind: 'portrait', storyId: 'fixture-mist' },
+      },
+      {
+        name: 'reader_record',
+        arguments: {
+          chapterId: 'fixture-mist/1',
+          revision: 'original-fixture-v1',
+          last: { blockId: 'report', fraction: 2 },
+          atEnd: false,
+        },
+      },
+      {
+        name: 'reader_settings',
+        arguments: { autoImages: true, retentionDays: 0, theme: 'light' },
+      },
+      { name: 'reader_clear_cache', arguments: { scope: 'history' } },
+      { name: 'reader_clear_history', arguments: { story: 'fixture-mist' } },
+    ];
+    for (const request of invalidCalls) {
+      assert.equal(
+        (await client.callTool(request)).isError,
+        true,
+        request.name,
+      );
+      await assert.rejects(() => service.call(request.name, request.arguments));
+    }
+    assert.deepEqual(await service.records.read(), beforeInvalid);
     const clear = tools.find((tool) => tool.name === 'reader_clear_history');
     assert.ok(clear?.inputSchema.properties?.storyId);
     const untouched = await client.callTool({

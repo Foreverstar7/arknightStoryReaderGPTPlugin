@@ -1,7 +1,6 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import {
   imageInputSchema,
-  imageResultSchema,
   type ImageInput,
   type ReaderImage,
 } from '../../shared/contracts.js';
@@ -125,20 +124,16 @@ export function SourceImage({
     async function read() {
       try {
         const args: unknown = JSON.parse(key);
-        const result = imageResultSchema.safeParse(
-          await transport.call('reader_image', {
-            ...imageInput(args),
-            ...(attempt > 0 ? { refresh: true } : {}),
-          }),
-        );
-        if (!result.success)
-          throw new ReaderError('parse', '图片结果格式不兼容，请重试。');
+        const image = await transport.call('reader_image', {
+          ...imageInput(args),
+          ...(attempt > 0 ? { refresh: true } : {}),
+        });
         if (active) {
           // A request begun before cache clearing may still finish visibly, but
           // must not repopulate reuse for future mounts after that clear.
           if (cover && covers?.generation === generation)
-            covers?.set(key, result.data);
-          setState({ status: 'ready', image: result.data });
+            covers?.set(key, image);
+          setState({ status: 'ready', image });
         }
       } catch (error) {
         if (active)

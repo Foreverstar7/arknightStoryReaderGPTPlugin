@@ -1,6 +1,6 @@
 # 保持功能的重构计划
 
-更新：2026-11-05。当前功能基线：**7724df1／0.1.24**；原计划基于 e3d34cb／0.1.21，保留在 Git 历史。**R0／H1 已完成，下一步 R1；交付及验证见 [首批记录](refactoring-r0-h1.md)。** 0.1.24 未安装，已安装版本的记录为 0.1.23；这些状态不等于对外发布或真实宿主全路径验收。
+更新：2026-11-05。当前功能基线：**7724df1／0.1.24**；原计划基于 e3d34cb／0.1.21，保留在 Git 历史。**R0／H1／R1 已完成，下一步 R2a；交付及验证见 [首批记录](refactoring-r0-h1.md)与[R1 记录](refactoring-r1.md)。** 0.1.24 未安装，已安装版本的记录为 0.1.23；这些状态不等于对外发布或真实宿主全路径验收。
 
 用户当前优先级：阅读器功能已大致完成，先关注内部重构；网站只记录后续事项。明确目标是**清晰的职责结构、去掉可避免的硬编码、去掉不可达情况的防御与无实际用途的过度设计，同时保持现有行为和阅读记录**。允许调整内部结构，但不以文件数、代码行数、设计模式数量或“零 if”为验收标准。
 
@@ -113,7 +113,7 @@
 | H04  | `shared/image-limits.ts`                                               | 同一 32 层上限原来在两个 schema 重复；20 MB、60M 字符、1M 字符／段与 64 段分别保护原图、组合及传输，明确单位和维护位置 | H1 已处理；保留全部数值；20 MB 边界、32／33 层、分段及组合预算关系   |
 | H05  | `shared/version.ts`／项目与工具链清单                                  | 打包已有 package／plugin／源码检查，缺少普通 check 对 lock、Node 两份 pin 的一致检查；补验证比引入构建生成步骤更小     | H1 已处理；不改版本派生或产物目录，platform 测试                     |
 | H06  | `ui/catalog.ts`、`styles.css`                                          | 七类只有一份排序，封面比例已有 `--cover-ratio`；均是已确认显示规则，不制造可配置平台                                   | 保留；cards／reader 浏览器路径                                       |
-| R101 | `shared/contracts`、`ui/transport`、`server/service.call` 及组件 parse | HTTP／SDK 输入是 unknown；调用成功后组件仍各自选 schema。应把工具名与入参／结果关联，保留错篇目等语义检查              | R1；transport／mcp／image-transfer，HTTP／stdio                      |
+| R101 | `shared/contracts`、`ui/transport`、`server/service.call` 及组件 parse | HTTP／SDK 输入是 unknown；调用成功后组件仍各自选 schema。应把工具名与入参／结果关联，保留错篇目等语义检查              | R1 已完成；统一 tools 契约，传输／MCP／图片／HTTP／stdio 验证通过    |
 | R102 | `ReadingState`／`reading-store.transaction`／`historyToken`            | 旧记录可缺全局代次，读取入口可规范化一次；新剧情尚无局部代次仍合法。事务前后 parse 的职责需随可信模型审查              | R1／R5；旧 JSON、清记录迟到保存及双进程                              |
 | R201 | `service.prepareChapter` 与 `loadChapter`                              | 两条路径重复缓存／重解析／核对统计／取源；实际打开额外处理 expected revision、迁移与 token，不能合成任意副作用开关     | R2a；story-preparation／revisions／body-images、缓存竞态             |
 | R202 | `prts-resources.cached`／`loadCached`                                  | 外层不是纯转发：`cache.run` 建立请求代次上下文；图片、mapping 的等待合并和 assertCurrent 有真实清理竞态                | R2b 保留职责后整理；cache-races／resources                           |
@@ -125,7 +125,7 @@
 | R501 | `storage/PublicCache`／`JsonCache`                                     | PublicCache 当前仅限制 mapping／metadata／images 范围和时钟默认；先保留类型约束，后续评估直接使用明确 scope 是否更简单 | R5；不预建通用 repository；cache-storage／cache-races                |
 | R502 | v3→v4、旧 JSON、epoch／CAS／historyToken                               | 旧原文缓存／记录仍可能进入；清缓存、清记录、统计和页面序号保护不同对象，现有测试证明可达                               | R2a／R5 保留；同源迁移、过期窗口、跨进程清理                         |
 
-### R1：工具契约和可信内部模型
+### R1：工具契约和可信内部模型（已完成）
 
 - 使用现有 Zod，建立十个工具的名字、入参、输出之间的权威关联。明确 HTTP、SDK、服务内调用分别在哪里解码；成功之后调用方得到具体类型，不在每个组件重复选择 schema。固定十个分支可用直白的映射或穷尽处理，不为了泛型 API 使用强制类型转换。
 - 保持 refreshCatalog 可选且旧空参数有效、prepare 返回统计、实际打开返回 historyToken、图片显式零图层占位／组合结果及现有错误字段。图片二进制仍在 app 元数据，分段请求、顺序、transferId 与 cacheEpoch 校验不丢失。

@@ -15,6 +15,7 @@ import { ReaderError } from '../src/shared/errors.js';
 import {
   collectImageResult,
   imagePartSchema,
+  imagePartRequestSchema,
   IMAGE_PART_CHARACTERS,
 } from '../src/shared/image-transfer.js';
 import { imageToolMetadata as createImageMetadata } from '../src/server/image-transfer.js';
@@ -28,7 +29,7 @@ import { createReaderMcp } from '../src/server/mcp.js';
 import { CacheCoordinator } from '../src/storage/cache-coordinator.js';
 
 const imageToolMetadata = (image: ReaderImage, args: unknown) =>
-  createImageMetadata(image, args, '0');
+  createImageMetadata(image, imagePartRequestSchema.parse(args), '0');
 
 const image: ReaderImage = {
   width: 1,

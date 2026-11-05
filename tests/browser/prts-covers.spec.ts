@@ -48,6 +48,13 @@ test('all approved remaining covers decode in full; text covers never request im
   request,
 }) => {
   test.setTimeout(180_000);
+  // The preceding reading suite can leave a source request in flight after its
+  // page closes. Fence that public preparation before taking the cover-only
+  // baseline; keep the complete catalog/state equality assertions below.
+  const reset = await request.post('/api/tools', {
+    data: { name: 'reader_clear_cache', arguments: { scope: 'all' } },
+  });
+  expect(reset.ok()).toBe(true);
   const before = snapshotSchema.parse(
     await (
       await request.post('/api/tools', {

@@ -1,9 +1,6 @@
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import {
-  chapterSchema,
-  readingStateSchema,
-  snapshotSchema,
   type Chapter,
   type ReadingRecord,
   type RecordInput,
@@ -130,14 +127,11 @@ export function ReaderApp({
       const cached = transport.call('reader_snapshot', {});
       const fresh = refreshCatalog();
       try {
-        const data = await cached.then(
-          (value) => snapshotSchema.parse(value),
-          async (error: unknown) => {
-            const recovered = await fresh;
-            if (!recovered) throw error;
-            return recovered;
-          },
-        );
+        const data = await cached.catch(async (error: unknown) => {
+          const recovered = await fresh;
+          if (!recovered) throw error;
+          return recovered;
+        });
         if (cancelled) return;
         setSnapshot((current) => current ?? data);
         const recent = data.state.recentChapterId
@@ -147,14 +141,10 @@ export function ReaderApp({
           (story) => story.id === recent?.storyId,
         );
         if (recent && story && navigation.current === initialNavigation) {
-          const chapter = chapterSchema.parse(
-            await transport.call('reader_chapter', {
-              chapterId: recent.chapterId,
-            }),
-          );
-          const refreshed = snapshotSchema.parse(
-            await transport.call('reader_snapshot', {}),
-          );
+          const chapter = await transport.call('reader_chapter', {
+            chapterId: recent.chapterId,
+          });
+          const refreshed = await transport.call('reader_snapshot', {});
           if (!cancelled && navigation.current === initialNavigation) {
             acceptSnapshot(refreshed);
             setRoute({
@@ -189,9 +179,7 @@ export function ReaderApp({
     if (clearingHistory.current) return;
     const generation = historyGeneration.current;
     try {
-      const state = readingStateSchema.parse(
-        await transport.call('reader_record', input),
-      );
+      const state = await transport.call('reader_record', input);
       if (generation === historyGeneration.current)
         setSnapshot((current) => (current ? { ...current, state } : current));
     } catch (error) {
@@ -337,14 +325,13 @@ export function ReaderApp({
     try {
       await flush.current();
       if (navigation.current !== navigationId) return;
-      const chapter = chapterSchema.parse(
-        await transport.call('reader_chapter', { chapterId, refresh }),
-      );
+      const chapter = await transport.call('reader_chapter', {
+        chapterId,
+        refresh,
+      });
       if (navigation.current !== navigationId) return;
       // Read current state after flushing, so a just-saved position is authoritative.
-      const data = snapshotSchema.parse(
-        await transport.call('reader_snapshot', {}),
-      );
+      const data = await transport.call('reader_snapshot', {});
       if (navigation.current !== navigationId) return;
       const position = restore
         ? data.state.records[chapterId]?.last
@@ -373,9 +360,7 @@ export function ReaderApp({
   }
   async function updateSettings(settings: Settings) {
     await flush.current();
-    const state = readingStateSchema.parse(
-      await transport.call('reader_settings', settings),
-    );
+    const state = await transport.call('reader_settings', settings);
     setSnapshot((current) => (current ? { ...current, state } : current));
   }
   async function clearHistory(storyId?: string) {
@@ -384,11 +369,9 @@ export function ReaderApp({
     clearingHistory.current = true;
     ++historyGeneration.current;
     try {
-      const state = readingStateSchema.parse(
-        await transport.call(
-          'reader_clear_history',
-          storyId ? { storyId } : {},
-        ),
+      const state = await transport.call(
+        'reader_clear_history',
+        storyId ? { storyId } : {},
       );
       flushSync(() => {
         setSnapshot((current) => (current ? { ...current, state } : current));

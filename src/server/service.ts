@@ -7,15 +7,8 @@ import { migrateRecord, readingLayout, wordsAt } from '../domain/revisions.js';
 import { chapterContentKind, chapterWords } from '../domain/reading.js';
 import { WordCountStore } from '../storage/word-counts.js';
 import {
-  cacheInputSchema,
-  chapterInputSchema,
-  imageInputSchema,
   imageResultSchema,
   chapterSchema,
-  clearHistoryInputSchema,
-  recordInputSchema,
-  settingsSchema,
-  snapshotInputSchema,
   type Chapter,
   type ReadingState,
   type Snapshot,
@@ -23,7 +16,14 @@ import {
   type ImageInput,
   type ReadingLayout,
   type ChapterCount,
+  type RecordInput,
 } from '../shared/contracts.js';
+import {
+  parseToolInput,
+  type ToolArgs,
+  type ToolHandlers,
+  type ToolOutput,
+} from '../shared/tools.js';
 import { CacheCoordinator, cacheScopes } from '../storage/cache-coordinator.js';
 import { ContentCache } from '../storage/files.js';
 import { ReadingStore } from '../storage/reading-store.js';
@@ -248,8 +248,7 @@ export class ReaderService {
     this.openedHistory.set(id, token);
     return { ...chapter, historyToken: token };
   }
-  async record(input: unknown): Promise<ReadingState> {
-    const change = recordInputSchema.parse(input);
+  async record(change: RecordInput): Promise<ReadingState> {
     const before = await this.records.read();
     const persisted = before.records[change.chapterId];
     let chapter = this.opened.get(change.chapterId) ?? persisted?.layout;
@@ -367,80 +366,74 @@ export class ReaderService {
       await this.source.image(input, target, days),
     );
   }
-  async call(name: ToolName, input: unknown): Promise<object> {
-    switch (name) {
-      case 'reader_open':
-        return { ready: true, source: this.source.label };
-      case 'reader_snapshot': {
-        const { refreshCatalog } = snapshotInputSchema.parse(input);
-        return this.snapshot(refreshCatalog);
-      }
-      case 'reader_chapter': {
-        const args = chapterInputSchema.parse(input);
-        return this.chapter(args.chapterId, args.refresh);
-      }
-      case 'reader_prepare_chapter': {
-        const args = chapterInputSchema.pick({ chapterId: true }).parse(input);
-        return this.prepareChapter(args.chapterId);
-      }
-      case 'reader_chapter_info': {
-        const args = chapterInputSchema.pick({ chapterId: true }).parse(input);
-        const days = (await this.records.read()).settings.retentionDays;
-        return this.coordinator.run(
-          async () =>
-            (await this.source.chapterInfo?.(args.chapterId, days)) ?? {},
-        );
-      }
-      case 'reader_image':
-        return this.image(imageInputSchema.parse(input));
-      case 'reader_record':
-        return this.record(input);
-      case 'reader_settings': {
-        const settings = settingsSchema.parse(input);
-        return this.records.change((state) => ({ ...state, settings }));
-      }
-      case 'reader_clear_cache': {
-        const { scope } = cacheInputSchema.parse(input);
-        await this.coordinator.clear(
-          scope === 'all' ? cacheScopes : ['images'],
-        );
-        return { cleared: scope };
-      }
-      case 'reader_clear_history': {
-        const { storyId } = clearHistoryInputSchema.parse(input);
-        return this.records.change((state) => {
-          const records = Object.fromEntries(
-            Object.entries(state.records).filter(
-              ([, record]) =>
-                storyId !== undefined && record.storyId !== storyId,
-            ),
-          );
-          const recentChapterId =
-            state.recentChapterId && records[state.recentChapterId]
-              ? state.recentChapterId
-              : (Object.values(records).sort((a, b) =>
-                  b.updatedAt.localeCompare(a.updatedAt),
-                )[0]?.chapterId ?? null);
-          // Keep preferences and revision guards; public counts/content live in
-          // independent stores. Deletion and recent-entry selection are atomic.
-          return {
-            ...state,
-            records,
-            recentChapterId,
-            ...(storyId === undefined
-              ? {
-                  historyEpoch: (state.historyEpoch ?? 0) + 1,
-                  storyHistoryEpochs: {},
-                }
-              : {
-                  storyHistoryEpochs: {
-                    ...state.storyHistoryEpochs,
-                    [storyId]: (state.storyHistoryEpochs?.[storyId] ?? 0) + 1,
-                  },
-                }),
-          };
-        });
-      }
-    }
+  /** Untrusted HTTP/MCP arguments are decoded once before typed dispatch. */
+  async call<Name extends ToolName>(
+    name: Name,
+    input: unknown,
+  ): Promise<ToolOutput<Name>> {
+    return this.execute(name, parseToolInput(name, input));
   }
+  /** MCP's registered schema has already decoded these arguments. */
+  async execute<Name extends ToolName>(
+    name: Name,
+    args: ToolArgs<Name>,
+  ): Promise<ToolOutput<Name>> {
+    return this.handlers[name](args);
+  }
+  private readonly handlers: ToolHandlers = {
+    reader_open: async () => ({ ready: true, source: this.source.label }),
+    reader_snapshot: async ({ refreshCatalog }) =>
+      this.snapshot(refreshCatalog),
+    reader_chapter: async ({ chapterId, refresh }) =>
+      this.chapter(chapterId, refresh),
+    reader_prepare_chapter: async ({ chapterId }) =>
+      this.prepareChapter(chapterId),
+    reader_chapter_info: async ({ chapterId }) => {
+      const days = (await this.records.read()).settings.retentionDays;
+      return this.coordinator.run(
+        async () => (await this.source.chapterInfo?.(chapterId, days)) ?? {},
+      );
+    },
+    reader_image: async (input) => this.image(input),
+    reader_record: async (input) => this.record(input),
+    reader_settings: async (settings) =>
+      this.records.change((state) => ({ ...state, settings })),
+    reader_clear_cache: async ({ scope }) => {
+      await this.coordinator.clear(scope === 'all' ? cacheScopes : ['images']);
+      return { cleared: scope };
+    },
+    reader_clear_history: async ({ storyId }) => {
+      return this.records.change((state) => {
+        const records = Object.fromEntries(
+          Object.entries(state.records).filter(
+            ([, record]) => storyId !== undefined && record.storyId !== storyId,
+          ),
+        );
+        const recentChapterId =
+          state.recentChapterId && records[state.recentChapterId]
+            ? state.recentChapterId
+            : (Object.values(records).sort((a, b) =>
+                b.updatedAt.localeCompare(a.updatedAt),
+              )[0]?.chapterId ?? null);
+        // Keep preferences and revision guards; public counts/content live in
+        // independent stores. Deletion and recent-entry selection are atomic.
+        return {
+          ...state,
+          records,
+          recentChapterId,
+          ...(storyId === undefined
+            ? {
+                historyEpoch: (state.historyEpoch ?? 0) + 1,
+                storyHistoryEpochs: {},
+              }
+            : {
+                storyHistoryEpochs: {
+                  ...state.storyHistoryEpochs,
+                  [storyId]: (state.storyHistoryEpochs?.[storyId] ?? 0) + 1,
+                },
+              }),
+        };
+      });
+    },
+  };
 }

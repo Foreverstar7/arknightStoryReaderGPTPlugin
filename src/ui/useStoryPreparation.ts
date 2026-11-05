@@ -1,9 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import {
-  chapterCountSchema,
-  type ChapterCount,
-  type Story,
-} from '../shared/contracts.js';
+import { type ChapterCount, type Story } from '../shared/contracts.js';
 import type { ReaderTransport } from './transport.js';
 
 export type StoryPreparation = {
@@ -51,11 +47,11 @@ export function useStoryPreparation(
         const chapterId = chapters[cursor++];
         if (!chapterId) return;
         try {
-          const count = chapterCountSchema.parse(
-            await transport.call('reader_prepare_chapter', { chapterId }),
-          );
+          const count = await transport.call('reader_prepare_chapter', {
+            chapterId,
+          });
           if (!active()) return;
-          if (count.storyId !== storyId || count.chapterId !== chapterId)
+          if (count.storyId !== storyId)
             throw new Error('正文统计返回了不同的篇目。');
           update.current(count);
           loaded++;

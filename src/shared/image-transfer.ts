@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { imageResultSchema } from './contracts.js';
 import { ReaderError, readerFailureSchema } from './errors.js';
 import { IMAGE_PART_CHARACTERS, MAX_IMAGE_PARTS } from './image-limits.js';
 export { IMAGE_PART_CHARACTERS, MAX_IMAGE_PARTS } from './image-limits.js';
@@ -17,6 +16,7 @@ export const imagePartRequestSchema = z.object({
     .regex(/^[a-f0-9]{64}$/u)
     .optional(),
 });
+export type ImagePartRequest = z.infer<typeof imagePartRequestSchema>;
 export const imagePartSchema = z.object({
   cacheEpoch: cacheEpochSchema,
   transferId: z.string().regex(/^[a-f0-9]{64}$/u),
@@ -33,7 +33,8 @@ type ImageToolResult = {
   _meta?: Record<string, unknown>;
 };
 
-/** Reassemble only this image's ordered, version-matched parts from app-only calls. */
+/** Reassemble this image's ordered, version-matched parts. The logical tool
+ * boundary validates the resulting unknown value, for single and multipart alike. */
 export async function collectImageResult(
   first: ImageToolResult,
   next: (part: {
@@ -41,7 +42,7 @@ export async function collectImageResult(
     transferId: string;
     cacheEpoch: string;
   }) => Promise<ImageToolResult>,
-) {
+): Promise<unknown> {
   if (!first._meta?.readerImagePart) return first._meta?.readerImage;
   const initial = imagePartSchema.safeParse(first._meta.readerImagePart);
   if (!initial.success || initial.data.index !== 0)
@@ -72,8 +73,14 @@ export async function collectImageResult(
     pieces.push(part.data.data);
   }
   try {
-    return imageResultSchema.parse(JSON.parse(pieces.join('')));
-  } catch {
-    throw new ReaderError('parse', '图片分段合并后格式不兼容，请重试。');
+    const value: unknown = JSON.parse(pieces.join(''));
+    return value;
+  } catch (cause) {
+    throw new ReaderError(
+      'parse',
+      '图片分段合并后格式不兼容，请重试。',
+      undefined,
+      { cause },
+    );
   }
 }

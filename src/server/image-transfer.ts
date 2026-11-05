@@ -4,16 +4,15 @@ import { ReaderError } from '../shared/errors.js';
 import {
   IMAGE_PART_CHARACTERS,
   MAX_IMAGE_PARTS,
-  imagePartRequestSchema,
+  type ImagePartRequest,
 } from '../shared/image-transfer.js';
 
 /** No transfer sessions or extra persisted copies: reuse the normal image cache. */
 export function imageToolMetadata(
   image: ReaderImage,
-  args: unknown,
+  request: ImagePartRequest,
   cacheEpoch: string,
 ) {
-  const request = imagePartRequestSchema.parse(args);
   const serialized = JSON.stringify(image);
   const count = Math.ceil(serialized.length / IMAGE_PART_CHARACTERS);
   const index = request.partIndex ?? 0;

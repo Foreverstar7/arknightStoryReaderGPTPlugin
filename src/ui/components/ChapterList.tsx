@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import type { ReadingState, Story } from '../../shared/contracts.js';
 import { chapterProgress, progressLabel } from '../../domain/reading.js';
 import { Cover } from './Library.js';
-import { chapterInfoSchema } from '../../shared/contracts.js';
 import type { ReaderTransport } from '../transport.js';
 import { useVisible } from './SourceImage.js';
 import { storyTypeLabel } from '../catalog.js';
@@ -27,8 +26,7 @@ function Summary({
     let active = true;
     void transport
       .call('reader_chapter_info', { chapterId: chapter.id })
-      .then((value) => {
-        const info = chapterInfoSchema.parse(value);
+      .then((info) => {
         if (active) {
           setSummary(info.summary);
           setUrl(info.sourceUrl);

@@ -1,10 +1,18 @@
 import type { App } from '@modelcontextprotocol/ext-apps';
 import type { ToolName } from '../shared/contracts.js';
+import {
+  decodeToolResult,
+  type ToolInput,
+  type ToolOutput,
+} from '../shared/tools.js';
 import { ReaderError, readerFailureSchema } from '../shared/errors.js';
 import { collectImageResult } from '../shared/image-transfer.js';
 
 export interface ReaderTransport {
-  call(name: ToolName, args: Record<string, unknown>): Promise<unknown>;
+  call<Name extends ToolName>(
+    name: Name,
+    args: ToolInput<Name>,
+  ): Promise<ToolOutput<Name>>;
 }
 export const previewTransport: ReaderTransport = {
   async call(name, args) {
@@ -16,19 +24,23 @@ export const previewTransport: ReaderTransport = {
         body: JSON.stringify({ name, arguments: args }),
         signal: AbortSignal.timeout(15_000),
       });
-    } catch {
+    } catch (cause) {
       throw new ReaderError(
         'network',
         '无法连接本机阅读器服务或请求超时，请重试。',
+        undefined,
+        { cause },
       );
     }
     let body: unknown;
     try {
       body = await response.json();
-    } catch {
+    } catch (cause) {
       throw new ReaderError(
         response.ok ? 'parse' : 'network',
         `本机服务返回了无法读取的结果（HTTP ${response.status}）。`,
+        undefined,
+        { cause },
       );
     }
     if (!response.ok) {
@@ -53,7 +65,7 @@ export const previewTransport: ReaderTransport = {
         failure.success ? failure.data.sourceUrl : undefined,
       );
     }
-    return body;
+    return decodeToolResult(name, args, body);
   },
 };
 export function hostTransport(
@@ -64,11 +76,13 @@ export function hostTransport(
       let result;
       try {
         result = await app.callServerTool({ name, arguments: args });
-      } catch {
+      } catch (cause) {
         throw new ReaderError(
           // A rejected bridge call may be a protocol/host error, not a source outage.
           'unknown',
           '宿主未能完成阅读器调用，请检查本机服务后重试。',
+          undefined,
+          { cause },
         );
       }
       if (result.isError) {
@@ -87,21 +101,25 @@ export function hostTransport(
           text?.type === 'text' ? text.text : '宿主调用失败，请重试。',
         );
       }
-      return name === 'reader_image'
-        ? collectImageResult(result, async (part) => {
-            try {
-              return await app.callServerTool({
-                name,
-                arguments: { ...args, refresh: false, ...part },
-              });
-            } catch {
-              throw new ReaderError(
-                'unknown',
-                '宿主未能完成图片分段传输，请重试。',
-              );
-            }
-          })
-        : result.structuredContent;
+      const value =
+        name === 'reader_image'
+          ? await collectImageResult(result, async (part) => {
+              try {
+                return await app.callServerTool({
+                  name,
+                  arguments: { ...args, refresh: false, ...part },
+                });
+              } catch (cause) {
+                throw new ReaderError(
+                  'unknown',
+                  '宿主未能完成图片分段传输，请重试。',
+                  undefined,
+                  { cause },
+                );
+              }
+            })
+          : result.structuredContent;
+      return decodeToolResult(name, args, value);
     },
   };
 }
