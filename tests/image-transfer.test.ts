@@ -1,6 +1,16 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import type { ReaderImage } from '../src/shared/contracts.js';
+import {
+  cgCompositionSchema,
+  imageResultSchema,
+  type ReaderImage,
+} from '../src/shared/contracts.js';
+import {
+  MAX_IMAGE_BYTES,
+  MAX_IMAGE_LAYERS,
+  MAX_COMPOSITION_CHARACTERS,
+  MAX_IMAGE_PARTS,
+} from '../src/shared/image-limits.js';
 import { ReaderError } from '../src/shared/errors.js';
 import {
   collectImageResult,
@@ -38,6 +48,52 @@ const image: ReaderImage = {
     },
   ],
 };
+
+test('composition and result share the layer budget while transfer retains room for original bytes and metadata', () => {
+  const layer = image.layers[0];
+  assert.ok(layer);
+  const composition = {
+    width: 1,
+    height: 1,
+    description: '原创',
+    layers: Array.from({ length: MAX_IMAGE_LAYERS }, () => ({
+      resource: 'original',
+      kind: 'image',
+      x: 0,
+      y: 0,
+    })),
+  };
+  const result = {
+    ...image,
+    layers: Array.from({ length: MAX_IMAGE_LAYERS }, () => ({
+      ...layer,
+      dataUrl: 'data:image/png;base64,AAAA',
+    })),
+  };
+  assert.ok(cgCompositionSchema.safeParse(composition).success);
+  assert.ok(imageResultSchema.safeParse(result).success);
+  assert.ok(
+    !cgCompositionSchema.safeParse({
+      ...composition,
+      layers: [...composition.layers, composition.layers[0]],
+    }).success,
+  );
+  assert.ok(
+    !imageResultSchema.safeParse({
+      ...result,
+      layers: [...result.layers, layer],
+    }).success,
+  );
+  // Existing two-layer 20 MB originals fit the composition budget; the full
+  // serializer has a separate hard limit including all source/geometry fields.
+  assert.ok(
+    2 * (4 * Math.ceil(MAX_IMAGE_BYTES / 3) + 'data:image/png;base64,'.length) <
+      MAX_COMPOSITION_CHARACTERS,
+  );
+  assert.ok(
+    MAX_COMPOSITION_CHARACTERS < MAX_IMAGE_PARTS * IMAGE_PART_CHARACTERS,
+  );
+});
 
 test('clearing from another service cancels old MCP image parts before any source read; an explicit new request still works', async () => {
   const base = path.resolve('.ai/local/test-data');

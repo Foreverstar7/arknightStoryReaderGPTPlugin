@@ -1,12 +1,8 @@
 import { z } from 'zod';
 import { imageResultSchema } from './contracts.js';
 import { ReaderError, readerFailureSchema } from './errors.js';
-
-// MCP stdio's SDK default is 10 MiB. A 20 MB original becomes ~26.7 MB base64.
-// Keep each tool message small without changing the original bytes or adding tools.
-// One million JSON characters is at most 4 MB UTF-8, below that default buffer.
-export const IMAGE_PART_CHARACTERS = 1_000_000;
-export const MAX_IMAGE_PARTS = 64; // Each raster <= 20 MB; compositions <= 60M encoded chars.
+import { IMAGE_PART_CHARACTERS, MAX_IMAGE_PARTS } from './image-limits.js';
+export { IMAGE_PART_CHARACTERS, MAX_IMAGE_PARTS } from './image-limits.js';
 const cacheEpochSchema = z.string().max(20).regex(/^\d+$/u);
 export const imagePartRequestSchema = z.object({
   cacheEpoch: cacheEpochSchema.optional(),

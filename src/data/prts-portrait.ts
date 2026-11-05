@@ -1,14 +1,12 @@
 import { z } from 'zod';
 import { ReaderError } from '../shared/errors.js';
 import type { ReaderImage } from '../shared/contracts.js';
-import { prtsPageUrl } from './prts-client.js';
+import { PRTS_ASSET_ORIGIN, prtsPageUrl } from './prts-client.js';
 
-export const CHARACTER_MAP =
-  'https://torappu.prts.wiki/assets/avg/character.json';
+export const CHARACTER_MAP = `${PRTS_ASSET_ORIGIN}/assets/avg/character.json`;
 // Source: current StoryPlayer context loads this explicit variable dictionary.
 // Resolve literal entries only; no character-name search or generated aliases.
-export const STORY_VARIABLES =
-  'https://torappu.prts.wiki/gamedata/latest/story/story_variables.json';
+export const STORY_VARIABLES = `${PRTS_ASSET_ORIGIN}/gamedata/latest/story/story_variables.json`;
 export const LEGACY_LINK = 'Widget:Data_Link';
 export const LEGACY_CHAR = 'Widget:Data_Char';
 export type ResourceLayer = {
@@ -133,7 +131,7 @@ export function characterUrl(key: string): string {
     key.split('/').some((part) => part === '..' || !part)
   )
     throw new ReaderError('parse', 'PRTS 立绘路径不兼容，未猜测文件名。');
-  return `https://torappu.prts.wiki/assets/avg/characters/${key.split('/').map(encodeURIComponent).join('/')}.png`;
+  return `${PRTS_ASSET_ORIGIN}/assets/avg/characters/${key.split('/').map(encodeURIComponent).join('/')}.png`;
 }
 function itemLayers(
   entry: Entry,

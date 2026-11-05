@@ -16,7 +16,7 @@ import {
 } from '../src/data/prts-portrait.js';
 import { parseOperatorIdentity } from '../src/data/prts-metadata.js';
 import { parsePrtsChapter } from '../src/data/prts-script.js';
-import { tiledCg } from '../src/data/prts-cg.js';
+import { cgItem, tiledCg } from '../src/data/prts-cg.js';
 import { imageResultSchema } from '../src/shared/contracts.js';
 import { CacheCoordinator } from '../src/storage/cache-coordinator.js';
 import { chapterWords } from '../src/domain/reading.js';
@@ -212,6 +212,23 @@ const parse = (script: string) =>
     `{{剧情模拟器|文本路径=original/images|剧情分组=原创|文本数据=\n${script}\n}}\n{{剧情导航}}`,
     meta,
   );
+
+test('CG source coordinates and tile dimensions reject missing, excess and non-finite values at the boundary', () => {
+  for (const pto of ['1', '1,2,3', 'no,2', 'Infinity,2'])
+    assert.throws(() => cgItem({ image: 'original', pto }), /坐标格式/u);
+  assert.equal(cgItem({ image: 'original' }).item.x, 640);
+  assert.equal(cgItem({ image: 'original', pto: ',' }).item.y, 360);
+  for (const [command, args] of [
+    ['verticalbg', { cggroup: 'a/b', solidwidth: '10', solidheight: '5' }],
+    ['verticalbg', { cggroup: 'a/b', solidwidth: '10/20', solidheight: '5/7' }],
+    ['verticalbg', { cggroup: 'a/b', solidwidth: '10', solidheight: '5/7/9' }],
+    ['verticalbg', { cggroup: 'a//b', solidwidth: '10', solidheight: '5/6/7' }],
+    ['verticalbg', { cggroup: 'a/b', solidwidth: '10', solidheight: '5/NaN' }],
+    ['largebg', { cggroup: 'a/b', solidwidth: '8/12', solidheight: '0' }],
+    ['largebg', { cggroup: 'a', solidwidth: '8', solidheight: '9' }],
+  ] as const)
+    assert.throws(() => tiledCg(command, args), /图片数/u);
+});
 test('CGItem composites retain key order/alpha, isolate branch state and preserve anonymous speech and word counts', () => {
   const chapter = parse(
     `[cgitem(image="base")]\n[Decision(options="甲;乙",values="1;2")]\n[Predicate(references="1")]\n[cgitem(image="left",pto="-20,30",sto=0.5)]\n[name="？？？"]左。\n[Predicate(references="2")]\n[cgitem(image="right")]\n[name="？？？"]右。\n[Predicate]\n[cgitem(image="top")]\n[name="？？？"]共同。\n[hidecgitem(image="base")]\n[cgitem(image="last",afrom=1,ato=0)]\n[name="？？？"]完。`,

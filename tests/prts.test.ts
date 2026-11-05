@@ -5,7 +5,6 @@ import path from 'node:path';
 import { test } from 'node:test';
 import {
   parsePrtsCatalog,
-  PRTS_STORY_ID,
   chapterIdForPage,
 } from '../src/data/prts-catalog.js';
 import { parsePrtsChapter } from '../src/data/prts-script.js';
@@ -24,6 +23,8 @@ import { PublicCache } from '../src/storage/public-cache.js';
 import { snapshotSchema } from '../src/shared/contracts.js';
 import { z } from 'zod';
 import { deferred } from './helpers/deferred.js';
+
+const PRTS_STORY_ID = 'prts:骑兵与猎人';
 
 // Original test prose; syntax based on the public samples documented in docs/prts-s2.md.
 const rootWiki = '{{剧情导航|nocat=yes}}';

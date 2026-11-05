@@ -2,8 +2,6 @@ import { storySchema, type Story } from '../shared/contracts.js';
 import { ReaderError } from './source.js';
 import { prtsPageUrl } from './prts-client.js';
 
-export const PRTS_STORY_ID = 'prts:骑兵与猎人';
-export const PRTS_STORY_TITLE = '骑兵与猎人';
 export const chapterIdForPage = (title: string) =>
   `prts:${title.replaceAll('_', ' ')}`;
 

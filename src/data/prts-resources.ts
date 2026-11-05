@@ -5,7 +5,12 @@ import {
   type CgComposition,
 } from '../shared/contracts.js';
 import { PublicCache } from '../storage/public-cache.js';
-import { prtsPageUrl, type WikiReader } from './prts-client.js';
+import {
+  PRTS_ORIGIN,
+  PRTS_ASSET_ORIGIN,
+  prtsPageUrl,
+  type WikiReader,
+} from './prts-client.js';
 import { ReaderError } from './source.js';
 import { inspectImage } from './image-format.js';
 import { parseOperatorIdentity } from './prts-metadata.js';
@@ -28,7 +33,15 @@ export {
   resolvePortrait,
   type ResourceLayer,
 } from './prts-portrait.js';
-export const MAX_IMAGE_BYTES = 20_000_000;
+import {
+  MAX_IMAGE_BYTES,
+  MAX_COMPOSITION_CHARACTERS,
+} from '../shared/image-limits.js';
+export { MAX_IMAGE_BYTES } from '../shared/image-limits.js';
+const imageHosts = new Set([
+  'media.prts.wiki',
+  new URL(PRTS_ASSET_ORIGIN).hostname,
+]);
 const mapSchema = z.record(z.string(), z.unknown());
 const rasterSchema = z.object({
   dataUrl: rasterDataUrlSchema,
@@ -66,7 +79,7 @@ export function safeImageUrl(raw: string) {
     const url = new URL(raw);
     return (
       url.protocol === 'https:' &&
-      ['media.prts.wiki', 'torappu.prts.wiki'].includes(url.hostname) &&
+      imageHosts.has(url.hostname) &&
       !url.username &&
       !url.password &&
       !url.port
@@ -472,7 +485,7 @@ export class PrtsResources {
       z.string().url(),
       days,
       async () => {
-        const api = new URL('https://prts.wiki/api.php');
+        const api = new URL('/api.php', PRTS_ORIGIN);
         api.search = new URLSearchParams({
           action: 'query',
           format: 'json',
@@ -581,7 +594,7 @@ export class PrtsResources {
       encodedLength += image.dataUrl.length;
       // Keep compositions within the existing 64 × 1M-character transport.
       // This is an aggregate budget; per-original raster budget stays 20 MB.
-      if (encodedLength > 60_000_000)
+      if (encodedLength > MAX_COMPOSITION_CHARACTERS)
         throw new ReaderError(
           'unsupported',
           'CG 组合超过本次图片传输预算，请到 PRTS 查看。',

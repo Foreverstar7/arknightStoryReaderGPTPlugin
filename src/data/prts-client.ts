@@ -1,6 +1,9 @@
 import { ReaderError } from './source.js';
 
 export const PRTS_ORIGIN = 'https://prts.wiki';
+// Public Wiki and StoryPlayer asset origins; not configurable user URLs.
+// Recheck the player's explicit mapping links if PRTS moves its asset service.
+export const PRTS_ASSET_ORIGIN = 'https://torappu.prts.wiki';
 export function prtsPageUrl(title: string): string {
   return `${PRTS_ORIGIN}/w/${encodeURIComponent(title.replaceAll('_', ' ')).replaceAll('%2F', '/')}`;
 }

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { MAX_IMAGE_LAYERS } from './image-limits.js';
 
 export const cgLayerSchema = z.object({
   resource: z.string(),
@@ -15,7 +16,7 @@ export const cgLayerSchema = z.object({
 export const cgCompositionSchema = z.object({
   width: z.number().positive(),
   height: z.number().positive(),
-  layers: z.array(cgLayerSchema).min(1).max(32),
+  layers: z.array(cgLayerSchema).min(1).max(MAX_IMAGE_LAYERS),
   description: z.string(),
   fit: z.literal('layers').optional(),
 });
@@ -248,7 +249,7 @@ export const imageResultSchema = z
   .object({
     width: z.number().positive(),
     height: z.number().positive(),
-    layers: z.array(imageLayerSchema).max(32),
+    layers: z.array(imageLayerSchema).max(MAX_IMAGE_LAYERS),
     resource: z.string(),
     sourceUrl: z.string().url(),
     portrait: portraitResolutionSchema.optional(),
