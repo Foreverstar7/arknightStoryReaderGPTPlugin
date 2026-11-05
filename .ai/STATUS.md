@@ -2,6 +2,14 @@
 
 更新：2026-11-05。
 
+## 当前同步：已推送 GitHub private 仓库
+
+用户要求先将当前成果保存到自己的 GitHub private 仓库，再在另一台电脑验证安装。已在 `Foreverstar7` 账号下创建 [arknightStoryReaderGPTPlugin](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin)，GitHub 官方 API 与插件均核实为 private；本机 `origin` 指向该仓库，0.1.25 源码提交 `c3b8325` 及 main 历史已推送，main 跟踪 origin/main。
+
+本轮只保存源码与协作交接记录，没有制作 Release、预构建分发包或一键安装器。另一台电脑登录有权限的 GitHub 账号后 clone，按 README 的工具链准备、依赖安装、构建与本机插件安装步骤验证；目前仍只有 Windows x64 实测，异机安装及桌面完整阅读路径等待用户验证。
+
+推送前检查当前索引与全部本地历史，未跟踪 `.runtime/`、`.local/`、`.ai/local/`、`.env`、SQLite 阅读文件或私钥文件。本机阅读记录不随 Git 同步，原记录保留。产品代码与依赖未变，本轮不重复产品测试；原 0.1.25 安装和 R5 验证范围见下文。正式发布、一键安装、其他平台与 S5／官网仍为后续事项。
+
 ## 当前交付：0.1.25 已安装并启用
 
 全部既定重构已完成，R4a `4c43794`、R5 `28b9855`。用户追加要求安装；当前本机实际旧包为0.1.24／63个dist，与此前“已安装0.1.23”记录不同。同版本替换因Windows拒绝访问失败，旧目录仍有七个阅读器进程；未强停会话，递增为0.1.25并通过官方CLI安装到独立版本目录，installed／enabled均为true。
