@@ -1,6 +1,6 @@
 # 保持功能的重构计划
 
-更新：2026-11-05。当前功能基线：**7724df1／0.1.24**；原计划基于 e3d34cb／0.1.21，保留在 Git 历史。**R0／H1／R1／R2a／R3a 已完成，下一步 R2b；交付及验证见 [首批记录](refactoring-r0-h1.md)、[R1](refactoring-r1.md)、[R2a](refactoring-r2a.md)与[R3a](refactoring-r3a.md)。** 0.1.24 未安装，已安装版本的记录为 0.1.23；这些状态不等于对外发布或真实宿主全路径验收。
+更新：2026-11-05。当前功能基线：**7724df1／0.1.24**；原计划基于 e3d34cb／0.1.21，保留在 Git 历史。**R0／H1／R1／R2a／R3a／R2b／R3b 已完成，下一步 R4a→R5；交付及验证见 [首批记录](refactoring-r0-h1.md)、[R1](refactoring-r1.md)、[R2a](refactoring-r2a.md)、[R3a](refactoring-r3a.md)、[R2b](refactoring-r2b.md)与[R3b](refactoring-r3b.md)。** 0.1.24 未安装，已安装版本的记录为 0.1.23；这些状态不等于对外发布或真实宿主全路径验收。
 
 用户当前优先级：阅读器功能已大致完成，先关注内部重构；网站只记录后续事项。明确目标是**清晰的职责结构、去掉可避免的硬编码、去掉不可达情况的防御与无实际用途的过度设计，同时保持现有行为和阅读记录**。允许调整内部结构，但不以文件数、代码行数、设计模式数量或“零 if”为验收标准。
 
@@ -116,11 +116,11 @@
 | R101 | `shared/contracts`、`ui/transport`、`server/service.call` 及组件 parse | HTTP／SDK 输入是 unknown；调用成功后组件仍各自选 schema。应把工具名与入参／结果关联，保留错篇目等语义检查              | R1 已完成；统一 tools 契约，传输／MCP／图片／HTTP／stdio 验证通过           |
 | R102 | `ReadingState`／`reading-store.transaction`／`historyToken`            | 旧记录可缺全局代次，读取入口可规范化一次；新剧情尚无局部代次仍合法。事务前后 parse 的职责需随可信模型审查              | R1／R5；旧 JSON、清记录迟到保存及双进程                                     |
 | R201 | `service.prepareChapter` 与 `loadChapter`                              | 两条路径重复缓存／重解析／核对统计／取源；实际打开额外处理 expected revision、迁移与 token，不能合成任意副作用开关     | R2a 已完成；共用 ChapterContent，保留独立提交；领域／竞态及真实正文验证通过 |
-| R202 | `prts-resources.cached`／`loadCached`                                  | 外层不是纯转发：`cache.run` 建立请求代次上下文；图片、mapping 的等待合并和 assertCurrent 有真实清理竞态                | R2b 保留职责后整理；cache-races／resources                                  |
-| R203 | `prts-resources.loadPortrait`／`render`                                | 显式变量、资料身份、新旧映射选择、确证 404 回退与字节几何混在编排中；复用现有纯 portrait／cg 模块                      | R2b；169 立绘／302 原图、真实身份专项；不声称全库身份验收                   |
-| R204 | `cover-policy`／`prts-metadata` 的封面特例                             | 两部文字封面是用户命名；危机合约通用图及三类批准尺寸有来源／批准依据；当前未取得等价通用替代证据                       | R2b 核实，证据不足保留；metadata／covers                                    |
+| R202 | `prts-resources.cached`／`loadCached`                                  | 外层不是纯转发：`cache.run` 建立请求代次上下文；图片、mapping 的等待合并和 assertCurrent 有真实清理竞态                | R2b 已保留代次上下文；跨进程清理与来源请求回归通过                          |
+| R203 | `prts-resources.loadPortrait`／`render`                                | 显式变量、资料身份、新旧映射选择、确证 404 回退与字节几何混在编排中；复用现有纯 portrait／cg 模块                      | R2b 已分开来源与组合；冻结图片／身份零差异，真实图片通过                    |
+| R204 | `cover-policy`／`prts-metadata` 的封面特例                             | 两部文字封面是用户命名；危机合约通用图及三类批准尺寸有来源／批准依据；当前未取得等价通用替代证据                       | R2b 已核实，缺少等价来源保留；metadata／covers通过                          |
 | R301 | `ReaderApp.acceptSnapshot`／目录回调／`story-counts`                   | 普通快照合入 records/counts，刷新只替换目录；两类更新来源不同，不能无条件 setSnapshot；当前 route 仍要保留旧画面       | R3a 已完成；纯 snapshot reducer；五个目录场景、调用次数及完整浏览器覆盖通过 |
-| R302 | `ReaderApp` 动画／打开／保存 catch、`Reader.flush`                     | 动画取消、已由父层显示的保存失败可恢复；flush 清空整个保存链有真实关闭／清记录路径。逐个明确错误所有者，不全删 catch   | R3b；transitions／history／reader，保存失败重试                             |
+| R302 | `ReaderApp` 动画／打开／保存 catch、`Reader.flush`                     | 动画取消、已由父层显示的保存失败可恢复；flush 清空整个保存链有真实关闭／清记录路径。逐个明确错误所有者，不全删 catch   | R3b 已完成；保存失败后继续排空队列，提交错误有所有者，完整回归通过          |
 | R401 | `prts-script.parsePrtsChapter` 的 `ComplexFlow` 与 `prts-flow`         | 嵌套 Decision、Predicate 复用会抛异常选择正常算法，随后再次扫描；可先共享字段扫描再明确选择流程                        | R4a；v4 全库结构、独立字数、源异常和复杂拓扑；整体解析器替换为条件项        |
 | R501 | `storage/PublicCache`／`JsonCache`                                     | PublicCache 当前仅限制 mapping／metadata／images 范围和时钟默认；先保留类型约束，后续评估直接使用明确 scope 是否更简单 | R5；不预建通用 repository；cache-storage／cache-races                       |
 | R502 | v3→v4、旧 JSON、epoch／CAS／historyToken                               | 旧原文缓存／记录仍可能进入；清缓存、清记录、统计和页面序号保护不同对象，现有测试证明可达                               | R2a／R5 保留；同源迁移、过期窗口、跨进程清理                                |
@@ -160,7 +160,9 @@
 - 保持 CGItem／cggroup 的完整静态图层、源顺序、坐标、透明度及分支状态；正常立绘浮层继续只留图片和小号来源，保留必要默认／占位／错误反馈。
 - 验收：body-images／metadata／resources 与真实图片专项；固定输入下资源与图层指纹不变，显式刷新可更新对应映射／身份缓存，清缓存不回填，不增加默认 hover 请求。回退按来源模块进行，不改记录或图片传输协议。
 
-### R3b：导航、位置与保存生命周期
+### R3b：导航、位置与保存生命周期（已完成）
+
+交付及窄修复见 [R3b 记录](refactoring-r3b.md)：check95/95、完整fixture最终34/34、真实20/20及包验证通过；保存前笔失败后的flush提前释放和动画提交错误分别留有失败证据与回归。
 
 - 依赖 R2a、R3a。使用有限状态与普通函数组织当前画面、目标、错误和重试；数据请求、状态提交、DOM 动画适配分工明确。
 - 从 Reader 提取内聚的位置观察／恢复与保存队列，仅当它使生命周期清楚；不为每个 useRef 单建 hook。审计空 catch 的所有者，删除冗余保护但保留 flush、顺序保存与失败反馈。

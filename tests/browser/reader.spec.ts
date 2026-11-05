@@ -7,6 +7,12 @@ test.beforeEach(async ({ request }) => {
   await request.post('/api/tools', {
     data: { name: 'reader_clear_history', arguments: {} },
   });
+  await request.post('/api/tools', {
+    data: {
+      name: 'reader_settings',
+      arguments: { autoImages: false, retentionDays: 7, theme: 'system' },
+    },
+  });
 });
 
 test('navigation preserves the actual recent chapter and restores the latest position; direct chapter opens start at top', async ({
@@ -163,6 +169,10 @@ test('320px, medium, desktop and low-height layouts in both themes remain usable
       await expect(page.locator('.app-shell')).toHaveAttribute(
         'aria-busy',
         'false',
+      );
+      await expect(page.locator('html')).toHaveAttribute(
+        'data-theme',
+        'system',
       );
       if (await page.getByRole('main', { name: '剧情正文' }).count())
         await page.getByRole('button', { name: '⌂ 主页', exact: true }).click();

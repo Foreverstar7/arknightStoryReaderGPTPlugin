@@ -1,6 +1,17 @@
 import { expect, test } from '@playwright/test';
 import { mkdir } from 'node:fs/promises';
 
+test.beforeEach(async ({ request }) => {
+  // A prior test may have persisted an explicit theme. Media emulation only
+  // exercises both themes when the reader is following the system preference.
+  await request.post('/api/tools', {
+    data: {
+      name: 'reader_settings',
+      arguments: { autoImages: false, retentionDays: 7, theme: 'system' },
+    },
+  });
+});
+
 for (const colorScheme of ['light', 'dark'] as const) {
   test(`source note stays pixel-stable while entering and leaving the chapter directory (${colorScheme})`, async ({
     page,

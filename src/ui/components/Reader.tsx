@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type {
   Block,
   Chapter,
@@ -9,7 +9,7 @@ import type {
 import type { ReaderTransport } from '../transport.js';
 import { SourceImage, useVisible } from './SourceImage.js';
 import { PortraitPopover } from './PortraitPopover.js';
-import { chapterContentKind } from '../../domain/reading.js';
+import { useReadingPosition } from '../useReadingPosition.js';
 
 function Cg({
   block,
@@ -71,130 +71,14 @@ export function Reader({
   registerFlush,
   transport,
 }: ReaderProps) {
-  const scroll = useRef<HTMLElement>(null);
-  const nodes = useRef(new Map<string, HTMLDivElement>());
+  const { scroll, nodes } = useReadingPosition({
+    chapter,
+    initialPosition,
+    save,
+    registerFlush,
+  });
   const [sidebar, setSidebar] = useState(false);
   const [portrait, setPortrait] = useState<string | null>(null);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const saving = useRef<Promise<void>>(Promise.resolve());
-  const lastSaved = useRef('');
-  const lastQueued = useRef('');
-  const saveSequence = useRef(0);
-  const saveRef = useRef(save);
-  saveRef.current = save;
-
-  useLayoutEffect(() => {
-    const element = scroll.current;
-    const node = initialPosition
-      ? nodes.current.get(initialPosition.blockId)
-      : undefined;
-    if (element && node && initialPosition) {
-      element.scrollTop =
-        initialPosition.blockId === chapter.blocks[0]?.id &&
-        initialPosition.fraction === 0
-          ? 0
-          : node.offsetTop + node.offsetHeight * initialPosition.fraction;
-    }
-  }, [initialPosition]);
-
-  useEffect(() => {
-    function position(): RecordInput | null {
-      if (chapterContentKind(chapter) === 'video') return null;
-      const element = scroll.current;
-      if (!element) return null;
-      const end = chapter.blocks.at(-1);
-      const endNode = end ? nodes.current.get(end.id) : undefined;
-      const atEnd = Boolean(
-        endNode &&
-        endNode.getBoundingClientRect().bottom <=
-          element.getBoundingClientRect().bottom + 1,
-      );
-      if (atEnd && end)
-        return {
-          chapterId: chapter.id,
-          revision: chapter.revision,
-          historyToken: chapter.historyToken,
-          last: { blockId: end.id, fraction: 1 },
-          atEnd: true,
-        };
-      // Reading is estimated at the top edge, avoiding credit for unseen content below the fold.
-      const point = element.scrollTop;
-      let block = chapter.blocks[0];
-      for (const item of chapter.blocks) {
-        const node = nodes.current.get(item.id);
-        if (node && node.offsetTop <= point + 1) block = item;
-      }
-      if (!block) return null;
-      const node = nodes.current.get(block.id);
-      const fraction = node
-        ? Math.max(
-            0,
-            Math.min(
-              1,
-              (point - node.offsetTop) / Math.max(node.offsetHeight, 1),
-            ),
-          )
-        : 0;
-      return {
-        chapterId: chapter.id,
-        revision: chapter.revision,
-        historyToken: chapter.historyToken,
-        last: { blockId: block.id, fraction },
-        atEnd: false,
-      };
-    }
-    async function flush() {
-      if (timer.current) clearTimeout(timer.current);
-      const input = position();
-      const fingerprint = input ? JSON.stringify(input) : '';
-      if (input && fingerprint !== (lastQueued.current || lastSaved.current)) {
-        const sequence = ++saveSequence.current;
-        lastQueued.current = fingerprint;
-        saving.current = saving.current
-          .catch(() => undefined)
-          .then(async () => {
-            try {
-              await saveRef.current(input);
-              lastSaved.current = fingerprint;
-            } finally {
-              if (saveSequence.current === sequence) lastQueued.current = '';
-            }
-          });
-      }
-      try {
-        // Restoration can fire a scroll while a navigation flush is awaiting IO.
-        // Drain that newer save too, so clearing history cannot race a late write.
-        let pending;
-        do {
-          pending = saving.current;
-          await pending;
-        } while (pending !== saving.current);
-      } catch {
-        /* Parent displays a retryable error. */
-      }
-    }
-    function schedule() {
-      if (timer.current) clearTimeout(timer.current);
-      timer.current = setTimeout(() => void flush(), 250);
-    }
-    function visibility() {
-      if (document.visibilityState === 'hidden') void flush();
-    }
-    const element = scroll.current;
-    element?.addEventListener('scroll', schedule, { passive: true });
-    document.addEventListener('visibilitychange', visibility);
-    document.addEventListener('reader:flush', flush);
-    registerFlush(flush);
-    void flush();
-    return () => {
-      if (timer.current) clearTimeout(timer.current);
-      element?.removeEventListener('scroll', schedule);
-      document.removeEventListener('visibilitychange', visibility);
-      document.removeEventListener('reader:flush', flush);
-      registerFlush(async () => undefined);
-    };
-  }, [chapter, registerFlush]);
-
   useEffect(() => {
     if (!portrait) return;
     const close = (event: KeyboardEvent) => {

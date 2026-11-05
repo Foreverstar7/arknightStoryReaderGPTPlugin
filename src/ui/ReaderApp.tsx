@@ -36,6 +36,7 @@ import { CoverImagesContext } from './cover-images.js';
 import { useStoryPreparation } from './useStoryPreparation.js';
 import { useCatalogRefresh } from './useCatalogRefresh.js';
 import { readerSnapshotReducer } from './snapshot-state.js';
+import { usePageTransition, type Motion } from './usePageTransition.js';
 
 type Route =
   | { page: 'library' }
@@ -47,7 +48,7 @@ type Route =
       position?: ReadingRecord['last'];
       key: number;
     };
-type Motion = 'home' | 'chapters' | 'read' | 'next' | 'previous';
+type Failure = { message: string; retry: () => void };
 function errorText(error: unknown): string {
   return error instanceof Error ? error.message : '操作失败，请重试。';
 }
@@ -64,19 +65,17 @@ export function ReaderApp({
   const [snapshot, updateSnapshot] = useReducer(readerSnapshotReducer, null);
   const [route, setRoute] = useState<Route>({ page: 'library' });
   const [busy, setBusy] = useState(true);
-  const [error, setError] = useState('');
+  const [failure, setFailure] = useState<Failure | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [reload, setReload] = useState(0);
-  const retry = useRef<() => void>(() => setReload((value) => value + 1));
   const flush = useRef<() => Promise<void>>(async () => undefined);
   const clearingHistory = useRef(false);
   const historyGeneration = useRef(0);
   const coverImages = useContext(CoverImagesContext);
   const key = useRef(0);
   const navigation = useRef(0);
-  const transition = useRef<ViewTransition | null>(null);
-  const fallbackAnimation = useRef<Animation | null>(null);
-  const stage = useRef<HTMLDivElement>(null);
+  const pageTransition = usePageTransition();
+  const stage = pageTransition.stage;
   const libraryPosition = useRef<LibraryPosition | null>(null);
   // The route retains the outgoing screen during transitions, and stays usable
   // if a refreshed catalog removes its story. Live metadata comes from snapshot.
@@ -107,13 +106,19 @@ export function ReaderApp({
     onFlushReady?.(() => flush.current());
     return () => onFlushReady?.(async () => undefined);
   }, [onFlushReady]);
+  useEffect(
+    () => () => {
+      ++navigation.current;
+    },
+    [],
+  );
 
   useEffect(() => {
     let cancelled = false;
     const initialNavigation = navigation.current;
     async function initialize() {
       setBusy(true);
-      setError('');
+      setFailure(null);
       // Run together: a warm cache renders immediately; cold loads share the
       // source's pending catalog fetch instead of downloading the directory twice.
       const cached = transport.call('reader_snapshot', {});
@@ -150,7 +155,10 @@ export function ReaderApp({
         }
       } catch (error) {
         if (!cancelled && navigation.current === initialNavigation)
-          setError(errorText(error));
+          setFailure({
+            message: errorText(error),
+            retry: () => setReload((value) => value + 1),
+          });
       } finally {
         if (!cancelled && navigation.current === initialNavigation)
           setBusy(false);
@@ -175,96 +183,47 @@ export function ReaderApp({
       if (generation === historyGeneration.current)
         updateSnapshot({ type: 'reading', state });
     } catch (error) {
-      setError(`阅读位置保存失败：${errorText(error)}`);
-      retry.current =
-        error instanceof ReaderError && error.code === 'conflict'
-          ? () => {
-              void open(input.chapterId, true, true).catch(() => undefined);
-            }
-          : () => {
-              void flush.current();
-            };
+      setFailure({
+        message: `阅读位置保存失败：${errorText(error)}`,
+        retry:
+          error instanceof ReaderError && error.code === 'conflict'
+            ? () => {
+                // open owns its banner; settings refresh separately consumes rejection.
+                void open(input.chapterId, true, true).catch(() => undefined);
+              }
+            : () => {
+                void flush.current();
+              },
+      });
       throw error;
     }
   }
-  async function changeRoute(next: Route, motion?: Motion, data?: Snapshot) {
+  async function changeRoute(
+    next: Route,
+    retry: () => void,
+    motion?: Motion,
+    data?: Snapshot,
+  ) {
     const navigationId = navigation.current;
-    const previous = transition.current;
-    previous?.skipTransition();
-    fallbackAnimation.current?.cancel();
-    if (previous) await previous.finished.catch(() => undefined);
-    if (navigation.current !== navigationId) return;
-    // This notice is outside the transition content, so it must not enter an old snapshot.
-    flushSync(() => setBusy(false));
-    const kind =
-      motion ??
-      (next.page === 'library'
-        ? 'home'
-        : next.page === 'chapters'
-          ? 'chapters'
-          : 'read');
-    const reduced = window.matchMedia(
-      '(prefers-reduced-motion: reduce)',
-    ).matches;
-    const commit = () => {
-      if (navigation.current !== navigationId) return;
-      const library =
-        stage.current?.querySelector<HTMLElement>('.library-scroll');
-      if (route.page === 'library' && next.page !== 'library' && library)
-        libraryPosition.current = captureLibraryPosition(library);
-      flushSync(() => {
-        if (data) acceptSnapshot(data);
-        setBusy(false);
-        setRoute(next);
-      });
-      updateTransitionBounds();
-    };
-    if (reduced) {
-      commit();
-      return;
-    }
-    document.documentElement.dataset.navigation = kind;
-    updateTransitionBounds();
-    document.documentElement.dataset.coverTransition = String(
-      (route.page === 'library' && next.page === 'chapters') ||
-        (route.page === 'chapters' && next.page === 'library'),
-    );
-    if (!document.startViewTransition) {
-      const turning = kind === 'next' || kind === 'previous';
-      commit();
-      const incoming = turning
-        ? stage.current?.querySelector<HTMLElement>('.reader-scroll')
-        : stage.current;
-      // Without snapshot support use a small flat slide; never rebuild a 3D sheet.
-      const x = kind === 'previous' ? -8 : kind === 'next' ? 8 : 0;
-      fallbackAnimation.current =
-        incoming?.animate(
-          [
-            {
-              transform: `translate(${x}px, ${turning ? 0 : 8}px)`,
-            },
-            { transform: 'translate(0, 0)' },
-          ],
-          {
-            duration: 220,
-            easing: 'cubic-bezier(.2,.7,.25,1)',
-          },
-        ) ?? null;
-      return;
-    }
-    const active = document.startViewTransition(commit);
-    transition.current = active;
-    void active.finished
-      .catch(() => undefined)
-      .finally(() => {
-        if (transition.current === active) transition.current = null;
-      });
-  }
-  function updateTransitionBounds() {
-    document.documentElement.style.setProperty(
-      '--reader-stage-top',
-      `${Math.ceil(stage.current?.getBoundingClientRect().top ?? 0)}px`,
-    );
+    await pageTransition.run({
+      from: route.page,
+      to: next.page,
+      motion,
+      isCurrent: () => navigation.current === navigationId,
+      beforeCapture: () => flushSync(() => setBusy(false)),
+      failed: (error) => setFailure({ message: errorText(error), retry }),
+      commit: () => {
+        const library =
+          stage.current?.querySelector<HTMLElement>('.library-scroll');
+        if (route.page === 'library' && next.page !== 'library' && library)
+          libraryPosition.current = captureLibraryPosition(library);
+        flushSync(() => {
+          if (data) acceptSnapshot(data);
+          setBusy(false);
+          setRoute(next);
+        });
+      },
+    });
   }
   async function browse(next: Route) {
     const id = ++navigation.current;
@@ -280,7 +239,15 @@ export function ReaderApp({
       setBusy(false);
       return;
     }
-    await changeRoute(next);
+    const retry = () => {
+      void browse(next);
+    };
+    try {
+      await changeRoute(next, retry);
+    } catch (error) {
+      if (navigation.current === id)
+        setFailure({ message: errorText(error), retry });
+    }
   }
   async function open(
     chapterId: string,
@@ -289,7 +256,7 @@ export function ReaderApp({
     motion?: Motion,
   ) {
     if (!snapshot) return;
-    retry.current = () => {
+    const retry = () => {
       void open(chapterId, restore, refresh, motion).catch(() => undefined);
     };
     if (
@@ -299,8 +266,7 @@ export function ReaderApp({
       route.chapter.id === chapterId
     ) {
       ++navigation.current;
-      transition.current?.skipTransition();
-      fallbackAnimation.current?.cancel();
+      pageTransition.cancel();
       setBusy(false);
       return;
     }
@@ -308,11 +274,11 @@ export function ReaderApp({
       story.chapters.some((chapter) => chapter.id === chapterId),
     );
     if (!story) {
-      setError('该篇目已不在当前目录中。');
+      setFailure({ message: '该篇目已不在当前目录中。', retry });
       return;
     }
     const navigationId = ++navigation.current;
-    setError('');
+    setFailure(null);
     setBusy(true);
     try {
       await flush.current();
@@ -328,7 +294,7 @@ export function ReaderApp({
       const position = restore
         ? data.state.records[chapterId]?.last
         : undefined;
-      setError('');
+      setFailure(null);
       // Commit data, chrome, position and page together inside the new snapshot.
       await changeRoute(
         {
@@ -338,12 +304,13 @@ export function ReaderApp({
           position,
           key: ++key.current,
         },
+        retry,
         motion,
         data,
       );
     } catch (error) {
       if (navigation.current === navigationId) {
-        setError(errorText(error));
+        setFailure({ message: errorText(error), retry });
         if (refresh) throw error;
       }
     } finally {
@@ -487,13 +454,13 @@ export function ReaderApp({
           。 原定位和进度已保留；无法确认的进度会显示待核实，读到篇末后确认。
         </div>
       )}
-      {error && (
+      {failure && (
         <div className="error-banner" role="alert">
-          <span>{error}</span>
+          <span>{failure.message}</span>
           <button
             onClick={() => {
-              setError('');
-              retry.current();
+              setFailure(null);
+              failure.retry();
             }}
           >
             重试
