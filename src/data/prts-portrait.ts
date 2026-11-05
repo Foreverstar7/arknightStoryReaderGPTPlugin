@@ -207,6 +207,9 @@ export function resolvePortrait(
     );
   return found.layers;
 }
+export type PortraitImage = ReaderImage & {
+  portrait: NonNullable<ReaderImage['portrait']>;
+};
 export type PortraitPlan = {
   layers: ResourceLayer[];
   portrait: NonNullable<ReaderImage['portrait']>;
@@ -216,7 +219,7 @@ export function placeholderPortrait(
   reason: string,
   message: string,
   evidence: string[] = [],
-): ReaderImage {
+): PortraitImage {
   return {
     width: 240,
     height: 280,
@@ -313,4 +316,16 @@ export function resolvePortraitPlan(
         : [prtsPageUrl(LEGACY_LINK), prtsPageUrl(LEGACY_CHAR)],
     },
   };
+}
+
+export function portraitReference(values: string[]): string {
+  const resources = [...new Set(values.map(normalizePortraitReference))];
+  if (resources.length !== 1 || !resources[0])
+    throw new ReaderError(
+      'resource_missing',
+      resources.length > 1
+        ? '此处有多种场景立绘，无法确认姓名对应资源。'
+        : '此处没有可确认的场景立绘。',
+    );
+  return values[0] ?? resources[0];
 }

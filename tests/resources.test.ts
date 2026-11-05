@@ -18,6 +18,7 @@ import {
 import { PublicCache } from '../src/storage/public-cache.js';
 import { imageResultSchema } from '../src/shared/contracts.js';
 import { ReaderError } from '../src/shared/errors.js';
+import { STORY_VARIABLES } from '../src/data/prts-portrait.js';
 import {
   coverPresentation,
   textCoverTitle,
@@ -183,6 +184,160 @@ async function temporary(run: (root: string) => Promise<void>) {
     await rm(root, { recursive: true, force: true });
   }
 }
+
+test('portrait fallback reads legacy sources only after a missing exact selection or confirmed 404, preserving errors and retry order', async () =>
+  temporary(async (root) => {
+    const calls: string[] = [];
+    const exact =
+      'https://torappu.prts.wiki/assets/avg/characters/unit/calm.png';
+    const fallback =
+      'https://torappu.prts.wiki/assets/avg/characters/unit/smile.png';
+    const old = 'https://media.prts.wiki/old-calm.png';
+    const png = Buffer.from(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==',
+      'base64',
+    );
+    let result: 'network' | 'invalid' | 'legacy' | 'default' | 'missing' =
+      'network';
+    const resources = new PrtsResources(
+      root,
+      async (title) => {
+        calls.push(title);
+        return title === 'Widget:Data_Link'
+          ? JSON.stringify({ unit: { array: [{ name: 'unit-2$1' }] } })
+          : `unit-2$1,${old}`;
+      },
+      async (input) => {
+        const url = String(input);
+        calls.push(url);
+        if (url === CHARACTER_MAP) return Response.json(mapping);
+        if (url === exact) {
+          if (result === 'network') return new Response('', { status: 503 });
+          if (result === 'invalid')
+            return new Response('not an image', {
+              headers: { 'content-type': 'image/png' },
+            });
+          return new Response('', { status: 404 });
+        }
+        if ((url === old && result !== 'legacy') || result === 'missing')
+          return new Response('', { status: 404 });
+        return new Response(png, { headers: { 'content-type': 'image/png' } });
+      },
+    );
+    await assert.rejects(
+      () => resources.portrait('unit#2', 7, true),
+      (error: unknown) =>
+        error instanceof ReaderError && error.code === 'network',
+    );
+    assert.deepEqual(calls.splice(0), [CHARACTER_MAP, exact]);
+    result = 'invalid';
+    await assert.rejects(
+      () => resources.portrait('unit#2', 7, true),
+      (error: unknown) =>
+        error instanceof ReaderError && error.code === 'parse',
+    );
+    assert.deepEqual(calls.splice(0), [CHARACTER_MAP, exact]);
+    result = 'legacy';
+    assert.equal(
+      (await resources.portrait('unit#2', 7, true)).portrait.reason,
+      'legacy_exact',
+    );
+    assert.deepEqual(calls.splice(0), [
+      CHARACTER_MAP,
+      exact,
+      'Widget:Data_Link',
+      'Widget:Data_Char',
+      old,
+    ]);
+    result = 'default';
+    const image = await resources.portrait('unit#2', 7, true);
+    assert.equal(image.portrait.status, 'default');
+    assert.deepEqual(image.portrait.evidence, [CHARACTER_MAP, exact, old]);
+    assert.deepEqual(calls.splice(0), [
+      CHARACTER_MAP,
+      exact,
+      'Widget:Data_Link',
+      'Widget:Data_Char',
+      old,
+      fallback,
+    ]);
+    result = 'missing';
+    const missing = await resources.portrait('unit#2', 7, true);
+    assert.equal(missing.portrait.reason, 'image_missing');
+    assert.deepEqual(missing.layers, []);
+    assert.deepEqual(calls, [
+      CHARACTER_MAP,
+      exact,
+      'Widget:Data_Link',
+      'Widget:Data_Char',
+      old,
+      fallback,
+    ]);
+  }));
+
+test('explicit portrait refresh replaces sourced identity, variables and raster while ordinary calls retain cached evidence', async () =>
+  temporary(async (root) => {
+    let next = false;
+    const calls: string[] = [];
+    const png = Buffer.from(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==',
+      'base64',
+    );
+    const resources = new PrtsResources(
+      root,
+      async (title) => {
+        calls.push(title);
+        return `{{CharinfoV2|干员名=原创角色|干员id=${next ? 'char_901_other' : 'char_900_reader'}}}`;
+      },
+      async (input) => {
+        const url = String(input);
+        calls.push(url);
+        if (url === STORY_VARIABLES)
+          return Response.json({ explicit: next ? 'unit#2' : 'unit#1' });
+        if (url === CHARACTER_MAP)
+          return Response.json({
+            ...mapping,
+            char_900_reader: mapping.unit,
+            char_901_other: { array: [{ name: 'next', image: 'other/next' }] },
+          });
+        return new Response(png, { headers: { 'content-type': 'image/png' } });
+      },
+    );
+    const refs = ['char_900_reader', 'char_901_other'];
+    const first = await resources.speakerPortrait(refs, '原创角色', 7);
+    const variable = await resources.portrait('$explicit', 7);
+    next = true;
+    calls.length = 0;
+    assert.deepEqual(
+      await resources.speakerPortrait(refs, '原创角色', 7),
+      first,
+    );
+    assert.deepEqual(await resources.portrait('$explicit', 7), variable);
+    assert.deepEqual(calls, []);
+    const refreshed = await resources.speakerPortrait(
+      refs,
+      '原创角色',
+      7,
+      true,
+    );
+    assert.equal(refreshed?.resource, 'char_901_other');
+    assert.match(refreshed?.layers[0]?.sourceUrl ?? '', /other\/next\.png$/u);
+    assert.deepEqual(calls.splice(0), [
+      '原创角色',
+      CHARACTER_MAP,
+      'https://torappu.prts.wiki/assets/avg/characters/other/next.png',
+    ]);
+    const refreshedVariable = await resources.portrait('$explicit', 7, true);
+    assert.match(
+      refreshedVariable.layers[0]?.sourceUrl ?? '',
+      /unit\/calm\.png$/u,
+    );
+    assert.deepEqual(calls, [
+      STORY_VARIABLES,
+      CHARACTER_MAP,
+      'https://torappu.prts.wiki/assets/avg/characters/unit/calm.png',
+    ]);
+  }));
 
 test('exact hub expressions, body groups and face overlays resolve; multiple scene resources never use focus to guess', () => {
   assert.match(
