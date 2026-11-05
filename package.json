@@ -31,6 +31,7 @@
     "audit:covers": "tsx scripts/audit-prts-covers.ts",
     "audit:chapters": "tsx scripts/audit-prts-chapters.ts",
     "audit:images": "tsx scripts/audit-prts-images.ts",
+    "audit:refactor": "tsx scripts/refactoring-baseline.ts",
     "probe:images": "tsx scripts/probe-prts-body-images.ts",
     "probe:covers": "tsx scripts/probe-covers.ts",
     "probe:host": "tsx scripts/probe-host.ts"
