@@ -1,8 +1,8 @@
-# 重构执行交接：R3b 已完成，直接继续 R4a→R5
+# 重构执行交接：R4a 已完成，直接继续 R5
 
-更新：2026-11-05。先读 .ai/STATUS.md，再读 AGENTS.md、docs/requirements.md、.ai/PLAN.md、docs/refactoring-plan.md、docs/refactoring-r2b.md、docs/refactoring-r3b.md，核对 git status／git log。已完成 R0 69dc592、H1 730f8fd、R1 d5a0124、R2a e6a762a、R3a 3b48d6a、R2b e85c9a8；R3b 与本交接同批独立本地提交。不重做这些部分。
+更新：2026-11-05。先读 .ai/STATUS.md，再读 AGENTS.md、docs/requirements.md、.ai/PLAN.md、docs/refactoring-plan.md、docs/refactoring-r2b.md、docs/refactoring-r3b.md、docs/refactoring-r4a.md，核对 git status／git log。已完成 R0 69dc592、H1 730f8fd、R1 d5a0124、R2a e6a762a、R3a 3b48d6a、R2b e85c9a8；R3b fa531bb；R4a 与本交接同批独立本地提交。不重做这些部分。
 
-用户已明确授权连续完成全部既定重构；会话过长时，在完整部分验证并本地提交后新开同项目会话接续，不逐片确认。下一步直接 R4a→R5。R4b 只有确实更简单且等价才采用；TanStack Query／p-limit 在已完成 UI 片没有简化收益，不采用不是遗留必做项。不自行指定新模型或开启并行代理。
+用户已明确授权连续完成全部既定重构；会话过长时，在完整部分验证并本地提交后新开同项目会话接续，不逐片确认。下一步直接 R5。R4b 只有确实更简单且等价才采用；TanStack Query／p-limit 在已完成 UI 片没有简化收益，不采用不是遗留必做项。不自行指定新模型或开启并行代理。
 
 保留全部阅读功能、来源语义、记录与真实竞态，删除可避免的重复知识和不必要结构。不要启动 S5、官网、购域名、安装、推送、发布或关机。源码／锁文件／插件仍 0.1.24，已安装记录仍为 0.1.23。ReadingState 旧字段规范化留 R5；真实桌面完整 UI 与非 Windows x64 平台仍未验。
 
@@ -22,7 +22,7 @@ R3b：useReadingPosition 管理挂载期的DOM锚点／恢复／事件，positio
 
 冻结基线 .ai/local/refactoring-0.1.24/baseline.json，SHA256 07b28e86f8cb7002ae07c0b6cad7181dc84def25f544bfe8f7d2e0d005373c1e，独立构建在相邻baseline/。固定1756篇及独立字数、169立绘、122CG引用、207组合、302原图、21身份发言块；不是全库身份验收。不覆盖基线或修改样本掩盖差异。
 
-R4a：先审查prts-script／prts-flow，一次共享字段扫描、保留行号，明确简单／复杂流选择并移除ComplexFlow作为正常异常分流。两种输出投影可继续独立；不改变block ID、revision、parser版本、段落分组、scene／CG或源异常诊断。复杂拓扑／未知语法及真实样本验证后，与冻结v4全库结构和独立字数比较；同输入记录耗时／内存。R4b／Chevrotain若不更简单则不做。
+R4a已完成：prts-scanner单次读取字段并保留行号，Decision配对label／value，明确选择简单／复杂流，移除ComplexFlow与重跑。保留两种输出、段落、ID、revision、v4、scene／CG和来源诊断。扫描错误等投影到达原行才抛出，原始全文仍检查Warp／GotoPage。check99/99、真实PRTS20/20首轮通过；最终固定1756篇结构／独立字数及图片身份零差异零联网，10648组原创指令组合结果／诊断等价。同输入校准测量全库1777.20→1779.36ms、37篇复杂流105.03→81.60ms，内存相近，首轮与最终分开保留。R4b／Chevrotain无已证实的简化收益，不采用不是遗漏。详见docs/refactoring-r4a.md；证据.ai/local/refactoring-0.1.24/r4a/。
 
 R5：审查ReadingState磁盘入口旧字段规范化、PublicCache仅scope限制与剩余重复parse／兜底；保留reading／index／cache不同耐久性、真实跨进程事务、historyToken、epoch、统计CAS、旧JSON防复活和旧raw迁移。不要建通用repository／事务框架，不以清数据消除旧格式。
 

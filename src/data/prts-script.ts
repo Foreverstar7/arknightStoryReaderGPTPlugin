@@ -5,9 +5,9 @@ import {
   type Chapter,
   type Leaf,
 } from '../shared/contracts.js';
-import { ReaderError } from './source.js';
 import { prtsPageUrl } from './prts-client.js';
-import { ScriptFlow } from './prts-flow.js';
+import { ScriptFlow, requiresComplexFlow } from './prts-flow.js';
+import { bodyText, scanScript, scriptFailure as fail } from './prts-scanner.js';
 import { isReviewedSourceNoop } from './prts-compat.js';
 import {
   cgItem,
@@ -18,14 +18,16 @@ import {
 } from './prts-cg.js';
 
 type Choice = Extract<Block, { kind: 'choices' }>;
-type Command = { name: string; args: Record<string, string>; text: string };
-type Branch = {
-  choice: Choice;
-  values: string[];
-  states: Map<string, Scene>;
-  selected: string[];
+type BranchPath = {
+  value: string;
+  option: Choice['options'][number];
+  scene: Scene;
 };
-class ComplexFlow extends Error {}
+type Branch = {
+  paths: BranchPath[];
+  shared: NonNullable<Choice['shared']>;
+  selected: BranchPath[];
+};
 type ChapterMeta = {
   id: string;
   storyId: string;
@@ -35,104 +37,6 @@ type ChapterMeta = {
 };
 const hash = (value: string) =>
   createHash('sha256').update(value).digest('hex').slice(0, 24);
-
-function fail(page: string, line: number, message: string): never {
-  throw new ReaderError(
-    'parse',
-    `PRTS「${page}」第 ${line} 行：${message} 原始文本未作为正文展示。`,
-  );
-}
-
-/** Only known rich-text tags are removed; literal square brackets remain text. */
-function bodyText(text: string): string {
-  return text
-    .replace(/<\/?(?:color|size|b|i|u)(?:=[^>]+)?>/giu, '')
-    .replace(/<br\s*\/?>/giu, '\n')
-    .replace(/\\n/gu, '\n')
-    .replace(/\{@nbs\}/giu, ' ')
-    .replace(/\{@s\}/giu, '')
-    .trim();
-}
-
-function argumentsOf(
-  raw: string,
-  page: string,
-  line: number,
-): Record<string, string> {
-  const args: Record<string, string> = {};
-  let rest = raw.trim();
-  while (rest) {
-    // Observed cut-in style typo uses ':'; it is a visual setting, never body
-    // or control flow. Constrain the exception to that key instead of accepting
-    // arbitrary malformed arguments. The runtime records it as a source warning.
-    rest = rest.replace(/^fadestyle\s*:\s*/iu, 'fadestyle=');
-    const match =
-      /^([\w]+)\s*=\s*(?:"((?:\\.|[^"\\])*)"|'((?:\\.|[^'\\])*)'|([^,]*?))\s*(?:,\s*|$)/u.exec(
-        rest,
-      );
-    if (!match?.[1]) fail(page, line, '脚本参数格式不兼容。');
-    const key = match[1].toLowerCase();
-    const value = (match[2] ?? match[3] ?? match[4] ?? '').replace(
-      /\\([\\"'])/gu,
-      '$1',
-    );
-    // PRTS krliov.toolbox.js String.toObject assigns in source order: the last
-    // duplicate wins, including conflicting values. Never evaluate the arguments.
-    if (['__proto__', 'prototype', 'constructor'].includes(key))
-      fail(page, line, '不支持的参数名称。');
-    args[key] = value;
-    rest = rest.slice(match[0].length);
-  }
-  return args;
-}
-
-function commandOf(text: string, page: string, line: number): Command | null {
-  if (!text.startsWith('[')) return null;
-  // Find the command terminator outside quoted values. Never evaluate source code.
-  let quote = '';
-  let escaped = false;
-  let end = -1;
-  for (let i = 1; i < text.length; i++) {
-    const character = text[i];
-    if (escaped) {
-      escaped = false;
-      continue;
-    }
-    if (character === '\\' && quote) {
-      escaped = true;
-      continue;
-    }
-    if (quote) {
-      if (character === quote) quote = '';
-      continue;
-    }
-    if (character === '"' || character === "'") quote = character;
-    else if (character === ']') {
-      end = i;
-      break;
-    }
-  }
-  if (end < 0) {
-    if (/^\[(?:name\s*=|[A-Za-z]+\s*\()/u.test(text))
-      fail(page, line, '指令缺少结束方括号。');
-    return null;
-  }
-  const header = text.slice(1, end).trim();
-  const assignment = /^([A-Za-z][\w]*)\s*=/u.exec(header);
-  if (assignment?.[1])
-    return {
-      name: assignment[1].toLowerCase(),
-      args: argumentsOf(header, page, line),
-      text: text.slice(end + 1).trim(),
-    };
-  const match = /^([A-Za-z][\w]*)(?:\((.*)\))?$/u.exec(header);
-  if (!match?.[1]) return null;
-  return {
-    name: match[1].toLowerCase(),
-    args: argumentsOf(match[2] ?? '', page, line),
-    text: text.slice(end + 1).trim(),
-  };
-}
 
 /** Keep only state shared by every incoming path; ambiguous portraits are never inferred. */
 export function mergeScenes(scenes: Scene[]): Scene {
@@ -162,19 +66,6 @@ const stageCommands = new Set(
 );
 
 export function parsePrtsChapter(wiki: string, meta: ChapterMeta): Chapter {
-  try {
-    return parseChapter(wiki, meta, false);
-  } catch (error) {
-    if (!(error instanceof ComplexFlow)) throw error;
-    return parseChapter(wiki, meta, true);
-  }
-}
-
-function parseChapter(
-  wiki: string,
-  meta: ChapterMeta,
-  complex: boolean,
-): Chapter {
   // Source pages may put a notice/section before their one simulator template.
   // Only the explicit template's text field is body; prefixed Wiki is not prose.
   const templates = [...wiki.matchAll(/\{\{剧情模拟器\s*\|/gu)];
@@ -201,6 +92,10 @@ function parseChapter(
   )
     fail(meta.pageTitle, 1, '文本数据边界不兼容。');
   const script = tail.slice(0, ending.index).trim();
+  const { instructions, hasLabel, lastContentLine } = scanScript(
+    script,
+    meta.pageTitle,
+  );
   const blocks: Block[] = [];
   let target: Leaf[] | Block[] = blocks;
   let scene: Scene = { slots: [] };
@@ -221,7 +116,7 @@ function parseChapter(
     return `prts-${digest}-${occurrence}`;
   }
   let currentLine = 1;
-  const flow = complex
+  const flow = requiresComplexFlow(instructions)
     ? new ScriptFlow(
         blocks,
         identify,
@@ -285,57 +180,32 @@ function parseChapter(
   }
   function commitBranch() {
     if (branch)
-      for (const value of branch.selected)
-        branch.states.set(value, structuredClone(scene));
+      for (const path of branch.selected) path.scene = structuredClone(scene);
   }
-  const lines = script.split(/\r?\n/u);
-  for (const [index, raw] of lines.entries()) {
-    const line = index + 1;
+  for (const instruction of instructions) {
+    const { line, text } = instruction;
     currentLine = line;
     if (flow) scene = flow.scene();
-    const text = raw.trim();
-    if (!text || text.startsWith('//')) {
+    if (instruction.kind === 'invalid') throw instruction.error;
+    if (instruction.kind === 'break') {
       previous = null;
       continue;
     }
-    const command = commandOf(text, meta.pageTitle, line);
-    if (!command) {
+    if (instruction.kind === 'text') {
       flushMulti();
       addText('', text);
       continue;
     }
-    const { name, args } = command;
     if (/fadestyle\s*:/iu.test(text))
       diagnostics.push({
         line,
         message: '源脚本 fadestyle 使用冒号；仅兼容这一非文本样式参数。',
       });
-    if (name === 'name') {
+    if (instruction.kind === 'decision') {
+      previous = null;
       flushMulti();
-      addText(args.name ?? '', command.text);
-      continue;
-    }
-    previous = null;
-    if (name === 'decision') {
-      flushMulti();
-      if (branch) throw new ComplexFlow();
-      const labels = args.options
-        ?.split(';')
-        .map((label) => bodyText(label.replace(/^&/u, '')));
-      const values = args.values?.split(';').map((value) => value.trim());
-      if (
-        !labels?.length ||
-        !values ||
-        values.length < labels.length ||
-        values.some((value) => !/^[1-9]\d*$/u.test(value))
-      )
-        fail(meta.pageTitle, line, '选项与 values 不匹配或包含不支持的值。');
-      if (
-        !flow &&
-        (values.length !== labels.length ||
-          new Set(values).size !== values.length)
-      )
-        throw new ComplexFlow();
+      const { options, values } = instruction;
+      const labels = options.map((option) => option.label);
       if (flow) {
         if (values.length !== labels.length)
           diagnostics.push({
@@ -343,71 +213,73 @@ function parseChapter(
             message:
               'Decision 含多余 values，按来源的选项顺序对应；未虚构选项文字。',
           });
-        flow.decision(labels, values);
+        flow.decision(options, values);
         continue;
       }
+      const paths = options.map(({ label, value }): BranchPath => ({
+        value,
+        option: { label, blocks: [] },
+        scene: structuredClone(scene),
+      }));
+      const shared: NonNullable<Choice['shared']> = [];
       const choice: Choice = {
         id: identify(`choice:${labels.join(';')}`),
         kind: 'choices',
-        options: labels.map((label) => ({ label, blocks: [] })),
-        shared: [],
+        options: paths.map((path) => path.option),
+        shared,
       };
       blocks.push(choice);
       branch = {
-        choice,
-        values,
-        states: new Map(values.map((value) => [value, structuredClone(scene)])),
-        selected: values,
+        paths,
+        shared,
+        selected: paths,
       };
       target = blocks;
-    } else if (name === 'predicate') {
+      continue;
+    }
+    if (instruction.kind === 'predicate') {
+      previous = null;
       flushMulti();
       if (flow) {
-        flow.predicate(args.references);
+        flow.predicate(instruction.references);
         continue;
       }
-      if (!branch) throw new ComplexFlow();
-      if (args.references === '')
-        fail(
-          meta.pageTitle,
-          line,
-          'Predicate 的 references 为空，无法确定分支。',
-        );
-      commitBranch();
-      const references = args.references
-        ? args.references.split(';').map((value) => value.trim())
-        : branch.values;
-      if (
-        references.length === 0 ||
-        references.some((value) => !branch?.values.includes(value)) ||
-        new Set(references).size !== references.length
-      )
-        throw new ComplexFlow();
-      scene = mergeScenes(
-        references.flatMap((value) => {
-          const state = branch?.states.get(value);
-          return state ? [state] : [];
-        }),
-      );
-      branch.selected = references;
-      if (references.length === branch.values.length) {
-        branch = null;
-        target = blocks;
-      } else if (references.length === 1) {
-        const option =
-          branch.choice.options[branch.values.indexOf(references[0] ?? '')];
-        if (!option) fail(meta.pageTitle, line, '缺少分支选项。');
-        target = option.blocks;
-      } else {
-        const labels = references.map(
-          (value) =>
-            branch?.choice.options[branch.values.indexOf(value)]?.label ?? '',
-        );
-        const shared = { labels, blocks: [] };
-        branch.choice.shared?.push(shared);
-        target = shared.blocks;
+      // The selector admits only predicates of the current simple branch.
+      // Orphans, reopened and overlapping conditions use ScriptFlow instead.
+      if (branch) {
+        commitBranch();
+        const { paths } = branch;
+        const selected = instruction.references
+          ? instruction.references.flatMap((value) =>
+              paths.filter((path) => path.value === value),
+            )
+          : paths;
+        scene = mergeScenes(selected.map((path) => path.scene));
+        branch.selected = selected;
+        const [first] = selected;
+        if (selected.length === paths.length) {
+          branch = null;
+          target = blocks;
+        } else if (selected.length === 1 && first) {
+          target = first.option.blocks;
+        } else {
+          const labels = selected.map((path) => path.option.label);
+          const shared = { labels, blocks: [] };
+          branch.shared.push(shared);
+          target = shared.blocks;
+        }
       }
-    } else if (name === 'character') {
+      continue;
+    }
+    const { command } = instruction;
+    const { name, args } = command;
+    if (name === 'name') {
+      flushMulti();
+      addText(args.name ?? '', command.text);
+      continue;
+    }
+    previous = null;
+    if (name === 'character') {
       scene = { ...scene, slots: [], focus: undefined };
       if (args.name && args.name !== 'char_empty')
         scene.slots.push({ slot: args.name2 ? 'l' : 'm', resource: args.name });
@@ -548,11 +420,7 @@ function parseChapter(
     } else if (name === 'warp') {
       // StoryPlayer jumps only when an explicit Label exists; all observed
       // dangling Warp markers have none. Do not invent destinations or skip text.
-      if (
-        !args.name ||
-        command.text ||
-        lines.some((line) => /^\s*\[label(?:\(|\])/iu.test(line))
-      )
+      if (!args.name || command.text || hasLabel)
         fail(meta.pageTitle, line, '存在需要核对的 Warp/Label 控制流。');
       diagnostics.push({
         line,
@@ -571,9 +439,7 @@ function parseChapter(
         args.dest !== 'home' ||
         Object.keys(args).length !== 1 ||
         command.text ||
-        lines
-          .slice(index + 1)
-          .some((line) => line.trim() && !line.trim().startsWith('//'))
+        line !== lastContentLine
       )
         fail(meta.pageTitle, line, '尚未支持的页面跳转或非末尾 GotoPage。');
     } else if (!stageCommands.has(name)) {

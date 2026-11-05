@@ -1,5 +1,36 @@
 import type { Block, Leaf } from '../shared/contracts.js';
 import type { ScriptScene as Scene } from './prts-cg.js';
+import type { DecisionOption, ScriptLine } from './prts-scanner.js';
+
+/** Simple choices close at their all-options predicate. Everything that needs
+ * persistent/overlapping paths uses the source-order projection from the start,
+ * without partially emitting blocks and reparsing on a normal flow exception.
+ */
+export function requiresComplexFlow(lines: ScriptLine[]): boolean {
+  let values: string[] | undefined;
+  for (const line of lines) {
+    if (line.kind === 'decision') {
+      if (
+        values ||
+        line.values.length !== line.options.length ||
+        new Set(line.values).size !== line.values.length
+      )
+        return true;
+      values = line.values;
+    } else if (line.kind === 'predicate') {
+      if (!values) return true;
+      const current = values;
+      const references = line.references ?? current;
+      if (
+        references.some((value) => !current.includes(value)) ||
+        new Set(references).size !== references.length
+      )
+        return true;
+      if (references.length === values.length) values = undefined;
+    }
+  }
+  return false;
+}
 
 type Path = { value: string; labels: string[]; scene: Scene; active: boolean };
 
@@ -31,7 +62,8 @@ export class ScriptFlow {
     for (const path of this.paths)
       if (path.active) path.scene = change(structuredClone(path.scene));
   }
-  decision(labels: string[], values: string[]) {
+  decision(options: DecisionOption[], values: string[]) {
+    const labels = options.map((option) => option.label);
     for (const value of values) this.known.add(value);
     const active = this.paths.filter((path) => path.active);
     if (!active.length) this.fail('Decision 没有可到达的分支。');
@@ -48,9 +80,7 @@ export class ScriptFlow {
     const scene = this.scene();
     this.paths = [
       ...this.paths.filter((path) => !path.active),
-      ...labels.map((label, index) => {
-        const value = values[index];
-        if (value === undefined) return this.fail('Decision 缺少选项值。');
+      ...options.map(({ label, value }) => {
         return {
           value,
           labels: when ? when.map((parent) => `${parent} → ${label}`) : [label],
@@ -61,9 +91,7 @@ export class ScriptFlow {
     ];
     this.segment = null;
   }
-  predicate(raw: string | undefined) {
-    if (raw === '') this.fail('Predicate 的 references 为空，无法确定分支。');
-    const references = raw?.split(';').map((value) => value.trim());
+  predicate(references: string[] | undefined) {
     if (!this.known.size)
       this.fail('Predicate 引用了没有可对应 Decision 的选项。');
     if (references?.some((value) => !/^[1-9]\d*$/u.test(value)))
