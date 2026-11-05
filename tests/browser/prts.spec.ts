@@ -39,7 +39,10 @@ test('live newly supported multiline, captions, animated text, source conditions
         exact: true,
       })
       .click();
-    await expect(page.getByRole('main', { name: '剧情正文' })).toBeVisible();
+    // Live source requests allow 20 seconds before surfacing a network error.
+    await expect(page.getByRole('main', { name: '剧情正文' })).toBeVisible({
+      timeout: 30_000,
+    });
     await expect(
       page.getByRole('heading', { name: meta.title, exact: true }),
     ).toBeVisible();

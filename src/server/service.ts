@@ -4,11 +4,9 @@ import {
   type ImageTarget,
 } from '../data/source.js';
 import { migrateRecord, readingLayout, wordsAt } from '../domain/revisions.js';
-import { chapterContentKind, chapterWords } from '../domain/reading.js';
 import { WordCountStore } from '../storage/word-counts.js';
 import {
   imageResultSchema,
-  chapterSchema,
   type Chapter,
   type ReadingState,
   type Snapshot,
@@ -27,6 +25,7 @@ import {
 import { CacheCoordinator, cacheScopes } from '../storage/cache-coordinator.js';
 import { ContentCache } from '../storage/files.js';
 import { ReadingStore } from '../storage/reading-store.js';
+import { ChapterContent } from './chapter-content.js';
 
 function historyToken(state: ReadingState, storyId: string) {
   return `${state.historyEpoch ?? 0}:${state.storyHistoryEpochs?.[storyId] ?? 0}`;
@@ -37,12 +36,13 @@ export class ReaderService {
   readonly cache: ContentCache;
   private readonly coordinator: CacheCoordinator;
   private readonly counts: WordCountStore;
+  private readonly content: ChapterContent;
   private readonly imageTargets = new Map<string, Map<string, ImageTarget>>();
   // Minimal indexes for pages already opened in this process, not a body cache.
   // Scroll saves must keep working after the user clears public content files.
   private readonly opened = new Map<string, ReadingLayout>();
   private readonly openedHistory = new Map<string, string>();
-  private remember(chapter: Chapter) {
+  private remember(chapter: Chapter, layout = readingLayout(chapter)) {
     const targets = new Map<string, ImageTarget>();
     for (const block of chapter.blocks) {
       const leaves =
@@ -68,7 +68,6 @@ export class ReaderService {
       }
     }
     this.imageTargets.set(chapter.id, targets);
-    const layout = readingLayout(chapter);
     this.opened.set(chapter.id, layout);
     return layout;
   }
@@ -80,6 +79,12 @@ export class ReaderService {
     this.cache = new ContentCache(root);
     this.coordinator = new CacheCoordinator(root);
     this.counts = new WordCountStore(root);
+    this.content = new ChapterContent(
+      source,
+      this.cache,
+      this.counts,
+      this.coordinator,
+    );
   }
   async snapshot(refreshCatalog = false): Promise<Snapshot> {
     return this.coordinator.run(() => this.loadSnapshot(refreshCatalog));
@@ -129,91 +134,26 @@ export class ReaderService {
   async prepareChapter(id: string): Promise<ChapterCount> {
     return this.coordinator.run(async () => {
       const state = await this.records.read();
-      const known = this.counts.all().get(id);
-      const cached = await this.cache.get(id, state.settings.retentionDays);
-      const upgraded =
-        cached &&
-        (this.source.reparseCached
-          ? this.source.reparseCached(cached)
-          : cached);
-      this.coordinator.assertCurrent('text');
-      const chapter =
-        upgraded &&
-        (!known ||
-          cached?.revision === known.revision ||
-          upgraded.revision === known.revision)
-          ? upgraded
-          : chapterSchema.parse(
-              await this.source.chapter(id, state.settings.retentionDays),
-            );
-      if (chapter.id !== id || chapter.blocks.length === 0)
-        throw new ReaderError(
-          'parse',
-          '来源正文不完整，未将缺失篇目计为零字数。',
-        );
-      this.coordinator.assertCurrent('text');
-      const count = {
-        chapterId: id,
-        storyId: chapter.storyId,
-        revision: chapter.revision,
-        wordCount: chapterWords(chapter),
-        contentKind: chapterContentKind(chapter),
-      };
-      const verified = this.counts.put(count, known?.revision);
+      const { chapter, cached, count } = await this.content.acquire(
+        id,
+        state.settings.retentionDays,
+        { kind: 'prepare' },
+      );
       if (chapter !== cached) await this.cache.put(chapter);
-      return verified;
+      return count;
     });
   }
   private async loadChapter(id: string, refresh: boolean): Promise<Chapter> {
     const before = await this.records.read();
     const expected =
       before.chapterRevisions?.[id] ?? before.records[id]?.revision;
-    const known = this.counts.all().get(id);
-    const cached = await this.cache.get(id, before.settings.retentionDays);
-    const upgraded =
-      cached &&
-      (this.source.reparseCached ? this.source.reparseCached(cached) : cached);
-    this.coordinator.assertCurrent('text');
-    if (
-      !refresh &&
-      cached &&
-      expected &&
-      cached.revision !== expected &&
-      cached.revision !== known?.revision
-    )
-      throw new ReaderError(
-        'conflict',
-        '缓存正文与已保存的修订不同，请刷新本章；原阅读记录已保留。',
-      );
-    const chapter =
-      !refresh &&
-      upgraded &&
-      (!known ||
-        cached?.revision === known.revision ||
-        upgraded.revision === known.revision)
-        ? upgraded
-        : chapterSchema.parse(
-            await this.source.chapter(id, before.settings.retentionDays),
-          );
-    if (chapter.id !== id)
-      throw new ReaderError('parse', '来源返回了不同的篇目标识，未覆盖缓存。');
-    if (chapter.blocks.length === 0)
-      throw new ReaderError(
-        'parse',
-        '来源正文没有可定位段落，原缓存和阅读记录已保留。',
-      );
+    const { chapter, cached } = await this.content.acquire(
+      id,
+      before.settings.retentionDays,
+      { kind: 'open', refresh, expectedRevision: expected },
+    );
     const layout = readingLayout(chapter);
     const cachedLayout = cached ? readingLayout(cached) : undefined;
-    this.counts.put(
-      {
-        chapterId: id,
-        storyId: chapter.storyId,
-        revision: chapter.revision,
-        wordCount: layout.totalWords,
-        contentKind: chapterContentKind(chapter),
-      },
-      known?.revision,
-    );
     const openedState = await this.records.change((state) => {
       if (
         historyToken(state, chapter.storyId) !==
@@ -243,7 +183,7 @@ export class ReaderService {
       };
     });
     if (chapter !== cached) await this.cache.put(chapter);
-    this.remember(chapter);
+    this.remember(chapter, layout);
     const token = historyToken(openedState, chapter.storyId);
     this.openedHistory.set(id, token);
     return { ...chapter, historyToken: token };

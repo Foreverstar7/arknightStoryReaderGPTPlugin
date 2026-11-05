@@ -1,24 +1,19 @@
-# 重构执行交接：R1 已完成，从 R2a 继续
+# 重构执行交接：R2a 已完成，直接继续 R3a
 
-更新：2026-11-05。先读 .ai/STATUS.md，再读 AGENTS.md、docs/requirements.md、.ai/PLAN.md、docs/refactoring-plan.md、docs/refactoring-r1.md，核对 git status 与 git log。本会话开始于干净的 `730f8fd`，R1 与本交接同批本地提交；此前 R0 为 `69dc592`、H1 为 `730f8fd`。功能比较基线仍为 **7724df1／0.1.24**。不要重做 R0／H1／R1。
+更新：2026-11-05。先读 .ai/STATUS.md，再读 AGENTS.md、docs/requirements.md、.ai/PLAN.md、docs/refactoring-plan.md 和 docs/refactoring-r2a.md，核对 git status／git log。此前 R0 69dc592、H1 730f8fd、R1 d5a0124 已完成；R2a 与本交接同批本地保存。不重做这些部分。
 
-用户已明确要求连续完成全部既定重构；会话过长时在一个部分完成验证并本地提交后，新开同项目会话继续，不逐片确认。直接实施 R2a 正文取得 → R3a 目录状态，再按依赖和实际收益完成 R2b／R3b／R4a／R5。R4b、TanStack Query、p-limit、Chevrotain 是收益条件项，不能为完成清单强行采用。无新模型要求，使用用户当前默认配置；不自行指定其他模型或开启并行代理。
+用户已明确授权连续完成全部既定重构；会话过长时，在完整部分验证并本地提交后新开同项目会话接续，不逐片确认。下一步直接 R3a，然后 R2b／R3b／R4a／R5。R4b、TanStack Query、p-limit、Chevrotain 只有确实更简单且等价才采用，不为清单强行换库。不自行指定新模型或开启并行代理。
 
-目标仍是职责清楚、去掉可避免硬编码／不可达内部防御／过度设计，同时保留全部行为、来源与记录。不要启动 S5 搜索、官网、购域名、安装、推送、发布或关机。当前源码、锁文件和插件仍 0.1.24，已安装记录仍 0.1.23。
+保留全部阅读功能、来源语义、记录与真实竞态，删除可避免的重复知识和不必要结构。不要启动 S5、官网、购域名、安装、推送、发布或关机。源码／锁文件／插件仍 0.1.24，已安装记录仍为 0.1.23；真实桌面完整 UI 和非 Windows x64 平台仍未验。
 
-已完成 R1：
+R2a：ChapterContent 共享缓存、旧 raw 本地重解析、来源 ID／空正文校验和公共统计 CAS。准备不改记录；实际打开先校验与迁移记录，再写缓存、登记定位／图片索引并返回 token。保留 v3→v4 同源迁移、expected revision、清缓存代次和清历史保护；remember 复用已有 layout。ReadingState 旧字段规范化仍留 R5。
 
-- shared/tools.ts 关联十工具 schema、ToolInput／ToolArgs／ToolOutput；HTTP service.call 解码，MCP SDK 解码后 execute。UI transport 统一校验结果，组件的重复 schema.parse 移除。保留错篇目／错剧情、修订、historyToken、ReaderError code/sourceUrl/cause、图片占位／组合／分段与代次保护。没有强转、any 或新依赖。
-- 本地 SDK／当前官方文档已核对。与独立冻结构建比较完整 tools/list、resources/list 零差异。ReadingState 的旧可选字段仍留 R5 磁盘入口规范化，不能误写成 R1 已完成此项。
-- build／check 86/86；最终类型和格式通过。Edge fixture 31/31。真实首轮 18/20，两处测试时序问题已保留 trace：前场景在途统计污染封面比较，以及图片重试响应晚于 5 秒可见性断言。只修正测试隔离／响应等待，不改产品、数据或完整断言；最终真实整套20/20。
-- audit:refactor 1756篇及独立字数、169立绘、122CG引用、207组合、302原图和固定21个身份发言块均零差异、零联网。不是全库身份或真实宿主完整UI验收。
-- 重定位包67个dist＋Node哈希一致、无链接／私人状态。fixture与真实stdio、双进程、实际HTTP十工具与MCP／完整HTML通过。真实117部、首篇64块、1500×844CG、532238字节UI及隔离保存通过。沙箱内真实stdio目录返回network，沙箱外同包通过；原始日志保留。
-- 官方app-server使用全新隔离配置：plugin/read识别0.1.24准备包，installed=false；通过明确指向当前包的独立MCP配置发现十个app-only工具与global/thread入口。此证据不是已安装插件的完整桌面UI；其他平台仍待实测。
+本片 build／check 88/88、冻结全库零差异零联网、Edge fixture 定向 10/10。真实正文首轮 6/7，SR-2 请求尚未响应时 5 秒可见性断言结束，trace 已保留；只把该断言等候上限改为 30 秒，受影响整文件复验 7/7。当前 dist fixture stdio／双进程通过；本批完整浏览器与包回归在 R3a 稳定后执行。R1 的宿主发现与包验证不能写成本片重验。
 
-冻结基线 `.ai/local/refactoring-0.1.24/baseline.json`，SHA256 **07b28e86f8cb7002ae07c0b6cad7181dc84def25f544bfe8f7d2e0d005373c1e**；独立构建在相邻 baseline/。R1报告、完整日志、失败trace和附加探针在 `.ai/local/refactoring-0.1.24/r1/`。本轮 4341／4342／4343 与隔离包测试进程已确认退出。不覆盖基线，不更新源样本来掩盖变化。PowerShell 调用 scripts/npm.ps1 时参数分隔符写字面 `'--'`。Edge／HTTP 在 Windows 沙箱内回环 EACCES，按工具审批用隔离端口在沙箱外运行。
+冻结基线 .ai/local/refactoring-0.1.24/baseline.json，SHA256 07b28e86f8cb7002ae07c0b6cad7181dc84def25f544bfe8f7d2e0d005373c1e，独立构建在相邻 baseline/。固定 1,756 篇及独立字数、169 立绘、122 CG 引用、207 组合、302 原图、21 身份发言块；不是全库身份验收。不覆盖基线或修改样本掩盖差异，所有写入探针只用 .ai/local，不碰 .runtime 或真实安装记录。
 
-R2a 重点：service.prepareChapter 与 loadChapter 仍重复旧缓存／本地raw重解析／当前统计／来源获取。抽取内聚正文取得职责，准备只处理正文缓存和公共字数；实际打开才迁移记录、产生token及建立定位／图片索引。不用任意布尔副作用组合；保留expected revision、字数CAS、缓存代次、来源ID检查及v3→v4同源迁移。现有测试入口：story-preparation、revisions、body-images、cache-races。
+R3a：把 ReaderApp 的初次快照、普通快照、刷新目录、公共字数及阅读状态更新集中到明确入口，沿用 useCatalogRefresh 和 story-counts。刷新只改公共目录，不覆盖迟到私人状态；普通快照不倒退新目录。保留 route 的旧画面与原动画提交点，导航／保存生命周期留 R3b。复用五个 catalog-refresh 场景和四窗口／双主题验收。
 
-R3a 保留目录刷新迟到保护和原动画提交点；R3b 再整理导航／保存生命周期。图片沿用已有prts-portrait／prts-cg，不新增角色表或猜URL；解析先共享字段扫描移除ComplexFlow正常控制流异常，不升级parser版本掩盖差异。存储保持reading／index／cache职责和真实跨进程保护，所有写入探针仅指向隔离目录，不触碰.runtime或真实安装记录。
+图片沿用 prts-portrait／prts-cg，不新增角色表；解析先共享扫描并去掉 ComplexFlow 正常异常分流，不改 parser 版本。存储保留 reading／index／cache 边界及跨进程保护。
 
-每片完成相应验证、更新STATUS／PLAN／DECISIONS并独立本地提交。若再次交接，传递完成提交、未完成范围、冻结基线和验证限制，不让后继停在重规划或要求用户重复授权。
+证据在 .ai/local/refactoring-0.1.24/r2a/；R1 附加 compare-mcp.mjs、probe-http-contracts.ts、probe-host-isolated.ts 可按当前产物复用。PowerShell 调 scripts/npm.ps1 的分隔符用字面 '--'。Edge／HTTP 回环依工具审批在沙箱外隔离执行。每片完成后更新 STATUS／PLAN／DECISIONS 并独立本地提交；交接传递剩余目标，不停在重规划或要求用户重复授权。

@@ -9,6 +9,7 @@ import { CacheCoordinator } from '../src/storage/cache-coordinator.js';
 import { chapterWords, storyProgress } from '../src/domain/reading.js';
 import { applyChapterCount, mergeStoryCounts } from '../src/ui/story-counts.js';
 import type { Chapter } from '../src/shared/contracts.js';
+import { deferred } from './helpers/deferred.js';
 
 async function setup() {
   const base = path.resolve('.ai/local/preparation-tests');
@@ -280,6 +281,89 @@ test('late UI snapshots and count responses retain newer per-chapter totals', as
     assert.deepEqual(stale, newer);
     assert.deepEqual(mergeStoryCounts(stories, newer), newer);
   } finally {
+    await ctx.close();
+  }
+});
+
+test('invalid bodies preserve cached text, public counts and records in both preparation and opening', async () => {
+  const ctx = await setup();
+  const original = await ctx.fixture.chapter('fixture-mist/1');
+  let response = original;
+  const service = new ReaderService(
+    {
+      label: ctx.fixture.label,
+      catalog: ctx.catalog,
+      chapter: async () => response,
+    },
+    ctx.root,
+  );
+  try {
+    await service.chapter(original.id);
+    const before = await service.snapshot();
+    for (const invalid of [
+      { ...original, id: 'wrong-chapter' },
+      { ...original, blocks: [] },
+    ]) {
+      response = invalid;
+      await assert.rejects(service.chapter(original.id, true), {
+        code: 'parse',
+      });
+      assert.deepEqual(await service.snapshot(), before);
+      assert.deepEqual(await service.cache.get(original.id, 7), original);
+      await service.call('reader_clear_cache', { scope: 'all' });
+      await assert.rejects(service.prepareChapter(original.id), {
+        code: 'parse',
+        message: '来源正文不完整，未将缺失篇目计为零字数。',
+      });
+      assert.deepEqual(await service.snapshot(), before);
+      assert.equal(await service.cache.get(original.id, 7), null);
+      await service.cache.put(original);
+    }
+  } finally {
+    await ctx.close();
+  }
+});
+
+test('opening rejected by a history clear keeps the previous body until a new open succeeds', async () => {
+  const ctx = await setup();
+  const original = await ctx.fixture.chapter('fixture-mist/1');
+  const changed = { ...original, revision: 'after-clear' };
+  const started = deferred();
+  const release = deferred();
+  const service = new ReaderService(
+    {
+      label: ctx.fixture.label,
+      catalog: ctx.catalog,
+      chapter: async () => {
+        started.resolve();
+        await release.promise;
+        return changed;
+      },
+    },
+    ctx.root,
+  );
+  try {
+    await service.cache.put(original);
+    const first = await service.chapter(original.id);
+    const pending = service.chapter(original.id, true);
+    await started.promise;
+    const cleared = await service.call('reader_clear_history', {});
+    release.resolve();
+    await assert.rejects(pending, {
+      code: 'conflict',
+      message: '阅读记录已清除，请重新打开篇目后继续。',
+    });
+    assert.deepEqual(await service.cache.get(original.id, 7), original);
+    assert.deepEqual(await service.records.read(), cleared);
+    const reopened = await service.chapter(original.id);
+    assert.equal(reopened.revision, changed.revision);
+    assert.notEqual(reopened.historyToken, first.historyToken);
+    assert.equal(
+      (await service.cache.get(original.id, 7))?.revision,
+      changed.revision,
+    );
+  } finally {
+    release.resolve();
     await ctx.close();
   }
 });
