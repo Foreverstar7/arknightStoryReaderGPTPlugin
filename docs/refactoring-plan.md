@@ -1,6 +1,6 @@
 # 保持功能的重构计划
 
-更新：2026-11-05。当前功能基线：**7724df1／0.1.24**；原计划基于 e3d34cb／0.1.21，保留在 Git 历史。**R0／H1／R1／R2a／R3a／R2b／R3b／R4a／R5 全部完成；交付及验证见 [首批记录](refactoring-r0-h1.md)、[R1](refactoring-r1.md)、[R2a](refactoring-r2a.md)、[R3a](refactoring-r3a.md)、[R2b](refactoring-r2b.md)、[R3b](refactoring-r3b.md)、[R4a](refactoring-r4a.md)与[R5](refactoring-r5.md)。** 0.1.24 未安装，已安装版本的记录为 0.1.23；这些状态不等于对外发布或真实宿主全路径验收。
+更新：2026-11-05。当前功能基线：**7724df1／0.1.24**；原计划基于 e3d34cb／0.1.21，保留在 Git 历史。**R0／H1／R1／R2a／R3a／R2b／R3b／R4a／R5 全部完成；交付及验证见 [首批记录](refactoring-r0-h1.md)、[R1](refactoring-r1.md)、[R2a](refactoring-r2a.md)、[R3a](refactoring-r3a.md)、[R2b](refactoring-r2b.md)、[R3b](refactoring-r3b.md)、[R4a](refactoring-r4a.md)与[R5](refactoring-r5.md)。** 重构完成后已按追加指令以0.1.25安装，见[安装记录](install-0.1.25.md)；没有对外发布，真实宿主完整UI仍待验收。
 
 用户当前优先级：阅读器功能已大致完成，先关注内部重构；网站只记录后续事项。明确目标是**清晰的职责结构、去掉可避免的硬编码、去掉不可达情况的防御与无实际用途的过度设计，同时保持现有行为和阅读记录**。允许调整内部结构，但不以文件数、代码行数、设计模式数量或“零 if”为验收标准。
 
