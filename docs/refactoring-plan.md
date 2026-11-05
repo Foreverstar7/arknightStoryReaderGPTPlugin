@@ -1,6 +1,6 @@
 # 保持功能的重构计划
 
-更新：2026-11-05。当前功能基线：**7724df1／0.1.24**；原计划基于 e3d34cb／0.1.21，保留在 Git 历史。**R0／H1／R1／R2a 已完成，下一步 R3a；交付及验证见 [首批记录](refactoring-r0-h1.md)、[R1 记录](refactoring-r1.md)与[R2a 记录](refactoring-r2a.md)。** 0.1.24 未安装，已安装版本的记录为 0.1.23；这些状态不等于对外发布或真实宿主全路径验收。
+更新：2026-11-05。当前功能基线：**7724df1／0.1.24**；原计划基于 e3d34cb／0.1.21，保留在 Git 历史。**R0／H1／R1／R2a／R3a 已完成，下一步 R2b；交付及验证见 [首批记录](refactoring-r0-h1.md)、[R1](refactoring-r1.md)、[R2a](refactoring-r2a.md)与[R3a](refactoring-r3a.md)。** 0.1.24 未安装，已安装版本的记录为 0.1.23；这些状态不等于对外发布或真实宿主全路径验收。
 
 用户当前优先级：阅读器功能已大致完成，先关注内部重构；网站只记录后续事项。明确目标是**清晰的职责结构、去掉可避免的硬编码、去掉不可达情况的防御与无实际用途的过度设计，同时保持现有行为和阅读记录**。允许调整内部结构，但不以文件数、代码行数、设计模式数量或“零 if”为验收标准。
 
@@ -119,7 +119,7 @@
 | R202 | `prts-resources.cached`／`loadCached`                                  | 外层不是纯转发：`cache.run` 建立请求代次上下文；图片、mapping 的等待合并和 assertCurrent 有真实清理竞态                | R2b 保留职责后整理；cache-races／resources                                  |
 | R203 | `prts-resources.loadPortrait`／`render`                                | 显式变量、资料身份、新旧映射选择、确证 404 回退与字节几何混在编排中；复用现有纯 portrait／cg 模块                      | R2b；169 立绘／302 原图、真实身份专项；不声称全库身份验收                   |
 | R204 | `cover-policy`／`prts-metadata` 的封面特例                             | 两部文字封面是用户命名；危机合约通用图及三类批准尺寸有来源／批准依据；当前未取得等价通用替代证据                       | R2b 核实，证据不足保留；metadata／covers                                    |
-| R301 | `ReaderApp.acceptSnapshot`／目录回调／`story-counts`                   | 普通快照合入 records/counts，刷新只替换目录；两类更新来源不同，不能无条件 setSnapshot；当前 route 仍要保留旧画面       | R3a；五个 catalog-refresh 场景及来源调用次数                                |
+| R301 | `ReaderApp.acceptSnapshot`／目录回调／`story-counts`                   | 普通快照合入 records/counts，刷新只替换目录；两类更新来源不同，不能无条件 setSnapshot；当前 route 仍要保留旧画面       | R3a 已完成；纯 snapshot reducer；五个目录场景、调用次数及完整浏览器覆盖通过 |
 | R302 | `ReaderApp` 动画／打开／保存 catch、`Reader.flush`                     | 动画取消、已由父层显示的保存失败可恢复；flush 清空整个保存链有真实关闭／清记录路径。逐个明确错误所有者，不全删 catch   | R3b；transitions／history／reader，保存失败重试                             |
 | R401 | `prts-script.parsePrtsChapter` 的 `ComplexFlow` 与 `prts-flow`         | 嵌套 Decision、Predicate 复用会抛异常选择正常算法，随后再次扫描；可先共享字段扫描再明确选择流程                        | R4a；v4 全库结构、独立字数、源异常和复杂拓扑；整体解析器替换为条件项        |
 | R501 | `storage/PublicCache`／`JsonCache`                                     | PublicCache 当前仅限制 mapping／metadata／images 范围和时钟默认；先保留类型约束，后续评估直接使用明确 scope 是否更简单 | R5；不预建通用 repository；cache-storage／cache-races                       |
@@ -141,7 +141,7 @@
 - 验收：离线旧 raw 升级不回源；预取前后记录不变；同源 v3→v4 分支位置、最远位置和完成状态保持；刷新原文按保守规则迁移；清缓存后滚动不补正文；迟到统计／旧窗口不能覆盖新值。
 - 回退不改持久格式；必要的语义修正独立列为修复，不混入等价重构。
 
-### R3a：目录刷新与状态合并
+### R3a：目录刷新与状态合并（已完成）
 
 - 沿用 useCatalogRefresh 和现有来源去重，把“收到新目录”“收到普通快照”“保存／清除记录”“收到公共字数”变成职责明确的更新入口或纯函数。暂不改导航动画。
 - 新目录只合入目录与合法公共字数，不覆盖迟到的私人状态；普通快照不倒退更新后的目录。当前阅读内容及转场旧画面显式保留，不能因为改为 ID 引用就提前卸载正文。

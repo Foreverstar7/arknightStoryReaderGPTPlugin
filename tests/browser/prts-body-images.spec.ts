@@ -9,7 +9,9 @@ import { z } from 'zod';
 import {
   chapterSchema,
   imageResultSchema,
+  imageInputSchema,
   snapshotSchema,
+  toolRequestSchema,
 } from '../../src/shared/contracts.js';
 import { placeholderPortrait } from '../../src/data/prts-portrait.js';
 
@@ -96,7 +98,24 @@ test('real repaired legacy, whitespace and variable portraits plus ambiguous sce
       throw new Error(`No target speech ${sample.id}`);
     const name = page.locator(`[id="name-${speech.id}"]`);
     await name.focus();
+    const portraitResponse = page.waitForResponse(
+      (response) => {
+        if (!response.url().endsWith('/api/tools')) return false;
+        const input = toolRequestSchema.parse(
+          response.request().postDataJSON(),
+        );
+        if (input.name !== 'reader_image') return false;
+        const target = imageInputSchema.parse(input.arguments);
+        return (
+          target.kind === 'portrait' &&
+          target.chapterId === sample.id &&
+          target.blockId === speech.id
+        );
+      },
+      { timeout: 60_000 },
+    );
     await page.keyboard.press('Enter');
+    expect((await portraitResponse).ok()).toBe(true);
     const dialog = page.getByRole('dialog');
     await expect(
       dialog.locator('[data-portrait-state="original"]'),

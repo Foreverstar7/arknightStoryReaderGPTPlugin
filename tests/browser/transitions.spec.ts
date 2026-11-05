@@ -199,6 +199,14 @@ test('opposite horizontal waves reveal the new chapter while both sheets stay fl
   page,
   request,
 }) => {
+  // Freeze real wave starts before polling. A 440 ms animation can finish
+  // between expect.poll's backoff samples; retain the actual CSS/keyframes.
+  await page.addInitScript(() => {
+    document.addEventListener('animationstart', (event) => {
+      if (!event.animationName.startsWith('reader-wave-')) return;
+      for (const animation of document.getAnimations()) animation.pause();
+    });
+  });
   await request.post('/api/tools', {
     data: { name: 'reader_clear_history', arguments: {} },
   });

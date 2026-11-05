@@ -1,4 +1,11 @@
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useReducer,
+  useRef,
+  useState,
+} from 'react';
 import { flushSync } from 'react-dom';
 import {
   type Chapter,
@@ -28,7 +35,7 @@ import { SettingsPanel } from './components/SettingsPanel.js';
 import { CoverImagesContext } from './cover-images.js';
 import { useStoryPreparation } from './useStoryPreparation.js';
 import { useCatalogRefresh } from './useCatalogRefresh.js';
-import { applyChapterCount, mergeStoryCounts } from './story-counts.js';
+import { readerSnapshotReducer } from './snapshot-state.js';
 
 type Route =
   | { page: 'library' }
@@ -54,7 +61,7 @@ export function ReaderApp({
   environment: string;
   onFlushReady?: (flush: () => Promise<void>) => void;
 }) {
-  const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
+  const [snapshot, updateSnapshot] = useReducer(readerSnapshotReducer, null);
   const [route, setRoute] = useState<Route>({ page: 'library' });
   const [busy, setBusy] = useState(true);
   const [error, setError] = useState('');
@@ -71,28 +78,18 @@ export function ReaderApp({
   const fallbackAnimation = useRef<Animation | null>(null);
   const stage = useRef<HTMLDivElement>(null);
   const libraryPosition = useRef<LibraryPosition | null>(null);
+  // The route retains the outgoing screen during transitions, and stays usable
+  // if a refreshed catalog removes its story. Live metadata comes from snapshot.
   const activeStory =
     route.page === 'library'
       ? undefined
       : (snapshot?.stories.find((story) => story.id === route.story.id) ??
         route.story);
   const preparation = useStoryPreparation(activeStory, transport, (count) => {
-    setSnapshot((current) =>
-      current
-        ? { ...current, stories: applyChapterCount(current.stories, count) }
-        : current,
-    );
+    updateSnapshot({ type: 'count', count });
   });
   const acceptSnapshot = useCallback(
-    (data: Snapshot) =>
-      setSnapshot((current) => ({
-        ...data,
-        // Ordinary snapshots update records/counts, never roll back a newer catalog.
-        stories: mergeStoryCounts(
-          current?.stories ?? data.stories,
-          data.stories,
-        ),
-      })),
+    (data: Snapshot) => updateSnapshot({ type: 'snapshot', data }),
     [],
   );
   const catalogRefresh = useCatalogRefresh(transport, (data) => {
@@ -100,12 +97,7 @@ export function ReaderApp({
       stage.current?.querySelector<HTMLElement>('.library-scroll');
     if (route.page === 'library' && library)
       libraryPosition.current = captureLibraryPosition(library);
-    setSnapshot((current) => ({
-      // Refresh responses only replace the public catalog once the app is open.
-      // A slow response must not restore older records, settings or cleared history.
-      ...(current ?? data),
-      stories: mergeStoryCounts(data.stories, current?.stories ?? []),
-    }));
+    updateSnapshot({ type: 'catalog', data });
   });
   const refreshCatalog = catalogRefresh.refresh;
   const registerFlush = useCallback((value: () => Promise<void>) => {
@@ -133,7 +125,7 @@ export function ReaderApp({
           return recovered;
         });
         if (cancelled) return;
-        setSnapshot((current) => current ?? data);
+        updateSnapshot({ type: 'initialize', data });
         const recent = data.state.recentChapterId
           ? data.state.records[data.state.recentChapterId]
           : undefined;
@@ -181,7 +173,7 @@ export function ReaderApp({
     try {
       const state = await transport.call('reader_record', input);
       if (generation === historyGeneration.current)
-        setSnapshot((current) => (current ? { ...current, state } : current));
+        updateSnapshot({ type: 'reading', state });
     } catch (error) {
       setError(`阅读位置保存失败：${errorText(error)}`);
       retry.current =
@@ -361,7 +353,7 @@ export function ReaderApp({
   async function updateSettings(settings: Settings) {
     await flush.current();
     const state = await transport.call('reader_settings', settings);
-    setSnapshot((current) => (current ? { ...current, state } : current));
+    updateSnapshot({ type: 'reading', state });
   }
   async function clearHistory(storyId?: string) {
     ++navigation.current;
@@ -374,7 +366,7 @@ export function ReaderApp({
         storyId ? { storyId } : {},
       );
       flushSync(() => {
-        setSnapshot((current) => (current ? { ...current, state } : current));
+        updateSnapshot({ type: 'reading', state });
         setBusy(false);
         if (!storyId) setRoute({ page: 'library' });
       });
