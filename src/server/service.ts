@@ -24,11 +24,14 @@ import {
 } from '../shared/tools.js';
 import { CacheCoordinator, cacheScopes } from '../storage/cache-coordinator.js';
 import { ContentCache } from '../storage/files.js';
-import { ReadingStore } from '../storage/reading-store.js';
+import {
+  ReadingStore,
+  type StoredReadingState,
+} from '../storage/reading-store.js';
 import { ChapterContent } from './chapter-content.js';
 
-function historyToken(state: ReadingState, storyId: string) {
-  return `${state.historyEpoch ?? 0}:${state.storyHistoryEpochs?.[storyId] ?? 0}`;
+function historyToken(state: StoredReadingState, storyId: string) {
+  return `${state.historyEpoch}:${state.storyHistoryEpochs[storyId] ?? 0}`;
 }
 
 export class ReaderService {
@@ -146,7 +149,7 @@ export class ReaderService {
   private async loadChapter(id: string, refresh: boolean): Promise<Chapter> {
     const before = await this.records.read();
     const expected =
-      before.chapterRevisions?.[id] ?? before.records[id]?.revision;
+      before.chapterRevisions[id] ?? before.records[id]?.revision;
     const { chapter, cached } = await this.content.acquire(
       id,
       before.settings.retentionDays,
@@ -163,8 +166,7 @@ export class ReaderService {
           'conflict',
           '阅读记录已清除，请重新打开篇目后继续。',
         );
-      const active =
-        state.chapterRevisions?.[id] ?? state.records[id]?.revision;
+      const active = state.chapterRevisions[id] ?? state.records[id]?.revision;
       if (active !== expected && active !== chapter.revision)
         throw new ReaderError(
           'conflict',
@@ -220,8 +222,6 @@ export class ReaderService {
         'conflict',
         '原段落已不在当前正文中，请重新打开篇目。',
       );
-    const block = chapter.blocks[index];
-    if (!block) throw new ReaderError('parse', '篇目缺少定位段落。');
     const atEnd =
       change.atEnd &&
       index === chapter.blocks.length - 1 &&
@@ -240,7 +240,7 @@ export class ReaderService {
       const previous = state.records[chapter.id];
       if (
         (previous && previous.revision !== chapter.revision) ||
-        (state.chapterRevisions?.[chapter.id] &&
+        (state.chapterRevisions[chapter.id] &&
           state.chapterRevisions[chapter.id] !== chapter.revision)
       ) {
         throw new ReaderError(
@@ -363,13 +363,13 @@ export class ReaderService {
           recentChapterId,
           ...(storyId === undefined
             ? {
-                historyEpoch: (state.historyEpoch ?? 0) + 1,
+                historyEpoch: state.historyEpoch + 1,
                 storyHistoryEpochs: {},
               }
             : {
                 storyHistoryEpochs: {
                   ...state.storyHistoryEpochs,
-                  [storyId]: (state.storyHistoryEpochs?.[storyId] ?? 0) + 1,
+                  [storyId]: (state.storyHistoryEpochs[storyId] ?? 0) + 1,
                 },
               }),
         };

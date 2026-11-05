@@ -12,7 +12,7 @@ import {
 } from '../src/shared/contracts.js';
 import { ReadingStore } from '../src/storage/reading-store.js';
 import { ContentCache } from '../src/storage/files.js';
-import { PublicCache } from '../src/storage/public-cache.js';
+import { JsonCache } from '../src/storage/json-cache.js';
 import { readReaderLaunch } from './reader-launch.js';
 
 const installed = path.resolve(
@@ -136,10 +136,7 @@ try {
   assert.equal(completed.records[id]?.complete, true);
   assert.equal(completed.records[id]?.progressKnown, true);
   const before = await new ReadingStore(data).read();
-  await new PublicCache(data, 'images').put(
-    'original-test-image',
-    'disposable',
-  );
+  await new JsonCache(data, 'images').put('original-test-image', 'disposable');
   await second.callTool({
     name: 'reader_clear_cache',
     arguments: { scope: 'images' },

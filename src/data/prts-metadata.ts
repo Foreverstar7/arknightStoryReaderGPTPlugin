@@ -4,7 +4,7 @@ import {
   coverMethodSchema,
   type Story,
 } from '../shared/contracts.js';
-import { PublicCache } from '../storage/public-cache.js';
+import { JsonCache } from '../storage/json-cache.js';
 import { prtsPageUrl, type WikiReader } from './prts-client.js';
 import { ReaderError } from './source.js';
 
@@ -265,13 +265,13 @@ export function parseStageSummary(wiki: string): string | undefined {
 }
 
 export class PrtsMetadata {
-  readonly cache: PublicCache;
+  readonly cache: JsonCache;
   private readonly pending = new Map<string, Promise<unknown>>();
   constructor(
     root: string,
     private readonly wiki: WikiReader,
   ) {
-    this.cache = new PublicCache(root, 'metadata');
+    this.cache = new JsonCache(root, 'metadata');
   }
   private async page(
     title: string,
@@ -322,9 +322,10 @@ export class PrtsMetadata {
     if (value) return value;
     const pendingKey = `${this.cache.requestKey()}:${refresh}:${key}`;
     const existing = this.pending.get(pendingKey);
+    // The shared pending map holds several shapes; joining restores this T.
     if (existing) return schema.parse(await existing);
     const task = (async () => {
-      const result = schema.parse(await read());
+      const result = await read(); // Source parsers already return this shape.
       await this.cache.put(key, result);
       return result;
     })();

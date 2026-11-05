@@ -1,6 +1,6 @@
 # 保持功能的重构计划
 
-更新：2026-11-05。当前功能基线：**7724df1／0.1.24**；原计划基于 e3d34cb／0.1.21，保留在 Git 历史。**R0／H1／R1／R2a／R3a／R2b／R3b／R4a 已完成，下一步 R5；交付及验证见 [首批记录](refactoring-r0-h1.md)、[R1](refactoring-r1.md)、[R2a](refactoring-r2a.md)、[R3a](refactoring-r3a.md)、[R2b](refactoring-r2b.md)、[R3b](refactoring-r3b.md)与[R4a](refactoring-r4a.md)。** 0.1.24 未安装，已安装版本的记录为 0.1.23；这些状态不等于对外发布或真实宿主全路径验收。
+更新：2026-11-05。当前功能基线：**7724df1／0.1.24**；原计划基于 e3d34cb／0.1.21，保留在 Git 历史。**R0／H1／R1／R2a／R3a／R2b／R3b／R4a／R5 全部完成；交付及验证见 [首批记录](refactoring-r0-h1.md)、[R1](refactoring-r1.md)、[R2a](refactoring-r2a.md)、[R3a](refactoring-r3a.md)、[R2b](refactoring-r2b.md)、[R3b](refactoring-r3b.md)、[R4a](refactoring-r4a.md)与[R5](refactoring-r5.md)。** 0.1.24 未安装，已安装版本的记录为 0.1.23；这些状态不等于对外发布或真实宿主全路径验收。
 
 用户当前优先级：阅读器功能已大致完成，先关注内部重构；网站只记录后续事项。明确目标是**清晰的职责结构、去掉可避免的硬编码、去掉不可达情况的防御与无实际用途的过度设计，同时保持现有行为和阅读记录**。允许调整内部结构，但不以文件数、代码行数、设计模式数量或“零 if”为验收标准。
 
@@ -114,16 +114,16 @@
 | H05  | `shared/version.ts`／项目与工具链清单                                  | 打包已有 package／plugin／源码检查，缺少普通 check 对 lock、Node 两份 pin 的一致检查；补验证比引入构建生成步骤更小     | H1 已处理；不改版本派生或产物目录，platform 测试                            |
 | H06  | `ui/catalog.ts`、`styles.css`                                          | 七类只有一份排序，封面比例已有 `--cover-ratio`；均是已确认显示规则，不制造可配置平台                                   | 保留；cards／reader 浏览器路径                                              |
 | R101 | `shared/contracts`、`ui/transport`、`server/service.call` 及组件 parse | HTTP／SDK 输入是 unknown；调用成功后组件仍各自选 schema。应把工具名与入参／结果关联，保留错篇目等语义检查              | R1 已完成；统一 tools 契约，传输／MCP／图片／HTTP／stdio 验证通过           |
-| R102 | `ReadingState`／`reading-store.transaction`／`historyToken`            | 旧记录可缺全局代次，读取入口可规范化一次；新剧情尚无局部代次仍合法。事务前后 parse 的职责需随可信模型审查              | R1／R5；旧 JSON、清记录迟到保存及双进程                                     |
+| R102 | `ReadingState`／`reading-store.transaction`／`historyToken`            | 旧记录可缺全局代次，读取入口可规范化一次；新剧情尚无局部代次仍合法。事务前后 parse 的职责需随可信模型审查              | R5已完成入口规范化与可信更新；旧JSON／SQLite、坏数据、清记录及双进程通过    |
 | R201 | `service.prepareChapter` 与 `loadChapter`                              | 两条路径重复缓存／重解析／核对统计／取源；实际打开额外处理 expected revision、迁移与 token，不能合成任意副作用开关     | R2a 已完成；共用 ChapterContent，保留独立提交；领域／竞态及真实正文验证通过 |
 | R202 | `prts-resources.cached`／`loadCached`                                  | 外层不是纯转发：`cache.run` 建立请求代次上下文；图片、mapping 的等待合并和 assertCurrent 有真实清理竞态                | R2b 已保留代次上下文；跨进程清理与来源请求回归通过                          |
 | R203 | `prts-resources.loadPortrait`／`render`                                | 显式变量、资料身份、新旧映射选择、确证 404 回退与字节几何混在编排中；复用现有纯 portrait／cg 模块                      | R2b 已分开来源与组合；冻结图片／身份零差异，真实图片通过                    |
 | R204 | `cover-policy`／`prts-metadata` 的封面特例                             | 两部文字封面是用户命名；危机合约通用图及三类批准尺寸有来源／批准依据；当前未取得等价通用替代证据                       | R2b 已核实，缺少等价来源保留；metadata／covers通过                          |
 | R301 | `ReaderApp.acceptSnapshot`／目录回调／`story-counts`                   | 普通快照合入 records/counts，刷新只替换目录；两类更新来源不同，不能无条件 setSnapshot；当前 route 仍要保留旧画面       | R3a 已完成；纯 snapshot reducer；五个目录场景、调用次数及完整浏览器覆盖通过 |
 | R302 | `ReaderApp` 动画／打开／保存 catch、`Reader.flush`                     | 动画取消、已由父层显示的保存失败可恢复；flush 清空整个保存链有真实关闭／清记录路径。逐个明确错误所有者，不全删 catch   | R3b 已完成；保存失败后继续排空队列，提交错误有所有者，完整回归通过          |
-| R401 | `prts-script.parsePrtsChapter` 的 `ComplexFlow` 与 `prts-flow`         | 嵌套 Decision、Predicate 复用会抛异常选择正常算法，随后再次扫描；可先共享字段扫描再明确选择流程                        | R4a；v4 全库结构、独立字数、源异常和复杂拓扑；整体解析器替换为条件项        |
-| R501 | `storage/PublicCache`／`JsonCache`                                     | PublicCache 当前仅限制 mapping／metadata／images 范围和时钟默认；先保留类型约束，后续评估直接使用明确 scope 是否更简单 | R5；不预建通用 repository；cache-storage／cache-races                       |
-| R502 | v3→v4、旧 JSON、epoch／CAS／historyToken                               | 旧原文缓存／记录仍可能进入；清缓存、清记录、统计和页面序号保护不同对象，现有测试证明可达                               | R2a／R5 保留；同源迁移、过期窗口、跨进程清理                                |
+| R401 | `prts-script.parsePrtsChapter` 的 `ComplexFlow` 与 `prts-flow`         | 嵌套 Decision、Predicate 复用会抛异常选择正常算法，随后再次扫描；可先共享字段扫描再明确选择流程                        | R4a已完成；全库及10648组合零差异，耗时／内存已记录；R4b不采用               |
+| R501 | `storage/PublicCache`／`JsonCache`                                     | PublicCache仅构造转发；调用点均使用明确的mapping／metadata／images字面scope，JsonCache已有合法范围约束                 | R5已删除子类，直接JsonCache；cache-storage／cache-races及包双进程通过       |
+| R502 | v3→v4、旧 JSON、epoch／CAS／historyToken                               | 旧原文缓存／记录仍可能进入；清缓存、清记录、统计和页面序号保护不同对象，现有测试证明可达                               | R2a／R5已核实保留；同源迁移、过期窗口、跨进程清理通过                       |
 
 ### R1：工具契约和可信内部模型（已完成）
 
@@ -179,7 +179,9 @@
 - 验收：固定 1,756 篇可用样本的当前 v4 结构指纹与字数零差异；原创复杂拓扑、源异常、未知命令和真实浏览器样本通过。同批离线输入对比耗时／内存，不预设提速比例。
 - 不同时修改 block ID／revision 算法，不自动升级 parser 版本掩盖不等价；真正语义修正另列修复与迁移。新旧实现只在本机比较工具中运行，不在产品永久双跑。
 
-### R5：存储与剩余重复保护收尾
+### R5：存储与剩余重复保护收尾（已完成）
+
+交付见 [R5记录](refactoring-r5.md)：旧字段在磁盘入口规范化，可信内部更新和来源结果去重复parse，字数行共用解码，删除PublicCache转发子类。check104/104、最终fixture34/34、真实20/20、固定全库零差异及重定位包验证完成；下列约束已按保留依据执行。
 
 - 与 R1／R2 相关的入口规范化随对应切片完成，R5 不积压所有清理到最后。逐个检查剩余 parse、默认值、catch、旧格式与抽象，说明保留依据或可删除的不变量。
 - reading／index／cache 的耐久性与用途不同，不建通用仓储／事务框架。复用已有 SQLite；网络在事务外，保留真实跨进程事务、historyToken、cache epoch、统计 CAS 和旧 JSON 防复活标记。

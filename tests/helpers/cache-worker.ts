@@ -5,7 +5,7 @@ import { FixtureSource } from '../../src/data/fixture.js';
 import { PrtsResources } from '../../src/data/prts-resources.js';
 import { ReaderService } from '../../src/server/service.js';
 import { ContentCache } from '../../src/storage/files.js';
-import { PublicCache } from '../../src/storage/public-cache.js';
+import { JsonCache } from '../../src/storage/json-cache.js';
 
 const root = z.string().parse(process.argv[2]);
 const fixture = new FixtureSource();
@@ -88,7 +88,7 @@ async function execute(command: Command): Promise<unknown> {
       return {};
     }
     case 'stress': {
-      const cache = new PublicCache(root, 'images');
+      const cache = new JsonCache(root, 'images');
       for (let n = 0; n < command.loops; n++) {
         if (command.scope === 'all')
           await service.call('reader_clear_cache', { scope: 'all' });

@@ -167,6 +167,17 @@ test('touch taps open the whole card and a native horizontal swipe only scrolls 
     await expect(card).toBeVisible();
     const box = await card.boundingBox();
     if (!box) throw new Error('缺少触摸测试篇目卡');
+    const axis = page.getByRole('region', { name: '横向篇目轴' });
+    // touchEnd can leave native momentum scrolling in progress. Observe its
+    // actual completion before testing the following normal padding tap.
+    await axis.evaluate((element) => {
+      element.setAttribute('data-test-pan-ended', 'false');
+      element.addEventListener(
+        'scrollend',
+        () => element.setAttribute('data-test-pan-ended', 'true'),
+        { once: true },
+      );
+    });
     const session = await context.newCDPSession(page);
     const y = box.y + box.height / 2;
     await session.send('Input.dispatchTouchEvent', {
@@ -183,20 +194,19 @@ test('touch taps open the whole card and a native horizontal swipe only scrolls 
       type: 'touchEnd',
       touchPoints: [],
     });
-    const axis = page.getByRole('region', { name: '横向篇目轴' });
     await expect(axis).toBeVisible();
     await expect
       .poll(() => axis.evaluate((element) => element.scrollLeft))
       .toBeGreaterThan(50);
+    await expect(axis).toHaveAttribute('data-test-pan-ended', 'true');
     await session.detach();
     // A normal tap still works after the browser cancels the pan gesture.
     await card.scrollIntoViewIfNeeded();
     const padding = await card.boundingBox();
     if (!padding) throw new Error('篇目卡不在可视区');
-    await page.touchscreen.tap(
-      padding.x + padding.width - 3,
-      padding.y + padding.height - 3,
-    );
+    await card.tap({
+      position: { x: padding.width - 3, y: padding.height - 3 },
+    });
     await expect(page.getByRole('main', { name: '剧情正文' })).toBeVisible();
   } finally {
     await context.close();

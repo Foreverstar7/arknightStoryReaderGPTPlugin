@@ -19,7 +19,7 @@ import {
 } from '../src/domain/reading.js';
 import { ReaderService } from '../src/server/service.js';
 import { PrtsCatalogCache } from '../src/storage/prts-catalog.js';
-import { PublicCache } from '../src/storage/public-cache.js';
+import { JsonCache } from '../src/storage/json-cache.js';
 import { snapshotSchema } from '../src/shared/contracts.js';
 import { z } from 'zod';
 import { deferred } from './helpers/deferred.js';
@@ -495,8 +495,8 @@ test('catalog refresh shares cold fetches, serves warm cache immediately and upd
       atEnd: false,
     });
     const records = await service.records.read();
-    const imageCache = new PublicCache(root, 'images');
-    const mappingCache = new PublicCache(root, 'mapping');
+    const imageCache = new JsonCache(root, 'images');
+    const mappingCache = new JsonCache(root, 'mapping');
     await imageCache.put('kept', 'original-image');
     await mappingCache.put('kept', 'original-mapping');
     requested.length = 0;

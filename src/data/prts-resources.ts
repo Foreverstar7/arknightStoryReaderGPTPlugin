@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { ReaderImage, CgComposition } from '../shared/contracts.js';
-import { PublicCache } from '../storage/public-cache.js';
+import { JsonCache } from '../storage/json-cache.js';
 import { prtsPageUrl, type WikiReader } from './prts-client.js';
 import { ReaderError } from './source.js';
 import { parseOperatorIdentity } from './prts-metadata.js';
@@ -44,19 +44,19 @@ const unavailable = (message: string): never => {
 };
 
 export class PrtsResources {
-  readonly mappings: PublicCache;
-  readonly images: PublicCache;
+  readonly mappings: JsonCache;
+  readonly images: JsonCache;
   private readonly pending = new Map<string, Promise<unknown>>();
   constructor(
     root: string,
     private readonly wiki: WikiReader,
     private readonly request: typeof fetch = fetch,
   ) {
-    this.mappings = new PublicCache(root, 'mapping');
-    this.images = new PublicCache(root, 'images');
+    this.mappings = new JsonCache(root, 'mapping');
+    this.images = new JsonCache(root, 'images');
   }
   private async cached<T>(
-    cache: PublicCache,
+    cache: JsonCache,
     key: string,
     schema: z.ZodType<T>,
     days: number,
@@ -69,7 +69,7 @@ export class PrtsResources {
     );
   }
   private async loadCached<T>(
-    cache: PublicCache,
+    cache: JsonCache,
     key: string,
     schema: z.ZodType<T>,
     days: number,
@@ -81,9 +81,12 @@ export class PrtsResources {
     if (cached) return cached;
     const pendingKey = `${cache.scope}:${cache.requestKey()}:${refresh}:${key}`;
     const existing = this.pending.get(pendingKey);
+    // This heterogeneous pending map erases T; decode only when rejoining it.
     if (existing) return schema.parse(await existing);
     const task = (async () => {
-      const value = schema.parse(await fetchValue());
+      // Source readers already decode their input and return T. Disk reads above
+      // remain a separate boundary, including old or corrupt cached payloads.
+      const value = await fetchValue();
       await cache.put(key, value);
       return value;
     })();

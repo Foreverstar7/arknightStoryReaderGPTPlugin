@@ -4,6 +4,11 @@ import { DatabaseSync } from 'node:sqlite';
 import { chapterCountSchema, type ChapterCount } from '../shared/contracts.js';
 import { ReaderError } from '../shared/errors.js';
 
+function decodeCount(raw: unknown): ChapterCount {
+  if (typeof raw !== 'string') throw new Error('Invalid word count row');
+  return chapterCountSchema.parse(JSON.parse(raw));
+}
+
 /** Public revision/count metadata, separate from expiring bodies and private history. */
 export class WordCountStore {
   private readonly file: string;
@@ -43,9 +48,7 @@ export class WordCountStore {
             .prepare('SELECT data FROM counts')
             .all()
             .map((row) => {
-              if (typeof row.data !== 'string')
-                throw new Error('Invalid word count row');
-              const count = chapterCountSchema.parse(JSON.parse(row.data));
+              const count = decodeCount(row.data);
               return [count.chapterId, count];
             }),
         ),
@@ -59,11 +62,7 @@ export class WordCountStore {
       const row = db
         .prepare('SELECT data FROM counts WHERE id = ?')
         .get(count.chapterId);
-      if (row && typeof row.data !== 'string')
-        throw new Error('Invalid word count row');
-      const current = row
-        ? chapterCountSchema.parse(JSON.parse(String(row.data)))
-        : undefined;
+      const current = row ? decodeCount(row.data) : undefined;
       if (
         current?.revision !== expectedRevision &&
         current?.revision !== count.revision

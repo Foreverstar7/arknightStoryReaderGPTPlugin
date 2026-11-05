@@ -15,7 +15,7 @@ import {
   MAX_IMAGE_BYTES,
   limitedBytes,
 } from '../src/data/prts-resources.js';
-import { PublicCache } from '../src/storage/public-cache.js';
+import { JsonCache } from '../src/storage/json-cache.js';
 import { imageResultSchema } from '../src/shared/contracts.js';
 import { ReaderError } from '../src/shared/errors.js';
 import { STORY_VARIABLES } from '../src/data/prts-portrait.js';
@@ -464,7 +464,7 @@ test('image bytes and mapping requests coalesce, cache across restart, fail retr
 test('resource expiry slides with use and removes expired images without touching reading data', async () =>
   temporary(async (root) => {
     let now = 0;
-    const cache = new PublicCache(root, 'images', () => now);
+    const cache = new JsonCache(root, 'images', () => now);
     await cache.put('one', 'public');
     now += 6 * 86_400_000;
     assert.equal(await cache.get('one', z.string(), 7), 'public');
