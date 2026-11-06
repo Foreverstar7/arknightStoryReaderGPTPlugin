@@ -1,15 +1,17 @@
 # 当前状态
 
-更新：2026-11-07。**1.0.0 的 Windows Release 完整验收已通过，npm 发布正在等待用户网页审批。** 候选标签固定指向 `cce87d6`，后续网站／文档提交不再移动它。当前继续制作原创素材的中文项目网站并部署本仓库 GitHub Pages；全部完成、交接保存后按用户要求关机。已发布 **0.1.26** 沿用既有 registry 证据，稳定 marketplace 仍为空，真实桌面与稳定提升仍待人工完成。
+更新：2026-11-07。**1.0.0 的 Windows Release 完整验收已通过，项目网站已上线；npm 发布正在等待用户网页审批。** 候选标签固定指向 `cce87d6`，网站／文档提交未移动它。网站、部署工作流与原创示例已推送；README 已补三张原创建面图说明，随本次最终交接提交。完成远程核对并保存交接后按用户本轮要求正常关机。已发布 **0.1.26** 沿用既有 registry 证据，稳定 marketplace 仍为空，真实桌面与稳定提升仍待人工完成。
 
-## 当前接续：服务器通过，制作项目 Pages 网站
+## 当前接续：网站已上线，等待用户审批 npm
 
 - `cce87d6c2abfc7760272981ad44f5349267d59a7` 的 [Ubuntu Check](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42250956103) 全部通过。第八次 [Windows Release](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42251044304) 的 accept-package 已成功：119 项、类型／格式、构建、全部实际 tgz 离线／PRTS 及 34 项 Chromium 浏览器回归通过。真实横滑、scrollend 与之后一次点击均通过；该次一次冷安装 75,870ms，安装产物的 Node 握手约 222ms。
 - 注释标签对象 `31b92868b3a04f118716b0ebe3d6c568ae2ce827` 固定指向 `cce87d6`。已保存并独立核对同一次 CI 的 npm-candidate artifact：`arknights-story-reader-1.0.0.tgz` 为 7,923,617 字节，源码／run ID／dirty=false／SHA-512 均匹配。完整包和报告位于 `.ai/local/release-1.0.0/touch-scroll-fix/accepted-cce87d6/`，`server-acceptance.json` 在其上级目录；hash 为 `sha512-06q8zw5cD1WDznpKV61DSPBXlzn1lXmyiROKRqQnZYlp8JQg5XRcUtx83ZYmb2scNgI5kSBkPXqJ2LOaE8COcw==`。
 - publish job 为 waiting，pending_deployments 明确为 npm-production、Foreverstar7 必需审批；助手未批准或发布。用户醒后在上述 Release 页面点击 Review deployments → npm-production → Approve and deploy，将上传已验收的同一 tgz 到 next。OIDC 与 trusted publisher 验证仍待这次实际发布，之后才安排真实 Windows Codex 桌面和稳定提升。
 - 中文项目网站已实现：原创纸页／书签图形、三个实际 fixture 界面示例、阅读方式、安装文档／发行入口及非官方说明。`website/` 只含公开静态文件，不访问 PRTS、不读取私人数据、不加载第三方字体；构建输出独立为 `build/site/`。维护与素材来源见 [网站说明](../docs/website.md)。
 - 本地固定工具链下类型与项目格式通过；网站两个浏览器场景通过，覆盖实际项目子路径、资源、键盘／点击标签、说明展开，以及四种窗口×双主题和减少动态效果，无横向溢出、页面错误或第三方请求。实际截图已检查，证据位于 `.ai/local/project-website/` 和 `test-results/site/`。
-- 已复用当前仓库既有 Git 登录创建 Pages（HTTP 201），只在进程内使用认证，未显示或保存凭据。GET 确认 build_type=workflow、公开 HTTPS 地址 `https://foreverstar7.github.io/arknightStoryReaderGPTPlugin/`；首次 Actions 部署仍待提交后验证。新 `github-pages` 环境只用于该网站，npm-production 审批保持独立。全部代码／文档须推送并保存最终交接后，才按用户要求关机。
+- 网站主体已提交／推送为 `f6d4221c0ade7e378c21be053f4ab61690c58bb5`，[Pages 构建与部署](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42254140503) 及该提交的 [Ubuntu Check](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42254140890) 全部通过。公开网站为 [剧情阅读器](https://foreverstar7.github.io/arknightStoryReaderGPTPlugin/)，实际线上 Chromium 已验证 HTTP 200、桌面／320px 深色布局、图片、标签与说明展开，无页面错误或失败响应；回执为 `.ai/local/project-website/live-verification.json`。
+- 已复用当前仓库既有 Git 登录创建 Pages（HTTP 201），只在进程内使用认证，未显示或保存凭据。构建源为 workflow、HTTPS 已启用；新 `github-pages` 环境只用于网站，npm-production 审批保持独立。README 的目录／篇目／正文图片复用原创资产，三条公开图片地址均返回 HTTP 200。此次最终提交包含图片说明和上线记录；关机仅按用户本轮完成后的指令执行。
+- 网站链接与 README 图片说明更新在 main；已验收 1.0.0 tgz 内 README 保持 cce87d6 的版本。继续发布同一验收归档，不为后续网站／文档补充重建包或移动标签。
 
 ## 此前：同版 Chromium 已复现并修复触摸注入
 

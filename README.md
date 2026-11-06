@@ -34,6 +34,28 @@ codex plugin remove arknights-story-reader@arknights-reader --json
 
 使用[源码开发副本](#安装源码开发副本)时，将上述来源名替换为 `arknights-reader-dev`。升级、卸载和清缓存均保留外部阅读记录；清除记录要在阅读器页面中单独操作。
 
+## 界面示例
+
+以下截图来自本阅读器的原创测试内容，不含游戏截图、游戏剧情原文、立绘或 CG；实际阅读数据来自 PRTS。
+
+### 剧情目录
+
+按分类浏览剧情卡片，顶部最近阅读入口保留你实际阅读的章节。
+
+![剧情目录：原创示例卡片按分类展示，并提供最近阅读入口](https://raw.githubusercontent.com/Foreverstar7/arknightStoryReaderGPTPlugin/main/website/assets/library.png)
+
+### 篇目列表
+
+章节沿横向篇目轴顺序排列，支持拖动浏览、整卡打开和继续阅读。
+
+![篇目列表：原创示例章节沿横轴上下交错排列](https://raw.githubusercontent.com/Foreverstar7/arknightStoryReaderGPTPlugin/main/website/assets/chapters.png)
+
+### 正文阅读
+
+左侧切换篇目，正文纵向连续阅读；文字与人物姓名分层呈现，并保留本机阅读位置。
+
+![正文阅读：原创示例对白、旁白与左侧篇目导航](https://raw.githubusercontent.com/Foreverstar7/arknightStoryReaderGPTPlugin/main/website/assets/reader.png)
+
 ## 本地运行
 
 项目固定 Node.js 26.13.0／npm 12.2.1。Windows PowerShell：

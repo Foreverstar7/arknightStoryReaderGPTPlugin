@@ -49,3 +49,7 @@ node scripts/build-site.mjs
 工作流只在 main 的网站相关文件变化时或手动触发。`github-pages` 只用于网站；npm 发布继续绑定唯一的 `npm-production` 审批，网站部署不会发布 npm 或提升稳定目录。npm 候选 v1.0.0 保持指向已经验收的 cce87d6；后续网站／文档提交不移动该标签。
 
 页面不写死“最新版已经发布”等临时状态，安装前引导访问稳定来源目录和当前验证范围；稳定来源未收录时明确指向源码开发副本。
+
+## 首次上线记录
+
+2026-11-07，网站主体提交 f6d4221 的 [Pages 构建／部署](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42254140503) 和 [Ubuntu Check](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42254140890) 通过。实际公开地址已验证 HTTP 200，线上桌面／320px 深色布局、三页预览切换、图片与说明展开正常，没有页面脚本错误或失败资源。README 复用相同原创建面图，并提供目录／篇目／正文的说明。
