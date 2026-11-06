@@ -72,7 +72,7 @@ README 在打包前定稿正式版定位、功能和安装条件，不写“发�
 
 `7833ace` 的 Windows CI 已证实上述关闭／清理修复通过；保留下来的原始错误是 npx 初始化 60 秒超时，直接 manifest／bin 与工具／HTML 均成功。旧脚本由 SDK 拉起 npm 后立刻开始握手，npm 的冷缓存安装和 CLI 准备也消耗同一握手时限；仅凭该日志不能确定 npm 内部具体耗时分布。
 
-按 [npm exec 官方行为](https://docs.npmjs.com/cli/v12/commands/npm-exec/)，先对同一 tgz 使用全新隔离缓存、`--offline --ignore-scripts` 和当前 Node 的 `--version`，等待 npm 准备结束；再从同一缓存启动真实 bin，继续原有 MCP／HTML／持久化验收。安装过程使用既有 npmCommand 的 120 秒限时，SDK 握手仍为默认 60 秒，不放宽协议请求或忽略失败。真实 fixture tgz 检查安装脚本未运行，并用缓存安装目录中的标记验证后续执行确实复用该安装。
+按 [npm exec 官方行为](https://docs.npmjs.com/cli/v12/commands/npm-exec/)，先对同一 tgz 使用全新隔离缓存、`--offline --ignore-scripts`，等待 npm 准备结束，再启动实际安装的包。安装过程使用既有 npmCommand 的 120 秒限时，SDK 握手仍为默认 60 秒。`fe8919c` 曾让第二阶段的 MCP 管道继续穿过 npm；第四次 Windows 运行在准备 91.5 秒成功后仍初始化超时，因此仅分开时限不足，当前处理见下文。
 
 这只调整验收脚本的阶段边界，不更改发布流程、生产依赖、运行入口或版本。本地定向与实际 tgz 离线／PRTS 验收通过，新的 Windows CI 结果仍待提交及标签更新后核验。
 
@@ -81,3 +81,11 @@ README 在打包前定稿正式版定位、功能和安装条件，不写“发�
 用户要求复核 Release 检查。现有工作流以 Windows 验收成功和 npm-production 审批控制发布，发布脚本校验包名、版本、干净源码提交、run ID 和归档 SHA-512，上传同一 tgz。真实桌面及 OIDC 仍以各自实际执行为准。另补齐验收缺口：PRTS 样本必须包含 CG 并完成图片校验，不能因缺少 CG 静默跳过；各启动入口须返回相同的完整工具契约。补强后本地完整 check 118 项与实际包 PRTS 验收通过。
 
 用户现已授权持续处理，覆盖本轮必要的修复、统一提交／推送与仍未发布的 v1.0.0 标签更新，直到服务器 Windows Release 验收通过，不再逐次请求相同操作的确认。更新标签前仍核对 npm 版本未发布、远程旧对象及环境必需审批。此授权不代替 npm-production 网页发布审批、真实桌面验收或稳定提升确认，也不允许覆盖已发布版本。
+
+## Windows npm 包装层与实际部署入口（2026-11-06）
+
+官方仓库的 [npm/cli #9959](https://github.com/npm/cli/issues/9959) 报告 Windows 的 npx 管道 stdin 可能挂起，当前仍开放；报告使用 npm 10，不能据此断言本项目 npm 12 具有同一缺陷。本项目第四次 CI 的直接 Node 握手成功、npm 包装层超时且在关闭 stdin 后才启动 bin，支持将问题定位在 npm 启动／输入层，而非机器不能处理 MCP。
+
+正式 mcp.json 已固定系统 Node 入口，因此验收按实际部署路径拆分：npm 非交互安装实际 tgz，明确关闭安装命令 stdin；通过 npm exec 提供的 PATH 用 Node 解析 package.json，验证 Node、包身份、bin 和 realpath 位于全新隔离缓存内。MCP 由系统 Node 直接启动该安装产物的 bin，不经过 npm stdio 转发。保留全部工具／HTML／图片／记录断言，模拟卸载同时删除解包与 npm 安装副本。不为 npm 安装层额外增加 MCP 包装入口支持承诺，也不把它归为已通过的测试。
+
+该发现路径来自 npm exec 的公开 PATH 契约，不固定 _npx 哈希或开发者安装路径；包名作为 argv 传入，不拼接脚本。npmCommand 的现有调用均为非交互 pack／ls／版本／OIDC publish，关闭 stdin 不影响用户在网页完成登录或审批。fixture 回归验证安装来源、安装目录复用与 stdin EOF，实际包协议及 PRTS 验收验证真正运行的缓存内产物。

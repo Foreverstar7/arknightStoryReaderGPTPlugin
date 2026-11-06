@@ -4,11 +4,11 @@
 
 0.1.26 已完成首次本机 npm 发布，registry integrity 与验收归档一致，GitHub 仓库已公开，见 [STATUS](STATUS.md)。本地工作流仅 npm 发布 job 引用 `npm-production` environment；稳定提升保留手动触发和宿主验收确认，不绑定环境。普通检查使用 Ubuntu，标签验收使用 Windows，npm 上传使用 Ubuntu，无 macOS 验收矩阵。
 
-正式版目标保持 1.0.0。已提交的进程回收修复 `7833ace` 的 Ubuntu Check 通过；第三次 Windows 验收已证实关闭与清理通过，但 npx 初始化超出 60 秒，publish 跳过，没有待审批任务。本次提交交付 npm 离线准备／MCP 握手分离和验收复核修复，本地完整 check 的 118 项测试／类型／格式及同一 tgz 的真实 PRTS 复验通过，见 [STATUS](STATUS.md)。
+正式版目标保持 1.0.0。`fe8919c` 的 Ubuntu Check 通过；第四次 Windows 验收的离线 npm 准备成功，随后 npm 包装层的 MCP 初始化仍超时，直接 Node 握手通过。本次提交交付 npm 非交互安装、系统 Node 启动真实安装产物的验收修复，本地类型、13 项定向及同一 tgz 离线／PRTS 通过，见 [STATUS](STATUS.md)。
 
 本轮继续按 [Windows 本地预检](../docs/testing.md#windows-本地候选预检) 排查，不盲目重跑失败 CI。沿用原本地归档（`sourceCommit: 21d196d`、`dirty: true`）及有效应用构建／117 项基线／34 项浏览器证据，只重验受影响的包启动路径。最终发布包仍由已提交源码的标签 CI 构建验收。当前未完成项：
 
-1. 按用户持续推进授权统一提交／推送七个修复与交接文件，保持版本 1.0.0 和默认个人 Git 署名，核验 Ubuntu Check。本轮不改发布路线、环境、依赖或阅读器运行代码。
+1. 按用户持续推进授权统一提交／推送八个修复与交接文件，保持版本 1.0.0 和默认个人 Git 署名，核验 Ubuntu Check。保留真实 npm 安装、实际包 Node 入口、CG、工具契约与记录检查，不改变发布路线、环境、依赖或产品运行代码。
 2. 用户已授权必要的修复、提交／推送与仍未发布的 `v1.0.0` 更新，直到服务器 Windows Release 验收通过，无需逐次再次确认；每次仍须核对 npm 未发布、远程标签对象及必需审批。失败时依据实际日志修复，不盲目重跑或放宽断言。Windows CI 通过后，由用户网页批准 Ubuntu 发布已验收的同一 tgz，不使用本地预检归档，不覆盖 0.1.26。
 3. `npm-production` 的 Foreverstar7 审核、允许自审与禁止管理员绕过已独立核验；npm 网页截图确认 publisher 字段及 `npm publish` 权限匹配，仍为 `Pending validation`，须在 2026-11-08 12:11 UTC（北京时间 20:11）前完成首次成功发布。npm 发布仍由用户网页审批，OIDC 待实际验证，助手不代为批准。
 4. 1.0.0 候选发布后，验证该精确 npm 版本在真实 Windows Codex 桌面的安装、阅读、图片、续读、升级及卸载保留记录。

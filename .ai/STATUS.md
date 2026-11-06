@@ -1,17 +1,22 @@
 # 当前状态
 
-更新：2026-11-06。正式版目标保持 **1.0.0**。进程回收修复 `7833ace` 的 Ubuntu Check 已通过；第三次 Windows 标签验收基于该提交，保留了原始错误：`npx` 初始化超出 SDK 默认 60 秒，关闭与清理均通过，npm 发布跳过。本次交付 npm 离线准备／MCP 握手分离及验收复核修复，本地完整 check 的 118 项测试与同一 tgz 的真实 PRTS 复验通过。用户已授权持续修复、提交／推送及更新仍未发布的候选标签，直到服务器 Windows Release 验收通过；npm 发布仍由用户网页审批。已发布 **0.1.26** 的 next／latest 指向和 registry integrity 沿用下方首次发布及交接核验。稳定 marketplace 仍为空，GitHub 仓库为 public。
+更新：2026-11-06。正式版目标保持 **1.0.0**。第四次 Windows Release 基于 `fe8919c`，npm 离线准备成功，随后穿过 npm 包装进程的 MCP 握手仍超时。该机器的直接 Node 握手已通过。本次交付安装与通信分离修复：npm 非交互离线安装，系统 Node 启动实际安装目录中的 bin，完成原有协议、图片、续读及卸载保留记录验收。本地类型、13 项定向及实际 tgz 离线／PRTS 复验通过，Windows CI 尚待核验。用户已授权持续修复、提交／推送及更新仍未发布的候选标签直到服务器验收通过；npm 发布仍由用户网页审批。已发布 **0.1.26** 的 next／latest 和 integrity 沿用下方核验，稳定 marketplace 仍为空。
 
-## 当前接续：npm 离线准备与 MCP 握手
+## 当前接续：npm 安装与 Node stdio 通信
+
+- npm 准备／验收复核修复已提交并推送为 `fe8919caeb31afd985f91fb97c9464bdf31fe585`，[Ubuntu Check](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42236865450) 通过。第四次 [Windows Release](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42237265759) 的 118 项检查、构建、实际 tgz 解包、依赖、manifest／bin 及工具／HTML 均通过；离线 npm 准备耗时 91,516ms 成功，随后 npm 包装层初始化在 60,009ms 超时。关闭 stdin 后才出现 npm 的 bin 启动信息；清理通过，publish skipped，无发布审批任务。日志为 `.ai/local/release-1.0.0/npm-startup-fix/windows-fe8919-failed.log`。
+- 查到相似的 [npm/cli #9959](https://github.com/npm/cli/issues/9959)：Windows 管道 stdin 下 npx 可能卡住，issue 仍开放，但其 npm 10 环境与本项目 npm 12 不同，不能据此认定同一根因。当前 CI 的直接 Node 握手约 0.4 秒已通过，不能归因为整台机器不支持 MCP。正式 mcp.json 本来就使用系统 Node，npm 只承担安装阶段。
+- 本次验收由 npm exec 在全新隔离缓存中离线安装实际 tgz；非交互 npm 命令明确关闭 stdin。通过 npm 提供的 PATH 解析已安装 package.json，校验 Node／包名／版本／bin，并以 realpath 确认产物属于该缓存，拒绝源码或全局包。之后由系统 Node 直接启动该实际安装的 bin，保留全部工具契约、HTML、CG、续读／清缓存校验；模拟卸载同时移除解包副本和 npm 安装副本后确认外部记录仍在。npm 进程上限仍 120 秒、MCP 握手仍 60 秒，未改产品、版本、依赖或发布工作流。
+- 本地固定 Node 26.13.0／npm 12.2.1 下类型、13 项定向回归通过；fixture 验证隔离安装、禁用安装脚本、安装目录复用和非交互命令获得 stdin EOF。对同一本地 1.0.0 tgz 的离线／真实 PRTS 复验通过，npm 安装目录内入口的握手分别约 404ms／311ms，10 个工具完整一致、HTML 533,175 字节，117 部目录、64 块、1500×844 图片及记录保留均通过。完整证据在 `.ai/local/release-1.0.0/npm-stdio-fix/`。沿用有效的 118 项完整基线、构建与浏览器证据，不重复无关验证。
 
 - 进程回收、原始错误保留及本地预检指南已统一提交／推送为 `7833ace8ff87b28b70a5bb12270398861686dea7`，使用本机默认个人 Git 署名，未改 Git 配置。[Ubuntu Check](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42232817930) 全部通过。该阶段本地证据含 117 项完整 check、实际包离线／PRTS 和 Edge 34 项回归，保存在 `.ai/local/release-1.0.0/windows-cleanup-fix/`。
 - 用户再次明确确认后，`v1.0.0` 从 `21d196d` 更新到 `7833ace`，新注释标签对象为 `00cafdda80faeaa2050f22601d868dc2c82d1896`。推送前 npm 1.0.0 返回 404，并只读核验 npm-production 的 Foreverstar7 必需审批、允许自审及禁止管理员绕过；推送使用旧对象约束的 force-with-lease，只更新该未发布标签。
 - 第三次 [Windows Release 验收](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42233591090) 的 117 项测试／类型／格式、构建打包、解压、生产依赖、manifest／bin 启动及协议／HTML 均通过。`Initialize MCP (npx)` 在 60,006ms 报 `REQUEST_TIMEOUT`，随后关闭连接（2,110ms）与删除临时目录（500ms）均通过。清理不再覆盖原始错误，也未出现 EBUSY。真实 PRTS、浏览器和 artifact 上传跳过，publish 为 skipped，没有待审批部署；未重跑失败 CI 或执行 npm 发布。
 - 该次干净 CI 从 `7833ace` 生成的 tgz 为 7,923,617 字节，integrity 与前一次 `21d196d` CI 包一致；验收工具修复不在运行包中。原始日志及标签回执为 `.ai/local/release-1.0.0/windows-cleanup-fix/windows-release-7833ace-failed.log` 和 `retag.json`。
-- 本地脚本将全新隔离 npm 缓存的离线 tgz 准备移到握手之前：先以 `--offline --ignore-scripts` 提供指定包并运行当前 Node 的 `--version`，使用现有 npmCommand 的 120 秒进程限时；随后从同一缓存启动实际包 bin 并做 MCP／HTML 或记录验收，SDK 握手仍为默认 60 秒。仍不借用源码依赖、全局缓存或私人记录，未改阅读器运行代码、依赖、版本或工作流。
+- `fe8919c` 曾将全新 npm 缓存准备移到握手之前，安装阶段成功但仍以 npm 进程承载 MCP 管道；第四次 Windows 结果证明仅拆分时限仍不足。本次改为上述实际 Node 入口，npm 安装验收继续保留。
 - 固定 Node 26.13.0／npm 12.2.1 下，类型、格式、13 项定向回归通过；新增真实 fixture tgz 覆盖冷缓存准备、不执行安装脚本，并以安装目录内标记证明后续 bin 使用同一安装。复用现有本地 1.0.0 tgz（7,924,858 字节、sourceCommit 为 `21d196d`、dirty 为 true），离线及正常本机环境 `--prts` 验收均通过：2,776 个文件、10 个 app-only 工具、global 入口、533,175 字节 HTML、117 部目录、64 个正文块、1500×844 图片，保存／重开、清缓存及模拟卸载后保留外部记录。完整日志与报告在 `.ai/local/release-1.0.0/npm-startup-fix/`。
-- 用户要求复核 Release 检查，已核对 Windows 验收、同一 artifact 传递、版本／提交／run ID／SHA-512 发布校验及环境审批。另补强两点：真实 PRTS 样本必须包含 CG，不能缺图时跳过图片验收；manifest／bin／npx 的工具契约须完整一致。补强后本地完整 `./scripts/npm.ps1 run check` 的 118 项测试、类型与格式通过，同一归档 `--prts` 复验通过；日志为上述目录的 `review-check.log` 与 `review-prts.log`。沿用有效应用构建与浏览器证据，没有重打包或重复浏览器回归。新修复仍待 Windows CI 验证。
-- 用户已明确授权继续处理直到服务器 Release 验收通过，本次提交／推送和后续必要的未发布 `v1.0.0` 标签更新均在该授权内，不再逐次确认。每次移动前仍核对 npm 未发布、远程标签对象与 npm-production 必需审批；npm 发布和稳定提升仍保留人工确认。下一步提交／推送本轮七个文件，核验 Ubuntu Check，再运行 Windows Release 验收。
+- 用户要求复核 Release 检查，已核对 Windows 验收、同一 artifact 传递、版本／提交／run ID／SHA-512 发布校验及环境审批。`fe8919c` 另要求样本 CG 必须完成图片验收及各入口完整工具契约一致，本地完整 check 的 118 项通过，证据为 `review-check.log`／`review-prts.log`；当前入口为清单、解包 bin 与 npm 安装后的 bin。
+- 用户已明确授权继续处理直到服务器 Release 验收通过，本次提交／推送和后续必要的未发布 `v1.0.0` 标签更新均在该授权内，不再逐次确认。每次移动前仍核对 npm 未发布、远程标签对象与 npm-production 必需审批；npm 发布和稳定提升仍保留人工确认。下一步提交／推送本轮八个文件，核验 Ubuntu Check，再运行 Windows Release 验收。
 
 此前首次 Windows 验收因 tar 的 `-C` 参数丢失中文路径失败，路径修复为 `21d196d`，其 [Ubuntu Check](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42226576247) 通过；第二次 [Windows 验收](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42227719463) 的原始失败被 finally 的 EBUSY 遮盖。第三次运行已明确保留 npx 超时，不能据此补写前两次日志中未观察到的阶段。
 

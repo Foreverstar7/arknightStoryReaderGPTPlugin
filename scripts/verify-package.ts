@@ -39,6 +39,7 @@ const tarball = path.resolve(
 // with lifecycle scripts disabled.
 const sandbox = await mkdtemp(path.join(tmpdir(), 'arknights package 阅读器 '));
 const connection = new VerificationConnection();
+let npmInstalledRoot: string | undefined;
 const result = await withVerificationCleanup(async () => {
   await writeFile(
     path.join(sandbox, 'package.json'),
@@ -112,7 +113,9 @@ const result = await withVerificationCleanup(async () => {
   assert.equal(launch.command, process.execPath);
   assert.equal(launch.packagedRuntime, false);
   assert.ok(launch.args.includes('--installed'));
-  async function connect(mode: 'manifest' | 'bin' | 'npx' = 'manifest') {
+  async function connect(
+    mode: 'manifest' | 'bin' | 'npm-installed' = 'manifest',
+  ) {
     const server = {
       ...launch,
       env: {
@@ -123,22 +126,23 @@ const result = await withVerificationCleanup(async () => {
     };
     if (mode === 'bin') {
       server.args = [path.join(root, pkg.bin['arknights-story-reader'])];
-    } else if (mode === 'npx') {
-      const args = await verificationStep(
+    } else if (mode === 'npm-installed') {
+      const installed = await verificationStep(
         'Prepare fresh offline npm cache from tgz',
         () =>
           prepareOfflineNpmPackage(
             tarball,
             path.join(sandbox, 'npm-cache'),
             sandbox,
+            identity,
           ),
       );
+      assert.deepEqual(installed.bin, pkg.bin);
+      npmInstalledRoot = installed.root;
       server.args = [
-        process.env.npm_execpath ?? '',
-        ...args,
-        'arknights-story-reader',
+        path.join(installed.root, pkg.bin['arknights-story-reader']),
       ];
-      server.cwd = sandbox;
+      server.cwd = installed.root;
     }
     return verificationStep(`Initialize MCP (${mode})`, () =>
       connection.connect(new StdioClientTransport(server), identity.version),
@@ -290,7 +294,7 @@ const result = await withVerificationCleanup(async () => {
     client = await connect();
     assert.deepEqual(await state(), saved);
     await connection.close();
-    client = await connect('npx'); // A clean, offline npm cache consumes this tgz.
+    client = await connect('npm-installed'); // Run the actual offline npm installation.
     assert.deepEqual((await client.listTools()).tools, tools);
     assert.deepEqual(await state(), saved);
     readingEvidence = {
@@ -303,7 +307,7 @@ const result = await withVerificationCleanup(async () => {
     };
   } else {
     // No catalog request: ordinary PR checks must work without PRTS.
-    for (const mode of ['bin', 'npx'] as const) {
+    for (const mode of ['bin', 'npm-installed'] as const) {
       await connection.close();
       client = await connect(mode);
       assert.deepEqual((await client.listTools()).tools, tools);
@@ -321,6 +325,11 @@ const result = await withVerificationCleanup(async () => {
   );
   await verificationStep('Remove installed package', () =>
     removeVerificationDirectory(root),
+  );
+  const installedRoot = npmInstalledRoot;
+  assert.ok(installedRoot);
+  await verificationStep('Remove npm-installed package', () =>
+    removeVerificationDirectory(installedRoot),
   );
   if (live) {
     const sqlite = await readFile(path.join(data, 'reading/records.sqlite'));
@@ -340,6 +349,7 @@ const result = await withVerificationCleanup(async () => {
     devDependenciesAbsent: true,
     systemNode: true,
     offlineNpmExec: true,
+    npmInstalledBin: true,
     files: files.length,
     tools: tools.length,
     globalEntrypoint: true,

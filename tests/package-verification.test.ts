@@ -5,7 +5,7 @@ import {
   mkdir,
   mkdtemp,
   readFile,
-  readdir,
+  realpath,
   rm,
   stat,
   writeFile,
@@ -62,23 +62,20 @@ test('fresh offline npm preparation installs the actual tgz without lifecycle sc
     );
     const cache = path.join(root, 'fresh-cache');
     await assert.rejects(stat(cache), { code: 'ENOENT' });
-    const args = await prepareOfflineNpmPackage(archive, cache, root);
-    assert.equal((await stat(path.join(cache, '_npx'))).isDirectory(), true);
-    const entries = await readdir(path.join(cache, '_npx'));
-    assert.equal(entries.length, 1);
-    const entry = entries[0];
-    assert.ok(entry);
-    const marker = path.join(
-      cache,
-      '_npx',
-      entry,
-      'node_modules',
-      'reader-verification-install-fixture',
-      'prepared-marker',
+    const installed = await prepareOfflineNpmPackage(archive, cache, root, {
+      name: 'reader-verification-install-fixture',
+      version: '1.0.0',
+    });
+    const relative = path.relative(await realpath(cache), installed.root);
+    assert.ok(relative && !relative.startsWith('..'));
+    assert.equal(
+      await readFile(path.join(installed.root, 'cli.cjs'), 'utf8'),
+      '#!/usr/bin/env node\nconsole.log("fixture bin ready");\n',
     );
+    const marker = path.join(installed.root, 'prepared-marker');
     await writeFile(marker, 'keep the prepared installation');
     const { stdout } = await npmCommand(
-      [...args, 'reader-verification-install-fixture'],
+      [...installed.args, 'reader-verification-install-fixture'],
       root,
     );
     assert.equal(stdout.trim(), 'fixture bin ready');
@@ -86,6 +83,16 @@ test('fresh offline npm preparation installs the actual tgz without lifecycle sc
       await readFile(marker, 'utf8'),
       'keep the prepared installation',
     );
+    const input = await npmCommand(
+      [
+        ...installed.args,
+        process.execPath,
+        '-e',
+        "process.stdin.on('end', () => console.log('stdin closed')); process.stdin.resume();",
+      ],
+      root,
+    );
+    assert.equal(input.stdout.trim(), 'stdin closed');
   } finally {
     await removeVerificationDirectory(root);
   }

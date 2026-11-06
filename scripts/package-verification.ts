@@ -1,13 +1,16 @@
 import assert from 'node:assert/strict';
-import { rm } from 'node:fs/promises';
+import { readFile, realpath, rm } from 'node:fs/promises';
+import path from 'node:path';
 import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
+import { z } from 'zod';
 import { npmCommand } from './npm-command.js';
 
 export async function prepareOfflineNpmPackage(
   tarball: string,
   cache: string,
   directory: string,
+  identity: { name: string; version: string },
 ) {
   const args = [
     'exec',
@@ -20,15 +23,46 @@ export async function prepareOfflineNpmPackage(
     tarball,
     '--',
   ];
-  // npm installs the requested tgz into its fresh, isolated cache before running
-  // this harmless command. Installation uses npmCommand's existing 120 s limit;
-  // the later MCP handshake retains the SDK's 60 s limit.
+  // npm exec exposes the requested package's bin directory through PATH. Resolve
+  // package.json from those search paths without importing application code.
+  const probe = [
+    "const path = require('node:path');",
+    "const paths = (process.env.PATH ?? '').split(path.delimiter);",
+    "const packageJson = require.resolve(process.argv[1] + '/package.json', { paths });",
+    'console.log(JSON.stringify({ node: process.version, packageJson }));',
+  ].join(' ');
   const { stdout } = await npmCommand(
-    [...args, process.execPath, '--version'],
+    [...args, process.execPath, '-e', probe, identity.name],
     directory,
   );
-  assert.equal(stdout.trim(), process.version);
-  return args;
+  const prepared = z
+    .object({
+      node: z.literal(process.version),
+      packageJson: z.string().min(1),
+    })
+    .parse(JSON.parse(stdout));
+  const packageRoot = await realpath(path.dirname(prepared.packageJson));
+  const cacheRoot = await realpath(cache);
+  const relative = path.relative(cacheRoot, packageRoot);
+  assert.ok(
+    relative &&
+      !path.isAbsolute(relative) &&
+      relative !== '..' &&
+      !relative.startsWith(`..${path.sep}`),
+    'npm selected a package outside the isolated cache.',
+  );
+  const manifest = z
+    .object({
+      name: z.literal(identity.name),
+      version: z.literal(identity.version),
+      bin: z.record(z.string(), z.string()),
+    })
+    .parse(
+      JSON.parse(
+        await readFile(path.join(packageRoot, 'package.json'), 'utf8'),
+      ),
+    );
+  return { args, root: packageRoot, bin: manifest.bin };
 }
 
 export async function verificationStep<T>(
