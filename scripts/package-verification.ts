@@ -2,6 +2,34 @@ import assert from 'node:assert/strict';
 import { rm } from 'node:fs/promises';
 import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
+import { npmCommand } from './npm-command.js';
+
+export async function prepareOfflineNpmPackage(
+  tarball: string,
+  cache: string,
+  directory: string,
+) {
+  const args = [
+    'exec',
+    '--yes',
+    '--offline',
+    '--ignore-scripts',
+    '--cache',
+    cache,
+    '--package',
+    tarball,
+    '--',
+  ];
+  // npm installs the requested tgz into its fresh, isolated cache before running
+  // this harmless command. Installation uses npmCommand's existing 120 s limit;
+  // the later MCP handshake retains the SDK's 60 s limit.
+  const { stdout } = await npmCommand(
+    [...args, process.execPath, '--version'],
+    directory,
+  );
+  assert.equal(stdout.trim(), process.version);
+  return args;
+}
 
 export async function verificationStep<T>(
   name: string,

@@ -1,17 +1,19 @@
 # 当前状态
 
-更新：2026-11-06。正式版目标保持 **1.0.0**。本轮修复基于 `21d196d`，该提交的 Ubuntu Check 已通过；按用户明确授权重建的未发布标签 `v1.0.0` 仍指向该提交。第二次 Windows 标签验收在离线包验证阶段报告 `EBUSY`，npm 发布跳过。本次交付已在本地验证的验收进程回收与错误保留修复，八个文件已获统一提交／推送授权，下一步核验该次 Ubuntu Check；标签尚未再次移动。已发布 **0.1.26** 的 next／latest 指向和 registry integrity 沿用下方首次发布及交接核验。稳定 marketplace 仍为空，GitHub 仓库为 public。
+更新：2026-11-06。正式版目标保持 **1.0.0**。进程回收修复 `7833ace` 的 Ubuntu Check 已通过；第三次 Windows 标签验收基于该提交，保留了原始错误：`npx` 初始化超出 SDK 默认 60 秒，关闭与清理均通过，npm 发布跳过。本次交付 npm 离线准备／MCP 握手分离及验收复核修复，本地完整 check 的 118 项测试与同一 tgz 的真实 PRTS 复验通过。用户已授权持续修复、提交／推送及更新仍未发布的候选标签，直到服务器 Windows Release 验收通过；npm 发布仍由用户网页审批。已发布 **0.1.26** 的 next／latest 指向和 registry integrity 沿用下方首次发布及交接核验。稳定 marketplace 仍为空，GitHub 仓库为 public。
 
-## 当前接续：Windows 验收进程回收
+## 当前接续：npm 离线准备与 MCP 握手
 
-- 首次 [Windows 标签验收](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42223826659) 因 `tar -C` 丢失中文目标路径失败。本机复现后，改用进程 `cwd` 并先解析归档绝对路径，保留相对输入、中文目录覆盖及 package/ 条目限制。该修复已提交并推送为 `21d196d79da38910b047bd1f9849e60d385203ad`，[Ubuntu Check](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42226576247) 通过。
-- 经用户明确授权，未发布的 `v1.0.0` 已从 `30ad8b1` 重建到 `21d196d`，新注释标签对象为 `e14969e3e1f1059e9f38a69e1308a2439bfe9a38`。操作前 npm 1.0.0 返回 404。第二次 [Windows 标签验收](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42227719463) 的源码检查、构建和打包通过，离线包验收清理临时目录时报告 `EBUSY`；publish 为 skipped，没有待审批部署。本轮未重跑该 CI 或执行 npm 发布。
-- 旧脚本的 finally 清理可能覆盖前面的失败，因此旧 CI 日志无法证明最初失败的阶段。本机以真实子进程复现：握手超时后 SDK 异步关闭尚未完成，目录清理会抢先执行；加入等待实际 onclose 后该回归通过。这是已证实的清理竞争，不把它当作已查明 CI 原始错误的证据。
-- 本地验收脚本现在先登记连接所有权，失败时也回收；等待 SDK 的实际关闭事件后清理，短暂 Windows 锁使用 Node 原生有限重试。原始错误、关闭错误和清理错误一起保留，持续锁定仍失败。新增阶段／耗时日志，成功报告在清理完成后写入。未改阅读器运行代码、依赖、版本或发布工作流。
-- 固定 Node 26.13.0／npm 12.2.1 下，定向 12/12、完整 `./scripts/npm.ps1 run check` 的 117 项测试／类型／格式通过；隔离 npm tgz 子进程主动中断后清理的探针也通过。原 tgz 的离线复验成功，原归档／回执已备份到 `.ai/local/release-1.0.0/windows-cleanup-fix/`。
-- 本轮 `./scripts/npm.ps1 run package` 已重建本地预检包（7,924,858 字节），回执为 `sourceCommit: 21d196d`、`dirty: true`。新包离线验收通过：2,776 个文件、10 个 app-only 工具、global 入口、533,175 字节 HTML、全新缓存离线 npm 启动及临时目录清理。对同一 tgz 增加 `--prts` 在正常本机环境通过：117 部目录、64 个正文块、1500×844 图片、保存／重开、最后与最远位置分离、清缓存及模拟卸载后保留外部记录。所有记录均为隔离测试数据。
-- `PLAYWRIGHT_CHANNEL=msedge` 下运行 `./scripts/npm.ps1 run test:e2e`，正常本机环境 34/34 通过。受限环境首次运行停在测试服务监听之前，已主动中止并确认相关进程退出、端口释放；不计为通过。此轮使用 Edge，最终 Windows CI 使用 Chromium，真实 Codex 桌面验收仍未完成。日志、包回执、报告与归档哈希汇总位于 `.ai/local/release-1.0.0/windows-cleanup-fix/`。
-- Windows 本地预检步骤已补入 [验证指南](../docs/testing.md#windows-本地候选预检)，可先在本机排查，再执行最终标签 CI。用户已授权统一提交／推送本轮八个修复与交接文件，使用本机默认个人 Git 署名，不改 Git 配置；下一步核验 Ubuntu Check。再次更新标签、npm 发布与稳定提升仍分别等待用户明确确认。
+- 进程回收、原始错误保留及本地预检指南已统一提交／推送为 `7833ace8ff87b28b70a5bb12270398861686dea7`，使用本机默认个人 Git 署名，未改 Git 配置。[Ubuntu Check](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42232817930) 全部通过。该阶段本地证据含 117 项完整 check、实际包离线／PRTS 和 Edge 34 项回归，保存在 `.ai/local/release-1.0.0/windows-cleanup-fix/`。
+- 用户再次明确确认后，`v1.0.0` 从 `21d196d` 更新到 `7833ace`，新注释标签对象为 `00cafdda80faeaa2050f22601d868dc2c82d1896`。推送前 npm 1.0.0 返回 404，并只读核验 npm-production 的 Foreverstar7 必需审批、允许自审及禁止管理员绕过；推送使用旧对象约束的 force-with-lease，只更新该未发布标签。
+- 第三次 [Windows Release 验收](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42233591090) 的 117 项测试／类型／格式、构建打包、解压、生产依赖、manifest／bin 启动及协议／HTML 均通过。`Initialize MCP (npx)` 在 60,006ms 报 `REQUEST_TIMEOUT`，随后关闭连接（2,110ms）与删除临时目录（500ms）均通过。清理不再覆盖原始错误，也未出现 EBUSY。真实 PRTS、浏览器和 artifact 上传跳过，publish 为 skipped，没有待审批部署；未重跑失败 CI 或执行 npm 发布。
+- 该次干净 CI 从 `7833ace` 生成的 tgz 为 7,923,617 字节，integrity 与前一次 `21d196d` CI 包一致；验收工具修复不在运行包中。原始日志及标签回执为 `.ai/local/release-1.0.0/windows-cleanup-fix/windows-release-7833ace-failed.log` 和 `retag.json`。
+- 本地脚本将全新隔离 npm 缓存的离线 tgz 准备移到握手之前：先以 `--offline --ignore-scripts` 提供指定包并运行当前 Node 的 `--version`，使用现有 npmCommand 的 120 秒进程限时；随后从同一缓存启动实际包 bin 并做 MCP／HTML 或记录验收，SDK 握手仍为默认 60 秒。仍不借用源码依赖、全局缓存或私人记录，未改阅读器运行代码、依赖、版本或工作流。
+- 固定 Node 26.13.0／npm 12.2.1 下，类型、格式、13 项定向回归通过；新增真实 fixture tgz 覆盖冷缓存准备、不执行安装脚本，并以安装目录内标记证明后续 bin 使用同一安装。复用现有本地 1.0.0 tgz（7,924,858 字节、sourceCommit 为 `21d196d`、dirty 为 true），离线及正常本机环境 `--prts` 验收均通过：2,776 个文件、10 个 app-only 工具、global 入口、533,175 字节 HTML、117 部目录、64 个正文块、1500×844 图片，保存／重开、清缓存及模拟卸载后保留外部记录。完整日志与报告在 `.ai/local/release-1.0.0/npm-startup-fix/`。
+- 用户要求复核 Release 检查，已核对 Windows 验收、同一 artifact 传递、版本／提交／run ID／SHA-512 发布校验及环境审批。另补强两点：真实 PRTS 样本必须包含 CG，不能缺图时跳过图片验收；manifest／bin／npx 的工具契约须完整一致。补强后本地完整 `./scripts/npm.ps1 run check` 的 118 项测试、类型与格式通过，同一归档 `--prts` 复验通过；日志为上述目录的 `review-check.log` 与 `review-prts.log`。沿用有效应用构建与浏览器证据，没有重打包或重复浏览器回归。新修复仍待 Windows CI 验证。
+- 用户已明确授权继续处理直到服务器 Release 验收通过，本次提交／推送和后续必要的未发布 `v1.0.0` 标签更新均在该授权内，不再逐次确认。每次移动前仍核对 npm 未发布、远程标签对象与 npm-production 必需审批；npm 发布和稳定提升仍保留人工确认。下一步提交／推送本轮七个文件，核验 Ubuntu Check，再运行 Windows Release 验收。
+
+此前首次 Windows 验收因 tar 的 `-C` 参数丢失中文路径失败，路径修复为 `21d196d`，其 [Ubuntu Check](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42226576247) 通过；第二次 [Windows 验收](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42227719463) 的原始失败被 finally 的 EBUSY 遮盖。第三次运行已明确保留 npx 超时，不能据此补写前两次日志中未观察到的阶段。
 
 ## 已完成：1.0.0 原归档本地预检
 
@@ -66,4 +68,4 @@ Git 历史已移除旧截图，并将作者／提交者统一为 Foreverstar7 �
 
 已发布包的源码提交在 main 历史中。本机原 main 停在清理前的旧历史，`pull --ff-only` 抓取成功但不能快进；核实工作区干净并取得用户明确授权后，已用 `git reset --keep origin/main` 对齐远程 `8fd5a58ae39ae7340364ddf44a9357602b534dc6`。未恢复、合并或推回旧历史，未创建额外 clone 或 worktree，未操作私人阅读记录。
 
-1.0.0 准备提交 `30ad8b1` 与路径兼容修复 `21d196d` 均已按用户授权提交／推送，使用本机默认个人 Git 署名，未修改 Git 配置；两次 Ubuntu Check 均通过。按用户另行明确授权，未发布标签 `v1.0.0` 已重建为对象 `e14969e3e1f1059e9f38a69e1308a2439bfe9a38`，指向 `21d196d`，该次 Windows 验收失败，详见顶部。本轮进程回收与错误保留修复已完成本地预检，并获统一提交／推送授权；标签尚未再次移动，npm 发布与稳定提升未操作。未修改已发布的 0.1.26 归档。未完成事项见 [PLAN](PLAN.md)，当前操作规则见 [发布指南](../docs/releasing.md)。
+1.0.0 准备提交 `30ad8b1`、路径兼容修复 `21d196d` 与进程回收修复 `7833ace` 均已按用户授权提交／推送，使用本机默认个人 Git 署名，未修改 Git 配置；Ubuntu Check 均通过。第三次 Windows 运行的标签对象为 `00cafdda80faeaa2050f22601d868dc2c82d1896`，指向 `7833ace`，该次 npx 验收超时，详见顶部。本轮已取得持续推进到 Windows Release 验收通过的提交／推送与未发布候选标签更新授权，npm 发布与稳定提升仍保留人工确认。未修改已发布的 0.1.26 归档。未完成事项见 [PLAN](PLAN.md)，当前操作规则见 [发布指南](../docs/releasing.md)。

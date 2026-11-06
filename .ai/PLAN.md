@@ -4,12 +4,12 @@
 
 0.1.26 已完成首次本机 npm 发布，registry integrity 与验收归档一致，GitHub 仓库已公开，见 [STATUS](STATUS.md)。本地工作流仅 npm 发布 job 引用 `npm-production` environment；稳定提升保留手动触发和宿主验收确认，不绑定环境。普通检查使用 Ubuntu，标签验收使用 Windows，npm 上传使用 Ubuntu，无 macOS 验收矩阵。
 
-正式版目标保持 1.0.0。准备提交 `30ad8b1` 和路径兼容修复 `21d196d` 均已推送且 Ubuntu Check 通过。用户另行授权后，未发布的 `v1.0.0` 已重建到 `21d196d`；第二次 Windows 验收在离线包清理时报告 EBUSY，publish 跳过，没有待审批任务。本轮进程回收与原始错误保留修复已完成本地验证，并获八个文件统一提交／推送授权；12 项定向回归、完整 check 的 117 项测试／类型／格式，以及原包和新预检包的离线验收通过，见 [STATUS](STATUS.md)。
+正式版目标保持 1.0.0。已提交的进程回收修复 `7833ace` 的 Ubuntu Check 通过；第三次 Windows 验收已证实关闭与清理通过，但 npx 初始化超出 60 秒，publish 跳过，没有待审批任务。本次提交交付 npm 离线准备／MCP 握手分离和验收复核修复，本地完整 check 的 118 项测试／类型／格式及同一 tgz 的真实 PRTS 复验通过，见 [STATUS](STATUS.md)。
 
-本轮验收工具修改已按 [Windows 本地预检](../docs/testing.md#windows-本地候选预检) 验证，无需反复推标签。新 tgz 的离线与真实 PRTS、Edge 下 34 项 fixture 浏览器回归均通过。新本地归档的回执为 `sourceCommit: 21d196d`、`dirty: true`，旧归档与回执已备份；最终发布包仍由已提交源码的标签 CI 构建验收。当前未完成项：
+本轮继续按 [Windows 本地预检](../docs/testing.md#windows-本地候选预检) 排查，不盲目重跑失败 CI。沿用原本地归档（`sourceCommit: 21d196d`、`dirty: true`）及有效应用构建／117 项基线／34 项浏览器证据，只重验受影响的包启动路径。最终发布包仍由已提交源码的标签 CI 构建验收。当前未完成项：
 
-1. 按用户本轮授权统一提交／推送八个修复与交接文件，保持版本 1.0.0 及默认个人 Git 署名；本次提交交付上述已验证改动，下一步核验该次 Ubuntu Check，不重复本地完整验收。
-2. 再次重建未发布 `v1.0.0` 仍须另行明确授权，当前标签保持 `21d196d`。本机已修复并验证清理竞争，但旧 CI 原始错误已被 finally 覆盖，不能据本地通过宣称 CI 已恢复；最终 Windows CI 通过后，Ubuntu 发布其验收的同一 tgz，不使用本地预检归档，也不覆盖已发布 0.1.26。
+1. 按用户持续推进授权统一提交／推送七个修复与交接文件，保持版本 1.0.0 和默认个人 Git 署名，核验 Ubuntu Check。本轮不改发布路线、环境、依赖或阅读器运行代码。
+2. 用户已授权必要的修复、提交／推送与仍未发布的 `v1.0.0` 更新，直到服务器 Windows Release 验收通过，无需逐次再次确认；每次仍须核对 npm 未发布、远程标签对象及必需审批。失败时依据实际日志修复，不盲目重跑或放宽断言。Windows CI 通过后，由用户网页批准 Ubuntu 发布已验收的同一 tgz，不使用本地预检归档，不覆盖 0.1.26。
 3. `npm-production` 的 Foreverstar7 审核、允许自审与禁止管理员绕过已独立核验；npm 网页截图确认 publisher 字段及 `npm publish` 权限匹配，仍为 `Pending validation`，须在 2026-11-08 12:11 UTC（北京时间 20:11）前完成首次成功发布。npm 发布仍由用户网页审批，OIDC 待实际验证，助手不代为批准。
 4. 1.0.0 候选发布后，验证该精确 npm 版本在真实 Windows Codex 桌面的安装、阅读、图片、续读、升级及卸载保留记录。
 5. 稳定 marketplace 仍为空。发行完成后统一补充 STATUS 与 GitHub Release 的实际结果；README 在打包前定稿，不随临时阶段改写，文档同步不重发同版本 npm 包或移动标签。

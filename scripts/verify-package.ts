@@ -18,6 +18,7 @@ import { imageResultSchema } from '../src/shared/contracts.js';
 import { RESOURCE_URI } from '../src/server/mcp.js';
 import { checkVersions } from './release-version.js';
 import {
+  prepareOfflineNpmPackage,
   removeVerificationDirectory,
   VerificationConnection,
   verificationStep,
@@ -34,7 +35,8 @@ const tarball = path.resolve(
     `.local/releases/${identity.name.replaceAll('/', '-').replaceAll('@', '')}-${identity.version}.tgz`,
 );
 // A temp directory outside the checkout prevents Node ancestor resolution from
-// borrowing source node_modules. No npm install or lifecycle script runs here.
+// borrowing source node_modules. npm exec only populates its isolated cache,
+// with lifecycle scripts disabled.
 const sandbox = await mkdtemp(path.join(tmpdir(), 'arknights package 阅读器 '));
 const connection = new VerificationConnection();
 const result = await withVerificationCleanup(async () => {
@@ -111,38 +113,35 @@ const result = await withVerificationCleanup(async () => {
   assert.equal(launch.packagedRuntime, false);
   assert.ok(launch.args.includes('--installed'));
   async function connect(mode: 'manifest' | 'bin' | 'npx' = 'manifest') {
+    const server = {
+      ...launch,
+      env: {
+        ...launch.env,
+        READER_SOURCE: 'prts',
+        READER_DATA_DIR: data,
+      },
+    };
+    if (mode === 'bin') {
+      server.args = [path.join(root, pkg.bin['arknights-story-reader'])];
+    } else if (mode === 'npx') {
+      const args = await verificationStep(
+        'Prepare fresh offline npm cache from tgz',
+        () =>
+          prepareOfflineNpmPackage(
+            tarball,
+            path.join(sandbox, 'npm-cache'),
+            sandbox,
+          ),
+      );
+      server.args = [
+        process.env.npm_execpath ?? '',
+        ...args,
+        'arknights-story-reader',
+      ];
+      server.cwd = sandbox;
+    }
     return verificationStep(`Initialize MCP (${mode})`, () =>
-      connection.connect(
-        new StdioClientTransport({
-          ...launch,
-          ...(mode === 'bin'
-            ? { args: [path.join(root, pkg.bin['arknights-story-reader'])] }
-            : mode === 'npx'
-              ? {
-                  args: [
-                    process.env.npm_execpath ?? '',
-                    'exec',
-                    '--yes',
-                    '--offline',
-                    '--ignore-scripts',
-                    '--cache',
-                    path.join(sandbox, 'npm-cache'),
-                    '--package',
-                    tarball,
-                    '--',
-                    'arknights-story-reader',
-                  ],
-                  cwd: sandbox,
-                }
-              : {}),
-          env: {
-            ...launch.env,
-            READER_SOURCE: 'prts',
-            READER_DATA_DIR: data,
-          },
-        }),
-        identity.version,
-      ),
+      connection.connect(new StdioClientTransport(server), identity.version),
     );
   }
   let client = await connect();
@@ -240,33 +239,34 @@ const result = await withVerificationCleanup(async () => {
       saved.records[chapter.id]?.furthestWords,
       completed.records[chapter.id]?.furthestWords,
     );
-    let image;
     const cg = chapter.blocks.find((block) => block.kind === 'cg');
-    if (live && cg) {
-      const request = { kind: 'cg', chapterId: chapter.id, blockId: cg.id };
-      const result = await client.callTool({
-        name: 'reader_image',
-        arguments: request,
-      });
-      const connection = client;
-      const parsed = imageResultSchema.parse(
-        await collectImageResult(result, (part) =>
-          connection.callTool({
-            name: 'reader_image',
-            arguments: { ...request, ...part },
-          }),
-        ),
-      );
-      assert.equal(
-        Object.hasOwn(result.structuredContent ?? {}, 'layers'),
-        false,
-      );
-      image = {
-        width: parsed.width,
-        height: parsed.height,
-        layers: parsed.layers.length,
-      };
-    }
+    assert.ok(
+      cg,
+      'PRTS acceptance sample must contain a CG; image verification cannot be skipped.',
+    );
+    const request = { kind: 'cg', chapterId: chapter.id, blockId: cg.id };
+    const imageResult = await client.callTool({
+      name: 'reader_image',
+      arguments: request,
+    });
+    const imageConnection = client;
+    const parsed = imageResultSchema.parse(
+      await collectImageResult(imageResult, (part) =>
+        imageConnection.callTool({
+          name: 'reader_image',
+          arguments: { ...request, ...part },
+        }),
+      ),
+    );
+    assert.equal(
+      Object.hasOwn(imageResult.structuredContent ?? {}, 'layers'),
+      false,
+    );
+    const image = {
+      width: parsed.width,
+      height: parsed.height,
+      layers: parsed.layers.length,
+    };
     async function state(): Promise<ReadingState> {
       assert.ok(client);
       return snapshotSchema.parse(
@@ -276,6 +276,7 @@ const result = await withVerificationCleanup(async () => {
     }
     await connection.close();
     client = await connect('bin'); // Exercise the npm bin too, without extra flags.
+    assert.deepEqual((await client.listTools()).tools, tools);
     assert.deepEqual(await state(), saved);
     for (const scope of ['images', 'all']) {
       const result = await client.callTool({
@@ -290,6 +291,7 @@ const result = await withVerificationCleanup(async () => {
     assert.deepEqual(await state(), saved);
     await connection.close();
     client = await connect('npx'); // A clean, offline npm cache consumes this tgz.
+    assert.deepEqual((await client.listTools()).tools, tools);
     assert.deepEqual(await state(), saved);
     readingEvidence = {
       stories: snapshot.stories.length,
@@ -304,7 +306,7 @@ const result = await withVerificationCleanup(async () => {
     for (const mode of ['bin', 'npx'] as const) {
       await connection.close();
       client = await connect(mode);
-      assert.equal((await client.listTools()).tools.length, 10);
+      assert.deepEqual((await client.listTools()).tools, tools);
       const resource = await client.readResource({ uri: RESOURCE_URI });
       assert.ok(
         resource.contents.some(
