@@ -38,6 +38,26 @@ npm run package:verify -- --prts
 
 归档与报告位于 `.local/releases/`。报告只对应当次归档；修改后发布需重新打包、验收。
 
+### Windows 本地候选预检
+
+可以先在本地 Windows 使用与标签 CI 相同的检查脚本，无需提交或推标签。PowerShell 在仓库根目录逐条执行，前一条成功后再继续：
+
+```powershell
+./scripts/npm.ps1 run check
+./scripts/npm.ps1 run package
+./scripts/npm.ps1 run package:verify
+./scripts/npm.ps1 run package:verify '--' --prts
+./scripts/npm.ps1 run test:e2e
+```
+
+固定工具链为 Node 26.13.0／npm 12.2.1。首次缺少测试浏览器时，先执行 `./scripts/npm.ps1 exec '--' playwright install chromium`。这些命令只生成本地构建、归档和测试数据，不创建 Git 提交／标签或发布 npm；包验收使用源码外的隔离临时目录，不操作私人阅读记录。
+
+已有 Edge 时，也可在浏览器测试前执行 `$env:PLAYWRIGHT_CHANNEL = 'msedge'`，无需另外下载 Chromium。记录实际使用的浏览器；最终 Windows CI 仍使用 Chromium。
+
+修复包验收脚本时，可先对现有 tgz 运行 `./scripts/npm.ps1 run package:verify '--' '.local/releases/arknights-story-reader-1.0.0.tgz'`，定位问题后再做完整预检。日志显示解压、依赖检查、MCP 初始化与清理阶段及耗时；失败时保留原始错误，即使清理也失败。目录持续被占用仍判失败，不忽略错误。成功报告只在临时目录清理完成后写入。
+
+本地预检能提前发现构建、实际包和浏览器回归问题；最终标签 CI 仍验证其干净提交生成的候选及 OIDC 发布衔接。真实 Codex 桌面安装／升级验收仍单独进行。
+
 ## 桌面宿主
 
 ```sh

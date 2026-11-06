@@ -1,15 +1,7 @@
 import assert from 'node:assert/strict';
-import {
-  mkdir,
-  mkdtemp,
-  readFile,
-  readdir,
-  rm,
-  writeFile,
-} from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, readdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 import { z } from 'zod';
 import { extractPackage } from './package-layout.js';
@@ -25,6 +17,12 @@ import { collectImageResult } from '../src/shared/image-transfer.js';
 import { imageResultSchema } from '../src/shared/contracts.js';
 import { RESOURCE_URI } from '../src/server/mcp.js';
 import { checkVersions } from './release-version.js';
+import {
+  removeVerificationDirectory,
+  VerificationConnection,
+  verificationStep,
+  withVerificationCleanup,
+} from './package-verification.js';
 
 const project = path.resolve(import.meta.dirname, '..');
 const identity = await checkVersions(project);
@@ -38,13 +36,15 @@ const tarball = path.resolve(
 // A temp directory outside the checkout prevents Node ancestor resolution from
 // borrowing source node_modules. No npm install or lifecycle script runs here.
 const sandbox = await mkdtemp(path.join(tmpdir(), 'arknights package 阅读器 '));
-await writeFile(
-  path.join(sandbox, 'package.json'),
-  JSON.stringify({ name: 'reader-package-acceptance', private: true }),
-);
-let client: Client | undefined;
-try {
-  const root = await extractPackage(tarball, sandbox);
+const connection = new VerificationConnection();
+const result = await withVerificationCleanup(async () => {
+  await writeFile(
+    path.join(sandbox, 'package.json'),
+    JSON.stringify({ name: 'reader-package-acceptance', private: true }),
+  );
+  const root = await verificationStep('Extract actual tgz with tar', () =>
+    extractPackage(tarball, sandbox),
+  );
   const data = path.join(sandbox, 'user-data');
   const pkg = z
     .object({
@@ -103,51 +103,53 @@ try {
       );
   }
   // npm checks the actual extracted production tree, including transitive peers.
-  await npmCommand(['ls', '--omit=dev', '--all', '--offline', '--json'], root);
+  await verificationStep('Check extracted production dependencies', () =>
+    npmCommand(['ls', '--omit=dev', '--all', '--offline', '--json'], root),
+  );
   const launch = await readReaderLaunch(root);
   assert.equal(launch.command, process.execPath);
   assert.equal(launch.packagedRuntime, false);
   assert.ok(launch.args.includes('--installed'));
   async function connect(mode: 'manifest' | 'bin' | 'npx' = 'manifest') {
-    const connection = new Client({
-      name: 'npm-package-acceptance',
-      version: '1',
-    });
-    await connection.connect(
-      new StdioClientTransport({
-        ...launch,
-        ...(mode === 'bin'
-          ? { args: [path.join(root, pkg.bin['arknights-story-reader'])] }
-          : mode === 'npx'
-            ? {
-                args: [
-                  process.env.npm_execpath ?? '',
-                  'exec',
-                  '--yes',
-                  '--offline',
-                  '--ignore-scripts',
-                  '--cache',
-                  path.join(sandbox, 'npm-cache'),
-                  '--package',
-                  tarball,
-                  '--',
-                  'arknights-story-reader',
-                ],
-                cwd: sandbox,
-              }
-            : {}),
-        env: {
-          ...launch.env,
-          READER_SOURCE: 'prts',
-          READER_DATA_DIR: data,
-        },
-      }),
+    return verificationStep(`Initialize MCP (${mode})`, () =>
+      connection.connect(
+        new StdioClientTransport({
+          ...launch,
+          ...(mode === 'bin'
+            ? { args: [path.join(root, pkg.bin['arknights-story-reader'])] }
+            : mode === 'npx'
+              ? {
+                  args: [
+                    process.env.npm_execpath ?? '',
+                    'exec',
+                    '--yes',
+                    '--offline',
+                    '--ignore-scripts',
+                    '--cache',
+                    path.join(sandbox, 'npm-cache'),
+                    '--package',
+                    tarball,
+                    '--',
+                    'arknights-story-reader',
+                  ],
+                  cwd: sandbox,
+                }
+              : {}),
+          env: {
+            ...launch.env,
+            READER_SOURCE: 'prts',
+            READER_DATA_DIR: data,
+          },
+        }),
+        identity.version,
+      ),
     );
-    assert.equal(connection.getServerVersion()?.version, identity.version);
-    return connection;
   }
-  client = await connect();
-  const tools = (await client.listTools()).tools;
+  let client = await connect();
+  const tools = await verificationStep(
+    'Read app-only tools',
+    async () => (await client.listTools()).tools,
+  );
   assert.equal(tools.length, 10);
   for (const tool of tools) {
     const meta = z
@@ -167,7 +169,9 @@ try {
   assert.ok(
     entry['openai/ui'].entrypoints.some((item) => item.type === 'global'),
   );
-  const resource = await client.readResource({ uri: RESOURCE_URI });
+  const resource = await verificationStep('Read packaged UI HTML', () =>
+    client.readResource({ uri: RESOURCE_URI }),
+  );
   const html = resource.contents.find((item) => 'text' in item);
   assert.ok(
     html &&
@@ -177,10 +181,14 @@ try {
   );
   let readingEvidence;
   if (live) {
-    const snapshotResult = await client.callTool({
-      name: 'reader_snapshot',
-      arguments: {},
-    });
+    const snapshotResult = await verificationStep(
+      'Read real PRTS catalog',
+      () =>
+        client.callTool({
+          name: 'reader_snapshot',
+          arguments: {},
+        }),
+    );
     assert.notEqual(
       snapshotResult.isError,
       true,
@@ -266,7 +274,7 @@ try {
           .structuredContent,
       ).state;
     }
-    await client.close();
+    await connection.close();
     client = await connect('bin'); // Exercise the npm bin too, without extra flags.
     assert.deepEqual(await state(), saved);
     for (const scope of ['images', 'all']) {
@@ -277,10 +285,10 @@ try {
       assert.notEqual(result.isError, true);
       assert.deepEqual(await state(), saved);
     }
-    await client.close();
+    await connection.close();
     client = await connect();
     assert.deepEqual(await state(), saved);
-    await client.close();
+    await connection.close();
     client = await connect('npx'); // A clean, offline npm cache consumes this tgz.
     assert.deepEqual(await state(), saved);
     readingEvidence = {
@@ -294,7 +302,7 @@ try {
   } else {
     // No catalog request: ordinary PR checks must work without PRTS.
     for (const mode of ['bin', 'npx'] as const) {
-      await client.close();
+      await connection.close();
       client = await connect(mode);
       assert.equal((await client.listTools()).tools.length, 10);
       const resource = await client.readResource({ uri: RESOURCE_URI });
@@ -306,14 +314,17 @@ try {
     }
   }
   // Installation removal is independent of the external user-data directory.
-  await client.close();
-  client = undefined;
-  await rm(root, { recursive: true });
+  await verificationStep('Close MCP before simulated uninstall', () =>
+    connection.close(),
+  );
+  await verificationStep('Remove installed package', () =>
+    removeVerificationDirectory(root),
+  );
   if (live) {
     const sqlite = await readFile(path.join(data, 'reading/records.sqlite'));
     assert.ok(sqlite.length > 0);
   }
-  const result = {
+  return {
     package: identity.name,
     version: identity.version,
     license: pkg.license,
@@ -336,14 +347,20 @@ try {
     ...readingEvidence,
     uninstallKeepsRecords: live ? true : undefined,
   };
-  const reports = path.join(project, '.local/releases');
-  await mkdir(reports, { recursive: true });
-  await writeFile(
-    path.join(reports, `verification-${live ? 'prts' : 'offline'}.json`),
-    `${JSON.stringify(result, null, 2)}\n`,
-  );
-  console.info(JSON.stringify(result, null, 2));
-} finally {
-  await client?.close();
-  await rm(sandbox, { recursive: true, force: true });
-}
+}, [
+  () =>
+    verificationStep('Close remaining MCP connection', () =>
+      connection.close(),
+    ),
+  () =>
+    verificationStep('Remove temporary sandbox', () =>
+      removeVerificationDirectory(sandbox),
+    ),
+]);
+const reports = path.join(project, '.local/releases');
+await mkdir(reports, { recursive: true });
+await writeFile(
+  path.join(reports, `verification-${live ? 'prts' : 'offline'}.json`),
+  `${JSON.stringify(result, null, 2)}\n`,
+);
+console.info(JSON.stringify(result, null, 2));

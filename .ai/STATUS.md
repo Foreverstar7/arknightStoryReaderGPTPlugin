@@ -1,14 +1,17 @@
 # 当前状态
 
-更新：2026-11-06。正式版目标保持 **1.0.0**。准备提交 `30ad8b1` 已推送且 Ubuntu Check 通过，`v1.0.0` 已推送并仍指向该提交；首次 Windows 标签验收在解压阶段失败，npm 发布跳过。本次提交交付已在本地验证的验收工具兼容修复，标签未移动。已发布 **0.1.26** 的 next／latest 指向和 registry integrity 沿用下方首次发布及交接核验。稳定 marketplace 仍为空，GitHub 仓库为 public。
+更新：2026-11-06。正式版目标保持 **1.0.0**。本轮修复基于 `21d196d`，该提交的 Ubuntu Check 已通过；按用户明确授权重建的未发布标签 `v1.0.0` 仍指向该提交。第二次 Windows 标签验收在离线包验证阶段报告 `EBUSY`，npm 发布跳过。本次交付已在本地验证的验收进程回收与错误保留修复，八个文件已获统一提交／推送授权，下一步核验该次 Ubuntu Check；标签尚未再次移动。已发布 **0.1.26** 的 next／latest 指向和 registry integrity 沿用下方首次发布及交接核验。稳定 marketplace 仍为空，GitHub 仓库为 public。
 
-## 当前接续：Windows 验收路径兼容修复
+## 当前接续：Windows 验收进程回收
 
-- [Windows 标签验收](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42223826659) 已通过类型／测试、构建与打包，但 `npm run package:verify` 在 `tar -C` 解压时失败：中文临时目录被识别为 `???`，无法进入目录。publish 任务为 skipped，没有待审批任务，也未执行 npm 发布。原日志与标签回执为 `.ai/local/release-1.0.0/windows-tag-acceptance-failed.log` 和 `tag-push.json`。
-- 本机用含中文／特殊字符的目录复现了旧参数调用失败，改为进程 `cwd` 后同一目录解压成功。`extractPackage` 据此改用 Node 的原生工作目录传递解压目标，并在切换前解析归档绝对路径，保留调用方相对路径语义；未删除中文测试目录、放宽归档条目检查或增加依赖。
-- 固定 Node 26.13.0／npm 12.2.1 下，`./scripts/npm.ps1 exec '--' tsx --test tests/distribution.test.ts` 定向 7/7、`./scripts/npm.ps1 run typecheck` 通过。新增真实 tar 回归覆盖中文／特殊字符目标、相对归档输入和拒绝 package/ 外条目。
-- 使用修改后的验收工具执行 `./scripts/npm.ps1 run package:verify '--' '.local/releases/arknights-story-reader-1.0.0.tgz'` 通过：仍为 2,776 个文件、10 个 app-only 工具、global 入口、533,175 字节 HTML 和全新缓存离线启动。报告与命令日志在 `.ai/local/release-1.0.0/windows-tar-fix/`，复现报告为 `.ai/local/release-1.0.0/tar-unicode-probe.json`。本轮未重新打包、重跑真实 PRTS 或浏览器，未操作私人记录。
-- 版本声明保持 1.0.0，修复基于 main `30ad8b1`，现有标签仍指向该提交。用户已授权将五个修复／交接文件统一提交并推送，使用默认个人 Git 署名；下一步核验新提交的 Ubuntu Check。将尚未发布的 `v1.0.0` 重建到修复提交仍待另行确认，当前失败运行不能直接审批发布，修复后仍须通过真实 Windows CI。
+- 首次 [Windows 标签验收](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42223826659) 因 `tar -C` 丢失中文目标路径失败。本机复现后，改用进程 `cwd` 并先解析归档绝对路径，保留相对输入、中文目录覆盖及 package/ 条目限制。该修复已提交并推送为 `21d196d79da38910b047bd1f9849e60d385203ad`，[Ubuntu Check](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42226576247) 通过。
+- 经用户明确授权，未发布的 `v1.0.0` 已从 `30ad8b1` 重建到 `21d196d`，新注释标签对象为 `e14969e3e1f1059e9f38a69e1308a2439bfe9a38`。操作前 npm 1.0.0 返回 404。第二次 [Windows 标签验收](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42227719463) 的源码检查、构建和打包通过，离线包验收清理临时目录时报告 `EBUSY`；publish 为 skipped，没有待审批部署。本轮未重跑该 CI 或执行 npm 发布。
+- 旧脚本的 finally 清理可能覆盖前面的失败，因此旧 CI 日志无法证明最初失败的阶段。本机以真实子进程复现：握手超时后 SDK 异步关闭尚未完成，目录清理会抢先执行；加入等待实际 onclose 后该回归通过。这是已证实的清理竞争，不把它当作已查明 CI 原始错误的证据。
+- 本地验收脚本现在先登记连接所有权，失败时也回收；等待 SDK 的实际关闭事件后清理，短暂 Windows 锁使用 Node 原生有限重试。原始错误、关闭错误和清理错误一起保留，持续锁定仍失败。新增阶段／耗时日志，成功报告在清理完成后写入。未改阅读器运行代码、依赖、版本或发布工作流。
+- 固定 Node 26.13.0／npm 12.2.1 下，定向 12/12、完整 `./scripts/npm.ps1 run check` 的 117 项测试／类型／格式通过；隔离 npm tgz 子进程主动中断后清理的探针也通过。原 tgz 的离线复验成功，原归档／回执已备份到 `.ai/local/release-1.0.0/windows-cleanup-fix/`。
+- 本轮 `./scripts/npm.ps1 run package` 已重建本地预检包（7,924,858 字节），回执为 `sourceCommit: 21d196d`、`dirty: true`。新包离线验收通过：2,776 个文件、10 个 app-only 工具、global 入口、533,175 字节 HTML、全新缓存离线 npm 启动及临时目录清理。对同一 tgz 增加 `--prts` 在正常本机环境通过：117 部目录、64 个正文块、1500×844 图片、保存／重开、最后与最远位置分离、清缓存及模拟卸载后保留外部记录。所有记录均为隔离测试数据。
+- `PLAYWRIGHT_CHANNEL=msedge` 下运行 `./scripts/npm.ps1 run test:e2e`，正常本机环境 34/34 通过。受限环境首次运行停在测试服务监听之前，已主动中止并确认相关进程退出、端口释放；不计为通过。此轮使用 Edge，最终 Windows CI 使用 Chromium，真实 Codex 桌面验收仍未完成。日志、包回执、报告与归档哈希汇总位于 `.ai/local/release-1.0.0/windows-cleanup-fix/`。
+- Windows 本地预检步骤已补入 [验证指南](../docs/testing.md#windows-本地候选预检)，可先在本机排查，再执行最终标签 CI。用户已授权统一提交／推送本轮八个修复与交接文件，使用本机默认个人 Git 署名，不改 Git 配置；下一步核验 Ubuntu Check。再次更新标签、npm 发布与稳定提升仍分别等待用户明确确认。
 
 ## 已完成：1.0.0 原归档本地预检
 
@@ -19,7 +22,7 @@
 - 对同一归档增加 `--prts` 的验收直接在沙箱外运行，沿用上轮已验证的运行方式，通过。真实 PRTS 小样本取得 117 部目录、首篇 64 块及 1500×844 图片，最后／最远位置分离、保存／重开、清缓存与模拟移除包后保留外部记录均通过，全部使用隔离临时数据。
 - 原包报告与回执的副本、完整命令日志、归档哈希和汇总位于 `.ai/local/release-1.0.0/`。该阶段的本地包验收未运行浏览器或真实 Codex 桌面验收，未操作私人阅读记录，也未发布 npm。
 
-上述预检后、`30ad8b1` 提交前仅调整了 README 与协作 Markdown 的正式版文案，运行代码和安装命令未变。README 标明“1.0.0 为首个正式版”的版本定位及稳定来源安装条件，临时发布进度统一留在本页与 GitHub Release。当时按用户要求，纯文案调整没有重复测试、打包或 PRTS 验收；上述本地 tgz 及报告仍对应文案调整前的预检归档。正式候选由标签 CI 从提交后的源码重新构建并验收，包含最终 README，不将旧预检归档直接用于发布。本次验收工具代码修复的验证另见顶部。
+上述预检后、`30ad8b1` 提交前仅调整了 README 与协作 Markdown 的正式版文案，运行代码和安装命令未变。README 标明“1.0.0 为首个正式版”的版本定位及稳定来源安装条件，临时发布进度统一留在本页与 GitHub Release。当时按用户要求，纯文案调整没有重复测试、打包或 PRTS 验收。上述 7,924,744 字节归档及回执现已备份至 `.ai/local/release-1.0.0/windows-cleanup-fix/original-*`；本轮本地重建包另见顶部。最终候选仍由标签 CI 从干净提交重新构建并验收，不将本地预检归档直接用于发布。
 
 此前未提交／发布的 0.1.27 仅完成本地预检，已由 1.0.0 目标取代。其 tgz 仍保留在 `.local/releases/`，原回执、离线／PRTS 报告、首次沙箱网络失败及成功复验日志均保存在 `.ai/local/release-0.1.27/`；不再将该版本作为本轮候选目标。
 
@@ -63,4 +66,4 @@ Git 历史已移除旧截图，并将作者／提交者统一为 Foreverstar7 �
 
 已发布包的源码提交在 main 历史中。本机原 main 停在清理前的旧历史，`pull --ff-only` 抓取成功但不能快进；核实工作区干净并取得用户明确授权后，已用 `git reset --keep origin/main` 对齐远程 `8fd5a58ae39ae7340364ddf44a9357602b534dc6`。未恢复、合并或推回旧历史，未创建额外 clone 或 worktree，未操作私人阅读记录。
 
-1.0.0 的八个版本／文档文件已统一提交并推送为 `30ad8b1`，使用本机默认个人 Git 署名，未修改 Git 配置；该提交的 [Ubuntu Check](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42222499352) 已通过。随后已按用户授权创建并推送注释标签 `v1.0.0`，标签对象为 `947d979d5641b7f57808ee05c9ab9a28bafffe6f`，指向 `30ad8b1`。Windows 标签验收失败后，用户要求保持版本 1.0.0，已完成并授权统一提交／推送本轮五个兼容修复与交接文件；标签重建仍待另行确认，npm 发布与稳定提升未操作。未修改已发布的 0.1.26 归档。未完成事项见 [PLAN](PLAN.md)，当前操作规则见 [发布指南](../docs/releasing.md)。
+1.0.0 准备提交 `30ad8b1` 与路径兼容修复 `21d196d` 均已按用户授权提交／推送，使用本机默认个人 Git 署名，未修改 Git 配置；两次 Ubuntu Check 均通过。按用户另行明确授权，未发布标签 `v1.0.0` 已重建为对象 `e14969e3e1f1059e9f38a69e1308a2439bfe9a38`，指向 `21d196d`，该次 Windows 验收失败，详见顶部。本轮进程回收与错误保留修复已完成本地预检，并获统一提交／推送授权；标签尚未再次移动，npm 发布与稳定提升未操作。未修改已发布的 0.1.26 归档。未完成事项见 [PLAN](PLAN.md)，当前操作规则见 [发布指南](../docs/releasing.md)。

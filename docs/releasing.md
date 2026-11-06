@@ -19,7 +19,7 @@
 5. 发布者在 Windows x64 的真实 Codex 桌面验证该明确 npm 版本：干净安装、侧栏入口、三页阅读与图片、保存／重开、升级和卸载保留记录。记录 CLI／桌面／Node 版本及可访问的 HTTPS 证据 URL；浏览器或 app-server 结果不替代桌面验收。
 6. 从 main 手动运行 `promote.yml`，填写版本、证据 URL，并确认真实宿主通过。工作流核对标签内包名／版本、发布回执、源码提交和 registry integrity，更新 `.agents/plugins/marketplace.json` 及 `docs/releases/X.Y.Z.json`。推送成功才公开 Release。
 
-marketplace 固定 npm 版本，不使用 latest 或版本范围。`check.yml` 在普通 push／PR 时使用 Ubuntu 执行类型／测试／格式检查、打包、离线包验证及源码 fixture 回归，不依赖 PRTS；结果见 [main 分支 Check](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/workflows/check.yml?query=branch%3Amain)。标签验收使用 Windows，发布 job 使用 Ubuntu 上传同一 tgz；未配置 macOS 或三平台验收矩阵。各平台的真实桌面支持仍需对应环境验收。标签发布与稳定提升尚未实跑。
+marketplace 固定 npm 版本，不使用 latest 或版本范围。`check.yml` 在普通 push／PR 时使用 Ubuntu 执行类型／测试／格式检查、打包、离线包验证及源码 fixture 回归，不依赖 PRTS；结果见 [main 分支 Check](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/workflows/check.yml?query=branch%3Amain)。标签验收使用 Windows，发布 job 使用 Ubuntu 上传同一 tgz；未配置 macOS 或三平台验收矩阵。修复可先按 [Windows 本地预检](testing.md#windows-本地候选预检) 验证，再运行最终标签 CI。各平台的真实桌面支持仍需对应环境验收。标签 Windows 验收已实跑但失败，OIDC 发布与稳定提升尚未完成，当前结果见 [STATUS](../.ai/STATUS.md)。
 
 ## 失败恢复
 
