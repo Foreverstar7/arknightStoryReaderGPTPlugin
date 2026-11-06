@@ -1,11 +1,13 @@
 import assert from 'node:assert/strict';
+import { execFile } from 'node:child_process';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
+import { promisify } from 'node:util';
 import { checkVersions, setVersion } from '../scripts/release-version.js';
 import { stableMarketplace } from '../scripts/marketplace.js';
 import { hostOptions } from '../scripts/host-options.js';
-import { packResultSchema } from '../scripts/package-layout.js';
+import { extractPackage, packResultSchema } from '../scripts/package-layout.js';
 
 test('one version command updates every declaration and leaves accepted marketplace unchanged', async () => {
   const base = path.resolve('.ai/local/tests');
@@ -129,6 +131,54 @@ test('pack reader validates the fixed npm 12 named-result contract', () => {
   assert.throws(() =>
     packResultSchema.parse({ reader: { ...result, bundled: undefined } }),
   );
+});
+
+test('package extraction preserves Unicode destinations and caller-relative archive paths', async () => {
+  const base = path.resolve('.ai/local/tests');
+  await mkdir(base, { recursive: true });
+  const root = await mkdtemp(path.join(base, 'extract-'));
+  try {
+    await mkdir(path.join(root, 'package'));
+    await writeFile(
+      path.join(root, 'package', 'payload.txt'),
+      'original archive payload\n',
+    );
+    await promisify(execFile)('tar', ['-czf', 'fixture.tgz', 'package'], {
+      cwd: root,
+    });
+    const destination = path.join(root, 'unpacked 阅读器 🧪');
+    const extracted = await extractPackage(
+      path.relative(process.cwd(), path.join(root, 'fixture.tgz')),
+      destination,
+    );
+    assert.equal(extracted, path.join(destination, 'package'));
+    assert.equal(
+      await readFile(path.join(extracted, 'payload.txt'), 'utf8'),
+      'original archive payload\n',
+    );
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('package extraction rejects archive entries outside package before extracting', async () => {
+  const base = path.resolve('.ai/local/tests');
+  await mkdir(base, { recursive: true });
+  const root = await mkdtemp(path.join(base, 'extract-rejected-'));
+  try {
+    await writeFile(path.join(root, 'outside.txt'), 'not a package entry');
+    await promisify(execFile)('tar', ['-czf', 'fixture.tgz', 'outside.txt'], {
+      cwd: root,
+    });
+    const destination = path.join(root, 'rejected 阅读器 🧪');
+    await assert.rejects(
+      extractPackage(path.join(root, 'fixture.tgz'), destination),
+      /归档路径不在 package\/ 内/u,
+    );
+    await assert.rejects(readFile(path.join(destination, 'outside.txt')));
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
 });
 
 test('publication rejects a substituted archive even if its filename is unchanged', async () => {

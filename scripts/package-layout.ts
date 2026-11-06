@@ -61,6 +61,11 @@ export async function extractPackage(tarball: string, destination: string) {
       )
   )
     throw new Error('归档路径不在 package/ 内。');
-  await exec('tar', ['-xzf', tarball, '-C', destination], { timeout: 60_000 });
+  // Windows tar can lose Unicode in its -C argument; Node passes cwd natively.
+  // Resolve the archive before changing cwd so caller-relative inputs still work.
+  await exec('tar', ['-xzf', path.resolve(tarball)], {
+    cwd: destination,
+    timeout: 60_000,
+  });
   return path.join(destination, 'package');
 }
