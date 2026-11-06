@@ -1,14 +1,22 @@
 # 当前状态
 
-更新：2026-11-06。正式版目标保持 **1.0.0**。第五次 Windows Release 基于 `73c335c`，实际 npm 安装产物的 Node 握手约 340ms 通过；失败转移到第二次冷安装准备，超过验收脚本固定 120 秒。当前修复让 `--prts` 包含全部离线断言并复用一次全新 npm 安装，安装单独限时 300 秒并保留 timing 日志。用户已再次授权继续修复、提交／推送及更新仍未发布的候选标签，直到服务器验收通过；npm 发布仍由用户网页审批。已发布 **0.1.26** 沿用既有 registry 证据，稳定 marketplace 仍为空。
+更新：2026-11-06。正式版目标保持 **1.0.0**。第六次 Windows Release 基于 `ace31d2`，一次冷安装及全部实际包／PRTS 验收通过；随后浏览器 33/34 通过，触摸测试等待 `scrollend` 超时。当前只修正测试的滚动结束观察方式并保留失败截图／trace，完整功能断言继续保留。用户已授权继续修复、提交／推送及更新仍未发布的候选标签，直到服务器验收通过；npm 发布仍由用户网页审批。已发布 **0.1.26** 沿用既有 registry 证据，稳定 marketplace 仍为空。
 
-## 当前接续：完整验收只准备一次冷安装
+## 当前接续：触摸回归观察实际滚动终态
+
+- 单次冷安装修复已提交／推送为 `ace31d2eb3698bdac06332cbf8ec0870a83e2ad0`，[Ubuntu Check](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42245190105) 的 119 项检查、构建、离线实际包及 34 项浏览器回归全部通过。候选标签对象 `92ab243d088d6dd6da23111f367386be77fd260c` 指向该提交；推送前 registry 1.0.0 返回 404，npm-production 的必需审批独立核验通过。
+- 第六次 [Windows Release](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42245615586) 的 119 项检查、构建和完整实际包验收通过。全新 npm 安装准备 133,990ms，实际安装 bin 的 Node 握手 313ms，离线三入口工具／HTML、117 部目录、64 块、1500×844 图片、续读／清缓存及卸载保留记录全部通过。timing 显示 loadTrees 约 59 秒、loadBundles 约 37 秒；安装阶段没有再次触发 120 秒通用限时。完整日志为 `.ai/local/release-1.0.0/single-install-fix/windows-ace31d2-failed.log`。
+- Windows Chromium 156 的 fixture 浏览器回归 33/34 通过；唯一失败在 `cards.spec.ts`：真实横滑已经使 scrollLeft 大于 50，但测试注入的 scrollend 标记 5 秒内未变 true。产品代码不依赖该事件。当前测试改为按 50ms 间隔观察实际偏移，要求连续 200ms 稳定；保留真实触摸输入、横滑距离、不误开、之后一次普通 padding tap 打开的全部路径，不强制滚动位置或重试点击。失败诊断 artifact 调整为 `release-diagnostics`，同时保存 npm 日志及浏览器截图／trace。
+- 本机 Windows Edge 156 的原触摸测试连续 3 次通过；修正后全部卡片的鼠标／键盘／双主题／触摸场景各重复 3 次，9/9 通过，类型与格式通过。证据为 `.ai/local/release-1.0.0/touch-scroll-fix/`。本机同版 Chromium 下载无进展后已停止，未计作本地 Chromium 验证；完整 34 项及同版 Chromium 仍由新 Windows CI 核验。沿用上述已通过的 119 项和完整实际包证据，不重复本地 PRTS。
+- 下一步统一提交／推送该测试及诊断修复，核验 Ubuntu Check；按持续授权更新仍未发布的 v1.0.0，跟进完整 Windows Release。npm 发布仍由用户在网页审批。
+
+## 此前：完整验收只准备一次冷安装
 
 - 安装与通信分离修复已提交／推送为 `73c335ce7238557bfedbd45cf5162c70af80abbf`，[Ubuntu Check](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42239968895) 全部通过。第五次 [Windows Release](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42241430924) 的离线包验收通过：冷安装 107,174ms，安装后的 bin 握手 340ms。随后独立 PRTS 验收完成目录、正文、CG 和前面的记录检查，在第二次新缓存准备 120,028ms 后被脚本 SIGTERM 终止。publish skipped，没有待审批部署；这不是 Actions 的 25 分钟 job 限制或 OIDC 错误。完整日志为 `.ai/local/release-1.0.0/npm-stdio-fix/windows-73c335-prts-failed.log`，npm 内部具体耗时阶段仍未由该日志确定。
 - 本轮将三个入口的工具契约／HTML 比对统一放在 PRTS 请求之前，默认模式继续不访问 PRTS；`--prts` 完成同样的全部离线检查，再执行原有真实正文、CG、最后／最远位置、重开、清缓存及模拟卸载保留记录检查。每次验收仍使用全新隔离缓存，后续重开复用已经验证的安装目录。Windows 工作流只调用一次完整 `--prts`，保留 check、构建、Chromium 浏览器回归与同一 tgz artifact。
 - 安装命令单独允许 300 秒，MCP 握手仍 60 秒，其他 npm 命令仍 120 秒。安装的 timing／verbose 日志实时输出并保存在 `.local/releases/npm-install-logs/`，失败后仍由 artifact 留存。关闭该离线安装命令无关的 npm 自身更新查询；未改变产品、依赖、版本、npm-production 审批或发布脚本。
 - 固定 Node 26.13.0／npm 12.2.1 下完整 check 的 119 项、类型和格式通过；新增真实损坏 tgz 回归验证失败清理后保留诊断，成功 fixture 也验证 timing 文件。现有实际 tgz 的默认／PRTS 验收通过；关闭 npm 更新查询后再通过 7 项定向及完整 PRTS 复验，未观察到 npm registry fetch，确认全部离线检查先于 PRTS 且只准备一次安装。117 部目录、64 块、1500×844 图片和记录保留均通过，原归档 SHA-512 未变。本机证据位于 `.ai/local/release-1.0.0/single-install-fix/`；该包仍是 `sourceCommit: 21d196d`、`dirty: true` 的本地预检归档，新候选由标签 CI 构建。
-- 下一步统一提交／推送本轮修复，核验 main 的 Ubuntu Check；核对 npm 未发布、远程旧标签对象及必需审批后，按持续授权更新候选 `v1.0.0` 并跟进 Windows Release。服务器通过后由用户网页批准上传同一 tgz，助手不批准发布。
+- 该修复已提交／推送并由第六次 Windows 运行验证完整实际包通过，后续浏览器修复与待办见顶部。服务器完整验收通过后由用户网页批准上传同一 tgz，助手不批准发布。
 
 ## 此前：npm 安装与 Node stdio 通信
 

@@ -169,16 +169,6 @@ test('touch taps open the whole card and a native horizontal swipe only scrolls 
     const box = await card.boundingBox();
     if (!box) throw new Error('缺少触摸测试篇目卡');
     const axis = page.getByRole('region', { name: '横向篇目轴' });
-    // touchEnd can leave native momentum scrolling in progress. Observe its
-    // actual completion before testing the following normal padding tap.
-    await axis.evaluate((element) => {
-      element.setAttribute('data-test-pan-ended', 'false');
-      element.addEventListener(
-        'scrollend',
-        () => element.setAttribute('data-test-pan-ended', 'true'),
-        { once: true },
-      );
-    });
     const session = await context.newCDPSession(page);
     const y = box.y + box.height / 2;
     await session.send('Input.dispatchTouchEvent', {
@@ -199,7 +189,25 @@ test('touch taps open the whole card and a native horizontal swipe only scrolls 
     await expect
       .poll(() => axis.evaluate((element) => element.scrollLeft))
       .toBeGreaterThan(50);
-    await expect(axis).toHaveAttribute('data-test-pan-ended', 'true');
+    // touchEnd can leave native momentum scrolling in progress. Windows CI's
+    // headless Chromium scrolled without delivering the expected scrollend.
+    // Observe the user-visible offset instead: it must settle for 200 ms, then
+    // one ordinary tap must still open the card. Never force/cancel the scroll.
+    let previousLeft = Number.NaN;
+    let stableSince = performance.now();
+    await expect
+      .poll(
+        async () => {
+          const left = await axis.evaluate((element) => element.scrollLeft);
+          if (left !== previousLeft) {
+            previousLeft = left;
+            stableSince = performance.now();
+          }
+          return performance.now() - stableSince;
+        },
+        { message: 'Native horizontal scrolling must settle', intervals: [50] },
+      )
+      .toBeGreaterThanOrEqual(200);
     await session.detach();
     // A normal tap still works after the browser cancels the pan gesture.
     await card.scrollIntoViewIfNeeded();

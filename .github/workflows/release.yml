@@ -35,12 +35,14 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 30
-      - name: Save npm installation diagnostics
+      - name: Save release diagnostics
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: npm-install-diagnostics
-          path: .local/releases/npm-install-logs/
+          name: release-diagnostics
+          path: |
+            .local/releases/npm-install-logs/
+            test-results/fixture/
           if-no-files-found: ignore
           include-hidden-files: true
           retention-days: 14
