@@ -85,7 +85,7 @@ codex plugin remove arknights-story-reader@arknights-reader --json
 - `READER_DATA_DIR` 可覆盖数据目录，不要设在插件版本目录内。阅读记录、内容缓存和公共字数分别存储，详见[接入说明](docs/integration-notes.md#本机数据)。
 - 目录、正文、人物映射及图片来自 [PRTS](https://prts.wiki/)。打开一部剧情后准备该部正文，图片按需取得；不预下载整库。缓存默认在最后使用 7 天后到期。
 - npm 包不附带剧情原文、游戏截图、立绘或 CG。游戏名称、角色、剧情和美术的权利属于鹰角网络及相应权利人；PRTS 的原创内容适用其[版权说明](https://prts.wiki/w/PRTS:著作权)。公开可访问不等于获得再分发许可。
-- 代码目前为 `UNLICENSED`，尚未选定开源许可证；第三方依赖遵循各自许可。来源或权利问题可通过 [GitHub Issues](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/issues) 提供具体链接。
+- 本项目原创代码采用 [MIT 许可证](LICENSE)，不包含对游戏内容或 PRTS 内容的授权；第三方依赖遵循各自许可。来源或权利问题可通过 [GitHub Issues](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/issues) 提供具体链接。
 
 ## 文档入口
 

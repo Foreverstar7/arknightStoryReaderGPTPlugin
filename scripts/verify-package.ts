@@ -50,6 +50,7 @@ try {
     .object({
       name: z.literal(identity.name),
       version: z.literal(identity.version),
+      license: z.literal('MIT'),
       type: z.literal('module'),
       dependencies: z.record(z.string(), z.string()),
       devDependencies: z.record(z.string(), z.string()),
@@ -76,11 +77,16 @@ try {
   const own = files.filter((file) => !file.startsWith('node_modules/'));
   assert.ok(
     own.every((file) =>
-      /^(?:dist\/(?:.+\.js|ui\/index\.html)|package\.json|plugin\.json|mcp\.json|README\.md)$/u.test(
+      /^(?:dist\/(?:.+\.js|ui\/index\.html)|package\.json|plugin\.json|mcp\.json|README\.md|LICENSE)$/u.test(
         file,
       ),
     ),
     'Unexpected source/runtime/private content in package',
+  );
+  assert.equal(
+    await readFile(path.join(root, 'LICENSE'), 'utf8'),
+    await readFile(path.join(project, 'LICENSE'), 'utf8'),
+    'Packaged LICENSE differs from source',
   );
   assert.ok(
     !own.some((file) => /(?:fixture|server\/main\.js|probe|test)/u.test(file)),
@@ -310,6 +316,7 @@ try {
   const result = {
     package: identity.name,
     version: identity.version,
+    license: pkg.license,
     source: live ? 'prts' : 'offline-protocol',
     node: process.version,
     platform: process.platform,

@@ -4,7 +4,7 @@
 
 ## 首次配置
 
-1. 确认 npm 包名 `arknights-story-reader` 的可用性／所有权。若更名，同步 package 与 lock 根名称；插件 ID 不变。当前 `UNLICENSED` 未授予开源许可，公开分发前由所有者决定源码许可；剧情与图片不随包分发。
+1. 确认 npm 包名 `arknights-story-reader` 的可用性／所有权。若更名，同步 package 与 lock 根名称；插件 ID 不变。项目原创代码已采用 [MIT 许可证](../LICENSE)，打包验证须确认许可文件和元数据随包分发；剧情与图片不随包分发，第三方依赖保留各自许可。
 2. 由所有者授权公开 GitHub 仓库。当前工作流在 private 仓库只运行验收，跳过发布；公开仓库与公开 npm 包是这里自动 provenance 的前提。
 3. 首包由发布者在本机交互登录 npm、完成 2FA 后发布已验收的归档。包创建后，在 npm 设置添加 trusted publisher：`Foreverstar7/arknightStoryReaderGPTPlugin`、工作流 `release.yml`、环境 `npm-production`，允许 npm publish，并按 npm 要求完成首次验证。
 4. GitHub 配置 `npm-production`、`stable-marketplace` 环境与审批人。不要保存明文 npm token，工作流不做 token 静默兜底。

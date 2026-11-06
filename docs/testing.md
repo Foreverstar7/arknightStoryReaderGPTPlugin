@@ -32,7 +32,7 @@ npm run package:verify
 npm run package:verify -- --prts
 ```
 
-- 默认检查直接在源码外解包，验证生产依赖、清单／bin、协议／HTML 与全新缓存的离线 npm 消费，不访问 PRTS。
+- 默认检查直接在源码外解包，验证 MIT 许可元数据与 LICENSE 文件、生产依赖、清单／bin、协议／HTML 与全新缓存的离线 npm 消费，不访问 PRTS。
 - `--prts` 增加真实目录、正文、图片、保存／重开、清缓存和移除程序后保留外部记录的检查。
 - 实际包的浏览器验证：将 `READER_E2E_PACKAGE_ROOT` 指向解包后的 `package` 目录，再运行相关 `test:e2e:prts` 场景。fixture 浏览器回归始终使用源码开发构建。
 

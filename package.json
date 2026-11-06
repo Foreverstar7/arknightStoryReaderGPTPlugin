@@ -6,7 +6,7 @@
     "type": "git",
     "url": "git+https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin.git"
   },
-  "license": "UNLICENSED",
+  "license": "MIT",
   "type": "module",
   "bin": {
     "arknights-story-reader": "dist/server/cli.js"
