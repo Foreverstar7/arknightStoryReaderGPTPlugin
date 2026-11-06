@@ -11,12 +11,19 @@ export async function prepareOfflineNpmPackage(
   cache: string,
   directory: string,
   identity: { name: string; version: string },
+  diagnosticsDirectory?: string,
 ) {
   const args = [
     'exec',
     '--yes',
     '--offline',
     '--ignore-scripts',
+    // A fresh cache also resets npm's local update-notifier state. This check
+    // consumes only the supplied tgz; npm version discovery is unrelated.
+    '--no-update-notifier',
+    '--timing',
+    '--loglevel=verbose',
+    ...(diagnosticsDirectory ? ['--logs-dir', diagnosticsDirectory] : []),
     '--cache',
     cache,
     '--package',
@@ -34,6 +41,10 @@ export async function prepareOfflineNpmPackage(
   const { stdout } = await npmCommand(
     [...args, process.execPath, '-e', probe, identity.name],
     directory,
+    // Windows CI completed one cold install in 107 s, then hit the shared 120 s
+    // command limit. Give only installation 5 min; keep pack/publish and MCP
+    // limits unchanged, and stream timing diagnostics while npm is running.
+    { timeoutMs: 300_000, streamStderr: true },
   );
   const prepared = z
     .object({

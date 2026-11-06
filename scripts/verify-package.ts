@@ -26,6 +26,7 @@ import {
 } from './package-verification.js';
 
 const project = path.resolve(import.meta.dirname, '..');
+const reports = path.join(project, '.local/releases');
 const identity = await checkVersions(project);
 const args = process.argv.slice(2);
 const live = args.includes('--prts');
@@ -127,22 +128,27 @@ const result = await withVerificationCleanup(async () => {
     if (mode === 'bin') {
       server.args = [path.join(root, pkg.bin['arknights-story-reader'])];
     } else if (mode === 'npm-installed') {
-      const installed = await verificationStep(
-        'Prepare fresh offline npm cache from tgz',
-        () =>
-          prepareOfflineNpmPackage(
-            tarball,
-            path.join(sandbox, 'npm-cache'),
-            sandbox,
-            identity,
-          ),
-      );
-      assert.deepEqual(installed.bin, pkg.bin);
-      npmInstalledRoot = installed.root;
+      // One cold installation covers both protocol checks and reading restarts.
+      // Reopening must exercise that same installation, not create a new cache.
+      if (!npmInstalledRoot) {
+        const installed = await verificationStep(
+          'Prepare fresh offline npm cache from tgz',
+          () =>
+            prepareOfflineNpmPackage(
+              tarball,
+              path.join(sandbox, 'npm-cache'),
+              sandbox,
+              identity,
+              path.join(reports, 'npm-install-logs', live ? 'prts' : 'offline'),
+            ),
+        );
+        assert.deepEqual(installed.bin, pkg.bin);
+        npmInstalledRoot = installed.root;
+      }
       server.args = [
-        path.join(installed.root, pkg.bin['arknights-story-reader']),
+        path.join(npmInstalledRoot, pkg.bin['arknights-story-reader']),
       ];
-      server.cwd = installed.root;
+      server.cwd = npmInstalledRoot;
     }
     return verificationStep(`Initialize MCP (${mode})`, () =>
       connection.connect(new StdioClientTransport(server), identity.version),
@@ -182,8 +188,28 @@ const result = await withVerificationCleanup(async () => {
       html.text.includes('<html') &&
       !html.text.includes('src="/src/'),
   );
+  // Complete the offline protocol/HTML matrix before any PRTS request. --prts
+  // includes these same checks, so Windows needs only one fresh npm install.
+  for (const mode of ['bin', 'npm-installed'] as const) {
+    await connection.close();
+    client = await connect(mode);
+    await verificationStep(
+      `Check tools and packaged UI HTML (${mode})`,
+      async () => {
+        assert.deepEqual((await client.listTools()).tools, tools);
+        const resource = await client.readResource({ uri: RESOURCE_URI });
+        assert.ok(
+          resource.contents.some(
+            (item) => 'text' in item && item.text === html.text,
+          ),
+        );
+      },
+    );
+  }
   let readingEvidence;
   if (live) {
+    await connection.close();
+    client = await connect();
     const snapshotResult = await verificationStep(
       'Read real PRTS catalog',
       () =>
@@ -294,7 +320,7 @@ const result = await withVerificationCleanup(async () => {
     client = await connect();
     assert.deepEqual(await state(), saved);
     await connection.close();
-    client = await connect('npm-installed'); // Run the actual offline npm installation.
+    client = await connect('npm-installed'); // Reopen the same actual npm installation.
     assert.deepEqual((await client.listTools()).tools, tools);
     assert.deepEqual(await state(), saved);
     readingEvidence = {
@@ -305,19 +331,6 @@ const result = await withVerificationCleanup(async () => {
       restartRestores: true,
       clearCacheKeepsRecords: true,
     };
-  } else {
-    // No catalog request: ordinary PR checks must work without PRTS.
-    for (const mode of ['bin', 'npm-installed'] as const) {
-      await connection.close();
-      client = await connect(mode);
-      assert.deepEqual((await client.listTools()).tools, tools);
-      const resource = await client.readResource({ uri: RESOURCE_URI });
-      assert.ok(
-        resource.contents.some(
-          (item) => 'text' in item && item.text === html.text,
-        ),
-      );
-    }
   }
   // Installation removal is independent of the external user-data directory.
   await verificationStep('Close MCP before simulated uninstall', () =>
@@ -350,6 +363,7 @@ const result = await withVerificationCleanup(async () => {
     systemNode: true,
     offlineNpmExec: true,
     npmInstalledBin: true,
+    offlineProtocol: true,
     files: files.length,
     tools: tools.length,
     globalEntrypoint: true,
@@ -369,7 +383,6 @@ const result = await withVerificationCleanup(async () => {
       removeVerificationDirectory(sandbox),
     ),
 ]);
-const reports = path.join(project, '.local/releases');
 await mkdir(reports, { recursive: true });
 await writeFile(
   path.join(reports, `verification-${live ? 'prts' : 'offline'}.json`),

@@ -13,7 +13,7 @@
 ## 候选到稳定
 
 1. 运行 `npm run release:version -- X.Y.Z`，完成 check、pack 和实际包验收。由发布者提交源码并推送匹配的 `vX.Y.Z` 标签，不单独执行 `npm version`。
-2. `release.yml` 在 Windows 固定 Node 26.13.0／npm 12.2.1，检查类型／测试／格式，构建 tgz，执行离线协议／UI、真实 PRTS 小样本和源码 fixture 浏览器回归。
+2. `release.yml` 在 Windows 固定 Node 26.13.0／npm 12.2.1，检查类型／测试／格式，构建 tgz，以一次全新 npm 安装完成全部离线协议／UI 和真实 PRTS 小样本验收，再执行源码 fixture 浏览器回归。
 3. 同一 tgz 与 `release.json` 上传到 Actions artifact。经 `npm-production` 审批后，核对版本、标签提交、干净状态、run ID 及归档 integrity，OIDC 发布为 `next`；发布 job 不重新构建。
 4. registry 返回同版本且 integrity 一致后，保存 `published.json` 和 draft Release。`next` 不是稳定安装入口。
 5. 发布者在 Windows x64 的真实 Codex 桌面验证该明确 npm 版本：干净安装、侧栏入口、三页阅读与图片、保存／重开、升级和卸载保留记录。记录 CLI／桌面／Node 版本及可访问的 HTTPS 证据 URL；浏览器或 app-server 结果不替代桌面验收。

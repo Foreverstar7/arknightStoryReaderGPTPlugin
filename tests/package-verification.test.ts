@@ -5,6 +5,7 @@ import {
   mkdir,
   mkdtemp,
   readFile,
+  readdir,
   realpath,
   rm,
   stat,
@@ -62,10 +63,17 @@ test('fresh offline npm preparation installs the actual tgz without lifecycle sc
     );
     const cache = path.join(root, 'fresh-cache');
     await assert.rejects(stat(cache), { code: 'ENOENT' });
-    const installed = await prepareOfflineNpmPackage(archive, cache, root, {
-      name: 'reader-verification-install-fixture',
-      version: '1.0.0',
-    });
+    const diagnostics = path.join(root, 'diagnostics');
+    const installed = await prepareOfflineNpmPackage(
+      archive,
+      cache,
+      root,
+      {
+        name: 'reader-verification-install-fixture',
+        version: '1.0.0',
+      },
+      diagnostics,
+    );
     const relative = path.relative(await realpath(cache), installed.root);
     assert.ok(relative && !relative.startsWith('..'));
     assert.equal(
@@ -93,6 +101,42 @@ test('fresh offline npm preparation installs the actual tgz without lifecycle sc
       root,
     );
     assert.equal(input.stdout.trim(), 'stdin closed');
+    await removeVerificationDirectory(cache);
+    const logs = await readdir(diagnostics);
+    assert.ok(logs.some((file) => file.endsWith('-debug-0.log')));
+    assert.ok(logs.some((file) => file.endsWith('-timing.json')));
+  } finally {
+    await removeVerificationDirectory(root);
+  }
+});
+
+test('failed offline npm preparation retains diagnostics after the installation sandbox is removed', async () => {
+  const root = await temporaryDirectory();
+  try {
+    const sandbox = path.join(root, 'sandbox');
+    const diagnostics = path.join(root, 'diagnostics');
+    await mkdir(sandbox);
+    await writeFile(path.join(sandbox, 'package.json'), '{"private":true}');
+    const archive = path.join(sandbox, 'broken.tgz');
+    await writeFile(archive, 'deliberately invalid archive');
+    await assert.rejects(
+      prepareOfflineNpmPackage(
+        archive,
+        path.join(sandbox, 'cache'),
+        sandbox,
+        { name: 'reader-verification-install-fixture', version: '1.0.0' },
+        diagnostics,
+      ),
+      /Command failed/u,
+    );
+    await removeVerificationDirectory(sandbox);
+    const logs = await readdir(diagnostics);
+    const debug = logs.find((file) => file.endsWith('-debug-0.log'));
+    assert.ok(debug);
+    assert.match(
+      await readFile(path.join(diagnostics, debug), 'utf8'),
+      /broken\.tgz/u,
+    );
   } finally {
     await removeVerificationDirectory(root);
   }

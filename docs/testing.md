@@ -28,14 +28,14 @@ npm run test:e2e:prts
 
 ```sh
 npm run package
-npm run package:verify
 npm run package:verify -- --prts
 ```
 
-- 默认检查直接在源码外解包，验证 MIT 许可元数据与 LICENSE 文件、生产依赖、清单／bin、协议／HTML 与全新缓存的离线 npm 消费，不访问 PRTS。
-- `--prts` 增加真实目录、正文、图片、保存／重开、清缓存和移除程序后保留外部记录的检查。
+- 不带参数的 `npm run package:verify` 直接在源码外解包，验证 MIT 许可元数据与 LICENSE 文件、生产依赖、清单／bin、协议／HTML 与全新缓存的离线 npm 消费，不访问 PRTS，适用于普通 push／PR。
+- `--prts` 先完成相同的全部离线检查，再增加真实目录、正文、图片、保存／重开、清缓存和移除程序后保留外部记录的检查。标签 Windows 验收只需执行这一条；同一隔离目录中的 npm 安装仅准备一次，后续重开使用同一产物。
 - 真实样本必须包含 CG 并完成图片检查；清单入口、解包 bin 与 npm 安装后的 bin 须返回一致的完整工具契约。
-- npm 在全新隔离缓存离线安装实际 tgz，不执行安装脚本并明确关闭 stdin，上限 120 秒。随后系统 Node 直接启动经包身份、bin 和缓存归属校验的安装产物，完成默认 60 秒内的 MCP 握手和后续完整验收；MCP 管道不经过 npm 包装进程。这与正式清单的 Node 启动方式一致，npm 包装层自身的 stdio 兼容性不计为已通过项。
+- npm 在全新隔离缓存离线安装实际 tgz，不执行安装脚本并明确关闭 stdin，安装阶段独立上限 300 秒；其他 npm 命令仍为 120 秒。随后系统 Node 直接启动经包身份、bin 和缓存归属校验的安装产物，完成默认 60 秒内的 MCP 握手和后续完整验收；MCP 管道不经过 npm 包装进程。这与正式清单的 Node 启动方式一致，npm 包装层自身的 stdio 兼容性不计为已通过项。
+- 安装命令启用 npm timing／verbose 日志，实时写入命令输出，并保存在临时目录外的 `.local/releases/npm-install-logs/`；失败后仍保留，Windows CI 另上传 `npm-install-diagnostics` artifact。计时用于区分 npm 阶段耗时，不以延长时限替代故障定位。
 - 实际包的浏览器验证：将 `READER_E2E_PACKAGE_ROOT` 指向解包后的 `package` 目录，再运行相关 `test:e2e:prts` 场景。fixture 浏览器回归始终使用源码开发构建。
 
 归档与报告位于 `.local/releases/`。报告只对应当次归档；修改后发布需重新打包、验收。
@@ -47,7 +47,6 @@ npm run package:verify -- --prts
 ```powershell
 ./scripts/npm.ps1 run check
 ./scripts/npm.ps1 run package
-./scripts/npm.ps1 run package:verify
 ./scripts/npm.ps1 run package:verify '--' --prts
 ./scripts/npm.ps1 run test:e2e
 ```

@@ -23,8 +23,8 @@ jobs:
         run: node -e "if(process.env.GITHUB_REF !== 'refs/tags/v'+require('./package.json').version) process.exit(1)"
       - run: npm run check
       - run: npm run package
-      - run: npm run package:verify
-      - run: npm.cmd run package:verify -- --prts
+      - name: Verify offline protocol and real PRTS with one fresh npm installation
+        run: npm.cmd run package:verify -- --prts
       - run: npx playwright install chromium
       - run: npm run test:e2e
       - uses: actions/upload-artifact@v7
@@ -35,6 +35,15 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 30
+      - name: Save npm installation diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: npm-install-diagnostics
+          path: .local/releases/npm-install-logs/
+          if-no-files-found: ignore
+          include-hidden-files: true
+          retention-days: 14
   publish:
     needs: accept-package
     if: github.event.repository.private == false

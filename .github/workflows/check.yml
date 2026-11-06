@@ -28,6 +28,7 @@ jobs:
           name: check-evidence
           path: |
             .local/releases/*.json
+            .local/releases/npm-install-logs/
             test-results/fixture/
           overwrite: true
           include-hidden-files: true
