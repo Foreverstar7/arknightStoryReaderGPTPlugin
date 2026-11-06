@@ -41,19 +41,23 @@ test('title, summary, progress and padding open from the start; dragging never o
     'padding',
   ]) {
     await expect(card).toBeVisible();
-    await page.evaluate(async () => {
-      await Promise.allSettled(
-        document.getAnimations().map((animation) => animation.finished),
-      );
-    });
     const box = await (
       area === 'padding' ? card : card.locator(area)
     ).boundingBox();
-    if (!box) throw new Error(`缺少篇目卡区域：${area}`);
-    await page.mouse.click(
-      area === 'padding' ? box.x + 3 : box.x + box.width / 2,
-      area === 'padding' ? box.y + box.height - 3 : box.y + box.height / 2,
-    );
+    const cardBox = await card.boundingBox();
+    if (!box || !cardBox) throw new Error(`缺少篇目卡区域：${area}`);
+    // A visible DOM can precede ViewTransition.ready, when getAnimations()
+    // still returns no animations. Keep the same hit point, but let Playwright
+    // wait until the card actually receives pointer input through the overlay.
+    await card.click({
+      position: {
+        x: area === 'padding' ? 3 : box.x - cardBox.x + box.width / 2,
+        y:
+          area === 'padding'
+            ? cardBox.height - 3
+            : box.y - cardBox.y + box.height / 2,
+      },
+    });
     await expect(reader).toBeVisible();
     await expect
       .poll(() => reader.evaluate((element) => element.scrollTop))
@@ -67,11 +71,8 @@ test('title, summary, progress and padding open from the start; dragging never o
     ).toBeVisible();
   }
   const axis = page.getByRole('region', { name: '横向篇目轴' });
-  await page.evaluate(async () => {
-    await Promise.allSettled(
-      document.getAnimations().map((animation) => animation.finished),
-    );
-  });
+  // The drag also uses raw coordinates, so establish actionability first.
+  await card.click({ trial: true });
   const box = await card.boundingBox();
   if (!box) throw new Error('缺少篇目卡');
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);

@@ -21,7 +21,7 @@
 5. 发布者在 Windows x64 的真实 Codex 桌面验证该明确 npm 版本：干净安装、侧栏入口、三页阅读与图片、保存／重开、升级和卸载保留记录。记录 CLI／桌面／Node 版本及可访问的 HTTPS 证据 URL；浏览器或 app-server 结果不替代桌面验收。
 6. 从 main 手动运行 `promote.yml`，填写版本、证据 URL，并确认真实宿主通过。经 `stable-marketplace` 审批，核对标签内包名／版本、发布回执、源码提交和 registry integrity，更新 `.agents/plugins/marketplace.json` 及 `docs/releases/X.Y.Z.json`。推送成功才公开 Release。
 
-marketplace 固定 npm 版本，不使用 latest 或版本范围。`check.yml` 在 Ubuntu 执行类型／测试／格式检查、打包、离线包验证及源码 fixture 回归，不依赖 PRTS。发布 job 使用 Linux 上传；各平台的真实桌面支持仍需对应环境验收。远程工作流尚未实跑。
+marketplace 固定 npm 版本，不使用 latest 或版本范围。`check.yml` 在 Ubuntu 执行类型／测试／格式检查、打包、离线包验证及源码 fixture 回归，不依赖 PRTS；结果见 [main 分支 Check](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/workflows/check.yml?query=branch%3Amain)。发布 job 使用 Linux 上传；各平台的真实桌面支持仍需对应环境验收。标签发布与稳定提升尚未实跑。
 
 ## 失败恢复
 

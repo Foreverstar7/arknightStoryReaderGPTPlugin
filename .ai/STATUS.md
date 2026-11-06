@@ -6,7 +6,7 @@
 
 - 阅读器具备七类目录、三页导航、全部分支、按需图片、本机续读、字数进度和独立缓存管理。
 - 正式入口使用系统 Node，只支持 PRTS；npm 包内嵌生产依赖。源码与独立开发副本保留 fixture。
-- 普通 push／PR 在 Ubuntu 检查；标签候选发布保留 Windows 验收；稳定来源由人工提升。三个工作流已实现，远程尚未实跑。
+- 普通 push／PR 已接入 Ubuntu Check；标签候选发布保留 Windows 验收；稳定来源由人工提升。标签发布和稳定提升尚未实跑。
 - 文档按当前实现整理，设计预览复用正式 UI。图片回归样本位于 tests/fixtures/prts-image-baseline.json。
 
 ## 验证
@@ -15,7 +15,7 @@ Windows x64、Node 26.13.0／npm 12.2.1 已有包协议、真实 PRTS 小样本�
 
 本次整理已通过 `npm run check`（110 项测试）、回归样本完整等价核对与文档本地链接检查。当前预览在 Edge 完成双主题、四种窗口的三页导航，以及立绘、CG、键盘设置与最近阅读恢复检查；无页面溢出或控制台错误。
 
-检查记录位于 `.ai/local/docs-current-check.log`、`current-docs-check.json` 和 `current-doc-preview/`。Ubuntu Check 的实际运行待推送后验证。现有 tgz 未包含本次文档整理，发布前须重新打包验收。
+本地检查记录位于 `.ai/local/docs-current-check.log`、`current-docs-check.json` 和 `current-doc-preview/`。Ubuntu 的类型／测试、构建、离线包验证和 fixture 浏览器结果见 [main 分支 Check](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/workflows/check.yml?query=branch%3Amain)，包验证报告随该次运行保存。正式发布须重新打包并完成发布验收。
 
 ## Git 与接续
 
