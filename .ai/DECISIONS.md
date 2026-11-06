@@ -105,3 +105,11 @@ README 在打包前定稿正式版定位、功能和安装条件，不写“发�
 第六次 Windows CI 已通过完整实际包／PRTS 验收，浏览器唯一失败为横滑后的 scrollend 测试标记未触发；scrollLeft 大于 50 的断言已通过，其余 33 项通过。页面产品代码不依赖 scrollend，本地 Edge 156 的原测试连续三次通过，因此不为该测试事件改动产品滚动实现，也不宣称已确认 Chromium 的具体缺陷。
 
 保留真实 CDP touchStart／touchMove／touchEnd、横滑距离、不误开和之后一次正常卡片点击的完整路径。以实际 scrollLeft 连续稳定 200ms 作为后续点击前的观察条件，50ms 采样至少跨越四个检查间隔，仍受既有 5 秒断言时限约束；不强制设置偏移、不取消浏览器原生惯性、不重复点击或跳过场景。Windows 失败诊断同时保存 npm 日志与 fixture 浏览器 trace／截图。该修改仅限验收与交接，不改变运行包或发布审批。
+
+第七次 Windows 结果证明该观察条件仍不足：后续 tap 没有生成 click，未打开正文。此 200ms 替代方案已由下述同版浏览器对照修复取代。
+
+## 原生触摸输入按实际帧节奏注入（2026-11-07）
+
+本地用与 CI 相同的 Windows Chromium headless shell 156.0.8078.4 复现了第七次失败。原快速注入有 pointercancel／touchend，后续 tap 有 pointerdown／pointerup／touchstart／touchend 却无 click；延迟 CDP detach 仍失败，触摸能力前后均为 1。仅把原有 touchMove 按 requestAnimationFrame 的真实帧节奏发送，同一次 tap 随即生成 click。恢复原 scrollend 断言后，连续三次及完整 34 项通过，支持将当前问题定位到测试注入时序，而非修改产品点击行为。
+
+采用最小修复：保留原始可信触摸事件、原生滚动及惯性、scrollend、横滑距离和之后一次点击的所有功能断言，只为每次移动等待实际下一帧；不用固定长等待、点击重试、强制偏移或关闭惯性来取得通过。类型与格式通过，后续仍由服务器完整验收确认。

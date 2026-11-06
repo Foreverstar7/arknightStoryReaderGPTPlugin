@@ -1,8 +1,15 @@
 # 当前状态
 
-更新：2026-11-06。正式版目标保持 **1.0.0**。第六次 Windows Release 基于 `ace31d2`，一次冷安装及全部实际包／PRTS 验收通过；随后浏览器 33/34 通过，触摸测试等待 `scrollend` 超时。当前只修正测试的滚动结束观察方式并保留失败截图／trace，完整功能断言继续保留。用户已授权继续修复、提交／推送及更新仍未发布的候选标签，直到服务器验收通过；npm 发布仍由用户网页审批。已发布 **0.1.26** 沿用既有 registry 证据，稳定 marketplace 仍为空。
+更新：2026-11-07。正式版目标保持 **1.0.0**。第七次 Windows Release 的实际包验收通过，触摸回归仍失败；现已在同版 Windows Chromium 156 本地复现并以逐帧注入修复，恢复原 scrollend 断言后连续三次及完整 34 项通过。用户授权持续推进服务器验收，随后制作原创素材的中文项目网站并部署本仓库 GitHub Pages；全部完成、交接保存后关机。npm 发布仍留给用户次日在网页审批。已发布 **0.1.26** 沿用既有 registry 证据，稳定 marketplace 仍为空。
 
-## 当前接续：触摸回归观察实际滚动终态
+## 当前接续：同版 Chromium 已复现并修复触摸注入
+
+- `7f8f46109906cd58147bce5adbbb5237195270a1` 的 [Ubuntu Check](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42248061639) 全部通过。第七次 [Windows Release](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42248202943) 的 119 项、构建与完整实际包／PRTS 验收再次通过，但浏览器仍 33/34：偏移稳定后一次 tap 有触摸事件、未生成 click，正文没有打开。位置连续稳定不足以证明原生手势已结束；不能仅靠替换等待条件解决。发布 skipped，未执行 npm 发布。
+- 已下载该次 `release-diagnostics`，CI trace／截图保存在 `.ai/local/release-1.0.0/touch-scroll-fix/windows-diagnostics/`。本机 Node 下载浏览器无进展，改用系统下载器取得官方 CDN 的同一 Chromium headless shell 156.0.8078.4，成功本地复现相同失败。诊断确认 CDP detach 前后 maxTouchPoints 均为 1，延后 detach 仍失败；快速触摸移动后下一次 tap 无 click，按实际 requestAnimationFrame 节奏发送相同移动后生成 click 并打开正文。
+- 当前只改测试输入节奏：保留原 touchStart／touchMove／touchEnd、原生惯性、scrollLeft 大于 50、scrollend 完成及之后一次正常 padding tap 打开的全部断言，移除未解决问题的 200ms 偏移替代条件；无点击重试或强制设置偏移。固定 Node 26.13.0／npm 12.2.1 下，同版 Chromium 原断言连续 3 次通过、完整 34 项通过，类型与格式通过。证据为 `chromium-current-touch.log`（修复前失败）、`chromium-touch-events.log`、`chromium-paced-original-assertions.log` 和 `chromium-full.log`，均在上述本机目录。
+- 下一步按持续授权统一提交／推送该修复与记录，更新仍未发布的候选标签并跟进服务器验收。完成后制作／部署项目 Pages 网站，再保存交接并按用户要求关机；npm-production 的发布审批仍由用户完成。
+
+## 此前：触摸回归观察实际滚动终态
 
 - 单次冷安装修复已提交／推送为 `ace31d2eb3698bdac06332cbf8ec0870a83e2ad0`，[Ubuntu Check](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42245190105) 的 119 项检查、构建、离线实际包及 34 项浏览器回归全部通过。候选标签对象 `92ab243d088d6dd6da23111f367386be77fd260c` 指向该提交；推送前 registry 1.0.0 返回 404，npm-production 的必需审批独立核验通过。
 - 第六次 [Windows Release](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42245615586) 的 119 项检查、构建和完整实际包验收通过。全新 npm 安装准备 133,990ms，实际安装 bin 的 Node 握手 313ms，离线三入口工具／HTML、117 部目录、64 块、1500×844 图片、续读／清缓存及卸载保留记录全部通过。timing 显示 loadTrees 约 59 秒、loadBundles 约 37 秒；安装阶段没有再次触发 120 秒通用限时。完整日志为 `.ai/local/release-1.0.0/single-install-fix/windows-ace31d2-failed.log`。
