@@ -24,7 +24,6 @@ jobs:
   promote:
     if: inputs.host_accepted && github.ref == 'refs/heads/main' && github.event.repository.private == false
     runs-on: ubuntu-latest
-    environment: stable-marketplace
     steps:
       - uses: actions/checkout@v7
         with:

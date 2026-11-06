@@ -1,13 +1,15 @@
 # 下一步
 
-## 完成首次 npm 发布
+## 完成自动发布与真实桌面验收
 
-本地运行包和三条 GitHub 工作流已实现。MIT 许可变更已提交并推送 main（`f17597f`）；0.1.26 已从该干净提交重新打包，通过 Windows 实际包离线／真实 PRTS 验证及 Ubuntu Check，见 [STATUS](STATUS.md)。2026-11-06 对 npm 包名的只读查询返回 404，未见已发布包；首次创建权限仍由 npm 在发布时校验。当前按发布者要求保持 private，不公开仓库、不发布 npm。按[发布指南](../docs/releasing.md)接续：
+0.1.26 已完成首次本机 npm 发布，registry integrity 与验收归档一致，GitHub 仓库已公开，见 [STATUS](STATUS.md)。本地工作流仅 npm 发布 job 引用 `npm-production` environment；稳定提升保留手动触发和宿主验收确认，不绑定环境。普通检查使用 Ubuntu，标签验收使用 Windows，npm 上传使用 Ubuntu，无 macOS 验收矩阵。
 
-1. 等待发布者明确授权仓库公开与首次 npm 发布；首次由发布者在本机交互登录并完成 2FA，发布已验收的 tgz。
-2. 配置 npm trusted publisher、GitHub 环境审批，并在用户授权后发布候选。
-3. 验收已发布 npm 版本的真实桌面安装、阅读、升级和卸载数据保留。
-4. 提供验收证据，手动提升稳定 marketplace。
+本轮工作流与文档已获统一提交／推送授权。源码版本仍为 0.1.26，未创建新版本标签。当前未完成项：
+
+1. `npm-production` 已创建但无审批规则；npm trusted publisher 的只读查询需要发布者交互 2FA，配置尚未核实。
+2. 标签候选发布、OIDC 与稳定提升尚未实跑；已发布的 0.1.26 不可覆盖，后续发行使用新版本号。
+3. 已发布 npm 版本的真实 Windows Codex 桌面安装、阅读、升级及卸载保留记录尚未验收。
+4. 稳定 marketplace 仍为空。
 
 其他系统、架构和宿主在实际环境验收后再列入支持范围。
 

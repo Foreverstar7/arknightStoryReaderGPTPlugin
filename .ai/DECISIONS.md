@@ -34,7 +34,9 @@
 
 GitHub 保存源码与 CI，npm 保存完整运行包，稳定 marketplace 固定精确 npm 版本。系统 Node 是运行前提；标准 npm pack 内嵌生产依赖，正式入口仅 PRTS，源码和独立开发副本保留 fixture。
 
-普通 push／PR 在 Ubuntu 执行通用检查；标签发布前保留 Windows 运行包与真实 PRTS 验收，覆盖当前目标平台。版本标签验收后由 OIDC 发布同一归档为 next。真实桌面确认后再人工提升稳定来源。发布核对实际 npm integrity，提升同时核对标签、回执和宿主证据。
+普通 push／PR 在 Ubuntu 执行通用检查；标签发布前保留 Windows 运行包与真实 PRTS 验收，覆盖当前目标平台，不设置三平台矩阵。npm 发布 job 在 Ubuntu 使用 OIDC 上传同一归档为 next，仅该 job 绑定 `npm-production` 环境审批。
+
+稳定提升保留手动触发、真实宿主验收确认及标签／回执／registry integrity 校验，不绑定 environment。个人维护项目由同一人发起和批准，手动触发及验收确认已承担稳定提升的发布决定，不增加第二次 environment 审批。稳定 marketplace 始终固定精确 npm 版本。
 
 阅读记录、原文／图片缓存、临时工具和恢复备份不进入发行物。
 
@@ -42,4 +44,4 @@ GitHub 保存源码与 CI，npm 保存完整运行包，稳定 marketplace 固�
 
 发布者确认原创代码采用 MIT，署名为 Foreverstar7。选择简单的宽松许可，允许使用、修改、再分发和商用，并要求保留版权及许可声明。根目录 LICENSE 与 package／lock 的许可字段保持一致，实际包验收检查许可文件和元数据。
 
-MIT 只覆盖本项目原创代码，不授权游戏素材或 PRTS 内容；第三方依赖遵循各自许可。仓库公开、npm 发布、版本标签推送和稳定提升仍分别等待发布者明确确认。
+MIT 只覆盖本项目原创代码，不授权游戏素材或 PRTS 内容；第三方依赖遵循各自许可。仓库可见性变更、npm 发布、版本标签推送和稳定提升均须发布者明确授权。

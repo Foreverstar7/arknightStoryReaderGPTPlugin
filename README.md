@@ -4,7 +4,33 @@
 
 这是个人维护的非官方工具，不隶属于鹰角网络、PRTS 或 OpenAI。
 
-**当前版本 0.1.26 尚未发布到 npm，稳定 marketplace 为空。** 现在请按下面的源码方式运行。Windows x64 已完成本地验证；已发布 npm 包的真实桌面安装与完整阅读、其他平台仍待验收。
+发行版本、稳定来源收录情况及已验证的桌面／平台范围见[当前状态](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/blob/main/.ai/STATUS.md)。
+
+## Quick Start
+
+系统需 Node.js ≥26.13.0、npm ≥12.2.1，桌面客户端需能从 PATH 找到 Node。
+
+安装前先确认[来源目录](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/blob/main/.agents/plugins/marketplace.json)中包含本插件；未收录时使用[源码开发副本](#安装源码开发副本)。
+
+```sh
+codex plugin marketplace add Foreverstar7/arknightStoryReaderGPTPlugin --ref main
+codex plugin add arknights-story-reader@arknights-reader --json
+```
+
+包内包含服务、HTML、生产依赖与启动清单；无需 clone 或构建。其他 MCP Apps 宿主的 stdio 配置见[接入说明](docs/integration-notes.md)。
+
+## 升级与卸载
+
+升级时先正常关闭旧阅读器会话，再更新来源并安装：
+
+```sh
+codex plugin marketplace upgrade arknights-reader
+codex plugin add arknights-story-reader@arknights-reader --json
+# 卸载插件
+codex plugin remove arknights-story-reader@arknights-reader --json
+```
+
+使用[源码开发副本](#安装源码开发副本)时，将上述来源名替换为 `arknights-reader-dev`。升级、卸载和清缓存均保留外部阅读记录；清除记录要在阅读器页面中单独操作。
 
 ## 本地运行
 
@@ -44,9 +70,7 @@ $env:READER_DATA_DIR = Join-Path $PWD '.ai/local/preview'
 
 [脚本说明](scripts/README.md)列出宿主探针和维护审计；[验证指南](docs/testing.md)说明如何选择检查。
 
-## 安装到桌面宿主
-
-### 当前：安装独立开发副本
+### 安装源码开发副本
 
 ```powershell
 ./scripts/npm.ps1 run build
@@ -56,28 +80,6 @@ codex plugin add arknights-story-reader@arknights-reader-dev --json
 ```
 
 前两步生成新的开发副本，后两步安装到当前客户端。客户端需能从 PATH 找到项目要求的 Node；项目工具链只调整当前终端，不修改系统 PATH。为桌面客户端配置好 Node 后，正常重启客户端，再从插件入口打开阅读器。
-
-### 正式版发布后
-
-系统需 Node.js ≥26.13.0、npm ≥12.2.1。正式来源发布并完成验收后使用：
-
-```sh
-codex plugin marketplace add Foreverstar7/arknightStoryReaderGPTPlugin --ref main
-codex plugin add arknights-story-reader@arknights-reader --json
-```
-
-包内包含服务、HTML、生产依赖与启动清单；无需 clone 或构建。其他 MCP Apps 宿主的 stdio 配置见[接入说明](docs/integration-notes.md)。
-
-升级时先正常关闭旧阅读器会话，再更新来源并安装：
-
-```sh
-codex plugin marketplace upgrade arknights-reader
-codex plugin add arknights-story-reader@arknights-reader --json
-# 卸载插件
-codex plugin remove arknights-story-reader@arknights-reader --json
-```
-
-开发副本使用 `arknights-reader-dev` 替换上述来源名。升级、卸载和清缓存均保留外部阅读记录；清除记录要在阅读器页面中单独操作。
 
 ## 数据与内容来源
 
