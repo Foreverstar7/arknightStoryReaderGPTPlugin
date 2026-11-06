@@ -113,3 +113,11 @@ README 在打包前定稿正式版定位、功能和安装条件，不写“发�
 本地用与 CI 相同的 Windows Chromium headless shell 156.0.8078.4 复现了第七次失败。原快速注入有 pointercancel／touchend，后续 tap 有 pointerdown／pointerup／touchstart／touchend 却无 click；延迟 CDP detach 仍失败，触摸能力前后均为 1。仅把原有 touchMove 按 requestAnimationFrame 的真实帧节奏发送，同一次 tap 随即生成 click。恢复原 scrollend 断言后，连续三次及完整 34 项通过，支持将当前问题定位到测试注入时序，而非修改产品点击行为。
 
 采用最小修复：保留原始可信触摸事件、原生滚动及惯性、scrollend、横滑距离和之后一次点击的所有功能断言，只为每次移动等待实际下一帧；不用固定长等待、点击重试、强制偏移或关闭惯性来取得通过。类型与格式通过，后续仍由服务器完整验收确认。
+
+## 项目网站与发布审批分开（2026-11-07）
+
+用户在服务器验收修复任务中新增明确授权：验收通过后制作中文项目介绍／安装网站并部署本仓库 GitHub Pages，全部完成并保存交接后关机；npm 正式发布仍留到次日由用户网页审批。当前已通过的候选固定 cce87d6，网站和文档提交不再移动 v1.0.0。
+
+网站采用独立静态目录，只部署原创文字、图形与原创 fixture 界面，不使用游戏截图／立绘／CG／官方标识或转载剧情，不宣称已取得游戏素材授权。官方地区／用途相关创作规则不能直接当作对本网站的通用授权；以原创素材避免依赖这类授权推断。网站只介绍工具并链接文档与发行来源，不托管真实剧情、代理资源或读取私人记录。
+
+按 [GitHub Pages 官方工作流要求](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages) 使用 Pages 专用部署及 github-pages 网站环境。该环境只服务用户新授权的网站，不是新增 npm 发布环境；npm 发布仍唯一绑定 npm-production 并等待 Foreverstar7 审批，稳定提升不绑定环境。Pages 的启用／网站部署属于用户明确授权范围，不为其新增人工审批环节。

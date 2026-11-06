@@ -21,6 +21,8 @@
 
 首次发布、标签、OIDC、审批和稳定提升按[发布指南](../docs/releasing.md)操作。
 
+项目网站的静态构建、预览、原创界面截图与 Pages 工作流见[网站维护说明](../docs/website.md)，与 npm 发布审批分开。
+
 ## 协议与宿主探针
 
 - `probe:mcp`：启动源码构建或指定包的 stdio 服务，检查工具、UI 资源、正文和图片。默认 PRTS；源码可显式选择 fixture。

@@ -1,0 +1,62 @@
+name: Deploy project website
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'website/**'
+      - 'scripts/build-site.mjs'
+      - 'scripts/serve-site.mjs'
+      - 'tests/site/**'
+      - 'playwright.site.config.ts'
+      - '.github/workflows/pages.yml'
+      - '.node-version'
+      - 'package.json'
+      - 'package-lock.json'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: project-pages
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pages: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+      - run: npm install --global npm@12.2.1
+      - run: npm ci
+      - run: node scripts/build-site.mjs
+      - run: npx playwright install --with-deps chromium
+      - run: npm exec -- playwright test --config playwright.site.config.ts
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: build/site
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: site-evidence
+          path: test-results/site/
+          if-no-files-found: ignore
+          retention-days: 14
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy static site
+        id: deployment
+        uses: actions/deploy-pages@v5

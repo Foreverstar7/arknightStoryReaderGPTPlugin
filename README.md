@@ -4,6 +4,8 @@
 
 这是个人维护的非官方工具，不隶属于鹰角网络、PRTS 或 OpenAI。
 
+[项目网站与界面示例](https://foreverstar7.github.io/arknightStoryReaderGPTPlugin/) · [安装指南](#quick-start) · [发行记录](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/releases)
+
 **版本定位：1.0.0 为首个正式版。** 实际发行版本、稳定来源收录情况及已验证的桌面／平台范围见[当前状态](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/blob/main/.ai/STATUS.md)。
 
 ## Quick Start

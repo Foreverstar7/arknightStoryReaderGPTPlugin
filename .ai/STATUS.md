@@ -1,8 +1,17 @@
 # 当前状态
 
-更新：2026-11-07。正式版目标保持 **1.0.0**。第七次 Windows Release 的实际包验收通过，触摸回归仍失败；现已在同版 Windows Chromium 156 本地复现并以逐帧注入修复，恢复原 scrollend 断言后连续三次及完整 34 项通过。用户授权持续推进服务器验收，随后制作原创素材的中文项目网站并部署本仓库 GitHub Pages；全部完成、交接保存后关机。npm 发布仍留给用户次日在网页审批。已发布 **0.1.26** 沿用既有 registry 证据，稳定 marketplace 仍为空。
+更新：2026-11-07。**1.0.0 的 Windows Release 完整验收已通过，npm 发布正在等待用户网页审批。** 候选标签固定指向 `cce87d6`，后续网站／文档提交不再移动它。当前继续制作原创素材的中文项目网站并部署本仓库 GitHub Pages；全部完成、交接保存后按用户要求关机。已发布 **0.1.26** 沿用既有 registry 证据，稳定 marketplace 仍为空，真实桌面与稳定提升仍待人工完成。
 
-## 当前接续：同版 Chromium 已复现并修复触摸注入
+## 当前接续：服务器通过，制作项目 Pages 网站
+
+- `cce87d6c2abfc7760272981ad44f5349267d59a7` 的 [Ubuntu Check](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42250956103) 全部通过。第八次 [Windows Release](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42251044304) 的 accept-package 已成功：119 项、类型／格式、构建、全部实际 tgz 离线／PRTS 及 34 项 Chromium 浏览器回归通过。真实横滑、scrollend 与之后一次点击均通过；该次一次冷安装 75,870ms，安装产物的 Node 握手约 222ms。
+- 注释标签对象 `31b92868b3a04f118716b0ebe3d6c568ae2ce827` 固定指向 `cce87d6`。已保存并独立核对同一次 CI 的 npm-candidate artifact：`arknights-story-reader-1.0.0.tgz` 为 7,923,617 字节，源码／run ID／dirty=false／SHA-512 均匹配。完整包和报告位于 `.ai/local/release-1.0.0/touch-scroll-fix/accepted-cce87d6/`，`server-acceptance.json` 在其上级目录；hash 为 `sha512-06q8zw5cD1WDznpKV61DSPBXlzn1lXmyiROKRqQnZYlp8JQg5XRcUtx83ZYmb2scNgI5kSBkPXqJ2LOaE8COcw==`。
+- publish job 为 waiting，pending_deployments 明确为 npm-production、Foreverstar7 必需审批；助手未批准或发布。用户醒后在上述 Release 页面点击 Review deployments → npm-production → Approve and deploy，将上传已验收的同一 tgz 到 next。OIDC 与 trusted publisher 验证仍待这次实际发布，之后才安排真实 Windows Codex 桌面和稳定提升。
+- 中文项目网站已实现：原创纸页／书签图形、三个实际 fixture 界面示例、阅读方式、安装文档／发行入口及非官方说明。`website/` 只含公开静态文件，不访问 PRTS、不读取私人数据、不加载第三方字体；构建输出独立为 `build/site/`。维护与素材来源见 [网站说明](../docs/website.md)。
+- 本地固定工具链下类型与项目格式通过；网站两个浏览器场景通过，覆盖实际项目子路径、资源、键盘／点击标签、说明展开，以及四种窗口×双主题和减少动态效果，无横向溢出、页面错误或第三方请求。实际截图已检查，证据位于 `.ai/local/project-website/` 和 `test-results/site/`。
+- 已复用当前仓库既有 Git 登录创建 Pages（HTTP 201），只在进程内使用认证，未显示或保存凭据。GET 确认 build_type=workflow、公开 HTTPS 地址 `https://foreverstar7.github.io/arknightStoryReaderGPTPlugin/`；首次 Actions 部署仍待提交后验证。新 `github-pages` 环境只用于该网站，npm-production 审批保持独立。全部代码／文档须推送并保存最终交接后，才按用户要求关机。
+
+## 此前：同版 Chromium 已复现并修复触摸注入
 
 - `7f8f46109906cd58147bce5adbbb5237195270a1` 的 [Ubuntu Check](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42248061639) 全部通过。第七次 [Windows Release](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42248202943) 的 119 项、构建与完整实际包／PRTS 验收再次通过，但浏览器仍 33/34：偏移稳定后一次 tap 有触摸事件、未生成 click，正文没有打开。位置连续稳定不足以证明原生手势已结束；不能仅靠替换等待条件解决。发布 skipped，未执行 npm 发布。
 - 已下载该次 `release-diagnostics`，CI trace／截图保存在 `.ai/local/release-1.0.0/touch-scroll-fix/windows-diagnostics/`。本机 Node 下载浏览器无进展，改用系统下载器取得官方 CDN 的同一 Chromium headless shell 156.0.8078.4，成功本地复现相同失败。诊断确认 CDP detach 前后 maxTouchPoints 均为 1，延后 detach 仍失败；快速触摸移动后下一次 tap 无 click，按实际 requestAnimationFrame 节奏发送相同移动后生成 click 并打开正文。
