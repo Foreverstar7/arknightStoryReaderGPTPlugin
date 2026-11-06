@@ -4,13 +4,13 @@
 
 这是个人维护的非官方工具，不隶属于鹰角网络、PRTS 或 OpenAI。
 
-发行版本、稳定来源收录情况及已验证的桌面／平台范围见[当前状态](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/blob/main/.ai/STATUS.md)。
+**版本定位：1.0.0 为首个正式版。** 实际发行版本、稳定来源收录情况及已验证的桌面／平台范围见[当前状态](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/blob/main/.ai/STATUS.md)。
 
 ## Quick Start
 
 系统需 Node.js ≥26.13.0、npm ≥12.2.1，桌面客户端需能从 PATH 找到 Node。
 
-安装前先确认[来源目录](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/blob/main/.agents/plugins/marketplace.json)中包含本插件；未收录时使用[源码开发副本](#安装源码开发副本)。
+以下命令适用于已收录稳定来源目录的版本。安装前先确认[来源目录](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/blob/main/.agents/plugins/marketplace.json)中包含本插件；未收录时使用[源码开发副本](#安装源码开发副本)。
 
 ```sh
 codex plugin marketplace add Foreverstar7/arknightStoryReaderGPTPlugin --ref main
