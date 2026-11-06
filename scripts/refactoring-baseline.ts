@@ -163,7 +163,7 @@ try {
     })
     .parse(
       JSON.parse(
-        await readFile('docs/prts-image-audit-2026-11-04.json', 'utf8'),
+        await readFile('tests/fixtures/prts-image-baseline.json', 'utf8'),
       ),
     );
   inputs['image-sample-selection'] = fingerprint(imageAudit);

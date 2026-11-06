@@ -163,7 +163,7 @@ test('real omitted CGItem and cggroup render composed SVGs on demand and keep al
     })
     .parse(
       JSON.parse(
-        await readFile('docs/prts-image-audit-2026-11-04.json', 'utf8'),
+        await readFile('tests/fixtures/prts-image-baseline.json', 'utf8'),
       ),
     );
   for (const command of ['cgitem', 'largebg', 'verticalbg']) {

@@ -780,8 +780,11 @@ await writeFile(
   path.join(root, 'report-fixed.json'),
   JSON.stringify(report, null, 2),
 );
+// Keep reruns local. Export reviewed summaries separately; never overwrite a
+// versioned report in docs/ with results from a newer parser or source snapshot.
+const summaryFile = path.join(root, 'report-summary.json');
 await writeFile(
-  'docs/prts-image-fixes-0.1.22.json',
+  summaryFile,
   JSON.stringify(
     {
       version: report.version,
@@ -822,6 +825,7 @@ await writeFile(
 console.log(
   JSON.stringify({
     file: path.join(root, 'report-fixed.json'),
+    summaryFile,
     ...report.summary,
     requests,
   }),

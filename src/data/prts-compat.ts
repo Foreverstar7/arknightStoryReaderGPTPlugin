@@ -2,7 +2,7 @@
  * bounded allowlist, not a fuzzy spelling correction or unknown-command fallback.
  * PRTS ScenarioSimulator/StoryPlayer skip these unsupported commands. Keep a
  * diagnostic rather than inventing character changes or guessing their intent.
- * Sources, signatures and maintenance checks: docs/prts-compatibility-0.1.21.md.
+ * Sources, signatures and maintenance checks: docs/maintenance.md.
  */
 const sourceNoops: Record<string, readonly string[]> = {
   daley: ['time'],

@@ -4,7 +4,6 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { z } from 'zod';
 import { VERSION } from '../src/shared/version.js';
-import { runtimeLayout } from '../scripts/runtime-layout.js';
 import {
   readReaderLaunch,
   resolveReaderLaunch,
@@ -28,28 +27,6 @@ test('source, package, lockfile and plugin versions agree with the pinned toolch
   assert.equal((await readFile('.nvmrc', 'utf8')).trim(), nodeVersion);
   assert.equal(pkg.engines.node, `>=${nodeVersion}`);
   assert.equal(pkg.engines.npm, `>=${pkg.packageManager.slice('npm@'.length)}`);
-});
-
-test('native packages select the official archive layout for six desktop targets', () => {
-  for (const arch of ['x64', 'arm64']) {
-    for (const [platform, distribution, source, command] of [
-      ['win32', 'win', 'node.exe', './runtime/node.exe'],
-      ['darwin', 'darwin', 'bin/node', './runtime/node'],
-      ['linux', 'linux', 'bin/node', './runtime/node'],
-    ]) {
-      assert.ok(platform && distribution && source && command);
-      const actual = runtimeLayout('26.13.0', platform, arch);
-      assert.equal(
-        actual.distribution,
-        `node-v26.13.0-${distribution}-${arch}`,
-      );
-      assert.equal(actual.sourceExecutable, source);
-      assert.equal(actual.command, command);
-    }
-  }
-  assert.throws(() => runtimeLayout('26.13.0', 'android', 'arm64'));
-  assert.throws(() => runtimeLayout('26.13.0', 'linux', 'ia32'));
-  assert.throws(() => runtimeLayout('../runtime', 'linux', 'x64'));
 });
 
 test('package probes resolve the manifest after relocation, including spaces and Unicode', async () => {

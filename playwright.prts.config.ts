@@ -22,7 +22,9 @@ export default defineConfig({
   },
   reporter: 'list',
   webServer: {
-    command: 'node dist/server/main.js',
+    command: process.env.READER_E2E_PACKAGE_ROOT
+      ? `node "${path.resolve(process.env.READER_E2E_PACKAGE_ROOT, 'dist/server/production.js')}"`
+      : 'node dist/server/main.js',
     env: {
       PORT: port,
       READER_SOURCE: 'prts',

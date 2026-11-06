@@ -1,6 +1,6 @@
 // Reader image/transport budgets, not assertions about PRTS's source format.
-// Origins and maintenance: docs/prts-image-fixes-0.1.22.md and the 2026-11-03
-// 20 MB decision. Recheck stream boundaries, composition schemas and real stdio
+// Origins and maintenance: docs/maintenance.md (image and transport budgets).
+// Recheck stream boundaries, composition schemas and real stdio
 // together when changing these values or the SDK/host message limit.
 export const MAX_IMAGE_BYTES = 20_000_000; // User-approved original raster bytes.
 export const MAX_IMAGE_LAYERS = 32; // Both source composition and rendered result.

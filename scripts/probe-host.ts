@@ -2,14 +2,39 @@ import { spawn } from 'node:child_process';
 import { createInterface } from 'node:readline';
 import path from 'node:path';
 import { z } from 'zod';
+import { mkdir, mkdtemp } from 'node:fs/promises';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+import { hostOptions } from './host-options.js';
 
 // Exercise the same plugin loader and catalog API as the desktop client.
 // No model call, thread creation, or UI automation is involved.
 const projectRoot = path.resolve(import.meta.dirname, '..');
 const cli = process.env.CODEX_CLI_PATH ?? 'codex';
+const options = await hostOptions(process.argv.slice(2), projectRoot);
+const env = { ...process.env };
+if (options.isolated) {
+  const base = path.join(projectRoot, '.ai/local/probes');
+  await mkdir(base, { recursive: true });
+  const home = await mkdtemp(path.join(base, 'host-'));
+  env.CODEX_HOME = home;
+  env.READER_DATA_DIR = path.join(home, 'reader-data');
+  env.READER_SOURCE = process.env.READER_SOURCE ?? 'prts';
+  const exec = promisify(execFile);
+  await exec(
+    cli,
+    ['plugin', 'marketplace', 'add', options.marketplaceRoot, '--json'],
+    { env, timeout: 60_000 },
+  );
+  await exec(cli, ['plugin', 'add', options.pluginId, '--json'], {
+    env,
+    timeout: 120_000,
+  });
+}
 const child = spawn(cli, ['app-server', '--stdio'], {
   cwd: projectRoot,
   stdio: ['pipe', 'pipe', 'pipe'],
+  env,
 });
 const lines = createInterface({ input: child.stdout });
 const waiting = new Map<
@@ -93,20 +118,22 @@ try {
         summary: z.object({
           localVersion: z.string().nullable(),
           enabled: z.boolean(),
+          installed: z.boolean(),
         }),
         mcpServers: z.array(z.string()),
       }),
     })
     .parse(
       await call('plugin/read', {
-        marketplacePath: path.join(
-          projectRoot,
-          '.local/marketplace/.agents/plugins/marketplace.json',
-        ),
-        pluginName: 'arknights-story-reader',
+        marketplacePath: options.marketplacePath,
+        pluginName: options.pluginName,
       }),
     ).plugin;
-  if (!plugin.summary.enabled || !plugin.mcpServers.includes('reader'))
+  if (
+    !plugin.summary.installed ||
+    !plugin.summary.enabled ||
+    !plugin.mcpServers.includes('reader')
+  )
     throw new Error('插件未启用，或宿主未载入 reader MCP 组件。');
   const toolSchema = z.object({
     name: z.string(),
@@ -118,15 +145,14 @@ try {
         z.object({
           name: z.string(),
           pluginId: z.string().nullable(),
-          toolsError: z.string().nullable(),
+          // CLI 0.153.4 omits this field; 0.166 alpha reports it explicitly.
+          toolsError: z.string().nullable().optional(),
           tools: z.record(z.string(), toolSchema),
         }),
       ),
     })
     .parse(await call('mcpServerStatus/list', { limit: 200, detail: 'full' }));
-  const server = status.data.find(
-    (item) => item.pluginId === 'arknights-story-reader@arknights-reader-dev',
-  );
+  const server = status.data.find((item) => item.pluginId === options.pluginId);
   if (!server) throw new Error('宿主目录没有 reader 服务。');
   if (server.toolsError)
     throw new Error(`宿主发现工具失败：${server.toolsError}`);
@@ -160,6 +186,10 @@ try {
     JSON.stringify(
       {
         pluginVersion: plugin.summary.localVersion,
+        installed: plugin.summary.installed,
+        pluginId: options.pluginId,
+        marketplacePath: options.marketplacePath,
+        isolated: options.isolated,
         mcpServers: plugin.mcpServers,
         serverName: server.name,
         tools: Object.keys(server.tools).length,

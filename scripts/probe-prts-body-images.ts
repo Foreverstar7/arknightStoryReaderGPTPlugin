@@ -25,7 +25,9 @@ const baseline = z
     }),
   })
   .parse(
-    JSON.parse(await readFile('docs/prts-image-audit-2026-11-04.json', 'utf8')),
+    JSON.parse(
+      await readFile('tests/fixtures/prts-image-baseline.json', 'utf8'),
+    ),
   );
 const root = path.resolve('.ai/local/image-fixes-0.1.22');
 await mkdir(root, { recursive: true });
@@ -253,8 +255,10 @@ try {
     path.join(root, 'full-decode.json'),
     JSON.stringify(result, null, 2),
   );
+  // The tracked 0.1.22 report is frozen evidence; reruns stay beside their cache.
+  const summaryFile = path.join(root, 'decode-summary.json');
   await writeFile(
-    'docs/prts-image-decode-0.1.22.json',
+    summaryFile,
     JSON.stringify(
       {
         ...result,
@@ -269,6 +273,7 @@ try {
   await writeFile(path.join(root, 'ui-samples.json'), JSON.stringify(samples));
   console.log(
     JSON.stringify({
+      summaryFile,
       ...result,
       portraits: undefined,
       compositionResults: undefined,

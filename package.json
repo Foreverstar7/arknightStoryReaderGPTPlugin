@@ -1,8 +1,29 @@
 {
+  "version": "0.1.26",
   "name": "arknights-story-reader",
-  "version": "0.1.25",
-  "private": true,
+  "description": "PRTS story reader MCP App with local reading history",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin.git"
+  },
+  "license": "UNLICENSED",
   "type": "module",
+  "bin": {
+    "arknights-story-reader": "dist/server/cli.js"
+  },
+  "files": [
+    "dist/**/*.js",
+    "!dist/server/main.js",
+    "!dist/data/fixture.js",
+    "dist/ui/index.html",
+    "plugin.json",
+    "mcp.json"
+  ],
+  "bundleDependencies": true,
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "engines": {
     "node": ">=26.13.0",
     "npm": ">=12.2.1"
@@ -22,6 +43,9 @@
     "format:check": "prettier --check src tests scripts *.json *.ts *.html",
     "check": "npm run typecheck && npm test && npm run format:check",
     "plugin:prepare": "tsx scripts/prepare-plugin.ts",
+    "package": "npm run build && tsx scripts/pack.ts",
+    "package:verify": "tsx scripts/verify-package.ts",
+    "release:version": "tsx scripts/set-version.ts",
     "probe:mcp": "tsx scripts/probe-mcp.ts",
     "probe:http": "tsx scripts/probe-http.ts",
     "probe:prts": "tsx scripts/probe-prts.ts",
@@ -34,7 +58,8 @@
     "audit:refactor": "tsx scripts/refactoring-baseline.ts",
     "probe:images": "tsx scripts/probe-prts-body-images.ts",
     "probe:covers": "tsx scripts/probe-covers.ts",
-    "probe:host": "tsx scripts/probe-host.ts"
+    "probe:host": "tsx scripts/probe-host.ts",
+    "marketplace:promote": "tsx scripts/promote-marketplace.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/client": "^2.4.0",

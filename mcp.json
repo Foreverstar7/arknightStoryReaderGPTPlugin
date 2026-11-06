@@ -4,7 +4,11 @@
     "reader": {
       "type": "stdio",
       "command": "node",
-      "args": ["${PLUGIN_ROOT}/dist/server/main.js", "--stdio", "--installed"],
+      "args": [
+        "${PLUGIN_ROOT}/dist/server/production.js",
+        "--stdio",
+        "--installed"
+      ],
       "cwd": "${PLUGIN_ROOT}"
     }
   }

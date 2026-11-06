@@ -1,0 +1,70 @@
+name: Release npm candidate
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: read
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  accept-package:
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+      - run: npm install --global npm@12.2.1
+      - run: npm ci
+      - name: Check exact release tag
+        run: node -e "if(process.env.GITHUB_REF !== 'refs/tags/v'+require('./package.json').version) process.exit(1)"
+      - run: npm run check
+      - run: npm run package
+      - run: npm run package:verify
+      - run: npm.cmd run package:verify -- --prts
+      - run: npx playwright install chromium
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v7
+        with:
+          name: npm-candidate
+          path: .local/releases/
+          overwrite: true
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
+  publish:
+    needs: accept-package
+    if: github.event.repository.private == false
+    runs-on: ubuntu-latest
+    environment: npm-production
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      - run: npm install --global npm@12.2.1
+      - run: npm ci
+      - uses: actions/download-artifact@v8
+        with:
+          name: npm-candidate
+          path: .local/releases
+      - name: Publish exact accepted tarball through OIDC
+        run: npm exec -- tsx scripts/publish-release.ts
+      - name: Save candidate release and publishing receipt
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          if ! gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release create "$GITHUB_REF_NAME" --verify-tag --draft --title "$GITHUB_REF_NAME (candidate)" --notes-file .local/releases/notes.md
+          fi
+          gh release upload "$GITHUB_REF_NAME" .local/releases/*.tgz .local/releases/*.json --clobber
+          echo 'npm candidate published. Confirm Codex npm installation and full desktop reading, then run Promote stable marketplace.' >> "$GITHUB_STEP_SUMMARY"

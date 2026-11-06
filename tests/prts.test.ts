@@ -26,7 +26,7 @@ import { deferred } from './helpers/deferred.js';
 
 const PRTS_STORY_ID = 'prts:骑兵与猎人';
 
-// Original test prose; syntax based on the public samples documented in docs/prts-s2.md.
+// Original test prose; source syntax and maintenance entry points: docs/maintenance.md.
 const rootWiki = '{{剧情导航|nocat=yes}}';
 const pages = ['GT-1 取样/BEG', 'GT-1 取样/END'];
 const navigationWiki = `{| class="wikitable"

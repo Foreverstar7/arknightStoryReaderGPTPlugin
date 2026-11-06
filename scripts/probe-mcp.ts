@@ -20,6 +20,10 @@ await mkdir(base, { recursive: true });
 const data = await mkdtemp(path.join(base, 'stdio-'));
 const client = new Client({ name: 'reader-stdio-probe', version: '0.1.0' });
 const launch = await readReaderLaunch(root);
+if (root === projectRoot && process.env.READER_SOURCE === 'fixture')
+  launch.args = launch.args.map((arg) =>
+    arg.replace('/production.js', '/main.js'),
+  );
 const wire = new StdioClientTransport({
   ...launch,
   env: {

@@ -22,7 +22,7 @@ const coverSchema = z.object({
 // as evidence; EP00-EP04 chapter-name art is approved for full-image display.
 // Read the referenced file in its matching section, never fabricate a filename.
 // If anchors change,
-// fail explicitly and recheck this entry point (docs/prts-covers.md), never guess files.
+// fail explicitly and recheck this entry point (docs/maintenance.md), never guess files.
 const MAIN_STORY_INDEX = '关卡一览/主题曲';
 // APF-YYYY chapter IDs come from the catalog. The dedicated public index supplies
 // explicit year links and banner filenames; never fabricate a filename or match

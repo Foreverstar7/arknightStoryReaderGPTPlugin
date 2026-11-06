@@ -1,0 +1,1744 @@
+{
+  "failures": [
+    {
+      "reference": "$ill_amiya_normal",
+      "cause": "special_reference"
+    },
+    {
+      "reference": "char_1508_Faust_1#1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_1507_Mephisto_1#6",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_1507_Mephisto_1#1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_1507_Mephisto_1#5",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_1507_Mephisto_1#2",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_1507_Mephisto_1#4",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_1508_Faust_1#2",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_002_amiya_1#7 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "char_1507_Mephisto_1#3",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_1508_Faust_1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_1507_Mephisto_1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_002_amiya_1#3 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "char_002_amiya_1#1 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "char_259_Jessica_1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_259_Jessica_1#4",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_259_Jessica_1#5",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_259_Jessica_1#3",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_259_Jessica_1#6",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_259_Jessica_1#1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_259_Jessica_1#2",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_4179_monstr_1#4$1 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_4179_monstr_1#6$1 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_4179_monstr_1#7$1 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_4145_Ulpia_1#2$1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "npc_2004_Alty",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "npc_2001_Aya_1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "npc_2003_Frost_1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "npc_2002_Dan_1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "npc_2002_Dan_rock",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "npc_2003_Frost_rock",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "npc_2001_Aya_rock",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "npc_2004_Alty_rock",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_214_kafka_1#2",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_214_kafka_1#3",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_214_kafka_1#4",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_214_kafka_1#5",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_264_Mountain_1#5",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_264_Mountain_1#7",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_440_Pinecone",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_264_Mountain_1#4",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_264_Mountain_1#1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_264_Mountain_1#6",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_264_Mountain_1#2",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_264_Mountain_1#3",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_264_Mountain_1#11",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_362_Saga#1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_362_Saga#3",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_362_Saga#2",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_362_Saga#6",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_362_Saga#5",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_362_Saga#4",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_362_Saga",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_274_Astesia_1#1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_274_Astesia_1#7",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_274_Astesia_1#4",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_502_Yato_1#5$1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_502_Yato_1#1$1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_502_Yato_1#4$1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_502_Yato_1#2$1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_502_Yato_1#7$1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_502_Yato_1#6$1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_502_Yato_1#5$2",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_502_Yato_1#2$2",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_502_Yato_1#4$2",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_502_Yato_1#1$2",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_1029_Yato2_1#4$1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_1029_Yato2_1#3$1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_1029_Yato2_1#12$1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_1029_Yato2_1#6$1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_1029_Yato2_1#11$1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_1029_Yato2_1#8$1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_1029_Yato2_1#9$1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_1029_Yato2_1#10$1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_1029_Yato2_1#2$1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_1029_Yato2_1#1$1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_1029_Yato2_1#5$1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_npc_366_1#1$1 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_npc_371_1#1$1 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_4145_Ulpia_1#1$1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_4145_Ulpia_1#3$1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_4145_Ulpia_1#8$1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_4145_Ulpia_1#4$1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_4145_Ulpia_1#5$1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_4145_Ulpia_1#6$1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_4145_Ulpia_1#7$1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_npc_1779_1#4$2 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_npc_1779_1#9$2 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_npc_1800_1#2$2 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_npc_357_1#5$1 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_npc_1800_1#6$2 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_npc_357_1#10$1 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_npc_1800_1#10$2 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_npc_357_1#1$1 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_npc_357_1#6$1 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_npc_1800_1#3$2 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_npc_357_1#2$1 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_1032_excu2_1#1$1 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_npc_1800_1#1$2 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_1032_excu2_1#10$1 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_1032_excu2_1#4$1 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_npc_1800_1#7$2 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_npc_1800_1#11$2 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_1041_angel2_1#7$2 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_npc_1778_1#1$1 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_1041_angel2_1#10$2 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_1041_angel2_1#11$2 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_npc_356_1#7$1 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_npc_356_1#12$1 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_npc_356_1#8$1 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_npc_1792_1#1$1 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_1041_angel2_1#2$2 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_1041_angel2_1#8$4 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_1041_angel2_1#7$4 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_1041_angel2_1#9$4 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_1041_angel2_1#12$4 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_4179_monstr_1#1$2 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_4179_monstr_1#6$2 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_4179_monstr_1#5$2 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_4179_monstr_1#4$2 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_4179_monstr_1#9$2 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_4179_monstr_1#10$2 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_4179_monstr_1#2$2 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_npc_1718_1#1$1 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_4215_buddyC_1#1$6",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_4215_buddyC_1#1$5",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_4215_buddyC_1#1$2",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_4215_buddyC_1#1$1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_4215_buddyC_1#1$3",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_4215_buddyC_1#1$4",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_4215_buddyC_1#1$7",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_4215_buddyD_1#1$1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_4215_buddyD_1#1$5",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_4215_buddyD_1#1$3",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_4215_buddyD_1#1$4",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_4215_buddyD_1#1$2",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_4215_buddyD_1#1$6",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_4215_buddyD_1#1$7",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_4236_tmslot_1#3 $1",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_4237_jcinta_1#1$1 ",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_npc_1793_1#10 $1",
+      "cause": "reference_whitespace"
+    },
+    {
+      "reference": "avg_6D5_1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_6D5_1#2",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_6D5_1#5",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_6D5_1#3",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_6D5_1#4",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_240_Vanilla_1#6",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_240_Vanilla_1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_240_Vanilla_1#5",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_240_Vanilla_1#3",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_240_Vanilla_1#2",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "char_254_Shamare_1",
+      "cause": "map_key_case"
+    },
+    {
+      "reference": "avg_npc_598_1#2$1",
+      "cause": "modern_mapping_missing"
+    },
+    {
+      "reference": "avg_npc_604_1#2$1",
+      "cause": "modern_mapping_missing"
+    },
+    {
+      "reference": "avg_npc_598_1#10$1",
+      "cause": "modern_mapping_missing"
+    },
+    {
+      "reference": "avg_npc_598_1#4$1",
+      "cause": "modern_mapping_missing"
+    },
+    {
+      "reference": "avg_npc_598_1#1$1",
+      "cause": "modern_mapping_missing"
+    },
+    {
+      "reference": "avg_npc_598_1#3$1",
+      "cause": "modern_mapping_missing"
+    },
+    {
+      "reference": "avg_npc_598_1#9$1",
+      "cause": "modern_mapping_missing"
+    },
+    {
+      "reference": "avg_npc_598_1#8$1",
+      "cause": "modern_mapping_missing"
+    },
+    {
+      "reference": "avg_npc_598_1#7$1",
+      "cause": "modern_mapping_missing"
+    },
+    {
+      "reference": "avg_npc_598_1#5$1",
+      "cause": "modern_mapping_missing"
+    },
+    {
+      "reference": "avg_npc_598_1#6$1",
+      "cause": "modern_mapping_missing"
+    },
+    {
+      "reference": "avg_npc_604_1#1$1",
+      "cause": "modern_mapping_missing"
+    },
+    {
+      "reference": "avg_npc_604_1#4$1",
+      "cause": "modern_mapping_missing"
+    },
+    {
+      "reference": "avg_npc_604_1#5$1",
+      "cause": "modern_mapping_missing"
+    },
+    {
+      "reference": "avg_npc_604_1#7$1",
+      "cause": "modern_mapping_missing"
+    },
+    {
+      "reference": "avg_npc_604_1#6$1",
+      "cause": "modern_mapping_missing"
+    },
+    {
+      "reference": "avg_npc_604_1#3$1",
+      "cause": "modern_mapping_missing"
+    }
+  ],
+  "cgOmissions": {
+    "occurrenceList": [
+      {
+        "chapterId": "prts:15-17 “她”/END/SP1",
+        "reference": "cgitem_60_i12_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:15-17 “她”/END/SP2",
+        "reference": "cgitem_60_i12_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:15-17 “她”/END",
+        "reference": "cgitem_60_i12_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:15-17 “她”/END/SP1",
+        "reference": "cgitem_60_i12_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:15-17 “她”/END/SP2",
+        "reference": "cgitem_60_i12_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:15-17 “她”/END",
+        "reference": "cgitem_60_i12_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:15-17 “她”/END/SP1",
+        "reference": "cgitem_60_i12_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:15-17 “她”/END/SP1",
+        "reference": "cgitem_60_i12_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:15-17 “她”/END/SP2",
+        "reference": "cgitem_60_i12_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:15-17 “她”/END/SP2",
+        "reference": "cgitem_60_i12_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:15-17 “她”/END",
+        "reference": "cgitem_60_i12_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:15-17 “她”/END",
+        "reference": "cgitem_60_i12_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:15-2 执此剑者/END",
+        "reference": "cgitem_60_i01",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:15-2 执此剑者/END",
+        "reference": "cgitem_60_i01",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:15-9 减压症候/END",
+        "reference": "cgitem_60_i06_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:15-9 减压症候/END",
+        "reference": "cgitem_60_i06_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:15-11 一段长梦将醒/BEG",
+        "reference": "cgitem_60_i07_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:15-11 一段长梦将醒/BEG",
+        "reference": "cgitem_60_i07_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:15-11 一段长梦将醒/BEG",
+        "reference": "cgitem_60_i07_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:15-11 一段长梦将醒/BEG",
+        "reference": "cgitem_60_i07_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:15-18 从未怀疑，从未远离/BEG",
+        "reference": "cgitem_60_i13_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:15-20 得以重回/END",
+        "reference": "cgitem_60_i13_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:15-18 从未怀疑，从未远离/BEG",
+        "reference": "cgitem_60_i13_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:15-18 从未怀疑，从未远离/BEG",
+        "reference": "cgitem_60_i16",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:15-18 从未怀疑，从未远离/BEG",
+        "reference": "cgitem_60_i16",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:15-18 从未怀疑，从未远离/BEG",
+        "reference": "cgitem_60_i16",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:16-4 友人成众/END",
+        "reference": "cgitem_66_i04",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:16-12 深埋地底/BEG",
+        "reference": "cgitem_66_i11_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:16-12 深埋地底/BEG",
+        "reference": "cgitem_66_i11_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:16-16 示我以真/BEG",
+        "reference": "cgitem_66_i21_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:16-17 力竭声嘶/BEG",
+        "reference": "cgitem_66_i21_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:16-16 示我以真/BEG",
+        "reference": "cgitem_66_i21_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:16-17 力竭声嘶/BEG",
+        "reference": "cgitem_66_i21_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:17-2 救赎迟来/BEG",
+        "reference": "cgitem_70_i02_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TA-2 大头鬼/END",
+        "reference": "cgitem_70_i02_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:17-7 理性失衡/BEG",
+        "reference": "cgitem_68_i17",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:UR-ST-2 试飞日/NBT",
+        "reference": "cgitem_68_i17",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-1 收信地：终点/END",
+        "reference": "cgitem_68_i17",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:17-15 人的价值/BEG",
+        "reference": "cgitem_73_i13_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:17-15 人的价值/BEG",
+        "reference": "cgitem_73_i13_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:17-16 唯有向前/BEG",
+        "reference": "cgitem_73_i10",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:17-16 唯有向前/BEG",
+        "reference": "cgitem_73_i10_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:17-16 唯有向前/BEG",
+        "reference": "cgitem_73_i10_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:17-16 唯有向前/BEG",
+        "reference": "cgitem_73_i10_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:17-16 唯有向前/BEG",
+        "reference": "cgitem_73_i10_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:17-18 灵魂悄然/END",
+        "reference": "cgitem_73_i16_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:CV-8 告别往昔/END",
+        "reference": "cgitem_42_i11",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:ZT-4 狂想曲“望想”/END",
+        "reference": "cgitem_44_i04",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:ZT-4 狂想曲“望想”/END",
+        "reference": "cgitem_44_i04",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:ZT-8 夜歌“未见的高塔”/END",
+        "reference": "cgitem_44_i17",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:ZT-ST-3 尾奏“晚霞”/NBT",
+        "reference": "cgitem_44_i18",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:ZT-ST-3 尾奏“晚霞”/NBT",
+        "reference": "cgitem_44_i18",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:AS-6 过往云烟/BEG",
+        "reference": "cgitem_53_i04_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:AS-6 过往云烟/BEG",
+        "reference": "cgitem_53_i04_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:AS-6 过往云烟/BEG",
+        "reference": "cgitem_53_i04_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:AS-7 谁是宠物？/END",
+        "reference": "cgitem_53_i05_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:AS-7 谁是宠物？/END",
+        "reference": "cgitem_53_i05_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:AS-7 谁是宠物？/END",
+        "reference": "cgitem_53_i05_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:AS-7 谁是宠物？/END",
+        "reference": "cgitem_53_i05_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:AS-7 谁是宠物？/END",
+        "reference": "cgitem_53_i05_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:AS-7 谁是宠物？/END",
+        "reference": "cgitem_53_i05_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:AS-8 黄沙尽头/END",
+        "reference": "cgitem_53_i15",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:AS-9 向过去告别/END",
+        "reference": "cgitem_53_i17",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:AS-9 向过去告别/END",
+        "reference": "cgitem_53_i17",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:AS-ST-3 十字路口，再出发/NBT",
+        "reference": "cgitem_41_i12_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TL-3 苦难的历程/BEG",
+        "reference": "cgitem_41_i12_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TL-3 苦难的历程/BEG",
+        "reference": "cgitem_41_i12_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TL-3 苦难的历程/BEG",
+        "reference": "cgitem_41_i12_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:DT-1 源石虫农家乐/END",
+        "reference": "cgitem_54_i2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:DT-2 雨林解毒炖汤/END",
+        "reference": "cgitem_54_i3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:DT-3 黄金萝卜/END",
+        "reference": "cgitem_54_i4",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:DT-4 烤串与预言/END",
+        "reference": "cgitem_54_i5",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:DT-5 会饮图/END",
+        "reference": "cgitem_54_i6",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:DT-6 海鲜拼盘/END",
+        "reference": "cgitem_54_i10",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:DT-7 健康零食/END",
+        "reference": "cgitem_54_i9",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:PV-ST-1 《新都市管理法案》/NBT",
+        "reference": "cgitem_56_i01_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:PV-ST-1 《新都市管理法案》/NBT",
+        "reference": "cgitem_56_i01_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:PV-ST-1 《新都市管理法案》/NBT",
+        "reference": "cgitem_56_i01_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:PV-9 狼群与群狼/END",
+        "reference": "cgitem_56_i12_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:PV-9 狼群与群狼/END",
+        "reference": "cgitem_56_i12_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:EP-ST-2 倾泻腐朽的花/NBT",
+        "reference": "cgitem_57_i06_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:EP-ST-2 倾泻腐朽的花/NBT",
+        "reference": "cgitem_57_i06_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:EP-ST-2 倾泻腐朽的花/NBT",
+        "reference": "cgitem_57_i06_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:MT-ST-1 “堕天”/NBT",
+        "reference": "cgitem_61_i02",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:MT-ST-1 “堕天”/NBT",
+        "reference": "cgitem_61_i02",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:MT-6 告解/BEG",
+        "reference": "61_i12",
+        "command": "largebg"
+      },
+      {
+        "chapterId": "prts:MT-6 告解/BEG",
+        "reference": "61_i12",
+        "command": "largebg"
+      },
+      {
+        "chapterId": "prts:MT-6 告解/BEG",
+        "reference": "61_i12",
+        "command": "largebg"
+      },
+      {
+        "chapterId": "prts:MT-6 告解/BEG",
+        "reference": "61_i11",
+        "command": "largebg"
+      },
+      {
+        "chapterId": "prts:MT-6 告解/BEG",
+        "reference": "61_i11",
+        "command": "largebg"
+      },
+      {
+        "chapterId": "prts:MT-6 告解/BEG",
+        "reference": "61_i11",
+        "command": "largebg"
+      },
+      {
+        "chapterId": "prts:AD-4 一个荒唐的早晨/END",
+        "reference": "cgitem_62_i03",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:AD-8 登台致礼/BEG",
+        "reference": "cgitem_62_i03",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:AT-8 逝川/END",
+        "reference": "cgitem_64_i10",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:AT-8 逝川/END",
+        "reference": "cgitem_64_i18_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:AT-8 逝川/END",
+        "reference": "cgitem_64_i18_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:OS-2 甜蜜的邻人/BEG",
+        "reference": "67_i15_1",
+        "command": "verticalbg"
+      },
+      {
+        "chapterId": "prts:OS-2 甜蜜的邻人/BEG",
+        "reference": "67_i15_2",
+        "command": "verticalbg"
+      },
+      {
+        "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+        "reference": "cgitem_68_i01_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+        "reference": "cgitem_68_i01_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+        "reference": "cgitem_68_i01_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+        "reference": "cgitem_68_i01_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+        "reference": "cgitem_68_i01_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+        "reference": "cgitem_68_i01_7",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+        "reference": "cgitem_68_i01_7",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+        "reference": "cgitem_68_i01_7",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+        "reference": "cgitem_68_i01_4",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+        "reference": "cgitem_68_i01_4",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+        "reference": "cgitem_68_i01_4",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+        "reference": "cgitem_68_i01_5",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+        "reference": "cgitem_68_i01_5",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+        "reference": "cgitem_68_i01_6",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+        "reference": "cgitem_68_i01_6",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+        "reference": "cgitem_68_i01_6",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+        "reference": "cgitem_68_i01_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:UR-ST-1 倒映河水之中/NBT",
+        "reference": "cgitem_68_i01_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:UR-8 栖脚地/END",
+        "reference": "cgitem_68_i13",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:UR-8 栖脚地/END",
+        "reference": "cgitem_68_i13",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:UR-8 栖脚地/END",
+        "reference": "cgitem_68_i13",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:UR-8 栖脚地/END",
+        "reference": "cgitem_68_i13",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:ME-3 无解的谜题/END",
+        "reference": "cgitem_69_i04_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:ME-3 无解的谜题/END",
+        "reference": "cgitem_69_i04_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:ME-3 无解的谜题/END",
+        "reference": "cgitem_69_i04_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:ME-3 无解的谜题/END",
+        "reference": "cgitem_69_i04_4",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:ME-8 神谕示显/END",
+        "reference": "69_i12_1",
+        "command": "verticalbg"
+      },
+      {
+        "chapterId": "prts:ME-8 神谕示显/END",
+        "reference": "69_i12_2",
+        "command": "verticalbg"
+      },
+      {
+        "chapterId": "prts:TA-2 大头鬼/END",
+        "reference": "cgitem_70_i02_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TA-2 大头鬼/END",
+        "reference": "cgitem_70_i02_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TA-2 大头鬼/END",
+        "reference": "cgitem_70_i02_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TA-7 相思断/END",
+        "reference": "cgitem_70_i03_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TA-7 相思断/END",
+        "reference": "cgitem_70_i03_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TA-7 相思断/END",
+        "reference": "cgitem_70_i03_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TA-10 镇神头/END",
+        "reference": "cgitem_70_i17_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TA-10 镇神头/END",
+        "reference": "cgitem_70_i17_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TA-10 镇神头/END",
+        "reference": "cgitem_70_i17_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TD-1 硬壳下的胆小鬼/END",
+        "reference": "cgitem_71_i01",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:PA-ST-1 群氓/NBT",
+        "reference": "cgitem_72_i01_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:PA-ST-1 群氓/NBT",
+        "reference": "cgitem_72_i01_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:PA-ST-1 群氓/NBT",
+        "reference": "cgitem_72_i01_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:PA-1 “卡托加区欢迎你”/END",
+        "reference": "cgitem_72_i04_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:PA-1 “卡托加区欢迎你”/END",
+        "reference": "cgitem_72_i04_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:PA-1 “卡托加区欢迎你”/END",
+        "reference": "cgitem_72_i04_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:PA-1 “卡托加区欢迎你”/END",
+        "reference": "cgitem_72_i04_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:PA-1 “卡托加区欢迎你”/END",
+        "reference": "cgitem_72_i04_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:PA-1 “卡托加区欢迎你”/END",
+        "reference": "cgitem_72_i04_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:PA-4 一墙之隔/END",
+        "reference": "cgitem_72_i06_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:PA-4 一墙之隔/END",
+        "reference": "cgitem_72_i06_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:PA-4 一墙之隔/END",
+        "reference": "cgitem_72_i06_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:PA-4 一墙之隔/END",
+        "reference": "cgitem_72_i06_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:PA-6 各自流亡/END",
+        "reference": "cgitem_72_i08_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:PA-6 各自流亡/END",
+        "reference": "cgitem_72_i08_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:PA-6 各自流亡/END",
+        "reference": "cgitem_72_i08_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-ST-1 一封想写的信/NBT",
+        "reference": "cgitem_76_i16_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-ST-1 一封想写的信/NBT",
+        "reference": "cgitem_76_i16_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-ST-1 一封想写的信/NBT",
+        "reference": "cgitem_76_i16_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-ST-1 一封想写的信/NBT",
+        "reference": "cgitem_76_i16_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-ST-1 一封想写的信/NBT",
+        "reference": "cgitem_76_i16_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-ST-1 一封想写的信/NBT",
+        "reference": "cgitem_76_i16_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-ST-1 一封想写的信/NBT",
+        "reference": "cgitem_76_i16_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-ST-1 一封想写的信/NBT",
+        "reference": "cgitem_76_i16_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-ST-1 一封想写的信/NBT",
+        "reference": "cgitem_76_i16_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-4 谷里升起太阳/BEG",
+        "reference": "cgitem_76_i16_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-6 最难坦诚/BEG",
+        "reference": "cgitem_76_i16_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-7 谎言的重量/BEG",
+        "reference": "cgitem_76_i16_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-8 以决心做邮戳/BEG",
+        "reference": "cgitem_76_i16_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TL-ST-2 激越的灵魂/NBT",
+        "reference": "cgitem_76_i16_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TL-ST-2 激越的灵魂/NBT",
+        "reference": "cgitem_76_i16_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-ST-1 一封想写的信/NBT",
+        "reference": "cgitem_76_i01_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-1 收信地：终点/END",
+        "reference": "cgitem_76_i16_4",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-1 收信地：终点/END",
+        "reference": "cgitem_76_i16_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-5 勇敢的短耳朵/BEG",
+        "reference": "cgitem_76_i16_5",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-5 勇敢的短耳朵/BEG",
+        "reference": "cgitem_76_i16_5",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-5 勇敢的短耳朵/BEG",
+        "reference": "cgitem_76_i16_5",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-5 勇敢的短耳朵/BEG",
+        "reference": "cgitem_76_i16_5",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-5 勇敢的短耳朵/BEG",
+        "reference": "cgitem_76_i16_7",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-5 勇敢的短耳朵/BEG",
+        "reference": "cgitem_76_i16_7",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-ST-2 糖纸星星/NBT",
+        "reference": "cgitem_76_i07_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-ST-2 糖纸星星/NBT",
+        "reference": "cgitem_76_i07_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-ST-2 糖纸星星/NBT",
+        "reference": "cgitem_76_i07_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-9 绘我们的黎明/END",
+        "reference": "cgitem_76_i16_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-9 绘我们的黎明/END",
+        "reference": "cgitem_76_i16_8",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-9 绘我们的黎明/END",
+        "reference": "cgitem_76_i16_8",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-9 绘我们的黎明/END",
+        "reference": "item_act76_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-9 绘我们的黎明/END",
+        "reference": "item_act76_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-ST-3 祝好 终途的我/NBT",
+        "reference": "cgitem_76_i15_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-ST-3 祝好 终途的我/NBT",
+        "reference": "cgitem_76_i15_4",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TO-ST-3 祝好 终途的我/NBT",
+        "reference": "cgitem_76_i16_6",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:SR-8 月满/BEG",
+        "reference": "cgitem_77_i12_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:SR-8 月满/BEG",
+        "reference": "cgitem_77_i12_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:SR-8 月满/BEG",
+        "reference": "cgitem_77_i12_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:SR-8 月满/BEG",
+        "reference": "cgitem_77_i12_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:SR-8 月满/BEG",
+        "reference": "cgitem_77_i12_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:SR-8 月满/BEG",
+        "reference": "cgitem_77_i12_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:YW-1 互助会/BEG",
+        "reference": "cgitem_74_i03_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:YW-1 互助会/BEG",
+        "reference": "cgitem_74_i03_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:YW-1 互助会/BEG",
+        "reference": "cgitem_74_i03_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:YW-1 互助会/BEG",
+        "reference": "cgitem_74_i03_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:YW-1 互助会/BEG",
+        "reference": "cgitem_74_i03_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:YW-1 互助会/BEG",
+        "reference": "cgitem_74_i03_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:YW-8 鳞的记忆/END",
+        "reference": "cgitem_74_i12_2",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:YW-8 鳞的记忆/END",
+        "reference": "cgitem_74_i12_1",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:YW-8 鳞的记忆/END",
+        "reference": "cgitem_74_i12_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:YW-8 鳞的记忆/END",
+        "reference": "cgitem_74_i12_3",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TL-ST-3 孱弱的团结/NBT",
+        "reference": "cgitem_79_i221",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TL-9 自由的黄昏/END",
+        "reference": "cgitem_79_i25",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TL-9 自由的黄昏/END",
+        "reference": "cgitem_79_i25",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TL-10 活着的重量/BEG",
+        "reference": "cgitem_79_i121",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TL-10 活着的重量/BEG",
+        "reference": "cgitem_79_i121",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TL-10 活着的重量/BEG",
+        "reference": "cgitem_79_i123",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TL-10 活着的重量/BEG",
+        "reference": "cgitem_79_i123",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TL-10 活着的重量/BEG",
+        "reference": "cgitem_79_i124",
+        "command": "cgitem"
+      },
+      {
+        "chapterId": "prts:TL-10 活着的重量/BEG",
+        "reference": "cgitem_79_i124",
+        "command": "cgitem"
+      }
+    ]
+  }
+}

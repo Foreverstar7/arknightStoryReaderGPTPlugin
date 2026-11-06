@@ -2,8 +2,9 @@ import { CacheCoordinator } from '../src/storage/cache-coordinator.js';
 import assert from 'node:assert/strict';
 import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
-import { mkdir, mkdtemp, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm } from 'node:fs/promises';
 import path from 'node:path';
+import { z } from 'zod';
 import {
   chapterSchema,
   chapterCountSchema,
@@ -15,9 +16,38 @@ import { ContentCache } from '../src/storage/files.js';
 import { JsonCache } from '../src/storage/json-cache.js';
 import { readReaderLaunch } from './reader-launch.js';
 
-const installed = path.resolve(
-  process.argv[2] ?? '.local/marketplace/plugins/arknights-story-reader',
-);
+const marketplace = path.resolve('.local/marketplace');
+const localCatalog = z.object({
+  plugins: z.array(
+    z.object({
+      name: z.string(),
+      source: z.object({ source: z.literal('local'), path: z.string() }),
+    }),
+  ),
+});
+let installed: string;
+if (process.argv[2]) {
+  installed = path.resolve(process.argv[2]);
+} else {
+  const catalog = localCatalog.parse(
+    JSON.parse(
+      await readFile(
+        path.join(marketplace, '.agents/plugins/marketplace.json'),
+        'utf8',
+      ),
+    ),
+  );
+  const plugin = catalog.plugins.find(
+    (item) => item.name === 'arknights-story-reader',
+  );
+  if (!plugin) throw new Error('请先执行 plugin:prepare 或指定开发副本目录。');
+  installed = path.resolve(marketplace, plugin.source.path);
+}
+await readFile(path.join(installed, 'dist/data/fixture.js')).catch(() => {
+  throw new Error(
+    '此探针需要开发 fixture；请指定 plugin:prepare 生成的开发副本，而不是正式 npm 包。',
+  );
+});
 const base = path.resolve('.ai/local/probes');
 await mkdir(base, { recursive: true });
 const data = await mkdtemp(path.join(base, 's4-installed-'));

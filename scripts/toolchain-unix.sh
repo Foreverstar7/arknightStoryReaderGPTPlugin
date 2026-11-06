@@ -1,5 +1,5 @@
 # Shared by setup-toolchain.sh and npm.sh; invoke those entry points with sh.
-# Node's official archive layout is recorded in scripts/runtime-layout.ts.
+# Official Node archive names/layouts: https://nodejs.org/dist/ (SHASUMS256.txt).
 reader_project_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 reader_node_version=$(tr -d '\r\n' < "$reader_project_root/.node-version")
 if ! printf '%s\n' "$reader_node_version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then

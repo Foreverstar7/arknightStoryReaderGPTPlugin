@@ -1,0 +1,34 @@
+name: Check
+on:
+  push:
+    branches: ['**']
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+      - run: npm install --global npm@12.2.1
+      - run: npm ci
+      - run: npm run check
+      - run: npm run package
+      - run: npm run package:verify
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: check-evidence
+          path: |
+            .local/releases/*.json
+            test-results/fixture/
+          overwrite: true
+          include-hidden-files: true
+          retention-days: 14
