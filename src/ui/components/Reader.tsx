@@ -32,7 +32,7 @@ function Cg({
         {block.composition?.fit === 'layers' ? ' 图层' : ''}
       </button>
       {shown &&
-        (chapter.source === 'fixture' ? (
+        (chapter.source === 'fixture' && !chapter.imagesAvailable ? (
           <div className="cg-art" role="img" aria-label={block.label}>
             <span>{block.label}</span>
           </div>
@@ -148,12 +148,14 @@ export function Reader({
                   label={`${block.name} 立绘`}
                   focusOnOpen={!autoImages}
                 >
-                  {chapter.source === 'fixture' && block.portrait ? (
+                  {chapter.source === 'fixture' &&
+                  !chapter.imagesAvailable &&
+                  block.portrait ? (
                     <>
                       <div className="portrait-art" />
                       <p className="muted">原创立绘位置示意</p>
                     </>
-                  ) : chapter.source === 'prts' ? (
+                  ) : chapter.source === 'prts' || chapter.imagesAvailable ? (
                     <div className="portrait-image">
                       <SourceImage
                         input={{

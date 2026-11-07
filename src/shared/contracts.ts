@@ -85,6 +85,7 @@ export const storySchema = z.object({
   type: z.string(),
   coverLabel: z.string(),
   source: z.enum(['fixture', 'prts']),
+  imagesAvailable: z.boolean().optional(),
   sourceUrl: z.string().url().optional(),
   chapters: z.array(chapterMetaSchema),
 });
@@ -94,6 +95,7 @@ export const chapterSchema = z.object({
   title: z.string(),
   revision: z.string(),
   source: z.enum(['fixture', 'prts']),
+  imagesAvailable: z.boolean().optional(),
   sourceUrl: z.string().url().optional(),
   blocks: z.array(blockSchema),
   diagnostics: z
@@ -252,6 +254,7 @@ export const imageResultSchema = z
     layers: z.array(imageLayerSchema).max(MAX_IMAGE_LAYERS),
     resource: z.string(),
     sourceUrl: z.string().url(),
+    sourceLabel: z.string().optional(),
     portrait: portraitResolutionSchema.optional(),
     description: z.string().optional(),
     // A file's URL and the metadata that selected it are distinct, traceable sources.

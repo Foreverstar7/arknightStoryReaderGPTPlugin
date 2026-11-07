@@ -1,0 +1,5 @@
+/* Keep the whole 16:9 artwork in the reader's shared banner proportions.
+   A quiet dark frame continues the cover-series ink instead of white gutters. */
+.cover .source-image {
+  background: #16232c;
+}

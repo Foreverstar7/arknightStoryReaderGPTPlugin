@@ -3,20 +3,17 @@ import { once } from 'node:events';
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { setTimeout } from 'node:timers/promises';
-import { chromium } from '@playwright/test';
+import { chromium, expect } from '@playwright/test';
 
 const project = path.resolve(import.meta.dirname, '..');
 const origin = 'http://127.0.0.1:4331';
 const output = path.join(project, 'website/assets');
 await mkdir(output, { recursive: true });
-const server = spawn(process.execPath, ['dist/server/main.js'], {
+// Own a static preview of the built website, using fresh browser storage. No
+// plugin server, PRTS or private reading database participates in these captures.
+const server = spawn(process.execPath, ['scripts/serve-site.mjs'], {
   cwd: project,
-  env: {
-    ...process.env,
-    PORT: '4331',
-    READER_SOURCE: 'fixture',
-    READER_DATA_DIR: path.join(project, '.ai/local/site-preview-state'),
-  },
+  env: { ...process.env, SITE_PREVIEW_PORT: '4331' },
   stdio: 'ignore',
   windowsHide: true,
 });
@@ -26,61 +23,92 @@ try {
   const deadline = Date.now() + 15_000;
   while (true) {
     if (server.exitCode !== null)
-      throw new Error('Fixture preview server exited.');
+      throw new Error('Static preview server exited.');
     try {
       const response = await fetch(`${origin}/health`, {
         signal: AbortSignal.timeout(500),
       });
       if (response.ok) break;
     } catch {
-      // Wait for this owned fixture server; no real PRTS source is used.
+      // Wait only for this owned static server.
     }
     if (Date.now() >= deadline)
-      throw new Error('Fixture preview server did not start.');
+      throw new Error('Static preview did not start.');
     await setTimeout(100);
   }
   browser = await chromium.launch({ channel: process.env.PLAYWRIGHT_CHANNEL });
   const context = await browser.newContext({
-    viewport: { width: 1200, height: 820 },
+    viewport: { width: 1200, height: 900 },
     colorScheme: 'light',
     reducedMotion: 'reduce',
   });
+  const external = [];
   await context.route('**/*', (route) => {
-    if (new URL(route.request().url()).origin !== origin)
-      throw new Error(
-        'Public site screenshots must use only original local fixture content.',
-      );
+    if (new URL(route.request().url()).origin !== origin) {
+      external.push(route.request().url());
+      return route.abort();
+    }
     return route.continue();
   });
-  await context.request.post(`${origin}/api/tools`, {
-    data: { name: 'reader_clear_history', arguments: {} },
-  });
-  await context.request.post(`${origin}/api/tools`, {
-    data: {
-      name: 'reader_settings',
-      arguments: { autoImages: false, theme: 'light', retentionDays: 7 },
-    },
-  });
   const page = await context.newPage();
-  await page.goto(origin);
-  await page.getByRole('button', { name: '打开剧情：雾中来信' }).waitFor();
+  await page.goto(`${origin}/arknightStoryReaderGPTPlugin/demo/index.html`);
+  await expect(page.locator('.story-card')).toHaveCount(6);
+  for (const card of await page.locator('.story-card').all()) {
+    await card.scrollIntoViewIfNeeded();
+    await expect(card.locator('.source-image')).toHaveAttribute(
+      'data-image-state',
+      'ready',
+    );
+  }
+  await page.locator('.library-scroll').evaluate((node) => {
+    node.scrollTop = 0;
+  });
+  await expect(page.locator('.image-error')).toHaveCount(0);
   await page.screenshot({
-    path: path.join(output, 'library.png'),
+    path: path.join(output, 'demo-library.png'),
     animations: 'disabled',
   });
-  await page.getByRole('button', { name: '打开剧情：雾中来信' }).click();
+  await page
+    .getByRole('button', { name: '打开剧情：剧情标题占位符 01', exact: true })
+    .click();
   await page.getByRole('region', { name: '横向篇目轴' }).waitFor();
+  await expect(page.locator('.mini-cover .source-image').first()).toBeVisible();
   await page.screenshot({
-    path: path.join(output, 'chapters.png'),
+    path: path.join(output, 'demo-chapters.png'),
     animations: 'disabled',
   });
   await page.locator('.chapter-card').first().click();
   await page.getByRole('main', { name: '剧情正文' }).waitFor();
+  await page.getByRole('button', { name: '查看 CG', exact: false }).click();
+  await expect(page.locator('.cg-image .source-image')).toHaveAttribute(
+    'data-image-state',
+    'ready',
+  );
+  await page.locator('.cg-wrap').scrollIntoViewIfNeeded();
   await page.screenshot({
-    path: path.join(output, 'reader.png'),
+    path: path.join(output, 'demo-reader.png'),
     animations: 'disabled',
   });
-  console.info('Captured three original fixture UI previews (no game assets).');
+  await page.locator('.reader-scroll').evaluate((node) => {
+    node.scrollTop = 0;
+  });
+  await page
+    .getByRole('button', { name: '查看 角色占位符 A 的立绘', exact: true })
+    .first()
+    .click();
+  await expect(page.locator('.portrait .source-image')).toHaveAttribute(
+    'data-image-state',
+    'ready',
+  );
+  await page.screenshot({
+    path: path.join(output, 'demo-portrait.png'),
+    animations: 'disabled',
+  });
+  if (external.length)
+    throw new Error('Screenshots attempted nonlocal requests.');
+  console.info(
+    'Captured four website placeholder UI previews with local artwork.',
+  );
 } finally {
   await browser?.close();
   server.kill();

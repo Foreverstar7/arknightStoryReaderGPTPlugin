@@ -1,4 +1,5 @@
-import { FixtureSource } from '../../src/data/fixture.js';
+import { WebsiteDemoSource } from './data.js';
+import type { DemoImageLoader } from './assets.js';
 import { blockWords, chapterWords } from '../../src/domain/reading.js';
 import {
   initialState,
@@ -19,7 +20,7 @@ import {
 } from '../../src/shared/tools.js';
 import type { ReaderTransport } from '../../src/ui/transport.js';
 
-export const DEMO_STORAGE_KEY = 'arknights-reader.website-demo.v1';
+export const DEMO_STORAGE_KEY = 'arknights-reader.website-demo.v2';
 type DemoStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 
 function anchorAt(chapter: Chapter, fraction: number): ReadingRecord['last'] {
@@ -36,19 +37,22 @@ function anchorAt(chapter: Chapter, fraction: number): ReadingRecord['last'] {
   return { blockId: last.id, fraction: 1 };
 }
 
-/** Website-only transport. Reuses the real UI, fixture and word-count rules;
+/** Website-only transport. Reuses the real UI and word-count rules;
  * it never contacts MCP, localhost services, PRTS or the installed plugin. */
 export class BrowserDemoTransport implements ReaderTransport {
-  private readonly source = new FixtureSource();
   private state: ReadingState;
   private constructor(
     private readonly storage: DemoStorage,
     state: ReadingState,
+    private readonly source: WebsiteDemoSource,
   ) {
     this.state = state;
   }
 
-  static async create(storage: DemoStorage): Promise<BrowserDemoTransport> {
+  static async create(
+    storage: DemoStorage,
+    loadImage?: DemoImageLoader,
+  ): Promise<BrowserDemoTransport> {
     let state: ReadingState;
     try {
       const saved = storage.getItem(DEMO_STORAGE_KEY);
@@ -62,7 +66,11 @@ export class BrowserDemoTransport implements ReaderTransport {
         )
       )
         throw new Error('Unexpected non-fixture reading record');
-      const demo = new BrowserDemoTransport(storage, state);
+      const demo = new BrowserDemoTransport(
+        storage,
+        state,
+        new WebsiteDemoSource(loadImage),
+      );
       if (saved === null) await demo.seed();
       return demo;
     } catch (cause) {
@@ -95,8 +103,8 @@ export class BrowserDemoTransport implements ReaderTransport {
   }
 
   private async seed(): Promise<void> {
-    // These are the previously approved original-fixture presets, not UI
-    // percentages. If fixture chapter order changes, check these IDs and tests.
+    // Demo anchors, not UI percentages. If placeholder chapter order changes,
+    // check these IDs and tests. v2 keeps the old v1 session data untouched.
     for (const sample of [
       { storyId: 'fixture-lights', fractions: [0.65] },
       { storyId: 'fixture-mist', fractions: [1, 1, 0.45] },
@@ -183,7 +191,7 @@ export class BrowserDemoTransport implements ReaderTransport {
     reader_snapshot: async () => ({
       stories: await this.source.catalog(),
       state: structuredClone(this.state),
-      sourceLabel: '原创样例 · 非游戏剧情 · 记录仅存于本浏览器标签页',
+      sourceLabel: '占位演示 · 非原作剧情 · 图片仅作示意 · 记录仅存于本标签页',
     }),
     reader_chapter: async ({ chapterId }) => {
       const chapter = await this.source.chapter(chapterId);
@@ -206,12 +214,7 @@ export class BrowserDemoTransport implements ReaderTransport {
         summary: `${chapter.blocks[0]?.kind === 'narration' ? chapter.blocks[0].text : '原创阅读样例'}`,
       };
     },
-    reader_image: async () => {
-      throw new ReaderError(
-        'resource_missing',
-        '原创样例使用内置图形示意，没有游戏图片资源。',
-      );
-    },
+    reader_image: async (input) => this.source.image(input),
     reader_record: async (input) => this.record(input),
     reader_settings: async (settings) =>
       this.persist({ ...this.state, settings }),

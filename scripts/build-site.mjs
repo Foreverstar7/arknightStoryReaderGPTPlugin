@@ -16,6 +16,9 @@ const allowed = new Set([
   'demo/index.html',
   'demo/main.tsx',
   'demo/browser-transport.ts',
+  'demo/data.ts',
+  'demo/assets.ts',
+  'demo/styles.css',
 ]);
 async function inspect(directory, prefix = '') {
   for (const entry of await readdir(directory, { withFileTypes: true })) {

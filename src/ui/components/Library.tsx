@@ -44,8 +44,9 @@ export function Cover({
   active?: boolean;
 }) {
   const textTitle = textCoverTitle(story);
+  const hasImage = story.source === 'prts' || story.imagesAvailable === true;
   const { ref, seen } = useVisible<HTMLDivElement>(
-    story.source === 'prts' && !textTitle && active,
+    hasImage && !textTitle && active,
   );
   const transitionName = `cover-${Array.from(story.id, (letter) => letter.codePointAt(0)?.toString(16) ?? '').join('-')}`;
   return (
@@ -55,7 +56,7 @@ export function Cover({
       ref={ref}
       style={{ viewTransitionName: transitionName }}
     >
-      {story.source === 'prts' && !textTitle && (
+      {hasImage && !textTitle && (
         <SourceImage
           key={story.id}
           input={{ kind: 'cover', storyId: story.id }}

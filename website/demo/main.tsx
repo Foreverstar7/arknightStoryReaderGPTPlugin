@@ -3,6 +3,7 @@ import { ReaderApp } from '../../src/ui/ReaderApp.js';
 import { CoverImagesProvider } from '../../src/ui/cover-images.js';
 import { BrowserDemoTransport, DEMO_STORAGE_KEY } from './browser-transport.js';
 import '../../src/ui/styles.css';
+import './styles.css';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error('原创样例缺少根节点。');
@@ -28,7 +29,7 @@ async function start() {
       <CoverImagesProvider key={++generation}>
         <ReaderApp
           transport={transport}
-          environment="网站交互样例 · 浏览器会话存储 · 不连接插件或 PRTS"
+          environment="网站占位样例 · 独立会话记录 · 不连接插件或 PRTS"
           resumeOnStart={false}
           onFlushReady={(value) => {
             flush = value;

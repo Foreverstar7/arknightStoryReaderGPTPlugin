@@ -1,8 +1,19 @@
 # 当前状态
 
-本轮更新：2026-11-07。用户准备离开公司，明确要求停止本机测试，先用 Foreverstar7 <foreverstar717@gmail.com> 提交并推送代码，问题回家后再处理。当前以 codex/website-scroll-demo 工作分支交接，不合并 main，不部署／发布或移动标签。接续入口为 .ai/HANDOFF-WEBSITE.md。
+更新：2026-11-07。已从另一台电脑的 e1a1c3e 取回并切换到 codex/website-scroll-demo；本轮完成“亲自试试”的真实示意图片、占位文案、卡通动物兔子与 README 四张实际截图。全部修改留在本地工作区，尚未提交／推送、合并或部署；候选发行标签未改。接续入口为 .ai/HANDOFF-WEBSITE.md。
 
-## 当前：网站新版换机交接
+## 当前：点击体验区图片与占位内容已完成
+
+- 用户纠正目标为“点击尝试区”，不是滚动区；标题、简介、正文、选项和已知角色名统一为明确占位符。六张既有线描意象图接入目录封面和原位场景，不复制官方剧情／图片。WebsiteDemoSource 与原开发 FixtureSource 分开，继续复用真实 ReaderApp、字数规则和工具契约；数据、图片清单和样式都在 website/demo/。
+- 用户明确拒绝人形，并追加“卡通可爱一点”。最终采用四足坐姿的卡通动物兔子，细项圈上的蓝色菱形与小银环只作阿米娅元素转译；原始透明 PNG、动物体态编辑输入、设定链接和完整内置 image_gen 提示词保存在 docs/design/website-demo-assets/。网页 WebP 为 768×768／52,462 字节，四角 alpha 均为 0。普通角色与分支角色使用同一张替身图，匿名“？？？”保持中性占位，不推定身份。
+- 共享数据只增可选 imagesAvailable／sourceLabel，使有真实素材的 fixture 走既有图片交互，来源链接显示“演示素材原图”；普通 fixture 和 PRTS 的默认行为保持。图片失败／重试、默认手动／自动开关、Esc／外部关闭、触摸与键盘均实际验证。新版使用独立 v2 会话键，保留旧 v1 与私人插件记录。
+- 封面以完整 16:9 原图放入原 1560:500 外框，网站专用深蓝黑衬底补足留白，不裁切或拉伸。实看低高度截图发现原固定体验框使兔兔部分出界，已改为随视口高度收缩；四种窗口×双主题中浮层实际位于外层可视区，保留原生内部滚动。320px 角色长姓名自然换行，无横向溢出。
+- 滚动演示内容、时间轴与 430svh 节奏未改。已验收换机前未测的新节奏；测试将 none／单位矩阵按 DOMMatrix 等价比较，并在真实触摸完成原生 scrollend 后只 tap 一次，不重试点击或强制产品状态。
+- README 改用 demo-library.png、demo-chapters.png、demo-reader.png、demo-portrait.png 四张真实占位界面图。capture-site-previews.mjs 启动自己的 4331 静态服务，以全新浏览器会话操作当前网站并截图，禁止外部请求，不依赖 dist/server、PRTS 或私人记录；已实际重新生成并看图。
+- 固定 Node 26.13.0／npm 12.2.1 下已执行：`./scripts/npm.ps1 ci`；`./scripts/npm.ps1 run check`（类型、128 项测试和格式全部通过，含 9 项网站数据测试）；`./scripts/npm.ps1 run build`；`node scripts/build-site.mjs`；`node node_modules/typescript/bin/tsc -p tsconfig.website.json --noEmit`；Edge 的网站 6 项与原阅读器 35 项浏览器回归均通过。网站包括默认按需加载、设置／续读／重置、损坏存储恢复、真实图片／503 重试／自动开关、320px 原生触摸、320×760／768×900／1440×960／1024×400 双主题和减少动态效果。命令日志在 .ai/local/website-demo-media/，网站实际截图在 test-results/site/。
+- 未进行新的真实 PRTS／Codex 桌面／实际发行包验收；这些不是本轮图片改动的验证结论。未新加或升级依赖，package／lock 与版本未改。原已验收候选和 npm 审批流程保持独立。
+
+## 此前：网站新版换机交接
 
 - 完整源码已移入 website/，不依赖 .ai/local、本机 63171 样例服务或全局工具。沿用紧凑无配图首屏、静态项目图标、三个入口、安装指南与 FAQ；不恢复玛恩纳演出。
 - 默认展示可倒放滚动流程，下方“亲自试试”按需加载真实 ReaderApp；复用原创 fixture／字数规则，独立浏览器会话记录。六张优化后的主题封面随代码保存，《巴别塔》用二版；篇目与正文明确标为原创示意。六张原始 PNG、完整提示词及弃用的巴别塔首版编辑输入已归档 docs/design/website-covers/ 并随 Git 同步；历史 HTML／截图仍仅保留在公司电脑 .ai/local，不是新机运行前提。

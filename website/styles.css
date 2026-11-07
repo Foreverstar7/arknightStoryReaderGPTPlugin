@@ -285,7 +285,7 @@ h3 {
 .window-body {
   display: grid;
   grid-template-columns: 64px minmax(0, 1fr);
-  height: 680px;
+  height: clamp(220px, calc(100svh - 150px), 680px);
 }
 .host-rail {
   display: flex;
@@ -635,7 +635,7 @@ summary {
   }
   .window-body {
     grid-template-columns: minmax(0, 1fr);
-    height: 660px;
+    height: clamp(220px, calc(100svh - 210px), 660px);
   }
   .host-rail {
     display: none;

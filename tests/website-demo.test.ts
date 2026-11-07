@@ -1,10 +1,13 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+import { readFile } from 'node:fs/promises';
+import { imageSize } from 'image-size';
 import {
   BrowserDemoTransport,
   DEMO_STORAGE_KEY,
 } from '../website/demo/browser-transport.js';
-import { FixtureSource } from '../src/data/fixture.js';
+import { WebsiteDemoSource } from '../website/demo/data.js';
+import type { DemoImageLoader } from '../website/demo/assets.js';
 import {
   blockWords,
   chapterWords,
@@ -173,21 +176,95 @@ test('malformed storage and denied writes are explicit errors, never a silent in
   await assert.rejects(BrowserDemoTransport.create(denied), /无法读取/u);
 });
 
-test('sample chapters and unknown IDs remain the real fixture contract', async () => {
+test('placeholder content stays separate from game content and only known image targets resolve', async () => {
   const demo = await BrowserDemoTransport.create(storage());
   const chapter = await demo.call('reader_chapter', {
     chapterId: 'fixture-road/1',
   });
-  const fixture = await new FixtureSource().chapter(chapter.id);
-  assert.deepEqual(chapter.blocks, fixture.blocks);
+  const source = new WebsiteDemoSource();
+  assert.deepEqual(chapter.blocks, (await source.chapter(chapter.id)).blocks);
+  assert.equal(chapter.imagesAvailable, true);
+  assert.match(chapter.title, /占位符/u);
   await assert.rejects(
     demo.call('reader_chapter', { chapterId: 'prts-real-story' }),
     /未找到/u,
   );
   await assert.rejects(
-    demo.call('reader_image', { kind: 'cover', storyId: 'fixture-road' }),
-    /没有游戏图片/u,
+    demo.call('reader_image', {
+      kind: 'cg',
+      chapterId: chapter.id,
+      blockId: 'arrival',
+    }),
+    /没有对应图片/u,
   );
+});
+
+test('all six local covers, inline scenes and named/branch portraits load only when requested; anonymous names stay neutral', async () => {
+  const loaded: string[] = [];
+  const loader: DemoImageLoader = async (asset) => {
+    loaded.push(asset.id);
+    const bytes = await readFile(new URL(asset.url));
+    const { width, height } = imageSize(bytes);
+    return {
+      width,
+      height,
+      dataUrl: `data:image/webp;base64,${bytes.toString('base64')}`,
+    };
+  };
+  const demo = await BrowserDemoTransport.create(storage(), loader);
+  const snapshot = await demo.call('reader_snapshot', {});
+  assert.equal(snapshot.stories.length, 6);
+  assert.deepEqual(loaded, []);
+  for (const story of snapshot.stories) {
+    assert.match(story.title, /占位符/u);
+    const cover = await demo.call('reader_image', {
+      kind: 'cover',
+      storyId: story.id,
+    });
+    assert.equal(cover.width, 1560);
+    assert.equal(cover.height, 500);
+    const layer = cover.layers[0];
+    assert.ok(layer);
+    assert.ok(layer.x >= 0 && layer.y >= 0);
+    assert.ok(layer.x + layer.width <= cover.width);
+    assert.ok(layer.y + layer.height <= cover.height);
+    const scene = await demo.call('reader_image', {
+      kind: 'cg',
+      chapterId: `${story.id}/1`,
+      blockId: 'city',
+    });
+    assert.equal(scene.resource, cover.resource);
+    assert.equal(scene.sourceLabel, '演示素材原图');
+  }
+  for (const blockId of ['report', 'reply', 'tower', 'safety']) {
+    const portrait = await demo.call('reader_image', {
+      kind: 'portrait',
+      chapterId: 'fixture-mist/1',
+      blockId,
+    });
+    assert.equal(portrait.resource, 'website-demo:animal-rabbit');
+    assert.equal(portrait.layers.length, 1);
+  }
+  const count = loaded.length;
+  const anonymous = await demo.call('reader_image', {
+    kind: 'portrait',
+    chapterId: 'fixture-mist/1',
+    blockId: 'anonymous',
+  });
+  assert.equal(anonymous.portrait?.status, 'placeholder');
+  assert.deepEqual(anonymous.layers, []);
+  assert.equal(loaded.length, count);
+});
+
+test('placeholder revision uses separate storage without overwriting the earlier demo', async () => {
+  const saved = storage();
+  saved.setItem('arknights-reader.website-demo.v1', 'earlier-demo-state');
+  await BrowserDemoTransport.create(saved);
+  assert.equal(
+    saved.getItem('arknights-reader.website-demo.v1'),
+    'earlier-demo-state',
+  );
+  assert.ok(saved.getItem(DEMO_STORAGE_KEY));
 });
 
 test('initial seeding is one atomic storage write and a failed save keeps the prior reading state', async () => {

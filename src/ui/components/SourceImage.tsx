@@ -283,7 +283,8 @@ export function SourceImage({
           target="_blank"
           rel="noreferrer"
         >
-          {input.kind === 'portrait' ? 'PRTS' : 'PRTS 资源来源'}
+          {state.image.sourceLabel ??
+            (input.kind === 'portrait' ? 'PRTS' : 'PRTS 资源来源')}
         </a>
       )}
     </>

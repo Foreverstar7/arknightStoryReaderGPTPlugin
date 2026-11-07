@@ -47,7 +47,9 @@ test('scroll controls the complete flow, pauses at rest and reverses the same ge
         return {
           opacity: style.opacity,
           visibility: style.visibility,
-          transform: style.transform,
+          transform: new DOMMatrixReadOnly(
+            style.transform === 'none' ? undefined : style.transform,
+          ).toString(),
         };
       });
     });
@@ -113,14 +115,16 @@ test('real reader loads only on demand, supports reading/settings/resume/reset a
   await summary.press('Enter');
   const frame = page.frameLocator('#reader-demo');
   await expect(
-    frame.locator('.story-card').filter({ hasText: '雾中来信' }),
+    frame.locator('.story-card').filter({ hasText: '剧情标题占位符 01' }),
   ).toContainText('40%');
   await expect(
-    frame.locator('.story-card').filter({ hasText: '灯火与归途' }),
+    frame.locator('.story-card').filter({ hasText: '剧情标题占位符 03' }),
   ).toContainText('32%');
-  await frame.getByRole('button', { name: '最近阅读：路口 · 行动前' }).click();
+  await frame
+    .getByRole('button', { name: '最近阅读：篇目标题占位符 03' })
+    .click();
   await expect(frame.locator('.reading-heading h1')).toHaveText(
-    '路口 · 行动前',
+    '篇目标题占位符 03',
   );
   const before = await frame
     .locator('.reader-scroll')
@@ -145,7 +149,7 @@ test('real reader loads only on demand, supports reading/settings/resume/reset a
   await scrub(page, 16.5);
   await page.locator('#try-reader > summary').click();
   await expect(frame.locator('.reading-heading h1')).toHaveText(
-    '路口 · 行动前',
+    '篇目标题占位符 03',
   );
   expect(
     await frame.locator('.reader-scroll').evaluate((node) => node.scrollTop),
@@ -153,7 +157,9 @@ test('real reader loads only on demand, supports reading/settings/resume/reset a
   await page.reload();
   await expect(page.locator('#reader-demo')).not.toHaveAttribute('src');
   await page.locator('#try-reader > summary').click();
-  await frame.getByRole('button', { name: '最近阅读：路口 · 行动前' }).click();
+  await frame
+    .getByRole('button', { name: '最近阅读：篇目标题占位符 03' })
+    .click();
   await expect
     .poll(() =>
       frame.locator('.reader-scroll').evaluate((node) => node.scrollTop),
@@ -164,7 +170,7 @@ test('real reader loads only on demand, supports reading/settings/resume/reset a
     frame.getByRole('heading', { name: '剧情档案', exact: true }),
   ).toBeVisible();
   await expect(
-    frame.locator('.story-card').filter({ hasText: '雾中来信' }),
+    frame.locator('.story-card').filter({ hasText: '剧情标题占位符 01' }),
   ).toContainText('40%');
   expect(requests.some((url) => url.includes('/api/'))).toBe(false);
   expect(
@@ -176,6 +182,7 @@ test('real reader loads only on demand, supports reading/settings/resume/reset a
 test('four viewport sizes and both themes keep the animation and interactive reader readable', async ({
   page,
 }) => {
+  test.setTimeout(60_000);
   for (const colorScheme of ['light', 'dark'] as const) {
     await page.emulateMedia({ colorScheme, reducedMotion: 'no-preference' });
     for (const viewport of [
@@ -208,7 +215,7 @@ test('four viewport sizes and both themes keep the animation and interactive rea
       await page.locator('#try-reader > summary').click();
       const frame = page.frameLocator('#reader-demo');
       await expect(
-        frame.locator('.story-card').filter({ hasText: '雾中来信' }),
+        frame.locator('.story-card').filter({ hasText: '剧情标题占位符 01' }),
       ).toBeVisible();
       expect(
         await frame
@@ -219,6 +226,58 @@ test('four viewport sizes and both themes keep the animation and interactive rea
         path: test
           .info()
           .outputPath(`interactive-${colorScheme}-${viewport.width}.png`),
+      });
+      await frame
+        .getByRole('button', {
+          name: '打开剧情：剧情标题占位符 01',
+          exact: true,
+        })
+        .click();
+      await expect(frame.locator('.mini-cover .source-image')).toHaveAttribute(
+        'data-image-state',
+        'ready',
+      );
+      await frame.locator('.chapter-card').first().click();
+      await frame
+        .getByRole('button', { name: '查看 CG', exact: false })
+        .click();
+      await expect(frame.locator('.cg-image .source-image')).toHaveAttribute(
+        'data-image-state',
+        'ready',
+      );
+      await frame.locator('.cg-wrap').scrollIntoViewIfNeeded();
+      await page.screenshot({
+        path: test
+          .info()
+          .outputPath(`scene-${colorScheme}-${viewport.width}.png`),
+      });
+      await frame.locator('.reader-scroll').evaluate((node) => {
+        node.scrollTop = 0;
+      });
+      await frame.locator('#name-report').click();
+      await expect(frame.locator('.portrait .source-image')).toHaveAttribute(
+        'data-image-state',
+        'ready',
+      );
+      const fits = await frame.locator('.portrait').evaluate((node) => {
+        const rect = node.getBoundingClientRect();
+        return (
+          rect.left >= 0 &&
+          rect.right <= innerWidth &&
+          rect.top >= 0 &&
+          rect.bottom <= innerHeight
+        );
+      });
+      expect(fits).toBe(true);
+      await page.locator('.demo-window').scrollIntoViewIfNeeded();
+      const popup = await frame.locator('.portrait').boundingBox();
+      expect(
+        popup && popup.y >= 0 && popup.y + popup.height <= viewport.height,
+      ).toBe(true);
+      await page.screenshot({
+        path: test
+          .info()
+          .outputPath(`portrait-${colorScheme}-${viewport.width}.png`),
       });
       await page.getByRole('link', { name: '安装指南', exact: true }).click();
       await expect(
@@ -233,6 +292,96 @@ test('four viewport sizes and both themes keep the animation and interactive rea
       ).toBeVisible();
     }
   }
+});
+
+test('local images support manual loading, portrait retry, keyboard dismissal and neutral anonymous display', async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  let rabbitRequests = 0;
+  await page.route('**/*rabbit-portrait*.webp', async (route) => {
+    rabbitRequests++;
+    if (rabbitRequests === 1)
+      await route.fulfill({ status: 503, body: 'temporary failure' });
+    else await route.continue();
+  });
+  await page.goto('./');
+  await page.locator('#try-reader > summary').click();
+  const frame = page.frameLocator('#reader-demo');
+  await frame
+    .getByRole('button', { name: '打开剧情：剧情标题占位符 01', exact: true })
+    .click();
+  await frame.locator('.chapter-card').first().click();
+  await expect(frame.locator('.cg-image')).toHaveCount(0);
+  await frame.locator('#name-report').hover();
+  await expect(frame.locator('.portrait')).toHaveCount(0);
+  expect(rabbitRequests).toBe(0);
+  await frame.locator('#name-report').focus();
+  await frame.locator('#name-report').press('Enter');
+  await expect(frame.locator('.portrait .image-error')).toContainText(
+    'HTTP 503',
+  );
+  await page
+    .locator('#reader-demo')
+    .evaluate((node) =>
+      node.scrollIntoView({ block: 'start', behavior: 'instant' }),
+    );
+  await frame.getByRole('button', { name: '重试图片', exact: true }).click();
+  await expect(frame.locator('.portrait .source-image')).toHaveAttribute(
+    'data-image-state',
+    'ready',
+  );
+  await expect(frame.locator('.portrait .image-source')).toHaveText(
+    '演示素材原图',
+  );
+  await frame.locator('.portrait').press('Escape');
+  await expect(frame.locator('#name-report')).toBeFocused();
+  await expect(frame.locator('.portrait')).toHaveCount(0);
+  await frame.getByRole('button', { name: '查看 CG', exact: false }).click();
+  await expect(frame.locator('.cg-image .source-image')).toHaveAttribute(
+    'data-image-state',
+    'ready',
+  );
+  await frame.getByRole('button', { name: '收起 CG', exact: false }).click();
+  await expect(frame.locator('.cg-image')).toHaveCount(0);
+  await frame.locator('#name-anonymous').click();
+  await expect(frame.locator('.portrait-placeholder')).toContainText(
+    '不推定身份',
+  );
+  await expect(frame.locator('.portrait .source-image')).toHaveCount(0);
+  expect(rabbitRequests).toBe(2);
+  await frame.getByRole('button', { name: '设置', exact: true }).click();
+  await frame
+    .getByRole('switch', { name: '自动显示图片', exact: true })
+    .click();
+  await expect(
+    frame.getByRole('switch', { name: '自动显示图片', exact: true }),
+  ).toBeChecked();
+  await frame.getByRole('dialog', { name: '阅读设置' }).press('Escape');
+  await frame.getByRole('button', { name: '篇章目录', exact: true }).click();
+  await frame.locator('.chapter-card').nth(1).click();
+  await frame.locator('.cg-wrap').scrollIntoViewIfNeeded();
+  await expect(frame.locator('.cg-image .source-image')).toHaveAttribute(
+    'data-image-state',
+    'ready',
+  );
+  await frame.locator('.reader-scroll').evaluate((node) => {
+    node.scrollTop = 0;
+  });
+  await frame.locator('#name-reply').hover();
+  await expect(frame.locator('.portrait .source-image')).toHaveAttribute(
+    'data-image-state',
+    'ready',
+  );
+  await frame.getByRole('button', { name: '设置', exact: true }).click();
+  await frame
+    .getByRole('switch', { name: '自动显示图片', exact: true })
+    .click();
+  await frame.getByRole('dialog', { name: '阅读设置' }).press('Escape');
+  await frame.locator('#name-report').hover();
+  await expect(frame.locator('.portrait')).toHaveCount(0);
+  expect(errors).toEqual([]);
 });
 
 test('reduced motion uses static steps, can change live, and demo storage errors have a reset recovery', async ({
@@ -251,7 +400,7 @@ test('reduced motion uses static steps, can change live, and demo storage errors
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await expect(page.locator('.walkthrough')).toHaveClass(/motion-static/u);
   await page.evaluate(() =>
-    sessionStorage.setItem('arknights-reader.website-demo.v1', '{broken'),
+    sessionStorage.setItem('arknights-reader.website-demo.v2', '{broken'),
   );
   await page.locator('#try-reader > summary').click();
   const frame = page.frameLocator('#reader-demo');
@@ -260,7 +409,7 @@ test('reduced motion uses static steps, can change live, and demo storage errors
     .getByRole('button', { name: '重置样例记录', exact: true })
     .click();
   await expect(
-    frame.locator('.story-card').filter({ hasText: '雾中来信' }),
+    frame.locator('.story-card').filter({ hasText: '剧情标题占位符 01' }),
   ).toBeVisible();
 });
 
@@ -275,6 +424,16 @@ test('320px touch gestures advance the page and the real cover/chapter path is t
   try {
     const page = await context.newPage();
     await page.goto('http://127.0.0.1:4330/arknightStoryReaderGPTPlugin/');
+    await page.evaluate(() => {
+      document.documentElement.dataset.touchScrollEnded = 'false';
+      document.addEventListener(
+        'scrollend',
+        () => {
+          document.documentElement.dataset.touchScrollEnded = 'true';
+        },
+        { once: true },
+      );
+    });
     const cdp = await context.newCDPSession(page);
     await cdp.send('Input.dispatchTouchEvent', {
       type: 'touchStart',
@@ -294,15 +453,20 @@ test('320px touch gestures advance the page and the real cover/chapter path is t
       touchPoints: [],
     });
     await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(100);
+    await expect(page.locator('html')).toHaveAttribute(
+      'data-touch-scroll-ended',
+      'true',
+    );
     await page.locator('#try-reader > summary').tap();
+    await expect(page.locator('#try-reader')).toHaveAttribute('open', '');
     const frame = page.frameLocator('#reader-demo');
     await frame
-      .getByRole('button', { name: '打开剧情：雾中来信', exact: true })
+      .getByRole('button', { name: '打开剧情：剧情标题占位符 01', exact: true })
       .tap();
     await expect(frame.locator('.timeline-scroll')).toBeVisible();
     await frame.locator('.timeline-scroll button').first().tap();
     await expect(frame.locator('.reading-heading h1')).toHaveText(
-      '一封未寄出的信',
+      '篇目标题占位符 01',
     );
     await cdp.detach();
   } finally {

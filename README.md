@@ -36,25 +36,31 @@ codex plugin remove arknights-story-reader@arknights-reader --json
 
 ## 界面示例
 
-以下截图来自本阅读器的原创测试内容，不含游戏截图、游戏剧情原文、立绘或 CG；实际阅读数据来自 PRTS。
+以下截图来自网站“亲自试试”的实际阅读器组件：使用占位文案、AI 生成的线描意象图，以及带阿米娅元素的卡通动物兔子。图片只演示交互，不是官方游戏截图、原作剧情或立绘；安装后的实际阅读数据来自 PRTS。
 
 ### 剧情目录
 
 按分类浏览剧情卡片，顶部最近阅读入口保留你实际阅读的章节。
 
-![剧情目录：原创示例卡片按分类展示，并提供最近阅读入口](https://raw.githubusercontent.com/Foreverstar7/arknightStoryReaderGPTPlugin/main/website/assets/library.png)
+![剧情目录：带线描封面的占位卡片按分类展示，并提供最近阅读入口](website/assets/demo-library.png)
 
 ### 篇目列表
 
 章节沿横向篇目轴顺序排列，支持拖动浏览、整卡打开和继续阅读。
 
-![篇目列表：原创示例章节沿横轴上下交错排列](https://raw.githubusercontent.com/Foreverstar7/arknightStoryReaderGPTPlugin/main/website/assets/chapters.png)
+![篇目列表：带封面的占位篇目沿横轴上下交错排列](website/assets/demo-chapters.png)
 
 ### 正文阅读
 
-左侧切换篇目，正文纵向连续阅读；文字与人物姓名分层呈现，并保留本机阅读位置。
+左侧切换篇目，正文纵向连续阅读；场景图片点击后原位展开，并保留阅读位置。
 
-![正文阅读：原创示例对白、旁白与左侧篇目导航](https://raw.githubusercontent.com/Foreverstar7/arknightStoryReaderGPTPlugin/main/website/assets/reader.png)
+![正文阅读：占位对白、旁白与原位展开的线描场景图](website/assets/demo-reader.png)
+
+### 角色图片
+
+点击角色姓名查看图片，再次点击、点击外部或按 Esc 关闭。网页使用同一只卡通兔子作为已知角色的替身示意，匿名角色保持中性占位。
+
+![角色展示：点击角色占位符后展开卡通动物兔子](website/assets/demo-portrait.png)
 
 ## 本地运行
 
