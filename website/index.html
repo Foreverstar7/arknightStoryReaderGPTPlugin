@@ -610,10 +610,15 @@
               </li>
               <li>
                 <h3>添加并安装插件</h3>
+                <p>按“添加来源 → 刷新来源 → 安装插件”依次执行：</p>
                 <pre
                   class="install-command"
-                ><code>codex plugin marketplace add Foreverstar7/arknightStoryReaderGPTPlugin --ref main
+                ><code>codex plugin marketplace add Foreverstar7/arknightStoryReaderGPTPlugin
+codex plugin marketplace upgrade arknights-reader
 codex plugin add arknights-story-reader@arknights-reader --json</code></pre>
+                <p>
+                  已安装插件不会因仓库发布新版而后台自动升级。更新时请主动刷新来源并安装，再重启客户端或新建会话。
+                </p>
               </li>
               <li>
                 <h3>打开阅读器</h3>

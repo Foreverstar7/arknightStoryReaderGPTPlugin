@@ -4,9 +4,9 @@
 
 实现与长期操作说明见 docs/releasing.md，验证和最新事实见 STATUS.md。此前 next → 候选安装 → 宿主证据 → promote 的发布门槛已取消。
 
-1. 完成一次性账号设置：关闭 npm-production 的 Required reviewers／Wait timer，保持现有环境名；npm Trusted Publisher 使用 release.yml／npm-production，允许 npm publish 与 npm dist-tag。每个版本只由 Publish release 确认。
-2. 后续需要发行新包时更新版本并推送 main，等待自动草稿成功后 Publish；监控 Publish release 工作流成功及 npm／正式清单／回执一致。普通提交不升版本、不重复发行，已安装用户主动刷新来源并安装。
-3. 本轮只推送发布工具、文档和已验收网站的现有提交，不新建 1.0.1。后续新增唯一模型可见基础剧情搜索工具时准备 1.1.0，保持现有阅读器和记录兼容，不增加 RAG、全库台词搜索或对话侧续读／进度工具。
+1. 一次性账号设置已完成，npm-production 无审批或分支限制；后续按 docs/releasing.md 维护，每个版本只由 Publish release 确认。
+2. 后续需要发行新包时更新版本并推送 main，等待自动草稿成功后 Publish；监控 Publish release 工作流成功及 npm／正式清单／回执一致。普通提交不升版本、不重复发行，README／网站均按“添加来源 → 刷新来源 → 安装插件”展示，已安装用户主动刷新来源并安装。
+3. 网站与发布流程已推送并通过 CI，不为安装说明调整创建 1.0.1。后续新增唯一模型可见基础剧情搜索工具时准备 1.1.0，保持现有阅读器和记录兼容，不增加 RAG、全库台词搜索或对话侧续读／进度工具。
 
 当前 npm 1.0.0 与固定标签保持不动，既有版本迁移只核对归档并保存清单、回执；不重发已有包。私人阅读数据和本机 4330 预览继续保留。
 
@@ -20,7 +20,6 @@
 - 正式实现位于 website/，构建与恢复见 docs/website.md；GSAP 仅作为网站开发依赖。正式插件入口、打包和发行候选不改。
 - 本轮范围已完成；后续按用户评审继续，不恢复人形兔子或玛恩纳演出。公开部署和推送仍依用户指令，既有正式包／发行标签不动。重新截图使用 scripts/capture-site-previews.mjs，原图／完整提示词见 docs/design/website-demo-assets/。
 - 已通过 128 项测试／类型／格式、网站与插件构建、9 项网站数据验证、Edge 网站 6 项和原阅读器 35 项浏览器回归。四种窗口双主题实际图片、低高度浮层、重试、自动开关、键盘／触摸、减少动态效果与存储错误均已检查；证据和命令见 STATUS、.ai/local/website-demo-media/ 与 test-results/site/。
-
 
 ## 此前已完成：项目网站首次上线
 

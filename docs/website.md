@@ -1,6 +1,6 @@
 # 项目网站
 
-当前本地新版沿用紧凑首屏和滚动流程，下方“亲自试试”复用真实阅读器展示占位文案、六张线描封面／场景图片，以及卡通动物兔子。用户本机预览认可后，功能提交 c29a113 已合入本地 main，未推送或部署。公开网站仍为此前已部署版本：[剧情阅读器](https://foreverstar7.github.io/arknightStoryReaderGPTPlugin/)。
+网站沿用紧凑首屏和滚动流程，下方“亲自试试”复用真实阅读器展示占位文案、六张线描封面／场景图片，以及卡通动物兔子。公开地址：[剧情阅读器](https://foreverstar7.github.io/arknightStoryReaderGPTPlugin/)。
 
 ## 构建后查看完整页面
 
@@ -46,7 +46,7 @@ Playwright 会自行启停 4330 预览。运行前应先关闭自己在该端口
 - 六张 assets/cover-*.webp 是已有内置 image_gen 线描意象图的等比网页副本（1000×563），合计约 308 KB；《巴别塔》使用二版。动画和点击体验共用这些图；体验区封面保留全图并填充深色背景，正文按 CG 交互原位展开全图，明确标注占位演示，不冒充原作目录或剧情。
 - 六张原始 PNG、完整提示词、选择清单与弃用的巴别塔首版编辑输入已归档 docs/design/website-covers/ 并随 Git 同步；正式构建只依赖 website/ 中的文件，不读取 .ai/local 或全局工具。
 - assets/rabbit-portrait.webp 为 768×768、52,462 字节的透明卡通动物兔子：四足坐姿、蓝色小吊坠和银色戒环，不采用人形。原始透明 PNG、动物体态编辑输入、设定核对与完整内置 image_gen 提示词见 [兔兔素材](design/website-demo-assets/PROMPTS.md)。已知角色和分支角色复用此示意图，匿名仍显示中性占位。
-- 主题封面的公开采用范围随部署决定确认，本轮仅是正式源码的本地候选；不加入玛恩纳、官方截图、游戏立绘、CG 或转载正文。
+- 主题封面用于网站公开演示；不加入玛恩纳、官方截图、游戏立绘、CG 或转载正文。
 - GitHub 图标来自官方 Octicons，MIT 许可在 HTML 中保留。GSAP 3.15.1 为网站开发依赖，使用其标准许可，不将项目 MIT 扩展为素材或第三方库的许可。
 - README 使用 demo-library.png、demo-chapters.png、demo-reader.png、demo-portrait.png 四张实际截图，路径相对当前分支。旧三张图保留作历史素材。重新截图先构建网站，再运行 `node scripts/capture-site-previews.mjs`：它自启 4331 静态服务、使用全新浏览器会话并禁止外部请求，不依赖 dist/server 或私人数据；Windows 可设 PLAYWRIGHT_CHANNEL=msedge。
 
@@ -54,7 +54,7 @@ Playwright 会自行启停 4330 预览。运行前应先关闭自己在该端口
 
 .github/workflows/pages.yml 继续使用原 GitHub Pages 构建／部署入口，增加复用 UI、fixture、字数规则和工具契约的变更触发，以及网站类型／样例数据检查。GSAP 通过项目锁文件安装，运行时没有 CDN 或第三方字体请求。
 
-网页改版和 npm 发布保持独立。此前推送工作分支供换机；图片／文案／截图修改通过验证和用户预览后已合入本地 main，尚未推送。推送 main 会触发网站专项与 Pages 部署；本轮没有移动版本标签。纯网站更新不需要 npm 发版，插件修正与后续搜索工具的版本安排见 [发布指南](releasing.md)。安装段沿用用户已认可的两条命令和展示语境，未实际执行安装。
+网页改版和 npm 发布保持独立。推送 main 的相关变更会触发网站专项检查与 Pages 部署；以对应提交的工作流结果确认线上版本。纯网站更新不需要 npm 发版，插件修正与后续搜索工具的版本安排见 [发布指南](releasing.md)。安装段与 README 统一按“添加来源 → 刷新来源 → 安装插件”展示三条命令。已安装插件不会因仓库发布而后台自动升级，用户需要主动刷新来源并安装。
 
 ## 首次上线记录
 

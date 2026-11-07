@@ -8,10 +8,11 @@
 - Check 保留普通 push／PR 自动检查。prepare-release.yml 在 main 判断新版本；已有完整草稿／已发布版本和清单回写的普通提交跳过发行。新版本通过 Windows 实际包／真实 PRTS／fixture 浏览器验证后才创建固定注释标签与草稿，上传同一 tgz、release.json 和 verification-prts.json。中断后复用标签中记录的原验收 run／artifact；不重打包替换已冻结归档，不移动标签。
 - release.yml 保留现有 OIDC 文件名和 npm-production 环境，改为 release.published，限制正式版本。发布脚本读取 Release 附件及对应标签，不使用最新 main 的包版本或重新构建；核对源码、包／plugin 版本、验证报告和实际 SHA-512，发布 latest 并确认 registry 后才写 main 的精确清单与 docs/releases/X.Y.Z.json。同版本同 hash 跳过上传；不一致报错。旧标签只迁移已存在 npm 包，不上传。
 - 已移除 promote.yml、候选准备命令和人工 host_evidence／host_accepted。源码开发副本、官方加载器探针和自动实际包验证继续保留。README／发布指南仅维护长期步骤、安装更新命令、完成判据与失败恢复，不记录临时聊天安排；插件不因发布而后台升级。
-- 一次性配置已实际只读核对：npm-production 仍有 Required reviewer Foreverstar7，分支／标签限制为 null。需要在 GitHub 环境中关闭 Required reviewers／Wait timer，保留环境名；npm Trusted Publisher 保持 release.yml + npm-production，允许 npm publish 与 npm dist-tag。配置位置和值见 docs/releasing.md，本轮不自动修改账号设置。
+- 一次性 npm／GitHub 配置已完成；最近只读核对 npm-production 的 protection_rules=[]、deployment_branch_policy=null。npm Trusted Publisher 保持 release.yml + npm-production，允许 npm publish 与 npm dist-tag；配置说明见 docs/releasing.md。
 - 本地固定 Node 26.13.0／npm 12.2.1：完整类型、147 项测试、格式检查通过；actionlint 1.7.12 验证全部工作流通过。测试覆盖普通提交不重复发行、冻结源码和原 artifact 恢复、实际 tar 包版本／hash、防止标签移动和附件覆盖、npm 相同版本续跑／冲突及旧版不重发。完整构建打包与实际包验证通过：2775 文件、生产依赖、全新 npm 安装、10 个 app-only 工具、global 入口和 533554 字节 HTML；只使用隔离临时数据。日志集中在 .ai/local/release-flow/。
 - 1.0.0 的旧注释标签仍指向 cce87d6，原归档 SHA-512 已与 npm latest 只读核对一致；docs/releases/1.0.0.json 如实保存既有发布的迁移回执，不伪造新发布运行。正式 marketplace 继续精确固定 1.0.0，不操作私人阅读记录。
-- 网站 c29a113 已合入 main，4330 本机预览继续保留。GitHub Actions 状态以本轮推送关联的 Check／Prepare release draft／Deploy Pages 运行记录为准；发布器的实际 npm 写入由未来 Publish 触发，本轮不声称已执行。
+- 网站分支 e1a1c3e 与图片改动 c29a113 已包含在 main 并部署；79195ac 的 Check、Prepare release draft 和 Pages 均成功。README／网站安装段统一为“添加来源 → 刷新来源 → 安装插件”，保留用户主动更新说明；4330 本机预览继续保留。后续部署以对应提交的 Actions 结果为准，npm 写入仍由 Publish release 触发。
+- 安装说明专项验证通过：固定 Node 26.13.0 下 `node scripts/build-site.mjs`、`node node_modules/typescript/bin/tsc -p tsconfig.website.json --noEmit`、修改文件的 Prettier 检查和 Edge 网站 6 项回归通过。安装区另实查 320×760／768×900／1440×960／1024×400 双主题共 8 种画面：命令文本与 README 一致、14px 自然换行、无横向溢出、键盘可到达。截图及报告在 .ai/local/site-install-commands/；仅展示命令，未执行插件安装。
 
 ## 已完成：点击体验区图片与占位内容
 
