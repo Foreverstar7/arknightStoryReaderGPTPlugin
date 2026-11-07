@@ -1,6 +1,8 @@
 # 回家继续网站改版
 
-工作分支：codex/website-scroll-demo，换机基线 e1a1c3e。本次已在家中电脑补全“亲自试试”的图片与占位内容、卡通动物兔子和 README 截图；本地修改尚未提交／推送，未合并 main、部署网站或发布 npm。
+当前集成分支：本地 main。网站功能提交 c29a113 已连同换机基线 e1a1c3e 快进合并，codex/website-scroll-demo 保留；远端 main 仍为 93446b9，未推送、部署或发布 npm。用户已在本机预览认可效果。本机网站预览按要求运行在 http://127.0.0.1:4330/arknightStoryReaderGPTPlugin/ 。
+
+下一步先收尾固定 cce87d6 的 v1.0.0：Release 42251044304 的验收 success／发布 waiting，artifact 未过期，npm 精确版本为 404，由用户网页批准 npm-production 后跟进。其后当前插件兼容修正准备为 1.0.1，新增唯一模型可见基础剧情搜索工具后准备 1.1.0。当前版本文件未升版，发布与稳定提升具体步骤见 .ai/PLAN.md 和 docs/releasing.md。
 
 ## 新电脑从正式源码运行
 
@@ -8,13 +10,14 @@
 
 ```sh
 git fetch origin
-git switch codex/website-scroll-demo
+git switch main
+git merge --ff-only origin/main
 npm ci
 node scripts/build-site.mjs
 node scripts/serve-site.mjs
 ```
 
-使用 .node-version 固定的 Node 26.13.0 与 npm 12.2.1；预览为 http://127.0.0.1:4330/arknightStoryReaderGPTPlugin/ 。如果该电脑已存在同名分支，先核对其与远程的关系，不重置或覆盖本地工作。
+当前 c29a113 尚未推送，另一台电脑暂时无法通过 fetch 取得本次合并；上述远端同步步骤在用户授权推送后使用。使用 .node-version 固定的 Node 26.13.0 与 npm 12.2.1；预览为 http://127.0.0.1:4330/arknightStoryReaderGPTPlugin/ 。如果该电脑已有本地提交，先核对与远端的关系，不重置或覆盖工作。
 
 网站自包含于 website/：无配图紧凑首屏、滚动流程、默认收起的真实 ReaderApp、独立占位数据、安装指南与 FAQ。构建不依赖公司电脑 .ai/local、旧 HTML、63171 服务或私人记录。六张封面原图与提示词在 docs/design/website-covers/；本轮动物兔子原图、编辑输入及完整提示词在 docs/design/website-demo-assets/，网页只加载已有封面 WebP 和 rabbit-portrait.webp。
 
@@ -30,6 +33,6 @@ node scripts/serve-site.mjs
 
 - Check：所有分支 push 自动运行通用类型／格式／单元测试、打包验收和插件浏览器回归；新的网站数据单元测试也在 npm test 中。
 - Deploy project website：main 上网站相关变更自动运行网站构建、专项浏览器测试，然后部署 Pages；工作分支 push 不触发它。
-- 本次只做本地修改／验证；不要为工作分支手动运行会部署的 Pages 工作流。
+- 本次已本地提交／合并；推送 main 会触发网站部署，按用户后续指令执行，不手动运行会部署的 Pages 工作流。
 
 后续命令与来源见 docs/website.md，项目状态见 .ai/STATUS.md。不恢复已弃用的玛恩纳／文字战场或人形兔子；角色与场景范围以本轮新要求和已接入素材为准。
