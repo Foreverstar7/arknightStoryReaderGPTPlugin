@@ -61,10 +61,14 @@ npm run package:verify -- --prts
 
 ## 桌面宿主
 
+源码副本使用下面的准备命令和隔离加载器探针：
+
 ```sh
 npm run plugin:prepare
 npm run probe:host -- --isolated
 ```
+
+已发布的 npm 候选包按[候选安装步骤](releasing.md#安装候选版本验收)准备独立清单。对应的隔离加载器检查为 `npm run probe:host -- --marketplace ./.local/candidate-marketplace --isolated`，不会改真实客户端的来源、插件或阅读数据。
 
 加载器探针使用独立环境，不修改真实安装。正式发布后仍须由发布者在真实桌面检查安装、入口、三页阅读、图片、保存／重开、升级及卸载保留记录。其他平台在对应环境验收。
 

@@ -1,7 +1,7 @@
 import { setTimeout } from 'node:timers/promises';
 import { z } from 'zod';
 
-interface Publication {
+export interface Publication {
   name: string;
   version: string;
   integrity: string;

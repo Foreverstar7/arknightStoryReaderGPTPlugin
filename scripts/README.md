@@ -2,6 +2,8 @@
 
 日常开发先用 `dev`、`check`、`build`；检查发行物用 `package` 和 `package:verify`。PRTS 审计是遇到对应解析／资源问题时才运行的维护工具，不是每次发布的前置步骤。
 
+验收已发布的精确 npm 版本用 `npm run marketplace:candidate -- X.Y.Z` 准备独立候选清单，再执行输出的 Codex 安装命令。`marketplace:promote` 仅供 main 的 Actions 在发布者确认后执行：核对验收包、更新并回读 npm latest、生成稳定目录和回执；工作流随后提交并公开 Release。完整配置和恢复见[发布指南](../docs/releasing.md)。
+
 从项目根目录执行。下文 `npm` 需要项目固定的工具链；Windows 可替换为 `./scripts/npm.ps1`，macOS／Linux 为 `sh scripts/npm.sh`。PowerShell 包装器传入脚本参数时引用分隔符，例如：
 
 ```powershell

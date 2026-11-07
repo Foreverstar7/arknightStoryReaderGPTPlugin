@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Published exact version, e.g. 0.1.26 (without v)'
+        description: 'Published exact version, e.g. 1.0.0 (without v)'
         required: true
         type: string
       host_evidence:
@@ -24,6 +24,10 @@ jobs:
   promote:
     if: inputs.host_accepted && github.ref == 'refs/heads/main' && github.event.repository.private == false
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      id-token: write
     steps:
       - uses: actions/checkout@v7
         with:
@@ -32,6 +36,7 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
+          registry-url: https://registry.npmjs.org
           package-manager-cache: false
       - run: npm install --global npm@12.2.1
       - run: npm ci
@@ -44,7 +49,7 @@ jobs:
           node -e "if(!/^\d+\.\d+\.\d+$/.test(process.env.VERSION)) process.exit(1)"
           mkdir -p .local/promotion
           gh release download "v$VERSION" --pattern published.json --dir .local/promotion
-      - name: Verify registry and prepare fixed source
+      - name: Verify accepted package, promote npm latest, then prepare fixed source
         env:
           VERSION: ${{ inputs.version }}
           HOST_EVIDENCE: ${{ inputs.host_evidence }}
@@ -63,4 +68,5 @@ jobs:
             git commit -m "release: promote reader $VERSION after host acceptance"
             git push origin HEAD:main
           fi
-          gh release edit "v$VERSION" --draft=false --title "v$VERSION" --notes-file .local/promotion/notes.md
+          gh release edit "v$VERSION" --draft=false --prerelease=false --latest --title "v$VERSION" --notes-file .local/promotion/notes.md
+          echo "Promoted $VERSION: npm latest, fixed marketplace, and public GitHub Release." >> "$GITHUB_STEP_SUMMARY"

@@ -12,14 +12,17 @@
 
 系统需 Node.js ≥26.13.0、npm ≥12.2.1，桌面客户端需能从 PATH 找到 Node。
 
-以下命令适用于已收录稳定来源目录的版本。安装前先确认[来源目录](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/blob/main/.agents/plugins/marketplace.json)中包含本插件；未收录时使用[源码开发副本](#安装源码开发副本)。
+以下命令安装[来源目录](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/blob/main/.agents/plugins/marketplace.json)固定的已验收 npm 版本。
 
 ```sh
 codex plugin marketplace add Foreverstar7/arknightStoryReaderGPTPlugin --ref main
+codex plugin marketplace upgrade arknights-reader
 codex plugin add arknights-story-reader@arknights-reader --json
 ```
 
 包内包含服务、HTML、生产依赖与启动清单；无需 clone 或构建。其他 MCP Apps 宿主的 stdio 配置见[接入说明](docs/integration-notes.md)。
+
+`already added` 表示来源已登记，不代表已刷新清单；上面的 `marketplace upgrade` 会同步最新目录。精确 npm 候选版本的安装验收步骤见[发布指南](docs/releasing.md#安装候选版本验收)。
 
 ## 升级与卸载
 

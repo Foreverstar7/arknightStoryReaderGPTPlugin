@@ -1,8 +1,18 @@
 # 当前状态
 
-更新：2026-11-07。**1.0.0 已由原工作流通过 OIDC 发布到 npm next，实际下载归档与 cce87d6 验收包完全一致；单独重跑 publish 后 CI 收尾成功、回执和候选 draft Release 已生成。用户已确认完成真实 Codex 桌面验收，稳定提升尚未执行。** 网站 c29a113 已合入本地 main，未推送或部署；v1.0.0 未移动。用户确认本阶段不打 v1.0.1 标签，不单独发行 1.0.1；后续新增基础搜索再准备 1.1.0。
+更新：2026-11-07。**用户已确认 npm 1.0.0 的真实桌面验收通过；本地已补齐正式清单、npm latest 稳定提升和候选安装命令，类型／138 项测试／格式及隔离 Codex 加载检查通过。只读核对发现 npm latest／next 均已为 1.0.0，但远端清单仍为空、Release 仍为 draft。** 本轮尚未推送或执行稳定提升；v1.0.0 和已发布归档保持不动。用户确认本阶段不打 v1.0.1 标签，不单独发行 1.0.1；后续新增基础搜索再准备 1.1.0。
 
-## 当前：用户确认 1.0.0 桌面验收通过，等待稳定提升
+## 当前：稳定发布工具与正式清单已本地补齐
+
+- 用户要求补充工作流、插件清单及相关衔接。正式 `.agents/plugins/marketplace.json` 已固定 npm arknights-story-reader@1.0.0；`docs/releases/1.0.0-host-acceptance.md` 如实保存发布者验收确认、实际安装及已验收包身份，不虚构逐项 UI 截图或桌面版本。记录推送后的 GitHub HTTPS 地址可作为稳定工作流的 host_evidence。
+- promote.yml 新增 job 的 id-token: write、registry-url 和 15 分钟时限。脚本限定 main／Actions／宿主确认，核对标签身份、干净回执、CI 仓库／run ID 及 registry hash，更新并回读 npm latest 后才生成正式目录和回执；目录推送成功才公开 GitHub Release，明确取消 prerelease 并标为 Latest。latest 已正确时跳过标签写入。只有缺失或旧标签回读最多等待五分钟，权限／JSON／hash 失败立即终止；跨 npm／GitHub 的步骤不声称原子完成，失败恢复和重跑顺序已写入发布指南。
+- npm 官方要求为 promote.yml 单独新增 Trusted Publisher 并开启 Allow npm dist-tag；环境留空，保留 release.yml／npm-production 的现有发布连接。固定 npm 12.2.1 满足官方最低版本要求，没有新增依赖或更新工具链。本轮未操作账号配置或实际 OIDC 标签写入。
+- 新增 `npm run marketplace:candidate -- X.Y.Z`，在忽略的 `.local/candidate-marketplace/` 生成独立候选清单，解决正式目录尚未收录时的验收入口。准备脚本不安装插件、不改正式清单；README 增加 marketplace upgrade，避免 already added 仍使用缓存空清单。历史候选来源迁移到固定路径的登记操作见发布指南，当前真实客户端仍保留此前临时目录登记，未静默替换或删除已安装插件。
+- 已执行固定工具链的完整 check：类型、138 项测试、格式全部通过；13 项定向分发／稳定提升测试覆盖拒绝缺失／替换包、已提升重跑、404／旧标签传播、hash 冲突、权限／JSON 失败和五分钟截止。已实跑 marketplace:candidate 1.0.0；隔离 probe:host 使用生成目录从 npm 安装成功，发现 1.0.0／reader／10 个 app-only 工具／global 入口。加载器检查不是代理完成了真实桌面 UI 验收；后者来自用户确认。
+- 2026-11-07 20:59（北京时间）只读 registry 核对：正式清单包名／版本与既有 published.json 一致，npm 1.0.0 的 SHA-512 与 cce87d6 原验收包一致；latest=1.0.0、next=1.0.0。本轮没有执行改标签命令。GitHub 复查仍为远端空目录和 draft 437560439，实际稳定提升未运行。日志／回执在 `.ai/local/release-1.0.0/stable-promotion/`。
+- 下一步按发布者指令推送工作流、清单和验收记录，完成 npm 标签权限配置并从 main 运行 Promote stable marketplace。当前标签已正确时脚本不需要再次写标签；后续新版本仍需配置对应权限。本轮没有重新打包、移动 v1.0.0、创建 v1.0.1 或触碰私人记录；本机网站 4330 预览继续保留。
+
+## 此前：用户确认 1.0.0 桌面验收通过
 
 - 完成本机候选安装后，用户在本会话明确回复“我已经验收好了”。将其记录为发布者对 npm 1.0.0 的真实宿主验收确认，不将 CLI 安装检查改写成代理执行了桌面 UI 验收。当前远端 main 仍为 93446b9，稳定 marketplace 为 `plugins: []`，候选 Release 437560439 仍为 draft；需要为验收确认保存可访问的 HTTPS 记录，并执行稳定提升。尚未更改 npm latest、推送网站／本地 main 或公开 Release。
 - 用户按 README 添加远端来源后，安装报 `plugin was not found`。已核对远端 main 和本机缓存的 marketplace 均为 `plugins: []`；这是未收录条目，不是 npm 版本缺失。已在 `.ai/local/release-1.0.0/candidate-marketplace/` 准备独立的 `arknights-reader-candidate` 来源，固定 npm `arknights-story-reader@1.0.0`，通过 `codex plugin marketplace add` 和 `codex plugin add arknights-story-reader@arknights-reader-candidate --json` 实际安装成功。CLI 列表确认 installed／enabled 均为 true，缓存内 package.json 与根 plugin.json 均为 1.0.0；回执为 `.ai/local/release-1.0.0/candidate-install.json`。本地的只是来源清单，实际插件来自 npm，不是仓库开发构建。原 dev 0.1.25 安装仍保留；真实桌面验收须选择 candidate 来源并重启／新建会话，尚未确认实际 UI 入口或阅读交互。

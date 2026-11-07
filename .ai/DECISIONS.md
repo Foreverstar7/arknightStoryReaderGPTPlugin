@@ -259,3 +259,15 @@ README 四张 demo-*.png 改为由当前静态网站真实操作截图，使用�
 main 的发布工具现在在上传后对 404 最多等待 300,000ms，每次间隔 10,000ms、单请求至多 15,000ms 且不超过剩余预算，并输出 npm 的标准错误和成功标准输出。总预算依据本次约四分钟的可观察同步窗口加少量余量；不是 npm 的固定 SLA，若未来持续超过预算，应检查日志／registry 和暂存状态，不无限重试。403、解析失败及不同 integrity 均立即失败。四项原创测试覆盖四分钟后成功、已存在版本、哈希冲突／非 404 错误和等待到期；完整类型、132 项测试和格式通过。本地修复未进入本次旧标签的收尾重跑。
 
 用户进一步明确当前不打 v1.0.1 标签，不单独发行 1.0.1；网站和工具修正保留在 main，后续基础搜索作为 1.1.0 的新增功能候选。当前不创建新标签，不自动推送 main／部署 Pages，不以 npm 发布或 fixture 验收替代真实 Codex 桌面验收。
+
+## 稳定渠道同步与候选验收入口（2026-11-07）
+
+用户确认 npm 1.0.0 的真实桌面验收完成后，要求补充稳定工作流、正式清单及相关衔接。此前远端目录为空而 npm 已有包，导致来源可以添加但插件无法安装；候选安装和正式收录须有各自可复现的路径。
+
+正式目录固定已验收的精确 npm 版本，本轮本地补入 1.0.0。新增 marketplace:candidate 命令仅在忽略的固定目录生成 arknights-reader-candidate 清单，再由 Codex 从 npm 安装指定版本，独立于源码 dev 和正式来源。重复安装前刷新来源；从历史临时目录迁移时明确移除旧登记再重加，不静默改真实客户端配置。
+
+稳定提升统一处理 npm latest、固定 marketplace、GitHub Release 的公开／非 prerelease／Latest 状态。主分支 Actions 在宿主确认后先验证标签、干净发布回执、CI 仓库／run ID 及实际 registry integrity；latest 更新并回读确认后才生成目录与回执，推送成功才公开 Release。跨服务步骤无法原子提交：若后续 GitHub 步骤失败，npm latest 可能已经更新；保留现场并重跑，不自动回退或重新发包。latest 已匹配版本与 hash 时跳过标签写入。
+
+依据 [npm 官方 OIDC dist-tag 说明](https://docs.npmjs.com/trusted-publishers/#managing-dist-tags-with-trusted-publishing)，promote.yml 需要独立 Trusted Publisher 与 Allow npm dist-tag，权限不由 release.yml 的 npm publish 继承。仍不新增稳定 environment 审批，不使用长期 token，保留唯一 npm-production 发布环境。固定 npm 12.2.1 满足官方最低版本；未升级工具链或依赖。标签回读沿用既有五分钟总预算／十秒间隔／至多十五秒请求上限，只有缺失或旧标签可等待，其他 HTTP／JSON／hash 错误立即失败；后续若 npm 接口或传播行为改变，先核对官方文档与实际日志再调整预算。
+
+1.0.0 的宿主确认如实记入版本文档，不虚构未采集的 UI 证据或桌面版本。2026-11-07 本轮只读 registry 已见 latest／next 均为 1.0.0，记录实际外部状态，不归因于本轮代码执行了改标签命令。当前工作仅本地实现和验证，发布标签与已发布 tgz 保持不变；远端推送及稳定工作流另按发布者指令执行。

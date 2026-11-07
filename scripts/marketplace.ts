@@ -20,3 +20,11 @@ export function stableMarketplace(packageName: string, version: string) {
     ],
   };
 }
+
+export function candidateMarketplace(packageName: string, version: string) {
+  return {
+    ...stableMarketplace(packageName, version),
+    name: 'arknights-reader-candidate',
+    interface: { displayName: '方舟阅读器候选验收' },
+  };
+}

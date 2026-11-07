@@ -5,7 +5,10 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { promisify } from 'node:util';
 import { checkVersions, setVersion } from '../scripts/release-version.js';
-import { stableMarketplace } from '../scripts/marketplace.js';
+import {
+  candidateMarketplace,
+  stableMarketplace,
+} from '../scripts/marketplace.js';
 import { hostOptions } from '../scripts/host-options.js';
 import { extractPackage, packResultSchema } from '../scripts/package-layout.js';
 
@@ -65,7 +68,10 @@ test('one version command updates every declaration and leaves accepted marketpl
 
 test('stable marketplace uses an exact npm version and stays separate from dev source', () => {
   const catalog = stableMarketplace('@account/reader', '1.2.3');
+  const candidate = candidateMarketplace('@account/reader', '1.2.3');
   assert.equal(catalog.name, 'arknights-reader');
+  assert.equal(candidate.name, 'arknights-reader-candidate');
+  assert.deepEqual(candidate.plugins, catalog.plugins);
   assert.deepEqual(catalog.plugins[0]?.source, {
     source: 'npm',
     package: '@account/reader',
