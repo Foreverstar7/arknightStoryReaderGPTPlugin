@@ -57,3 +57,5 @@
 失败发生在点击固定角色 B 立绘后悬停前方角色 A 姓名：浮层根据剩余空间正常向上放置，挡住了该姓名，真实指针无法触达。修正将后方的角色 A 姓名滚到阅读区下沿，再真实悬停，验证新姓名未展开、原姓名仍展开、角色 B 立绘保持。没有强制触发悬停、跳过检查或放宽超时，也没有改变产品的点击固定规则。
 
 按用户要求不追加本地测试；本次仅提交检查与说明，推送后核对现有 Pages 自动运行结果，正式 npm 发布继续由发布者点击 Publish release。
+
+修正提交 99c24f9 的 [Pages 运行 42385390356](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42385390356) 已完成构建、六项页面检查和部署。普通 Check 的类型与 153 项测试通过，新增检查的一处换行格式提示已用仓库现有 Prettier 补正；本地只执行格式写入，没有重跑测试。原 1.0.1 的 [草稿准备 42384750231](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42384750231) 已成功，网站修正不替换已冻结的插件归档。
