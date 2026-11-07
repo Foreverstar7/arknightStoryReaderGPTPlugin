@@ -11,6 +11,7 @@ const allowed = new Set([
   'styles.css',
   'app.ts',
   'walkthrough.ts',
+  'walkthrough-timing.ts',
   'walkthrough.css',
   'THIRD_PARTY_NOTICES.txt',
   'demo/index.html',

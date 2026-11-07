@@ -7,11 +7,15 @@ export function PortraitPopover({
   label,
   focusOnOpen,
   children,
+  keepOpen,
+  leave,
 }: {
   anchorId: string;
   label: string;
   focusOnOpen: boolean;
   children: ReactNode;
+  keepOpen?: () => void;
+  leave?: () => void;
 }) {
   const panel = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ left: 12, top: 110 });
@@ -66,6 +70,8 @@ export function PortraitPopover({
       aria-label={label}
       tabIndex={-1}
       onClick={(event) => event.stopPropagation()}
+      onPointerEnter={keepOpen}
+      onPointerLeave={leave}
     >
       {children}
     </div>,

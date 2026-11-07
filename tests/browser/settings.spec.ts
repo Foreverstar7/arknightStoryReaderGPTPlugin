@@ -99,6 +99,100 @@ test('switches preserve legacy theme preferences and persist keyboard changes, s
   });
 });
 
+test('settings slides in from the right and refreshing underneath never creates top-layer page snapshots', async ({
+  page,
+  request,
+}) => {
+  await seed(request);
+  await mkdir('.ai/local/screenshots', { recursive: true });
+  for (const reducedMotion of ['no-preference', 'reduce'] as const) {
+    await page.emulateMedia({ reducedMotion });
+    await page.goto('/');
+    // Reload correctly resumes the record from the previous media case.
+    await page.getByRole('button', { name: '⌂ 主页', exact: true }).click();
+    await page.getByRole('button', { name: '打开剧情：雾中来信' }).click();
+    await page
+      .getByRole('button', { name: '阅读 档案 01 一封未寄出的信' })
+      .click();
+    const reader = page.locator('.reader-scroll');
+    await expect(reader).toBeVisible();
+    await page.evaluate(async () => {
+      await Promise.allSettled(
+        document.getAnimations().map((item) => item.finished),
+      );
+    });
+    await reader.evaluate((node) => {
+      node.scrollTop = 400;
+    });
+    const position = await reader.evaluate((node) => node.scrollTop);
+    await page.getByRole('button', { name: '设置', exact: true }).click();
+    const dialog = page.getByRole('dialog', { name: '阅读设置' });
+    const slide = await dialog.evaluate((node) => {
+      const animation = node
+        .getAnimations()
+        .find(
+          (item) =>
+            item instanceof CSSAnimation &&
+            item.animationName === 'settings-enter',
+        );
+      if (!animation) return null;
+      animation.pause();
+      const duration = animation.effect?.getTiming().duration;
+      if (typeof duration !== 'number')
+        throw new Error('Missing settings duration');
+      animation.currentTime = duration * 0.25;
+      return new DOMMatrixReadOnly(getComputedStyle(node).transform).m41;
+    });
+    if (reducedMotion === 'reduce') expect(slide).toBeNull();
+    else {
+      expect(slide).toBeGreaterThan(0);
+      await page.screenshot({
+        path: '.ai/local/screenshots/settings-enter-quarter.png',
+        animations: 'allow',
+      });
+    }
+    await dialog.evaluate((node) =>
+      node.getAnimations().forEach((item) => item.finish()),
+    );
+    await page.evaluate(() => {
+      const original = document.startViewTransition.bind(document);
+      document.startViewTransition = (update) => {
+        document.documentElement.dataset.modalPageSnapshot = 'created';
+        return original(update);
+      };
+    });
+    await dialog
+      .getByRole('button', { name: '刷新本章 ↻', exact: true })
+      .click();
+    await expect(dialog.getByRole('status')).toHaveText('本章正文已刷新。');
+    await expect(page.locator('html')).not.toHaveAttribute(
+      'data-modal-page-snapshot',
+    );
+    expect(await reader.evaluate((node) => node.scrollTop)).toBeCloseTo(
+      position,
+      0,
+    );
+    expect(
+      await dialog.evaluate((node) => {
+        const rect = node.getBoundingClientRect();
+        return (
+          document
+            .elementFromPoint(rect.left + rect.width / 2, rect.top + 20)
+            ?.closest('.settings-panel') === node
+        );
+      }),
+    ).toBe(true);
+    await page.screenshot({
+      path: `.ai/local/screenshots/settings-refresh-${reducedMotion}.png`,
+      animations: 'allow',
+    });
+    await dialog.press('Escape');
+    await expect(
+      page.getByRole('button', { name: '设置', exact: true }),
+    ).toBeFocused();
+  }
+});
+
 test('settings switches fit all viewport sizes and both themes with visible keyboard focus and reduced motion', async ({
   page,
   request,

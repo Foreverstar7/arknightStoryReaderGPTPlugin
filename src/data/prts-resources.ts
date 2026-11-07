@@ -12,6 +12,7 @@ import {
   foldedMap,
   normalizePortraitReference,
   matchSpeakerPortrait,
+  portraitResourceGroup,
   resolvePortraitPlan,
   placeholderPortrait,
   UnresolvedPortraitReference,
@@ -180,9 +181,21 @@ export class PrtsResources {
       refresh,
     );
     if (!identity.id) return null;
-    const reference = matchSpeakerPortrait(references, identity.id);
+    let reference = matchSpeakerPortrait(references, identity.id);
+    let defaultOnly = false;
+    if (!reference) {
+      const candidates = references.filter(
+        (item) => matchSpeakerPortrait([item], identity.id ?? '') !== null,
+      );
+      const groups = new Set(candidates.map(portraitResourceGroup));
+      const group = groups.values().next().value;
+      if (groups.size === 1 && group) {
+        reference = group;
+        defaultOnly = true;
+      }
+    }
     if (!reference) return null;
-    const image = await this.portrait(reference, days, refresh);
+    const image = await this.portrait(reference, days, refresh, defaultOnly);
     return {
       ...image,
       portrait: {
@@ -195,13 +208,17 @@ export class PrtsResources {
     reference: string,
     days: number,
     refresh = false,
+    defaultOnly = false,
   ): Promise<PortraitImage> {
-    return this.images.run(() => this.loadPortrait(reference, days, refresh));
+    return this.images.run(() =>
+      this.loadPortrait(reference, days, refresh, defaultOnly),
+    );
   }
   private async loadPortrait(
     reference: string,
     days: number,
     refresh: boolean,
+    defaultOnly: boolean,
   ): Promise<PortraitImage> {
     let resolved = normalizePortraitReference(reference);
     const evidence: string[] = [];
@@ -222,10 +239,20 @@ export class PrtsResources {
     let old: Awaited<ReturnType<PrtsResources['legacyPortrait']>> | undefined;
     let plan;
     try {
-      plan = resolvePortraitPlan(map, resolved);
+      plan = resolvePortraitPlan(
+        map,
+        resolved,
+        undefined,
+        defaultOnly ? 'default' : 'normal',
+      );
       if (!plan) {
         old = await this.legacyPortrait(days, refresh);
-        plan = resolvePortraitPlan(map, resolved, old, 'legacy');
+        plan = resolvePortraitPlan(
+          map,
+          resolved,
+          old,
+          defaultOnly ? 'default' : 'legacy',
+        );
       }
     } catch (error) {
       if (error instanceof UnresolvedPortraitReference)
@@ -286,7 +313,9 @@ export class PrtsResources {
     const original = await renderPlan(plan);
     if (original) return original;
     old ??= await this.legacyPortrait(days, refresh);
-    for (const mode of ['legacy', 'default'] as const) {
+    for (const mode of defaultOnly
+      ? (['default'] as const)
+      : (['legacy', 'default'] as const)) {
       const candidate = resolvePortraitPlan(map, resolved, old, mode);
       if (!candidate) continue;
       const recovered = await renderPlan(candidate);

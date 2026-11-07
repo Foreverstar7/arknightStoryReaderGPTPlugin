@@ -21,7 +21,7 @@ import { ReaderError } from '../src/shared/errors.js';
 import { STORY_VARIABLES } from '../src/data/prts-portrait.js';
 import {
   coverPresentation,
-  textCoverTitle,
+  supplementCover,
 } from '../src/shared/cover-policy.js';
 
 // Original asset metadata, with the formats observed in PRTS's current player.
@@ -122,19 +122,19 @@ test('cover display admits only approved shapes and text covers use source IDs, 
     'deferred',
   );
   assert.equal(
-    textCoverTitle({ source: 'prts', id: 'prts:主线剧情/特殊 · 剧情' }),
+    supplementCover({ source: 'prts', id: 'prts:主线剧情/特殊 · 剧情' })?.title,
     '主线补充剧情',
   );
   assert.equal(
-    textCoverTitle({ source: 'prts', id: 'prts:活动剧情/特殊 · 剧情' }),
+    supplementCover({ source: 'prts', id: 'prts:活动剧情/特殊 · 剧情' })?.title,
     '活动补充剧情',
   );
   assert.equal(
-    textCoverTitle({ source: 'fixture', id: 'prts:主线剧情/特殊 · 剧情' }),
+    supplementCover({ source: 'fixture', id: 'prts:主线剧情/特殊 · 剧情' }),
     undefined,
   );
   assert.equal(
-    textCoverTitle({ source: 'prts', id: '特殊 · 剧情' }),
+    supplementCover({ source: 'prts', id: '特殊 · 剧情' }),
     undefined,
   );
 });

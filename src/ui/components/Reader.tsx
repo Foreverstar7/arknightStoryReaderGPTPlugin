@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type {
   Block,
   Chapter,
@@ -78,20 +78,35 @@ export function Reader({
     registerFlush,
   });
   const [sidebar, setSidebar] = useState(false);
-  const [portrait, setPortrait] = useState<string | null>(null);
+  const [portrait, setPortrait] = useState<{
+    blockId: string;
+    hover: boolean;
+  } | null>(null);
+  const hoverClose = useRef<ReturnType<typeof setTimeout> | null>(null);
+  function keepPortrait() {
+    if (hoverClose.current) clearTimeout(hoverClose.current);
+  }
+  function leavePortrait() {
+    keepPortrait();
+    // Allow crossing the small gap to the source/retry controls in the portal.
+    hoverClose.current = setTimeout(() => {
+      setPortrait((current) => (current?.hover ? null : current));
+    }, 120);
+  }
+  useEffect(() => () => keepPortrait(), []);
   useEffect(() => {
     if (!portrait) return;
     const close = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setPortrait(null);
-        document.getElementById(`name-${portrait}`)?.focus();
+        document.getElementById(`name-${portrait.blockId}`)?.focus();
       }
     };
     const outside = (event: PointerEvent) => {
       const target = event.target;
       if (!(target instanceof Node)) return;
       if (
-        document.getElementById(`name-${portrait}`)?.contains(target) ||
+        document.getElementById(`name-${portrait.blockId}`)?.contains(target) ||
         document.querySelector('.portrait')?.contains(target)
       )
         return;
@@ -122,31 +137,55 @@ export function Reader({
       case 'speech':
         return (
           <div className="speech">
-            <div className="namebox">
+            <div
+              className="namebox"
+              onPointerEnter={keepPortrait}
+              onPointerLeave={leavePortrait}
+              onBlur={(event) => {
+                const next = event.relatedTarget;
+                if (
+                  next instanceof Node &&
+                  (event.currentTarget.contains(next) ||
+                    document.querySelector('.portrait')?.contains(next))
+                )
+                  return;
+                setPortrait((current) => (current?.hover ? current : null));
+              }}
+            >
               <button
                 id={`name-${block.id}`}
                 className="name"
-                aria-expanded={portrait === block.id}
+                aria-expanded={portrait?.blockId === block.id}
                 aria-label={`查看 ${block.name} 的立绘`}
-                onMouseEnter={() => {
-                  if (autoImages) setPortrait(block.id);
+                onPointerEnter={(event) => {
+                  keepPortrait();
+                  if (event.pointerType === 'mouse' && autoImages)
+                    setPortrait((current) =>
+                      current && !current.hover
+                        ? current
+                        : { blockId: block.id, hover: true },
+                    );
                 }}
+                onPointerLeave={leavePortrait}
                 onClick={(event) => {
                   event.stopPropagation();
-                  setPortrait(portrait === block.id ? null : block.id);
+                  keepPortrait();
+                  setPortrait(
+                    portrait?.blockId === block.id && !portrait.hover
+                      ? null
+                      : { blockId: block.id, hover: false },
+                  );
                 }}
-                aria-describedby={`hint-${block.id}`}
               >
                 {block.name}
               </button>
-              <span className="name-hint" id={`hint-${block.id}`}>
-                点击查看立绘
-              </span>
-              {portrait === block.id && (
+              {portrait?.blockId === block.id && (
                 <PortraitPopover
                   anchorId={`name-${block.id}`}
                   label={`${block.name} 立绘`}
-                  focusOnOpen={!autoImages}
+                  focusOnOpen={!portrait.hover}
+                  keepOpen={keepPortrait}
+                  leave={leavePortrait}
                 >
                   {chapter.source === 'fixture' &&
                   !chapter.imagesAvailable &&

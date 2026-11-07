@@ -446,6 +446,24 @@ test('speaker matching preserves original expression and explicit default fallba
     );
     assert.equal(fallback?.portrait?.status, 'default');
     assert.match(fallback?.layers[0]?.sourceUrl ?? '', /body2-default/u);
+    const multipleExpressions = await source.speakerPortrait(
+      ['char_901_other', 'char_900_reader#3$2', 'char_900_reader#5$2'],
+      '原创角色',
+      7,
+    );
+    assert.equal(multipleExpressions?.portrait.status, 'default');
+    assert.match(
+      multipleExpressions?.layers[0]?.sourceUrl ?? '',
+      /body2-default/u,
+    );
+    assert.equal(
+      await source.speakerPortrait(
+        ['char_900_reader#3$1', 'char_900_reader#5$2'],
+        '原创角色',
+        7,
+      ),
+      null,
+    );
     assert.equal(await source.speakerPortrait(refs, '？？？', 7), null);
     assert.equal(await source.speakerPortrait(refs, '无资料的人', 7), null);
     assert.equal(await source.speakerPortrait(refs, '无资料的人', 7), null);

@@ -54,7 +54,12 @@ export function usePageTransition() {
       commit();
       updateBounds();
     };
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    // Document view-transition snapshots render above modal dialogs. Refreshing
+    // underneath settings must commit directly, without replaying a page reveal.
+    if (
+      document.querySelector('dialog[open]') ||
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
       update();
       return;
     }

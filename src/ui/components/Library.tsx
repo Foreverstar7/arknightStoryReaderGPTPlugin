@@ -1,11 +1,13 @@
 import { useLayoutEffect, useRef } from 'react';
 import type { ReadingState, Story } from '../../shared/contracts.js';
-import { storyProgress } from '../../domain/reading.js';
+import { storyProgress, storyProgressHint } from '../../domain/reading.js';
 import { ProgressRing } from './ProgressRing.js';
 import type { ReaderTransport } from '../transport.js';
 import { SourceImage, useVisible } from './SourceImage.js';
 import { groupStories, storyTypeLabel } from '../catalog.js';
-import { textCoverTitle } from '../../shared/cover-policy.js';
+import { supplementCover } from '../../shared/cover-policy.js';
+import mainSupplement from '../assets/main-supplement.webp?inline';
+import eventSupplement from '../assets/event-supplement.webp?inline';
 import type { CatalogRefreshStatus } from '../useCatalogRefresh.js';
 
 export type LibraryPosition = {
@@ -43,20 +45,28 @@ export function Cover({
   retryable?: boolean;
   active?: boolean;
 }) {
-  const textTitle = textCoverTitle(story);
+  const supplement = supplementCover(story);
   const hasImage = story.source === 'prts' || story.imagesAvailable === true;
   const { ref, seen } = useVisible<HTMLDivElement>(
-    hasImage && !textTitle && active,
+    hasImage && !supplement && active,
   );
   const transitionName = `cover-${Array.from(story.id, (letter) => letter.codePointAt(0)?.toString(16) ?? '').join('-')}`;
   return (
     <div
       className="cover"
-      data-cover-kind={textTitle ? 'text' : 'image'}
+      data-cover-kind={supplement ? 'supplement' : 'image'}
       ref={ref}
       style={{ viewTransitionName: transitionName }}
     >
-      {hasImage && !textTitle && (
+      {supplement && (
+        <img
+          className="supplement-cover"
+          src={supplement.art === 'main' ? mainSupplement : eventSupplement}
+          alt=""
+          loading="lazy"
+        />
+      )}
+      {hasImage && !supplement && (
         <SourceImage
           key={story.id}
           input={{ kind: 'cover', storyId: story.id }}
@@ -69,13 +79,17 @@ export function Cover({
       )}
       <span
         className="cover-label"
-        role={textTitle ? 'img' : undefined}
-        aria-label={textTitle ? `${textTitle} · 应用文字封面` : undefined}
+        role={supplement ? 'img' : undefined}
+        aria-label={
+          supplement
+            ? `${supplement.title} · 应用原创封面 · 非官方图片`
+            : undefined
+        }
       >
-        {textTitle ?? story.coverLabel}
+        {supplement?.title ?? story.coverLabel}
         <small>
-          {textTitle
-            ? '补充档案'
+          {supplement
+            ? '非官方图片'
             : story.source === 'prts'
               ? 'PRTS 剧情'
               : '原创档案 · 布局样例'}
@@ -222,6 +236,7 @@ export function Library({
                       </span>
                       <ProgressRing
                         title={story.title}
+                        unknownHint={storyProgressHint(story, state.records)}
                         value={
                           story.chapters.some(
                             (chapter) =>

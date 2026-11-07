@@ -107,9 +107,11 @@ test('all approved remaining covers decode in full; text covers never request im
     await card.scrollIntoViewIfNeeded();
     const isText = textIds.includes(story.id);
     if (isText) {
-      await expect(card.locator('[data-cover-kind="text"]')).toBeVisible();
+      await expect(
+        card.locator('[data-cover-kind="supplement"]'),
+      ).toBeVisible();
       await expect(card.getByRole('img')).toHaveAccessibleName(
-        /补充剧情 · 应用文字封面/u,
+        /补充剧情 · 应用原创封面/u,
       );
       await expect(
         card.locator('.image-error,.image-loading,.image-idle,.image-deferred'),
@@ -191,7 +193,7 @@ test('all approved remaining covers decode in full; text covers never request im
           await page.evaluate(() => document.documentElement.scrollWidth),
         ).toBe(viewport.width);
         await page.screenshot({
-          path: `.ai/local/screenshots/remaining-${id === crisisId ? 'logo' : id === textIds[0] ? 'text' : 'square'}-${colorScheme}-${viewport.width}x${viewport.height}.png`,
+          path: `.ai/local/screenshots/remaining-${id === crisisId ? 'logo' : id === textIds[0] ? 'supplement' : 'square'}-${colorScheme}-${viewport.width}x${viewport.height}.png`,
         });
         await page.getByRole('button', { name: '⌂ 主页', exact: true }).click();
         await expect(card).toBeInViewport();
@@ -490,8 +492,8 @@ test('approved square, logo, text and large banner persist in the first chapter 
         const cover = document.querySelector('.mini-cover .cover');
         if (cover)
           document.documentElement.dataset.chapterCoverSnapshot =
-            cover.getAttribute('data-cover-kind') === 'text'
-              ? 'text'
+            cover.getAttribute('data-cover-kind') === 'supplement'
+              ? 'supplement'
               : (cover
                   .querySelector('[data-image-state]')
                   ?.getAttribute('data-image-state') ?? 'missing');
@@ -514,7 +516,7 @@ test('approved square, logo, text and large banner persist in the first chapter 
     await card.getByRole('button', { name: /^打开剧情/u }).click();
     await expect(page.locator('html')).toHaveAttribute(
       'data-chapter-cover-snapshot',
-      id.includes('主线剧情/') ? 'text' : 'ready',
+      id.includes('主线剧情/') ? 'supplement' : 'ready',
     );
     await page.setViewportSize({ width: 768, height: 640 });
     await expect(page.locator('.mini-cover').getByRole('img')).toBeVisible();

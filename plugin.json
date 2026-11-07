@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.0.1",
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "arknights-story-reader",
   "description": "方舟剧情阅读器：浏览 PRTS 剧情目录，按需读取正文与图片，保存本机阅读位置。",
@@ -7,7 +7,11 @@
     "com.openai": {
       "interface": {
         "displayName": "方舟剧情阅读器",
-        "shortDescription": "PRTS 真实剧情与本机续读"
+        "shortDescription": "PRTS 真实剧情与本机续读",
+        "composerIcon": "./assets/reader-mark.svg",
+        "composerIconDark": "./assets/reader-mark-dark.svg",
+        "logo": "./assets/reader-mark.svg",
+        "logoDark": "./assets/reader-mark-dark.svg"
       }
     }
   }

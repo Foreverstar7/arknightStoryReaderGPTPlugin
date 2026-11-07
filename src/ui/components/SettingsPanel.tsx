@@ -95,7 +95,14 @@ export function SettingsPanel({
     state.settings.theme,
   ]);
   useEffect(() => {
-    dialog.current?.showModal();
+    const panel = dialog.current;
+    const trigger = document.activeElement;
+    panel?.showModal();
+    return () => {
+      panel?.close();
+      if (trigger instanceof HTMLElement && trigger.isConnected)
+        trigger.focus({ preventScroll: true });
+    };
   }, []);
   async function perform(action: () => Promise<void>, success: string) {
     setBusy(true);

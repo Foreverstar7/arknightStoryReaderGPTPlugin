@@ -1,5 +1,11 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import {
+  WALK_CONTENT_DURATION,
+  WALK_SCROLL_SVH,
+  WALK_SECTION_SVH,
+  walkthroughFrame,
+} from './walkthrough-timing.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -21,27 +27,13 @@ export function initializeWalkthrough() {
   const movingCover = find('.walk-moving-cover');
   const source = find('.walk-cover-selected img');
   const target = find('.walk-book-cover');
+  const direction = find('.walk-direction');
   const caption = document.getElementById('walk-caption');
   const steps = [...root.querySelectorAll('.walk-steps li')];
   const media = gsap.matchMedia();
-  // Add reading space between actions, not slower clicks or cover motion.
-  // Positions below retain the original 12-unit choreography; cue() inserts
-  // six units of stable views. Keep the 430svh span in walkthrough.css aligned.
-  const holds = [
-    { before: 0.5, length: 0.8 },
-    { before: 3.6, length: 1.0 },
-    { before: 6.0, length: 1.2 },
-    { before: 8.0, length: 1.0 },
-    { before: 9.1, length: 2.0 },
-  ];
-  const duration = 12 + holds.reduce((sum, hold) => sum + hold.length, 0);
-  const cue = (time: number) =>
-    time +
-    holds.reduce(
-      (sum, hold) => sum + (hold.before <= time ? hold.length : 0),
-      0,
-    );
-  root.dataset.timelineDuration = String(duration);
+  root.style.setProperty('--walkthrough-span', `${WALK_SECTION_SVH}svh`);
+  root.dataset.timelineDuration = String(WALK_CONTENT_DURATION);
+  const movingHint = direction.textContent ?? '';
   const captions = [
     '打开 ChatGPT，从侧栏进入阅读器。',
     '浏览封面，选择想读的故事。',
@@ -49,8 +41,7 @@ export function initializeWalkthrough() {
     '进入正文，把注意力留给故事。',
   ];
   function setStage(time: number) {
-    const index =
-      time < cue(2.5) ? 0 : time < cue(5.2) ? 1 : time < cue(8.2) ? 2 : 3;
+    const index = time < 2.5 ? 0 : time < 5.2 ? 1 : time < 8.2 ? 2 : 3;
     root.dataset.scene = ['home', 'library', 'chapters', 'reader'][index];
     if (caption) caption.textContent = captions[index] ?? '';
     steps.forEach((step, i) => step.classList.toggle('current', index === i));
@@ -86,7 +77,9 @@ export function initializeWalkthrough() {
         });
         gsap.set(reader, { autoAlpha: 1 });
         gsap.set('.walk-rail', { autoAlpha: 1 });
-        setStage(duration);
+        setStage(WALK_CONTENT_DURATION);
+        delete root.dataset.hold;
+        direction.textContent = movingHint;
         if (caption)
           caption.textContent = '打开插件，选择剧情与篇目，开始阅读。';
         return () => root.classList.remove('motion-static');
@@ -98,27 +91,20 @@ export function initializeWalkthrough() {
       gsap.set('.walk-drawer', { x: 0, xPercent: -100 });
       gsap.set('.walk-progress span', { scaleX: 0, transformOrigin: 'left' });
       const timeline = gsap.timeline({
+        paused: true,
         defaults: { ease: 'none' },
-        scrollTrigger: {
-          trigger: root,
-          start: 'top 16px',
-          end: 'bottom bottom',
-          scrub: true,
-          invalidateOnRefresh: true,
-        },
-        onUpdate: () => setStage(timeline.time()),
       });
       timeline
         .fromTo(
           home,
           { autoAlpha: 1, y: 12 },
           { autoAlpha: 1, y: 0, duration: 0.55 },
-          cue(0),
+          0,
         )
         .to(
           '.walk-drawer',
           { xPercent: 0, duration: 0.65, ease: 'power2.inOut' },
-          cue(0.5),
+          0.5,
         )
         .fromTo(
           cursor,
@@ -129,34 +115,34 @@ export function initializeWalkthrough() {
             y: () => box(find('.walk-menu-reader')).y + 26,
             duration: 0.65,
           },
-          cue(1.0),
+          1.0,
         )
         .fromTo(
           '.menu-ring',
           { scale: 0.8, opacity: 0 },
           { scale: 1, opacity: 1, duration: 0.2 },
-          cue(1.7),
+          1.7,
         )
-        .to(cursor, { scale: 0.85, duration: 0.12 }, cue(1.8))
-        .to(cursor, { scale: 1, autoAlpha: 0, duration: 0.25 }, cue(1.92))
-        .to(home, { autoAlpha: 0, duration: 0.35 }, cue(2.2))
+        .to(cursor, { scale: 0.85, duration: 0.12 }, 1.8)
+        .to(cursor, { scale: 1, autoAlpha: 0, duration: 0.25 }, 1.92)
+        .to(home, { autoAlpha: 0, duration: 0.35 }, 2.2)
         .to(
           '.walk-drawer',
           { xPercent: -100, duration: 0.5, ease: 'power2.inOut' },
-          cue(2.25),
+          2.25,
         )
-        .to('.walk-rail', { autoAlpha: 1, duration: 0.35 }, cue(2.4))
+        .to('.walk-rail', { autoAlpha: 1, duration: 0.35 }, 2.4)
         .fromTo(
           library,
           { autoAlpha: 0, y: 14 },
           { autoAlpha: 1, y: 0, duration: 0.55 },
-          cue(2.5),
+          2.5,
         )
         .fromTo(
           '.walk-cover',
           { y: 16, opacity: 0 },
           { y: 0, opacity: 1, duration: 0.4, stagger: 0.07 },
-          cue(2.65),
+          2.65,
         )
         .to(
           cursor,
@@ -166,17 +152,17 @@ export function initializeWalkthrough() {
             y: () => box(source).y + box(source).height * 0.65,
             duration: 0.6,
           },
-          cue(3.6),
+          3.6,
         )
         .fromTo(
           '.cover-ring',
           { opacity: 0 },
           { opacity: 1, duration: 0.2 },
-          cue(4.35),
+          4.35,
         )
-        .to(cursor, { scale: 0.85, duration: 0.1 }, cue(4.4))
-        .to(cursor, { scale: 1, autoAlpha: 0, duration: 0.2 }, cue(4.5))
-        .set(movingCover, { autoAlpha: 1 }, cue(4.95))
+        .to(cursor, { scale: 0.85, duration: 0.1 }, 4.4)
+        .to(cursor, { scale: 1, autoAlpha: 0, duration: 0.2 }, 4.5)
+        .set(movingCover, { autoAlpha: 1 }, 4.95)
         .fromTo(
           movingCover,
           {
@@ -194,28 +180,24 @@ export function initializeWalkthrough() {
             ease: 'power2.inOut',
             immediateRender: false,
           },
-          cue(4.95),
+          4.95,
         )
-        .to(library, { autoAlpha: 0, duration: 0.35 }, cue(4.96))
+        .to(library, { autoAlpha: 0, duration: 0.35 }, 4.96)
         .fromTo(
           chapters,
           { autoAlpha: 0 },
           { autoAlpha: 1, duration: 0.45 },
-          cue(5.35),
+          5.35,
         )
-        .set(target, { autoAlpha: 0 }, cue(4.95))
-        .set(target, { autoAlpha: 1 }, cue(5.75))
-        .set(movingCover, { autoAlpha: 0 }, cue(5.75))
+        .set(target, { autoAlpha: 0 }, 4.95)
+        .set(target, { autoAlpha: 1 }, 5.75)
+        .set(movingCover, { autoAlpha: 0 }, 5.75)
         .to(
           '.walk-chapter-track',
           { x: () => -axisShift(), duration: 1.35, ease: 'power1.inOut' },
-          cue(6.0),
+          6.0,
         )
-        .to(
-          '.walk-scroll-line span',
-          { xPercent: 100, duration: 1.35 },
-          cue(6.0),
-        )
+        .to('.walk-scroll-line span', { xPercent: 100, duration: 1.35 }, 6.0)
         .to(
           cursor,
           {
@@ -227,31 +209,57 @@ export function initializeWalkthrough() {
             y: () => box(find('.walk-chapter-selected')).y + 44,
             duration: 0.4,
           },
-          cue(7.15),
+          7.15,
         )
         .fromTo(
           '.walk-chapter-selected i',
           { scaleX: 0 },
           { scaleX: 1, duration: 0.25 },
-          cue(7.6),
+          7.6,
         )
-        .to(cursor, { scale: 0.85, duration: 0.1 }, cue(7.7))
-        .to(cursor, { scale: 1, autoAlpha: 0, duration: 0.25 }, cue(7.8))
-        .to(chapters, { autoAlpha: 0, y: -10, duration: 0.45 }, cue(8.0))
+        .to(cursor, { scale: 0.85, duration: 0.1 }, 7.7)
+        .to(cursor, { scale: 1, autoAlpha: 0, duration: 0.25 }, 7.8)
+        .to(chapters, { autoAlpha: 0, y: -10, duration: 0.45 }, 8.0)
         .fromTo(
           reader,
           { autoAlpha: 0, y: 15 },
           { autoAlpha: 1, y: 0, duration: 0.6 },
-          cue(8.2),
+          8.2,
         )
         .to(
           '.walk-reading-copy',
           { y: -110, duration: 2.25, ease: 'power1.inOut' },
-          cue(9.1),
+          9.1,
         )
-        .to('.walk-progress span', { scaleX: 1, duration }, cue(0));
+        .to(
+          '.walk-progress span',
+          { scaleX: 1, duration: WALK_CONTENT_DURATION },
+          0,
+        );
+      const render = (progress: number) => {
+        const frame = walkthroughFrame(progress * WALK_SCROLL_SVH);
+        timeline.time(frame.time);
+        setStage(frame.time);
+        if (frame.hold) root.dataset.hold = frame.hold;
+        else delete root.dataset.hold;
+        direction.textContent = frame.hold ? '停留中 · 继续下滑' : movingHint;
+      };
+      ScrollTrigger.create({
+        trigger: root,
+        start: 'top 16px',
+        end: 'bottom bottom',
+        onUpdate: (self) => render(self.progress),
+        onRefresh: (self) => {
+          // Rewind before invalidating so `.to` tweens recapture their original
+          // start values, then restore the scroll frame before the next paint.
+          timeline.time(0, true).invalidate();
+          render(self.progress);
+        },
+      });
       return () => {
         root.classList.remove('motion-ready');
+        delete root.dataset.hold;
+        direction.textContent = movingHint;
       };
     },
   );

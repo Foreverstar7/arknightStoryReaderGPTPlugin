@@ -148,6 +148,49 @@ test('real repaired legacy, whitespace and variable portraits plus ambiguous sce
   }
 });
 
+test('same-chapter evidence resolves NPC portraits throughout the prologue mixed scenes without name exceptions', async ({
+  page,
+  request,
+}) => {
+  test.setTimeout(120_000);
+  const chapter = await open(page, request, 'prts:W2G/BEG');
+  for (const name of ['全副武装的男性', '医疗干员']) {
+    const blocks = chapter.blocks.filter(
+      (block) =>
+        block.kind === 'speech' &&
+        block.name === name &&
+        new Set(block.scene?.slots.map((slot) => slot.resource)).size > 1,
+    );
+    expect(blocks.length).toBeGreaterThan(0);
+    for (const block of blocks) {
+      const input = {
+        kind: 'portrait',
+        chapterId: chapter.id,
+        blockId: block.id,
+      };
+      const result = imageResultSchema.parse(
+        await call(request, 'reader_image', input),
+      );
+      expect(result.portrait?.status).toBe('original');
+      expect(result.portrait?.reason).toBe('chapter_single_scene');
+      expect(
+        result.portrait?.evidence.some((url) => url.includes('W2G/BEG')),
+      ).toBe(true);
+    }
+    const target = blocks[0];
+    if (!target) throw new Error('Missing NPC sample');
+    await page.locator(`[id="name-${target.id}"]`).focus();
+    await page.keyboard.press('Enter');
+    await expect(
+      page.getByRole('dialog').locator('[data-portrait-state="original"]'),
+    ).toBeVisible({ timeout: 30_000 });
+    await page.screenshot({
+      path: `.ai/local/screenshots/prologue-${name}.png`,
+    });
+    await page.keyboard.press('Escape');
+  }
+});
+
 test('real omitted CGItem and cggroup render composed SVGs on demand and keep all tiles', async ({
   page,
   request,

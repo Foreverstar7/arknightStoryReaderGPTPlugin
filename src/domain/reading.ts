@@ -69,6 +69,34 @@ export function percent(
   return Math.min(99, Math.floor((Math.max(0, words) / total) * 100));
 }
 
+/** Saved revisions are reconciled only by actually reopening/reading a chapter. */
+export function pendingReadingChapters(
+  story: Story,
+  records: Record<string, ReadingRecord>,
+) {
+  return story.chapters.filter((chapter) => {
+    const record = records[chapter.id];
+    return (
+      record !== undefined &&
+      (record.progressKnown === false ||
+        (chapter.wordCountRevision !== undefined &&
+          record.revision !== chapter.wordCountRevision))
+    );
+  });
+}
+
+export function storyProgressHint(
+  story: Story,
+  records: Record<string, ReadingRecord>,
+) {
+  const pending = pendingReadingChapters(story, records);
+  if (pending.length)
+    return `${pending.length} 篇旧阅读记录待核实，进入剧情可查看并恢复对应篇目`;
+  if (story.chapters.every((chapter) => chapter.contentKind === 'video'))
+    return '本剧情为视频，不统计文字阅读进度';
+  return '总字数待统计，打开剧情后自动加载正文；失败篇目可重试';
+}
+
 export function storyProgress(
   story: Story,
   records: Record<string, ReadingRecord>,

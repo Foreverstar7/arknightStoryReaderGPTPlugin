@@ -29,6 +29,7 @@ import {
   type StoredReadingState,
 } from '../storage/reading-store.js';
 import { ChapterContent } from './chapter-content.js';
+import { chapterSpeakerBindings } from '../data/prts-speaker.js';
 
 function historyToken(state: StoredReadingState, storyId: string) {
   return `${state.historyEpoch}:${state.storyHistoryEpochs[storyId] ?? 0}`;
@@ -47,6 +48,7 @@ export class ReaderService {
   private readonly openedHistory = new Map<string, string>();
   private remember(chapter: Chapter, layout = readingLayout(chapter)) {
     const targets = new Map<string, ImageTarget>();
+    const bindings = chapterSpeakerBindings(chapter);
     for (const block of chapter.blocks) {
       const leaves =
         block.kind === 'choices'
@@ -61,6 +63,7 @@ export class ReaderService {
             kind: 'portrait',
             speaker: leaf.name,
             resources: leaf.scene?.slots.map((slot) => slot.resource) ?? [],
+            speakerBinding: bindings.get(leaf.id),
           });
         if (leaf.kind === 'cg')
           targets.set(leaf.id, {

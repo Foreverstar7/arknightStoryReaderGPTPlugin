@@ -22,7 +22,7 @@
   position: relative;
 }
 .walkthrough.motion-ready {
-  height: 430svh;
+  height: var(--walkthrough-span, 650svh);
 }
 .walk-pin {
   position: sticky;

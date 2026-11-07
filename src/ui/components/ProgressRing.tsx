@@ -2,9 +2,11 @@
 export function ProgressRing({
   value,
   title,
+  unknownHint = '进度待统计，打开剧情后自动加载正文',
 }: {
   value: number | null;
   title: string;
+  unknownHint?: string;
 }) {
   return (
     <span
@@ -14,12 +16,8 @@ export function ProgressRing({
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={value ?? undefined}
-      aria-valuetext={
-        value === null ? '进度待统计，打开剧情后自动加载正文' : `${value}%`
-      }
-      title={
-        value === null ? '打开剧情后自动加载正文并统计进度' : `已读 ${value}%`
-      }
+      aria-valuetext={value === null ? unknownHint : `${value}%`}
+      title={value === null ? unknownHint : `已读 ${value}%`}
     >
       <svg viewBox="0 0 48 48" aria-hidden="true">
         <circle className="progress-ring-base" cx="24" cy="24" r="23" />

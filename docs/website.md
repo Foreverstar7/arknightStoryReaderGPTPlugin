@@ -13,7 +13,7 @@ node scripts/serve-site.mjs
 
 打开 http://127.0.0.1:4330/arknightStoryReaderGPTPlugin/ 。修改源码后重新构建并刷新；网页不需要 fixture 开发服务、MCP、PRTS 或模型 API key。服务只绑定 127.0.0.1，Ctrl+C 停止自己的预览。
 
-- **观看流程**：滚动进入“阅读器示例”，下滑推进，停下暂停，上滑倒放。打开窗口、侧栏选中、封面、横向交错篇目轴和正文共用一条时间轴。动画里的操作是示意，不是按钮。
+- **观看流程**：滚动进入“阅读器示例”，下滑推进，停下暂停，上滑倒放。侧栏选中、封面目录、篇目轴出现、定位篇目和正文展开有五段明确停留；画面保持不动，继续滚动一小段距离后才推进，并显示“停留中 · 继续下滑”。停留不计时、不拦截滚轮／触摸。总区为 650svh，其中动作占 380svh、五个停留共 170svh，另保留一个 sticky 视口；比 600svh 版本的停留距离增加约 42%，转场移动速度保持，正文停留略长。动画里的操作是示意，不是按钮。
 - **亲自试试**：点击或用键盘展开，首次才加载真实 ReaderApp；可翻页、点姓名查看兔兔、原位展开场景、调整设置和续读。收起再展开不重置页面；“重置演示”恢复预置占位样例。
 - **数据范围**：标题、正文和角色名是占位符，图片是本地 AI 生成示意；记录存在独立的浏览器 sessionStorage，不读取或同步安装后的插件数据。刷新进入主页，最近阅读可恢复位置；新版 v2 会话键不覆盖早期 v1，关闭标签页后的清理由浏览器管理。
 - **减少动态效果／矮窗口**：显示静态正文和四步说明，保留自然网页滚动，不将整页缩小。
@@ -21,7 +21,7 @@ node scripts/serve-site.mjs
 ## 源码边界
 
 - website/index.html、styles.css：沿用已认可 HTML 的布局、安装命令、常见问题与项目标识；已去除草稿工具栏和标注研究区。
-- website/walkthrough.ts、walkthrough.css：独立 GSAP／ScrollTrigger 分镜和响应式样式，和可交互阅读器不共享阅读状态。
+- website/walkthrough.ts、walkthrough.css：独立 GSAP／ScrollTrigger 分镜和响应式样式，和可交互阅读器不共享阅读状态。walkthrough-timing.ts 将滚动距离映射到原 12 单位动作时间，在完整画面插入真正冻结整条时间轴的停留段；同位置倒放／刷新布局得到同一帧，CSS 区域高度由同一参数生成。
 - website/app.ts：按需加载体验区、示意外壳切换及显式重置。
 - website/demo/：复用 src/ui/ReaderApp、阅读器 CSS 与字数规则。data.ts 提供独立占位目录／正文，assets.ts 仅按请求读取打包图片；BrowserDemoTransport 适配浏览器会话数据，沿用工具输入／输出验证，不连接本机 API 或 PRTS。共享契约的可选 imagesAvailable 允许 fixture 正常走图片接口，sourceLabel 让本地素材正确标注来源；普通 fixture 和正式 PRTS 默认行为保留。
 - scripts/build-site.mjs：检查公开源目录／相对资源后，用已有 Vite／React 工具链构建两个静态入口至 build/site/；输出保持 Pages 项目子路径可用。不处理 npm 归档或私人阅读记录。
@@ -42,7 +42,7 @@ Playwright 会自行启停 4330 预览。运行前应先关闭自己在该端口
 
 ## 素材与维护
 
-- assets/reader-mark.svg 为已认可的兔耳书页／菱形切光静态图标，仅更新网站，不改变插件清单。
+- assets/reader-mark.svg 为已认可的兔耳书页／菱形切光静态图标；1.0.1 将同一矢量图的明暗配色副本放入根 assets/，由插件清单的 logo／composerIcon 引用并打包。网站部署与插件更新分别生效，网站推送不会替换已安装插件的图标。
 - 六张 assets/cover-*.webp 是已有内置 image_gen 线描意象图的等比网页副本（1000×563），合计约 308 KB；《巴别塔》使用二版。动画和点击体验共用这些图；体验区封面保留全图并填充深色背景，正文按 CG 交互原位展开全图，明确标注占位演示，不冒充原作目录或剧情。
 - 六张原始 PNG、完整提示词、选择清单与弃用的巴别塔首版编辑输入已归档 docs/design/website-covers/ 并随 Git 同步；正式构建只依赖 website/ 中的文件，不读取 .ai/local 或全局工具。
 - assets/rabbit-portrait.webp 为 768×768、52,462 字节的透明卡通动物兔子：四足坐姿、蓝色小吊坠和银色戒环，不采用人形。原始透明 PNG、动物体态编辑输入、设定核对与完整内置 image_gen 提示词见 [兔兔素材](design/website-demo-assets/PROMPTS.md)。已知角色和分支角色复用此示意图，匿名仍显示中性占位。

@@ -6,6 +6,8 @@ import {
   countText,
   percent,
   storyProgress,
+  pendingReadingChapters,
+  storyProgressHint,
 } from '../src/domain/reading.js';
 import { FixtureSource } from '../src/data/fixture.js';
 import type { Story } from '../src/shared/contracts.js';
@@ -61,6 +63,23 @@ test('weighted progress keeps unknown totals unknown and never rounds unfinished
     updatedAt: new Date().toISOString(),
   };
   assert.equal(storyProgress(story, { a: record }), 10);
+  const revised = {
+    ...story,
+    chapters: story.chapters.map((chapter) =>
+      chapter.id === 'a' ? { ...chapter, wordCountRevision: 'v2' } : chapter,
+    ),
+  };
+  const saved = structuredClone(record);
+  assert.equal(storyProgress(revised, { a: record }), null);
+  assert.deepEqual(
+    pendingReadingChapters(revised, { a: record }).map((chapter) => chapter.id),
+    ['a'],
+  );
+  assert.match(
+    storyProgressHint(revised, { a: record }),
+    /1 篇旧阅读记录待核实/u,
+  );
+  assert.deepEqual(record, saved);
   // An opened revision's verified count overrides an older catalog count.
   assert.equal(
     storyProgress(story, {

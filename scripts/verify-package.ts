@@ -81,7 +81,7 @@ const result = await withVerificationCleanup(async () => {
   const own = files.filter((file) => !file.startsWith('node_modules/'));
   assert.ok(
     own.every((file) =>
-      /^(?:dist\/(?:.+\.js|ui\/index\.html)|package\.json|plugin\.json|mcp\.json|README\.md|LICENSE)$/u.test(
+      /^(?:dist\/(?:.+\.js|ui\/index\.html)|assets\/reader-mark(?:-dark)?\.svg|package\.json|plugin\.json|mcp\.json|README\.md|LICENSE)$/u.test(
         file,
       ),
     ),
@@ -111,6 +111,28 @@ const result = await withVerificationCleanup(async () => {
     npmCommand(['ls', '--omit=dev', '--all', '--offline', '--json'], root),
   );
   const launch = await readReaderLaunch(root);
+  const presentation = z
+    .object({
+      extensions: z.object({
+        'com.openai': z.object({
+          interface: z.object({
+            logo: z.string(),
+            logoDark: z.string(),
+            composerIcon: z.string(),
+            composerIconDark: z.string(),
+          }),
+        }),
+      }),
+    })
+    .parse(JSON.parse(await readFile(path.join(root, 'plugin.json'), 'utf8')));
+  for (const icon of Object.values(
+    presentation.extensions['com.openai'].interface,
+  )) {
+    assert.match(icon, /^\.\/assets\/reader-mark(?:-dark)?\.svg$/u);
+    const content = await readFile(path.join(root, icon), 'utf8');
+    assert.equal(content, await readFile(path.join(project, icon), 'utf8'));
+    assert.match(content, /viewBox="0 0 48 48"/u);
+  }
   assert.equal(launch.command, process.execPath);
   assert.equal(launch.packagedRuntime, false);
   assert.ok(launch.args.includes('--installed'));

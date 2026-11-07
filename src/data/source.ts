@@ -5,9 +5,15 @@ import type {
   ReaderImage,
   CgComposition,
 } from '../shared/contracts.js';
+import type { SpeakerBinding } from './prts-speaker.js';
 
 export type ImageTarget =
-  | { kind: 'portrait'; resources: string[]; speaker?: string }
+  | {
+      kind: 'portrait';
+      resources: string[];
+      speaker?: string;
+      speakerBinding?: SpeakerBinding;
+    }
   | { kind: 'cg'; resource?: string; composition?: CgComposition };
 
 export interface StorySource {

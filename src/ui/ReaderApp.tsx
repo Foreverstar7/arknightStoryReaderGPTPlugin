@@ -442,7 +442,10 @@ export function ReaderApp({
           <button
             aria-label="设置"
             disabled={!snapshot}
-            onClick={() => setSettingsOpen(true)}
+            onClick={() => {
+              pageTransition.cancel();
+              setSettingsOpen(true);
+            }}
           >
             ⚙ 设置
           </button>

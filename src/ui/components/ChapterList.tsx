@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ReadingState, Story } from '../../shared/contracts.js';
-import { chapterProgress, progressLabel } from '../../domain/reading.js';
+import {
+  chapterProgress,
+  pendingReadingChapters,
+  progressLabel,
+} from '../../domain/reading.js';
 import { Cover } from './Library.js';
 import type { ReaderTransport } from '../transport.js';
 import { useVisible } from './SourceImage.js';
@@ -89,6 +93,7 @@ export function ChapterList({
   const [confirmClear, setConfirmClear] = useState(false);
   const [clearing, setClearing] = useState(false);
   const [clearMessage, setClearMessage] = useState('');
+  const pending = pendingReadingChapters(story, state.records);
   const recent = Object.values(state.records)
     .filter((record) => record.storyId === story.id)
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
@@ -152,6 +157,23 @@ export function ChapterList({
               </ul>
             </details>
           ) : null}
+          {pending.length > 0 && (
+            <details className="preparation-failures progress-pending">
+              <summary>阅读记录待核实（{pending.length} 篇）</summary>
+              <p>
+                这些篇目的记录来自旧版正文。为保留原有位置与最远已读进度，请打开对应篇目核实；必要时继续阅读后更新，后台字数统计不会覆盖旧记录。
+              </p>
+              <ul>
+                {pending.map((chapter) => (
+                  <li key={chapter.id}>
+                    <button onClick={() => open(chapter.id, true)}>
+                      核实 {chapter.code} {chapter.title}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )}
           <div className="story-actions">
             {recent && (
               <button

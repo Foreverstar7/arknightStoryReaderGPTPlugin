@@ -1,18 +1,40 @@
 import { expect, test, type Page } from '@playwright/test';
+import {
+  WALK_CONTENT_DURATION,
+  WALK_HOLDS,
+  WALK_SCROLL_SVH,
+} from '../../website/walkthrough-timing.js';
 
 async function scrub(page: Page, time: number) {
-  await page.evaluate((time) => {
-    const root = document.querySelector<HTMLElement>('.walkthrough');
-    if (!root) throw new Error('Missing walkthrough');
-    const top = root.getBoundingClientRect().top + scrollY - 16;
-    window.scrollTo({
-      top:
-        top +
-        ((root.offsetHeight - innerHeight + 16) * time) /
-          Number(root.dataset.timelineDuration),
-      behavior: 'instant',
-    });
-  }, time);
+  const duration = Math.max(0, Math.min(WALK_CONTENT_DURATION, time));
+  const motion =
+    WALK_SCROLL_SVH - WALK_HOLDS.reduce((sum, hold) => sum + hold.span, 0);
+  const earlier = WALK_HOLDS.filter((hold) => hold.at < duration).reduce(
+    (sum, hold) => sum + hold.span,
+    0,
+  );
+  const hold = WALK_HOLDS.find((hold) => hold.at === duration);
+  await scrubDistance(
+    page,
+    (duration / WALK_CONTENT_DURATION) * motion +
+      earlier +
+      (hold ? hold.span / 2 : 0),
+  );
+}
+
+async function scrubDistance(page: Page, distance: number) {
+  await page.evaluate(
+    ({ distance, total }) => {
+      const root = document.querySelector<HTMLElement>('.walkthrough');
+      if (!root) throw new Error('Missing walkthrough');
+      const top = root.getBoundingClientRect().top + scrollY - 16;
+      window.scrollTo({
+        top: top + ((root.offsetHeight - innerHeight + 16) * distance) / total,
+        behavior: 'instant',
+      });
+    },
+    { distance, total: WALK_SCROLL_SVH },
+  );
   await page.evaluate(
     () =>
       new Promise((resolve) =>
@@ -29,9 +51,13 @@ test('scroll controls the complete flow, pauses at rest and reverses the same ge
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('./');
   await expect(page.locator('.walkthrough')).toHaveClass(/motion-ready/u);
+  await expect(page.locator('.walkthrough')).toHaveAttribute(
+    'data-timeline-duration',
+    String(WALK_CONTENT_DURATION),
+  );
   await expect(page.locator('#reader-demo')).not.toHaveAttribute('src');
   const capture = async () =>
-    page.locator('.walk-stage').evaluate((root) => {
+    page.locator('.walkthrough').evaluate((root) => {
       return [
         '.walk-home',
         '.walk-library',
@@ -40,9 +66,12 @@ test('scroll controls the complete flow, pauses at rest and reverses the same ge
         '.walk-moving-cover',
         '.walk-chapter-track',
         '.walk-reading-copy',
+        '.walk-drawer',
+        '.walk-cursor',
+        '.walk-progress span',
       ].map((selector) => {
         const element = root.querySelector(selector);
-        if (!element) throw new Error('Missing timeline element');
+        if (!element) throw new Error(`Missing timeline element: ${selector}`);
         const style = getComputedStyle(element);
         return {
           opacity: style.opacity,
@@ -54,10 +83,10 @@ test('scroll controls the complete flow, pauses at rest and reverses the same ge
       });
     });
   for (const [time, scene] of [
-    [2.3, 'home'],
-    [5.0, 'library'],
-    [9.9, 'chapters'],
-    [13.6, 'reader'],
+    [2.18, 'home'],
+    [3.45, 'library'],
+    [5.85, 'chapters'],
+    [8.9, 'reader'],
   ] as const) {
     await scrub(page, time);
     await expect(page.locator('.walkthrough')).toHaveAttribute(
@@ -73,12 +102,63 @@ test('scroll controls the complete flow, pauses at rest and reverses the same ge
   const end = await capture();
   await page.waitForTimeout(200);
   expect(await capture()).toEqual(end);
-  await scrub(page, 7.1);
+  for (const hold of WALK_HOLDS) {
+    await scrubDistance(page, hold.start + hold.span * 0.2);
+    await expect(page.locator('.walkthrough')).toHaveAttribute(
+      'data-hold',
+      hold.id,
+    );
+    const pose = await capture();
+    await scrubDistance(page, hold.end - hold.span * 0.2);
+    expect(
+      await capture(),
+      `${hold.id} must stay frozen while consuming more scroll`,
+    ).toEqual(pose);
+    await scrubDistance(page, hold.end + hold.span * 0.2);
+    await expect(page.locator('.walkthrough')).not.toHaveAttribute('data-hold');
+    expect(await capture()).not.toEqual(pose);
+    await scrubDistance(page, hold.start + hold.span * 0.2);
+    expect(
+      await capture(),
+      `${hold.id} must return to the same pose when reversing`,
+    ).toEqual(pose);
+    await page.screenshot({
+      path: test.info().outputPath(`hold-${hold.id}.png`),
+    });
+  }
+  const libraryHold = WALK_HOLDS.find((hold) => hold.id === 'library');
+  if (!libraryHold) throw new Error('Missing library stop');
+  await scrubDistance(page, libraryHold.start + libraryHold.span * 0.15);
+  const paused = await capture();
+  const beforeWheel = await page.evaluate(() => scrollY);
+  await page.locator('.walk-stage').hover({ position: { x: 12, y: 12 } });
+  await page.mouse.wheel(0, 24);
+  await expect
+    .poll(() => page.evaluate(() => scrollY))
+    .toBeGreaterThan(beforeWheel);
+  await expect(page.locator('.walkthrough')).toHaveAttribute(
+    'data-hold',
+    'library',
+  );
+  expect(await capture()).toEqual(paused);
+  await page.mouse.wheel(0, (960 * libraryHold.span) / 100);
+  await expect(page.locator('.walkthrough')).not.toHaveAttribute('data-hold');
+  expect(await capture()).not.toEqual(paused);
+  await scrub(page, 5.3);
   const coverForward = await capture();
-  await scrub(page, 17.7);
-  await scrub(page, 7.1);
+  await scrub(page, 11.8);
+  await scrub(page, 5.3);
   expect(await capture()).toEqual(coverForward);
-  await scrub(page, 5.0);
+  await page.setViewportSize({ width: 768, height: 900 });
+  await scrub(page, 5.3);
+  const compactCover = await capture();
+  await scrub(page, 11.8);
+  await scrub(page, 5.3);
+  expect(await capture()).toEqual(compactCover);
+  await page.setViewportSize({ width: 1440, height: 960 });
+  await scrub(page, 5.3);
+  expect(await capture()).toEqual(coverForward);
+  await scrub(page, 3.45);
   await expect(page.locator('.walk-library')).toBeVisible();
   await expect
     .poll(() =>
@@ -88,7 +168,7 @@ test('scroll controls the complete flow, pauses at rest and reverses the same ge
     )
     .toBeGreaterThan(0);
   await page.setViewportSize({ width: 320, height: 760 });
-  await scrub(page, 10.7);
+  await scrub(page, 7.56);
   const viewport = await page.locator('.walk-axis-viewport').boundingBox();
   const selected = await page.locator('.walk-chapter-selected').boundingBox();
   expect(
@@ -145,8 +225,8 @@ test('real reader loads only on demand, supports reading/settings/resume/reset a
   await expect(frame.getByRole('dialog')).toBeVisible();
   await frame.getByRole('dialog').press('Escape');
   await page.locator('#try-reader > summary').click();
-  await scrub(page, 2.3);
-  await scrub(page, 16.5);
+  await scrub(page, 2.18);
+  await scrub(page, 11.8);
   await page.locator('#try-reader > summary').click();
   await expect(frame.locator('.reading-heading h1')).toHaveText(
     '篇目标题占位符 03',
@@ -174,7 +254,7 @@ test('real reader loads only on demand, supports reading/settings/resume/reset a
   ).toContainText('40%');
   expect(requests.some((url) => url.includes('/api/'))).toBe(false);
   expect(
-    requests.every((url) => new URL(url).origin === 'http://127.0.0.1:4330'),
+    requests.every((url) => new URL(url).origin === new URL(page.url()).origin),
   ).toBe(true);
   expect(errors).toEqual([]);
 });
@@ -205,7 +285,7 @@ test('four viewport sizes and both themes keep the animation and interactive rea
         await page.locator('.walk-window').scrollIntoViewIfNeeded();
       } else {
         await expect(page.locator('.walkthrough')).toHaveClass(/motion-ready/u);
-        await scrub(page, 9.9);
+        await scrub(page, 8.9);
       }
       await page.screenshot({
         path: test
@@ -374,6 +454,32 @@ test('local images support manual loading, portrait retry, keyboard dismissal an
     'data-image-state',
     'ready',
   );
+  await expect(frame.locator('.name-hint')).toHaveCount(0);
+  expect(
+    await frame
+      .locator('#name-reply')
+      .evaluate((node) => getComputedStyle(node).textDecorationLine),
+  ).toBe('none');
+  await frame.locator('.portrait').hover();
+  await expect(frame.locator('.portrait .image-source')).toBeVisible();
+  await frame.locator('.reading-heading').hover();
+  await expect(frame.locator('.portrait')).toHaveCount(0);
+  await frame.locator('#name-reply').hover();
+  await expect(frame.locator('.portrait')).toBeVisible();
+  await frame.locator('#name-reply').click();
+  await frame.locator('.reading-heading').hover();
+  await expect(frame.locator('.portrait')).toBeVisible();
+  await frame.locator('#name-report').hover();
+  await expect(frame.locator('.portrait')).toHaveAccessibleName(
+    '角色占位符 B 立绘',
+  );
+  await frame.locator('.reading-heading').click();
+  await expect(frame.locator('.portrait')).toHaveCount(0);
+  await frame.locator('#name-reply').focus();
+  await frame.locator('#name-reply').press('Enter');
+  await expect(frame.locator('.portrait')).toBeFocused();
+  await frame.locator('.portrait').press('Escape');
+  await expect(frame.locator('#name-reply')).toBeFocused();
   await frame.getByRole('button', { name: '设置', exact: true }).click();
   await frame
     .getByRole('switch', { name: '自动显示图片', exact: true })
@@ -396,7 +502,7 @@ test('reduced motion uses static steps, can change live, and demo storage errors
   await expect(page.locator('.walk-reader')).toBeVisible();
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await expect(page.locator('.walkthrough')).toHaveClass(/motion-ready/u);
-  await scrub(page, 9.9);
+  await scrub(page, 5.85);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await expect(page.locator('.walkthrough')).toHaveClass(/motion-static/u);
   await page.evaluate(() =>

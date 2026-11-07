@@ -81,6 +81,13 @@ export function normalizePortraitReference(reference: string): string {
     .replace(/\s*([#@$])\s*/gu, '$1')
     .toLowerCase();
 }
+/** Expressions can share a default; distinct resource groups/costumes cannot. */
+export function portraitResourceGroup(reference: string): string | null {
+  const match = /^([a-z0-9_]+)(?:#[1-9]\d*|@[^$]+)?(\$[1-9]\d*)?$/u.exec(
+    normalizePortraitReference(reference),
+  );
+  return match?.[1] ? match[1] + (match[2] ?? '') : null;
+}
 /** Match a sourced operator ID on a whole resource-ID boundary, never by name guesses.
  * The current CharinfoV2 IDs share the char_ namespace with scene resources.
  * Retain scene expressions/body; ambiguous variants remain unselected. */

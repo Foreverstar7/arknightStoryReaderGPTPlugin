@@ -6,7 +6,7 @@ import type {
   ReaderImage,
 } from '../shared/contracts.js';
 import { ReaderError, type StorySource, type ImageTarget } from './source.js';
-import { readPrtsWiki, type WikiReader } from './prts-client.js';
+import { readPrtsWiki, prtsPageUrl, type WikiReader } from './prts-client.js';
 import { parsePrtsCatalog } from './prts-catalog.js';
 import { parsePrtsChapter } from './prts-script.js';
 import { PrtsResources, portraitReference } from './prts-resources.js';
@@ -152,6 +152,36 @@ export class PrtsSource implements StorySource {
             input.refresh,
           );
           if (matched) return matched;
+          if (target.speakerBinding) {
+            const binding = target.speakerBinding;
+            const image = await this.resources.portrait(
+              binding.reference,
+              days,
+              input.refresh,
+              binding.default,
+            );
+            return {
+              ...image,
+              portrait: {
+                ...image.portrait,
+                evidence: [
+                  prtsPageUrl(input.chapterId.slice(5)),
+                  ...image.portrait.evidence,
+                ],
+                ...(image.portrait.status === 'placeholder' ||
+                (image.portrait.status === 'default' && !binding.default)
+                  ? {}
+                  : {
+                      reason: binding.default
+                        ? 'chapter_same_character_default'
+                        : 'chapter_single_scene',
+                      message: binding.default
+                        ? '同篇单人片段已确认角色；当前有多个表情，显示同造型默认立绘。'
+                        : '由同篇单人片段确认的剧情指定立绘。',
+                    }),
+              },
+            };
+          }
         }
         return placeholderPortrait(
           target.resources.join(' / '),
