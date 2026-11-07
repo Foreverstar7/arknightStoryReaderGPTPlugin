@@ -57,10 +57,13 @@ export function ReaderApp({
   transport,
   environment,
   onFlushReady,
+  resumeOnStart = true,
 }: {
   transport: ReaderTransport;
   environment: string;
   onFlushReady?: (flush: () => Promise<void>) => void;
+  /** Website demos may open the library while retaining records and the recent shortcut. */
+  resumeOnStart?: boolean;
 }) {
   const [snapshot, updateSnapshot] = useReducer(readerSnapshotReducer, null);
   const [route, setRoute] = useState<Route>({ page: 'library' });
@@ -137,7 +140,12 @@ export function ReaderApp({
         const story = data.stories.find(
           (story) => story.id === recent?.storyId,
         );
-        if (recent && story && navigation.current === initialNavigation) {
+        if (
+          resumeOnStart &&
+          recent &&
+          story &&
+          navigation.current === initialNavigation
+        ) {
           const chapter = await transport.call('reader_chapter', {
             chapterId: recent.chapterId,
           });
@@ -168,7 +176,7 @@ export function ReaderApp({
     return () => {
       cancelled = true;
     };
-  }, [transport, reload, acceptSnapshot, refreshCatalog]);
+  }, [transport, reload, acceptSnapshot, refreshCatalog, resumeOnStart]);
 
   useEffect(() => {
     document.documentElement.dataset.theme =

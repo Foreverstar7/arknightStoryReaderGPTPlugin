@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["website", "tests/site", "tests/website-demo.test.ts"],
+  "exclude": ["build", "node_modules"]
+}

@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-07",
+  "source": "Built-in image_gen; source PNG and exact prompts retained",
+  "selected": [
+    {
+      "slug": "lone-trail",
+      "title": "孤星",
+      "file": "lone-trail-line-cover-v1.png",
+      "motif": "星象轨道 · 穿破天空的光",
+      "web": "../../../website/assets/cover-lone-trail.webp"
+    },
+    {
+      "slug": "near-light",
+      "title": "长夜临光",
+      "file": "near-light-line-cover-v1.png",
+      "motif": "骑士 · 夜城 · 金色枪光",
+      "web": "../../../website/assets/cover-near-light.webp"
+    },
+    {
+      "slug": "babel",
+      "title": "巴别塔",
+      "file": "babel-line-cover-v2.png",
+      "motif": "陆行舰 · 岩隙间的白花",
+      "web": "../../../website/assets/cover-babel.webp"
+    },
+    {
+      "slug": "stultifera-navis",
+      "title": "愚人号",
+      "file": "stultifera-navis-line-cover-v1.png",
+      "motif": "黄金巨船 · 海雾 · 灯塔",
+      "web": "../../../website/assets/cover-stultifera-navis.webp"
+    },
+    {
+      "slug": "il-siracusano",
+      "title": "叙拉古人",
+      "file": "il-siracusano-line-cover-v1.png",
+      "motif": "狼影 · 雨巷 · 剧院",
+      "web": "../../../website/assets/cover-il-siracusano.webp"
+    },
+    {
+      "slug": "so-long-adele",
+      "title": "火山旅梦",
+      "file": "so-long-adele-line-cover-v1.png",
+      "motif": "火山 · 暖色云羊 · 梦中之旅",
+      "web": "../../../website/assets/cover-so-long-adele.webp"
+    }
+  ],
+  "discardedEditInputs": [
+    "babel-line-cover-v1.png"
+  ]
+}

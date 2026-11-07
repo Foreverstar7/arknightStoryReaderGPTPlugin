@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <title>明日方舟剧情阅读器 · 兔耳菱光图标</title>
+  <desc>一对长兔耳、展开的书页、空心菱形书脊与左右呼应的斜向切光。</desc>
+  <g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+    <path data-part="ear-left" d="M18.5 27C15 21 10 8 12.5 3.5c4 2 8 15 9.5 23.5Z" fill="currentColor" stroke="none" />
+    <path data-part="ear-right" d="M25.5 27C25 17 26 5 30 2c3 4 1.5 17-1 25Z" fill="currentColor" stroke="none" />
+    <path data-part="book" d="M18.5 28.5C15 25.5 10 24 6 25v17c6-1.2 12.5-.2 18 3.5 5.5-3.7 12-4.7 18-3.5V25c-4-1-9 0.5-12.5 3.5" />
+    <!-- The lighter spine stroke keeps the diamond opening clear at 24px. -->
+    <path data-part="diamond" d="m24 27.5 4.5 9-4.5 9-4.5-9Z" stroke-width="2.8" />
+    <path data-part="light-left" d="m10.5 37 8-8.5-4 7.5Z" fill="currentColor" stroke="none" />
+    <path data-part="light-right" d="m37.5 37-8-8.5 4 7.5Z" fill="currentColor" stroke="none" />
+  </g>
+</svg>

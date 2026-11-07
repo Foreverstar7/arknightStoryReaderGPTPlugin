@@ -42,6 +42,46 @@ test.beforeEach(async ({ page, request }) => {
   });
 });
 
+test('category navigation keeps a scrollable host fixed while moving only the library', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  await expect(story(page)).toBeAttached();
+  // Wrap the live reader in a smaller scrolling host. This catches ancestor
+  // scrolling without replacing the app or requiring an MCP iframe bridge.
+  await page.evaluate(() => {
+    const root = document.getElementById('root');
+    if (!root) throw new Error('缺少阅读器根节点');
+    const outer = document.createElement('div');
+    outer.dataset.testHost = '';
+    outer.style.height = '680px';
+    outer.style.overflow = 'auto';
+    root.before(outer);
+    outer.append(root);
+    root.style.height = '1000px';
+    outer.scrollTop = 40;
+  });
+  const outerTop = () =>
+    page.locator('[data-test-host]').evaluate((node) => node.scrollTop);
+  const before = await outerTop();
+  expect(before).toBeGreaterThan(0);
+  await page
+    .getByRole('complementary', { name: '剧情分类' })
+    .getByRole('button', { name: '其他', exact: true })
+    .click();
+  const otherTop = await scrollTop(page);
+  expect(otherTop).toBeGreaterThan(300);
+  expect(await outerTop()).toBe(before);
+  await page
+    .getByRole('complementary', { name: '剧情分类' })
+    .getByRole('button', { name: '主线', exact: true })
+    .click();
+  expect(await scrollTop(page)).toBeLessThan(otherTop);
+  expect(await outerTop()).toBe(before);
+});
+
 test('home restores the last library position from both chapters and reading, across themes and viewports', async ({
   page,
 }) => {

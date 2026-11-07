@@ -130,9 +130,24 @@ export function Library({
         {groups.map(({ category }) => (
           <button
             key={category}
-            onClick={() =>
-              sections.current.get(category)?.scrollIntoView({ block: 'start' })
-            }
+            onClick={() => {
+              const container = scroller.current;
+              const section = sections.current.get(category);
+              if (!container || !section) return;
+              // scrollIntoView also moves host/iframe ancestors. Category
+              // navigation belongs only to this library's scroll container.
+              const margin = Number.parseFloat(
+                getComputedStyle(section).scrollMarginTop,
+              );
+              container.scrollTo({
+                top:
+                  container.scrollTop +
+                  section.getBoundingClientRect().top -
+                  container.getBoundingClientRect().top -
+                  container.clientTop -
+                  margin,
+              });
+            }}
           >
             {category}
           </button>

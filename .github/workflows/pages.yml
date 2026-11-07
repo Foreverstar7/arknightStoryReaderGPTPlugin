@@ -4,10 +4,18 @@ on:
     branches: [main]
     paths:
       - 'website/**'
+      - 'src/ui/**'
+      - 'src/data/fixture.ts'
+      - 'src/data/source.ts'
+      - 'src/domain/reading.ts'
+      - 'src/shared/**'
       - 'scripts/build-site.mjs'
       - 'scripts/serve-site.mjs'
       - 'tests/site/**'
       - 'playwright.site.config.ts'
+      - 'tsconfig.website.json'
+      - 'tsconfig.json'
+      - 'tests/website-demo.test.ts'
       - '.github/workflows/pages.yml'
       - '.node-version'
       - 'package.json'
@@ -33,6 +41,8 @@ jobs:
           package-manager-cache: false
       - run: npm install --global npm@12.2.1
       - run: npm ci
+      - run: npm exec -- tsc -p tsconfig.website.json --noEmit
+      - run: node --import tsx --test tests/website-demo.test.ts
       - run: node scripts/build-site.mjs
       - run: npx playwright install --with-deps chromium
       - run: npm exec -- playwright test --config playwright.site.config.ts
