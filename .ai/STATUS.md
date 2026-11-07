@@ -4,6 +4,8 @@
 
 ## 当前：1.0.0 已发布 next，等待真实桌面验收
 
+- 用户按 README 添加远端来源后，安装报 `plugin was not found`。已核对远端 main 和本机缓存的 marketplace 均为 `plugins: []`；这是未收录条目，不是 npm 版本缺失。已在 `.ai/local/release-1.0.0/candidate-marketplace/` 准备独立的 `arknights-reader-candidate` 来源，固定 npm `arknights-story-reader@1.0.0`，通过 `codex plugin marketplace add` 和 `codex plugin add arknights-story-reader@arknights-reader-candidate --json` 实际安装成功。CLI 列表确认 installed／enabled 均为 true，缓存内 package.json 与根 plugin.json 均为 1.0.0；回执为 `.ai/local/release-1.0.0/candidate-install.json`。本地的只是来源清单，实际插件来自 npm，不是仓库开发构建。原 dev 0.1.25 安装仍保留；真实桌面验收须选择 candidate 来源并重启／新建会话，尚未确认实际 UI 入口或阅读交互。
+- 本轮只完成本机候选安装，远端稳定目录、npm dist-tags、GitHub Release 和私人记录未修改。现有 promote.yml 会更新固定目录并公开 Release，但尚不更新 npm latest；npm 标签需单独操作或后续明确加入稳定提升工作流。
 - 用户在 GitHub 批准原运行 42251044304 的 npm-production 后，首次 publish 作业 128008119039 完成上传，但在北京时间 20:11:44 立即查询 registry 仍为 404，脚本第 69 行报错。用户核对 npm 没有待审批暂存记录；20:15:54 的完整包元数据已出现 1.0.0，next 指向 1.0.0。最终证据支持 registry 同步延迟，不是待批准的暂存发布或已证实的 OIDC 配置错误。
 - 已独立下载 npm 的 1.0.0 tgz：7,923,617 字节，SHA-512 与原验收包完全一致，为 `sha512-06q8zw5cD1WDznpKV61DSPBXlzn1lXmyiROKRqQnZYlp8JQg5XRcUtx83ZYmb2scNgI5kSBkPXqJ2LOaE8COcw==`。公开 provenance 的 workflow 为 release.yml、ref 为 v1.0.0、提交为 cce87d6，invocation 为原运行 attempts/1；只读取并核对证明内容，不声称另做了证书链验签。
 - 确认版本与归档一致后，通过 GitHub 连接器只重跑失败的 publish。用户再次批准环境；第二次作业 128401773861 于 20:23 成功，原验收仍为 success。旧脚本查询到已存在的同哈希版本后跳过上传，生成 published.json 与候选 Release；没有重打包、移动标签或重复发版。
