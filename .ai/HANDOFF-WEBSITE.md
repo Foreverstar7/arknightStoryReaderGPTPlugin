@@ -1,10 +1,8 @@
-# 回家继续网站改版
+# 网站维护交接
 
-当前集成分支：本地 main。网站功能提交 c29a113 已连同换机基线 e1a1c3e 快进合并，codex/website-scroll-demo 保留；远端 main 仍为 93446b9，网站与本地工具修复未推送或部署。用户已在本机预览认可效果。本机网站预览按要求运行在 http://127.0.0.1:4330/arknightStoryReaderGPTPlugin/ 。
+当前集成分支为 main，网站功能提交 c29a113 已包含六张封面、占位阅读器和卡通动物兔子，用户已认可本机效果。工作分支 codex/website-scroll-demo 保留；跨机器接续以 main 的正式源码为准。本机预览继续运行在 http://127.0.0.1:4330/arknightStoryReaderGPTPlugin/ 。
 
-1.0.0 已从固定 cce87d6 归档发布到 npm next，实际下载 hash 与验收包一致，provenance 指向原工作流。首次发布因约四分钟同步延迟误报失败，单独重跑 publish 后整个运行 42251044304 已成功，回执和候选 draft Release 437560439 已核对。下一步是真实桌面验收，再提升稳定来源。用户明确本阶段不打 v1.0.1；新增唯一模型可见基础搜索后再准备 1.1.0。
-
-本地发布工具已补仅对 404 的五分钟有限等待及 npm 输出，完整类型／132 项测试／格式通过；这项改动未用于旧标签的本次重跑，不改变已发布包。状态、实际 registry 归档、provenance 与附件核对在 .ai/local/release-1.0.0/published-1.0.0/。版本文件未升版，具体步骤见 .ai/PLAN.md 和 docs/releasing.md。
+发布统一按 docs/releasing.md 的单次 Publish 流程，不再使用 next／宿主证据／promote 门槛。网站部署与 npm 发布独立；构建、测试和 Actions 的当前事实见 STATUS.md。
 
 ## 新电脑从正式源码运行
 
@@ -19,7 +17,7 @@ node scripts/build-site.mjs
 node scripts/serve-site.mjs
 ```
 
-当前 c29a113 尚未推送，另一台电脑暂时无法通过 fetch 取得本次合并；上述远端同步步骤在用户授权推送后使用。使用 .node-version 固定的 Node 26.13.0 与 npm 12.2.1；预览为 http://127.0.0.1:4330/arknightStoryReaderGPTPlugin/ 。如果该电脑已有本地提交，先核对与远端的关系，不重置或覆盖工作。
+使用 .node-version 固定的 Node 26.13.0 与 npm 12.2.1；预览为 http://127.0.0.1:4330/arknightStoryReaderGPTPlugin/ 。如果该电脑已有本地提交，先核对与远端的关系，不重置或覆盖工作。
 
 网站自包含于 website/：无配图紧凑首屏、滚动流程、默认收起的真实 ReaderApp、独立占位数据、安装指南与 FAQ。构建不依赖公司电脑 .ai/local、旧 HTML、63171 服务或私人记录。六张封面原图与提示词在 docs/design/website-covers/；本轮动物兔子原图、编辑输入及完整提示词在 docs/design/website-demo-assets/，网页只加载已有封面 WebP 和 rabbit-portrait.webp。
 

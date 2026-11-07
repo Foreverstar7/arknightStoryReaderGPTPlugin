@@ -1,0 +1,112 @@
+name: Prepare release draft
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: release-draft-main
+  cancel-in-progress: false
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    outputs:
+      mode: ${{ steps.plan.outputs.mode }}
+      version: ${{ steps.plan.outputs.version }}
+      source: ${{ steps.plan.outputs.source }}
+      run: ${{ steps.plan.outputs.run }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+      - run: npm install --global npm@12.2.1
+      - run: npm ci
+      - id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: npm run release:plan
+  accept-package:
+    needs: plan
+    if: needs.plan.outputs.mode == 'build'
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.plan.outputs.source }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+      - run: npm install --global npm@12.2.1
+      - run: npm ci
+      - run: npm run check
+      - run: npm run package
+      - run: npm.cmd run package:verify -- --prts
+      - run: npx playwright install chromium
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v7
+        with:
+          name: release-package
+          path: |
+            .local/releases/*.tgz
+            .local/releases/release.json
+            .local/releases/verification-prts.json
+          overwrite: false
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: release-diagnostics
+          overwrite: true
+          path: |
+            .local/releases/npm-install-logs/
+            test-results/fixture/
+          if-no-files-found: ignore
+          include-hidden-files: true
+          retention-days: 14
+  draft:
+    needs: [plan, accept-package]
+    if: always() && needs.plan.result == 'success' && (needs.accept-package.result == 'success' || needs.plan.outputs.mode == 'resume')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+      - run: npm install --global npm@12.2.1
+      - run: npm ci
+      - uses: actions/download-artifact@v8
+        with:
+          name: release-package
+          path: .local/releases
+          run-id: ${{ needs.plan.outputs.run }}
+          github-token: ${{ github.token }}
+      - name: Freeze the source tag and save exactly the accepted archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_COMMIT: ${{ needs.plan.outputs.source }}
+          ARTIFACT_RUN: ${{ needs.plan.outputs.run }}
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          npm run release:draft
+          echo 'Draft ready. Click Publish release once to publish npm latest and the marketplace automatically.' >> "$GITHUB_STEP_SUMMARY"

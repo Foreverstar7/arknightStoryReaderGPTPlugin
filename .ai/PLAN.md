@@ -1,14 +1,14 @@
 # 下一步
 
-## 当前：稳定发布工具与清单已本地验证，待推送和收尾
+## 当前：单次 Publish 发布流程
 
-网站 c29a113 与换机提交 e1a1c3e 已合入本地 main，未推送或部署。1.0.0 的 CI／npm 归档已核对，用户已确认真实桌面验收。本轮补齐稳定工作流的 npm latest 更新／回读、固定 1.0.0 的正式目录、验收确认文档及可重复的候选准备命令；类型、138 项测试／格式及隔离 npm 候选加载检查通过。最新只读 registry 核对发现 latest／next 均为 1.0.0，远端清单仍为空、Release 仍为 draft。v1.0.0 保持 cce87d6，不重发已存在包。
+实现与长期操作说明见 docs/releasing.md，验证和最新事实见 STATUS.md。此前 next → 候选安装 → 宿主证据 → promote 的发布门槛已取消。
 
-1. **推送并完成稳定提升**：按发布者指令推送已准备的工作流、正式清单和 `docs/releases/1.0.0-host-acceptance.md`，为 promote.yml 单独配置 npm Trusted Publisher／Allow npm dist-tag（环境留空，保留 release.yml 的发布连接），再从 main 运行稳定提升并使用已推送验收记录的 HTTPS 地址。工作流会校验已验收包，latest 已正确时跳过写入，提交目录和真实 promotion 回执后公开 GitHub Release。运行完成后核对远端目录、docs/releases/1.0.0.json 和 Release，并刷新 Codex 原稳定来源。当前只有 npm 标签已确认就绪，不声称 CI 稳定提升已经运行。
-2. **当前不独立发行 1.0.1**：用户明确不打 v1.0.1 标签。网站、兼容修正与发布工具的 404 同步等待／日志修复留在本地 main；没有升版、创建标签或重复发布。main／Pages 的推送按用户后续指令执行，不改已经发布的 1.0.0 归档。
-3. **新增基础搜索后发 1.1.0**：唯一一个模型可见工具，检索剧情名称、别名、分类、有来源的简介和可靠关键词，卡片进入对应篇目；保留原阅读器与记录兼容，不加 RAG、全库台词搜索、对话侧续读／进度工具。实现前核对当前 MCP 官方契约，完成新工具与阅读器的实际包／宿主验收后再发行。
+1. 完成一次性账号设置：关闭 npm-production 的 Required reviewers／Wait timer，保持现有环境名；npm Trusted Publisher 使用 release.yml／npm-production，允许 npm publish 与 npm dist-tag。每个版本只由 Publish release 确认。
+2. 后续需要发行新包时更新版本并推送 main，等待自动草稿成功后 Publish；监控 Publish release 工作流成功及 npm／正式清单／回执一致。普通提交不升版本、不重复发行，已安装用户主动刷新来源并安装。
+3. 本轮只推送发布工具、文档和已验收网站的现有提交，不新建 1.0.1。后续新增唯一模型可见基础剧情搜索工具时准备 1.1.0，保持现有阅读器和记录兼容，不增加 RAG、全库台词搜索或对话侧续读／进度工具。
 
-当前版本文件仍为 1.0.0，未创建 v1.0.1／v1.1.0；稳定提升和 Pages 部署仍未执行。本轮修改限于发布工具、目录、测试和文档，已通过完整类型、138 项测试与格式检查及真实 npm 隔离加载器验证，未重复网站和正文 UI 验收。
+当前 npm 1.0.0 与固定标签保持不动，既有版本迁移只核对归档并保存清单、回执；不重发已有包。私人阅读数据和本机 4330 预览继续保留。
 
 ## 已完成：点击体验区图片与占位内容
 
@@ -21,19 +21,6 @@
 - 本轮范围已完成；后续按用户评审继续，不恢复人形兔子或玛恩纳演出。公开部署和推送仍依用户指令，既有正式包／发行标签不动。重新截图使用 scripts/capture-site-previews.mjs，原图／完整提示词见 docs/design/website-demo-assets/。
 - 已通过 128 项测试／类型／格式、网站与插件构建、9 项网站数据验证、Edge 网站 6 项和原阅读器 35 项浏览器回归。四种窗口双主题实际图片、低高度浮层、重试、自动开关、键盘／触摸、减少动态效果与存储错误均已检查；证据和命令见 STATUS、.ai/local/website-demo-media/ 与 test-results/site/。
 
-## 完成自动发布与真实桌面验收
-
-0.1.26 已完成首次本机 npm 发布，registry integrity 与验收归档一致，GitHub 仓库已公开，见 [STATUS](STATUS.md)。本地工作流仅 npm 发布 job 引用 `npm-production` environment；稳定提升保留手动触发和宿主验收确认，不绑定环境。普通检查使用 Ubuntu，标签验收使用 Windows，npm 上传使用 Ubuntu，无 macOS 验收矩阵。
-
-1.0.0 已从固定的 cce87d6 验收归档发布到 next；原 Windows 实际包／PRTS 与 Chromium 验收沿用有效证据。首次发布的 registry 同步延迟已通过单独重跑 publish 收尾，两个 job 当前均成功；精确 hash 和 provenance 见 [STATUS](STATUS.md)。
-
-当前未完成项：
-
-1. 验证精确 npm 1.0.0 在真实 Windows Codex 桌面的安装、阅读、图片、续读、升级及卸载保留记录；保留可访问的 HTTPS 证据。
-2. 验收通过后由用户确认 promote.yml 的 host_accepted，提升固定稳定来源并公开 draft Release；稳定 marketplace 当前仍为空。
-3. 保存真实结果，保留 cce87d6 与同一 tgz。文档、网站和工具修复不重发 1.0.0、不移动标签；本阶段不打 1.0.1。
-
-其他系统、架构和宿主在实际环境验收后再列入支持范围。
 
 ## 此前已完成：项目网站首次上线
 

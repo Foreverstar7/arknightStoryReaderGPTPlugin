@@ -56,7 +56,7 @@ export async function setVersion(root: string, input: string) {
     lock.version =
     lock.packages[''].version =
       version;
-  // Marketplace stays on the last accepted version until separate promotion.
+  // Marketplace stays on the last successfully published npm version.
   await writeFile(
     path.join(root, 'package.json'),
     `${JSON.stringify(pkg, null, 2)}\n`,

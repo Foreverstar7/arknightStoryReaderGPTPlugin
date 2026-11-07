@@ -1,0 +1,20 @@
+{
+  "package": "arknights-story-reader",
+  "version": "1.0.0",
+  "filename": "arknights-story-reader-1.0.0.tgz",
+  "integrity": "sha512-06q8zw5cD1WDznpKV61DSPBXlzn1lXmyiROKRqQnZYlp8JQg5XRcUtx83ZYmb2scNgI5kSBkPXqJ2LOaE8COcw==",
+  "sourceCommit": "cce87d6c2abfc7760272981ad44f5349267d59a7",
+  "dirty": false,
+  "ciRun": "42251044304",
+  "registryUrl": "https://registry.npmjs.org/arknights-story-reader/1.0.0",
+  "ciUrl": "https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42251044304",
+  "npmTag": "latest",
+  "releaseUrl": "https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/releases/tag/v1.0.0",
+  "buildCiUrl": "https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42251044304",
+  "publishCiUrl": "https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42251044304",
+  "migration": {
+    "npmAlreadyPublished": true,
+    "packageUploaded": false,
+    "verifiedAt": "2026-11-07T13:20:41.555Z"
+  }
+}

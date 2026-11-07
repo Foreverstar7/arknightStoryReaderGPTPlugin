@@ -59,8 +59,9 @@
     "probe:images": "tsx scripts/probe-prts-body-images.ts",
     "probe:covers": "tsx scripts/probe-covers.ts",
     "probe:host": "tsx scripts/probe-host.ts",
-    "marketplace:promote": "tsx scripts/promote-marketplace.ts",
-    "marketplace:candidate": "tsx scripts/prepare-candidate.ts"
+    "release:plan": "tsx scripts/plan-release.ts",
+    "release:draft": "tsx scripts/draft-release.ts",
+    "release:publish": "tsx scripts/publish-release.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/client": "^2.4.0",

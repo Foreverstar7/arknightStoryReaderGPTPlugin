@@ -1,8 +1,12 @@
 import { setTimeout } from 'node:timers/promises';
 import { z } from 'zod';
-import { registeredPackage, type Publication } from './publication-registry.js';
+import {
+  registeredPackage,
+  waitForRegisteredPackage,
+  type Publication,
+} from './publication-registry.js';
 
-export async function promoteLatest(
+export async function ensureLatest(
   expected: Publication,
   options: {
     updateLatest: () => Promise<void>;
@@ -56,6 +60,24 @@ export async function promoteLatest(
     if (remaining > 0) await delay(Math.min(10_000, remaining));
   }
   throw new Error(
-    'npm latest 在 5 分钟内未确认目标版本；标签可能已更新，请核对后重跑，不提交稳定目录或公开 Release。',
+    'npm latest 在 5 分钟内未确认目标版本；请核对后重跑，尚未完成插件目录发布。',
   );
+}
+
+export async function publishAcceptedArchive(
+  expected: Publication,
+  options: Parameters<typeof ensureLatest>[1] & {
+    publishArchive: () => Promise<void>;
+    allowPublish?: boolean;
+  },
+) {
+  if (!(await registeredPackage(expected, options.fetchRegistry))) {
+    if (options.allowPublish === false)
+      throw new Error(
+        '旧标签只允许迁移已经存在且哈希一致的 npm 版本，不重新发布。',
+      );
+    await options.publishArchive();
+    await waitForRegisteredPackage(expected, options);
+  }
+  await ensureLatest(expected, options);
 }

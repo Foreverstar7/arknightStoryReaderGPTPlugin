@@ -2,7 +2,7 @@
 
 日常开发先用 `dev`、`check`、`build`；检查发行物用 `package` 和 `package:verify`。PRTS 审计是遇到对应解析／资源问题时才运行的维护工具，不是每次发布的前置步骤。
 
-验收已发布的精确 npm 版本用 `npm run marketplace:candidate -- X.Y.Z` 准备独立候选清单，再执行输出的 Codex 安装命令。`marketplace:promote` 仅供 main 的 Actions 在发布者确认后执行：核对验收包、更新并回读 npm latest、生成稳定目录和回执；工作流随后提交并公开 Release。完整配置和恢复见[发布指南](../docs/releasing.md)。
+发布只需推送 main 并在自动草稿准备成功后点击 Publish release。草稿与正式发布脚本只在对应 Actions 中执行，配置与失败恢复见[发布指南](../docs/releasing.md)。
 
 从项目根目录执行。下文 `npm` 需要项目固定的工具链；Windows 可替换为 `./scripts/npm.ps1`，macOS／Linux 为 `sh scripts/npm.sh`。PowerShell 包装器传入脚本参数时引用分隔符，例如：
 
@@ -19,11 +19,12 @@
 - `npm run package:verify` → `verify-package.ts`：在源码外检查实际归档、生产依赖、协议、HTML 和离线 npm 消费；`--prts` 额外联网检查真实阅读与保存路径。
 - `npm run plugin:prepare` → `prepare-plugin.ts`：制作新的独立开发副本及本机 marketplace，不自动安装。
 - `npm run release:version -- X.Y.Z` → `set-version.ts`：同步项目版本，不提交、不推送。
-- `publish-release.ts`：由标签 Release 工作流调用，发布已验收的归档。`npm run marketplace:promote` → `promote-marketplace.ts`：核对发布回执与真实宿主证据，更新稳定目录；不是普通本机检查命令。
+- `release:plan`／`release:draft`：main 工作流判断新版本、复用中断的验收 artifact、创建固定标签及草稿并上传同一归档。普通提交不重复发行，固定标签和已有附件不被替换。
+- `release:publish`：release.published 工作流核对标签、Release 附件和 integrity，发布 npm latest 后生成正式目录和发布回执；npm 同版本同 hash 已存在时只做收尾。
 
-首次发布、标签、OIDC、审批和稳定提升按[发布指南](../docs/releasing.md)操作。
+版本号、OIDC 和单次 Publish 确认按[发布指南](../docs/releasing.md)操作。
 
-项目网站的静态构建、预览、原创界面截图与 Pages 工作流见[网站维护说明](../docs/website.md)，与 npm 发布审批分开。
+项目网站的静态构建、预览、原创界面截图与 Pages 工作流见[网站维护说明](../docs/website.md)，与 npm 正式发布流程分开。
 
 ## 协议与宿主探针
 

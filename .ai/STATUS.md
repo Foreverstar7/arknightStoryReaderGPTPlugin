@@ -1,29 +1,17 @@
 # 当前状态
 
-更新：2026-11-07。**用户已确认 npm 1.0.0 的真实桌面验收通过；本地已补齐正式清单、npm latest 稳定提升和候选安装命令，类型／138 项测试／格式及隔离 Codex 加载检查通过。只读核对发现 npm latest／next 均已为 1.0.0，但远端清单仍为空、Release 仍为 draft。** 本轮尚未推送或执行稳定提升；v1.0.0 和已发布归档保持不动。用户确认本阶段不打 v1.0.1 标签，不单独发行 1.0.1；后续新增基础搜索再准备 1.1.0。
+更新：2026-11-07。当前发布契约为 **推送 main 自动准备草稿 → 发布者点击一次 Publish release → 自动发布 npm latest、固定 marketplace 和回执**。此前 next／候选安装／宿主证据／独立 promote 的人工门槛已取消，后续不得按旧记录恢复。
 
-## 当前：稳定发布工具与正式清单已本地补齐
+## 当前：单次 Publish 发布流程
 
-- 用户要求补充工作流、插件清单及相关衔接。正式 `.agents/plugins/marketplace.json` 已固定 npm arknights-story-reader@1.0.0；`docs/releases/1.0.0-host-acceptance.md` 如实保存发布者验收确认、实际安装及已验收包身份，不虚构逐项 UI 截图或桌面版本。记录推送后的 GitHub HTTPS 地址可作为稳定工作流的 host_evidence。
-- promote.yml 新增 job 的 id-token: write、registry-url 和 15 分钟时限。脚本限定 main／Actions／宿主确认，核对标签身份、干净回执、CI 仓库／run ID 及 registry hash，更新并回读 npm latest 后才生成正式目录和回执；目录推送成功才公开 GitHub Release，明确取消 prerelease 并标为 Latest。latest 已正确时跳过标签写入。只有缺失或旧标签回读最多等待五分钟，权限／JSON／hash 失败立即终止；跨 npm／GitHub 的步骤不声称原子完成，失败恢复和重跑顺序已写入发布指南。
-- npm 官方要求为 promote.yml 单独新增 Trusted Publisher 并开启 Allow npm dist-tag；环境留空，保留 release.yml／npm-production 的现有发布连接。固定 npm 12.2.1 满足官方最低版本要求，没有新增依赖或更新工具链。本轮未操作账号配置或实际 OIDC 标签写入。
-- 新增 `npm run marketplace:candidate -- X.Y.Z`，在忽略的 `.local/candidate-marketplace/` 生成独立候选清单，解决正式目录尚未收录时的验收入口。准备脚本不安装插件、不改正式清单；README 增加 marketplace upgrade，避免 already added 仍使用缓存空清单。历史候选来源迁移到固定路径的登记操作见发布指南，当前真实客户端仍保留此前临时目录登记，未静默替换或删除已安装插件。
-- 已执行固定工具链的完整 check：类型、138 项测试、格式全部通过；13 项定向分发／稳定提升测试覆盖拒绝缺失／替换包、已提升重跑、404／旧标签传播、hash 冲突、权限／JSON 失败和五分钟截止。已实跑 marketplace:candidate 1.0.0；隔离 probe:host 使用生成目录从 npm 安装成功，发现 1.0.0／reader／10 个 app-only 工具／global 入口。加载器检查不是代理完成了真实桌面 UI 验收；后者来自用户确认。
-- 2026-11-07 20:59（北京时间）只读 registry 核对：正式清单包名／版本与既有 published.json 一致，npm 1.0.0 的 SHA-512 与 cce87d6 原验收包一致；latest=1.0.0、next=1.0.0。本轮没有执行改标签命令。GitHub 复查仍为远端空目录和 draft 437560439，实际稳定提升未运行。日志／回执在 `.ai/local/release-1.0.0/stable-promotion/`。
-- 下一步按发布者指令推送工作流、清单和验收记录，完成 npm 标签权限配置并从 main 运行 Promote stable marketplace。当前标签已正确时脚本不需要再次写标签；后续新版本仍需配置对应权限。本轮没有重新打包、移动 v1.0.0、创建 v1.0.1 或触碰私人记录；本机网站 4330 预览继续保留。
-
-## 此前：用户确认 1.0.0 桌面验收通过
-
-- 完成本机候选安装后，用户在本会话明确回复“我已经验收好了”。将其记录为发布者对 npm 1.0.0 的真实宿主验收确认，不将 CLI 安装检查改写成代理执行了桌面 UI 验收。当前远端 main 仍为 93446b9，稳定 marketplace 为 `plugins: []`，候选 Release 437560439 仍为 draft；需要为验收确认保存可访问的 HTTPS 记录，并执行稳定提升。尚未更改 npm latest、推送网站／本地 main 或公开 Release。
-- 用户按 README 添加远端来源后，安装报 `plugin was not found`。已核对远端 main 和本机缓存的 marketplace 均为 `plugins: []`；这是未收录条目，不是 npm 版本缺失。已在 `.ai/local/release-1.0.0/candidate-marketplace/` 准备独立的 `arknights-reader-candidate` 来源，固定 npm `arknights-story-reader@1.0.0`，通过 `codex plugin marketplace add` 和 `codex plugin add arknights-story-reader@arknights-reader-candidate --json` 实际安装成功。CLI 列表确认 installed／enabled 均为 true，缓存内 package.json 与根 plugin.json 均为 1.0.0；回执为 `.ai/local/release-1.0.0/candidate-install.json`。本地的只是来源清单，实际插件来自 npm，不是仓库开发构建。原 dev 0.1.25 安装仍保留；真实桌面验收须选择 candidate 来源并重启／新建会话，尚未确认实际 UI 入口或阅读交互。
-- 本轮只完成本机候选安装，远端稳定目录、npm dist-tags、GitHub Release 和私人记录未修改。现有 promote.yml 会更新固定目录并公开 Release，但尚不更新 npm latest；npm 标签需单独操作或后续明确加入稳定提升工作流。
-- 用户在 GitHub 批准原运行 42251044304 的 npm-production 后，首次 publish 作业 128008119039 完成上传，但在北京时间 20:11:44 立即查询 registry 仍为 404，脚本第 69 行报错。用户核对 npm 没有待审批暂存记录；20:15:54 的完整包元数据已出现 1.0.0，next 指向 1.0.0。最终证据支持 registry 同步延迟，不是待批准的暂存发布或已证实的 OIDC 配置错误。
-- 已独立下载 npm 的 1.0.0 tgz：7,923,617 字节，SHA-512 与原验收包完全一致，为 `sha512-06q8zw5cD1WDznpKV61DSPBXlzn1lXmyiROKRqQnZYlp8JQg5XRcUtx83ZYmb2scNgI5kSBkPXqJ2LOaE8COcw==`。公开 provenance 的 workflow 为 release.yml、ref 为 v1.0.0、提交为 cce87d6，invocation 为原运行 attempts/1；只读取并核对证明内容，不声称另做了证书链验签。
-- 确认版本与归档一致后，通过 GitHub 连接器只重跑失败的 publish。用户再次批准环境；第二次作业 128401773861 于 20:23 成功，原验收仍为 success。旧脚本查询到已存在的同哈希版本后跳过上传，生成 published.json 与候选 Release；没有重打包、移动标签或重复发版。
-- Draft Release 为 437560439（v1.0.0 candidate），四份附件全部 uploaded：tgz、published.json、release.json、verification-prts.json。GitHub 附件 SHA-256／字节数均与验收文件一致；回执由已验收字段按原脚本重建后，SHA-256 与附件 digest 完全一致，未将其描述为直接下载的 draft 附件。回执、registry 实际归档、provenance、附件清单与成功日志在 `.ai/local/release-1.0.0/published-1.0.0/`；首次失败日志在 `.ai/local/website-demo-media/publish-1.0.0-failed.log`。
-- npm next=1.0.0、latest=0.1.26；稳定 marketplace 仍为空，GitHub Release 仍为 draft。下一步验证这个精确 npm 版本在真实 Windows Codex 桌面的安装、入口、图片、续读、升级与卸载保留记录，取得实际 HTTPS 证据后再执行 promote.yml。不能用网站预览、包验收或 npm 发布代替真实桌面验收。
-- 已在本地 main 修复后续发布工具的同步误报：发布后仅对 404 最多等待 5 分钟、每 10 秒查询，每次请求最多 15 秒且受剩余总预算约束；权限／格式／哈希不符直接失败。补出 npm stderr 与成功 stdout。4 项定向回归和完整 check 的类型、132 项测试、格式全部通过，日志为上述目录的 publish-fix-check.log。该修复没有进入固定 cce87d6 的本次重跑或已发布包，不为它移动标签。
-- 网站 c29a113 已本地合入 main，保留工作分支；远端 main 仍为 93446b9，未推送或部署。4330 本机预览继续按用户要求保留。新发布工具与交接仅本地保存，当前不创建或发布 v1.0.1；后续新增唯一模型可见基础剧情搜索工具时再准备 1.1.0。当前版本文件未改，v1.0.0 注释标签仍为 31b92868b3a04f118716b0ebe3d6c568ae2ce827，指向 cce87d6。
+- 开始本轮时工作区干净，已有本地提交保留。版本仍为 1.0.0；本轮范围为发布自动化、文档和验证，不为这些改动创建 1.0.1。用户已授权本地检查通过后推送 main，未授权代为 Publish Release 或移动既有版本标签。
+- Check 保留普通 push／PR 自动检查。prepare-release.yml 在 main 判断新版本；已有完整草稿／已发布版本和清单回写的普通提交跳过发行。新版本通过 Windows 实际包／真实 PRTS／fixture 浏览器验证后才创建固定注释标签与草稿，上传同一 tgz、release.json 和 verification-prts.json。中断后复用标签中记录的原验收 run／artifact；不重打包替换已冻结归档，不移动标签。
+- release.yml 保留现有 OIDC 文件名和 npm-production 环境，改为 release.published，限制正式版本。发布脚本读取 Release 附件及对应标签，不使用最新 main 的包版本或重新构建；核对源码、包／plugin 版本、验证报告和实际 SHA-512，发布 latest 并确认 registry 后才写 main 的精确清单与 docs/releases/X.Y.Z.json。同版本同 hash 跳过上传；不一致报错。旧标签只迁移已存在 npm 包，不上传。
+- 已移除 promote.yml、候选准备命令和人工 host_evidence／host_accepted。源码开发副本、官方加载器探针和自动实际包验证继续保留。README／发布指南仅维护长期步骤、安装更新命令、完成判据与失败恢复，不记录临时聊天安排；插件不因发布而后台升级。
+- 一次性配置已实际只读核对：npm-production 仍有 Required reviewer Foreverstar7，分支／标签限制为 null。需要在 GitHub 环境中关闭 Required reviewers／Wait timer，保留环境名；npm Trusted Publisher 保持 release.yml + npm-production，允许 npm publish 与 npm dist-tag。配置位置和值见 docs/releasing.md，本轮不自动修改账号设置。
+- 本地固定 Node 26.13.0／npm 12.2.1：完整类型、147 项测试、格式检查通过；actionlint 1.7.12 验证全部工作流通过。测试覆盖普通提交不重复发行、冻结源码和原 artifact 恢复、实际 tar 包版本／hash、防止标签移动和附件覆盖、npm 相同版本续跑／冲突及旧版不重发。完整构建打包与实际包验证通过：2775 文件、生产依赖、全新 npm 安装、10 个 app-only 工具、global 入口和 533554 字节 HTML；只使用隔离临时数据。日志集中在 .ai/local/release-flow/。
+- 1.0.0 的旧注释标签仍指向 cce87d6，原归档 SHA-512 已与 npm latest 只读核对一致；docs/releases/1.0.0.json 如实保存既有发布的迁移回执，不伪造新发布运行。正式 marketplace 继续精确固定 1.0.0，不操作私人阅读记录。
+- 网站 c29a113 已合入 main，4330 本机预览继续保留。GitHub Actions 状态以本轮推送关联的 Check／Prepare release draft／Deploy Pages 运行记录为准；发布器的实际 npm 写入由未来 Publish 触发，本轮不声称已执行。
 
 ## 已完成：点击体验区图片与占位内容
 

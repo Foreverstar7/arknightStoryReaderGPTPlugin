@@ -1,61 +1,26 @@
-name: Release npm candidate
+name: Publish release
 on:
-  push:
-    tags: ['v*']
+  release:
+    types: [published]
 permissions:
   contents: read
 concurrency:
-  group: release-${{ github.ref }}
+  group: npm-production
   cancel-in-progress: false
 jobs:
-  accept-package:
-    runs-on: windows-latest
-    timeout-minutes: 25
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        with:
-          node-version-file: .node-version
-          package-manager-cache: false
-      - run: npm install --global npm@12.2.1
-      - run: npm ci
-      - name: Check exact release tag
-        run: node -e "if(process.env.GITHUB_REF !== 'refs/tags/v'+require('./package.json').version) process.exit(1)"
-      - run: npm run check
-      - run: npm run package
-      - name: Verify offline protocol and real PRTS with one fresh npm installation
-        run: npm.cmd run package:verify -- --prts
-      - run: npx playwright install chromium
-      - run: npm run test:e2e
-      - uses: actions/upload-artifact@v7
-        with:
-          name: npm-candidate
-          path: .local/releases/
-          overwrite: true
-          include-hidden-files: true
-          if-no-files-found: error
-          retention-days: 30
-      - name: Save release diagnostics
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: release-diagnostics
-          path: |
-            .local/releases/npm-install-logs/
-            test-results/fixture/
-          if-no-files-found: ignore
-          include-hidden-files: true
-          retention-days: 14
   publish:
-    needs: accept-package
-    if: github.event.repository.private == false
+    if: github.event.repository.private == false && !github.event.release.prerelease && !github.event.release.draft
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     environment: npm-production
     permissions:
       contents: write
       id-token: write
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
       - uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
@@ -63,19 +28,26 @@ jobs:
           package-manager-cache: false
       - run: npm install --global npm@12.2.1
       - run: npm ci
-      - uses: actions/download-artifact@v8
-        with:
-          name: npm-candidate
-          path: .local/releases
-      - name: Publish exact accepted tarball through OIDC
-        run: npm exec -- tsx scripts/publish-release.ts
-      - name: Save candidate release and publishing receipt
+      - name: Verify Release assets and publish the accepted archive to npm latest
         env:
           GH_TOKEN: ${{ github.token }}
+        run: npm run release:publish
+      - name: Commit the fixed marketplace and publishing receipt
         shell: bash
         run: |
-          if ! gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
-            gh release create "$GITHUB_REF_NAME" --verify-tag --draft --title "$GITHUB_REF_NAME (candidate)" --notes-file .local/releases/notes.md
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .agents/plugins/marketplace.json docs/releases/*.json
+          if ! git diff --cached --quiet; then
+            git commit -m "release: complete $GITHUB_REF_NAME npm and marketplace publication"
+            git push origin HEAD:main
           fi
-          gh release upload "$GITHUB_REF_NAME" .local/releases/*.tgz .local/releases/*.json --clobber
-          echo 'npm candidate published. Confirm Codex npm installation and full desktop reading, then run Promote stable marketplace.' >> "$GITHUB_STEP_SUMMARY"
+          echo "Completed $GITHUB_REF_NAME: npm latest and the fixed marketplace are published. Installed plugins update only when users refresh and install." >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: npm-publication-receipt
+          include-hidden-files: true
+          path: .local/published/published.json
+          if-no-files-found: ignore
+          retention-days: 30

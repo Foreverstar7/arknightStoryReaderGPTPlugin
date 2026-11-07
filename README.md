@@ -22,7 +22,7 @@ codex plugin add arknights-story-reader@arknights-reader --json
 
 包内包含服务、HTML、生产依赖与启动清单；无需 clone 或构建。其他 MCP Apps 宿主的 stdio 配置见[接入说明](docs/integration-notes.md)。
 
-`already added` 表示来源已登记，不代表已刷新清单；上面的 `marketplace upgrade` 会同步最新目录。精确 npm 候选版本的安装验收步骤见[发布指南](docs/releasing.md#安装候选版本验收)。
+`already added` 表示来源已登记，不代表已刷新清单；上面的 `marketplace upgrade` 会同步最新目录。清单固定到最新一次成功发布的精确 npm 版本。
 
 ## 升级与卸载
 
@@ -36,6 +36,14 @@ codex plugin remove arknights-story-reader@arknights-reader --json
 ```
 
 使用[源码开发副本](#安装源码开发副本)时，将上述来源名替换为 `arknights-reader-dev`。升级、卸载和清缓存均保留外部阅读记录；清除记录要在阅读器页面中单独操作。
+
+已安装插件不会因发布新版而后台自动升级。主动刷新来源并安装后，重启客户端或新建会话使用新版。
+
+## 发布
+
+修改代码并更新版本号 → 推送 main → 自动检查、验收同一发行包并准备固定标签和 Release 草稿 → 点击一次 **Publish release** → 自动发布 npm latest 并更新正式插件清单。
+
+发布工作流成功，npm 和 main 的插件目录都更新后才算完成。完整操作与一次性 OIDC 配置见[发布指南](docs/releasing.md)。
 
 ## 界面示例
 

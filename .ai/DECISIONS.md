@@ -271,3 +271,15 @@ main 的发布工具现在在上传后对 404 最多等待 300,000ms，每次间
 依据 [npm 官方 OIDC dist-tag 说明](https://docs.npmjs.com/trusted-publishers/#managing-dist-tags-with-trusted-publishing)，promote.yml 需要独立 Trusted Publisher 与 Allow npm dist-tag，权限不由 release.yml 的 npm publish 继承。仍不新增稳定 environment 审批，不使用长期 token，保留唯一 npm-production 发布环境。固定 npm 12.2.1 满足官方最低版本；未升级工具链或依赖。标签回读沿用既有五分钟总预算／十秒间隔／至多十五秒请求上限，只有缺失或旧标签可等待，其他 HTTP／JSON／hash 错误立即失败；后续若 npm 接口或传播行为改变，先核对官方文档与实际日志再调整预算。
 
 1.0.0 的宿主确认如实记入版本文档，不虚构未采集的 UI 证据或桌面版本。2026-11-07 本轮只读 registry 已见 latest／next 均为 1.0.0，记录实际外部状态，不归因于本轮代码执行了改标签命令。当前工作仅本地实现和验证，发布标签与已发布 tgz 保持不变；远端推送及稳定工作流另按发布者指令执行。
+
+## 单次 Publish 的正式发布契约（2026-11-07，替代此前分阶段门槛）
+
+发布者推送 main，自动检查并准备草稿，点击一次 Publish release 后自动完成 npm latest、正式 marketplace 和发布回执。此前先 next、安装候选、填写宿主证据、独立 promote 和第二次环境审批不属于当前发布契约，相关脚本／工作流已移除。开发探针与自动验证保留，不冒充真实 UI 体验，也不构成额外人工发布确认。
+
+自动准备先判断版本是否已有完整草稿／公开发行。新版本在 Windows 验证包、PRTS 和 fixture 后才创建固定注释标签，记录源码、integrity、原验收运行，上传同一包及回执。中断后从固定标签记录的 run 获取原 artifact；标签创建前的整次重跑也可复用已验收 artifact。旧版本普通提交和正式清单的自动回写不重新创建发行。固定标签和已有不同内容的附件均不可覆盖。
+
+release.published 只处理正式版本。release.yml 保留现有 npm-production OIDC 身份；自动化从 main 运行修复后的工具，但包、版本、源码和 hash 取自指定 Release 及固定标签，不重新打包 main。核对实际包／plugin 元数据和验证报告后才 publish --tag latest。npm 同版本同 hash 已存在则只完成标签和清单／回执；不同 hash 立即失败。旧标签迁移只允许已有 registry 版本，不能上传缺失包。
+
+registry 确认后向 main 回写精确版本目录和 docs/releases/X.Y.Z.json。多服务写入不声称原子完成：npm 成功而 Git 推送失败时，重跑原发布作业恢复，不重新 Publish、不重发包或自动回退。已安装插件主动刷新来源并安装，本项目不提供后台升级。
+
+一次性关闭 npm-production 的 Required reviewers／Wait timer，保留环境名称以兼容已有 OIDC；npm 仍只需 release.yml + npm-production 的连接，允许 npm publish 与 npm dist-tag，不新增长期 token。源码工具链和依赖保持现有固定版本。公开文档只保留持续适用的操作、配置和恢复规则，临时安排留在会话／本机日志中。
