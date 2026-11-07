@@ -469,7 +469,20 @@ test('local images support manual loading, portrait retry, keyboard dismissal an
   await frame.locator('#name-reply').click();
   await frame.locator('.reading-heading').hover();
   await expect(frame.locator('.portrait')).toBeVisible();
-  await frame.locator('#name-report').hover();
+  // The pinned portrait may cover earlier names when it opens above its anchor.
+  // Scroll a later speaker to the free lower edge, then use a real pointer hover.
+  await frame.locator('#name-departure').evaluate((node) =>
+    node.scrollIntoView({ block: 'end', behavior: 'instant' }),
+  );
+  await frame.locator('#name-departure').hover();
+  await expect(frame.locator('#name-departure')).toHaveAttribute(
+    'aria-expanded',
+    'false',
+  );
+  await expect(frame.locator('#name-reply')).toHaveAttribute(
+    'aria-expanded',
+    'true',
+  );
   await expect(frame.locator('.portrait')).toHaveAccessibleName(
     '角色占位符 B 立绘',
   );
