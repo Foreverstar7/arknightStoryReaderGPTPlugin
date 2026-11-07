@@ -1,9 +1,10 @@
 # 当前状态
 
-更新：2026-11-07。**1.0.0 已由原工作流通过 OIDC 发布到 npm next，实际下载归档与 cce87d6 验收包完全一致；单独重跑 publish 后 CI 收尾成功、回执和候选 draft Release 已生成。** 真实 Codex 桌面验收与稳定提升仍未完成。网站 c29a113 已合入本地 main，未推送或部署；v1.0.0 未移动。用户确认本阶段不打 v1.0.1 标签，不单独发行 1.0.1；后续新增基础搜索再准备 1.1.0。
+更新：2026-11-07。**1.0.0 已由原工作流通过 OIDC 发布到 npm next，实际下载归档与 cce87d6 验收包完全一致；单独重跑 publish 后 CI 收尾成功、回执和候选 draft Release 已生成。用户已确认完成真实 Codex 桌面验收，稳定提升尚未执行。** 网站 c29a113 已合入本地 main，未推送或部署；v1.0.0 未移动。用户确认本阶段不打 v1.0.1 标签，不单独发行 1.0.1；后续新增基础搜索再准备 1.1.0。
 
-## 当前：1.0.0 已发布 next，等待真实桌面验收
+## 当前：用户确认 1.0.0 桌面验收通过，等待稳定提升
 
+- 完成本机候选安装后，用户在本会话明确回复“我已经验收好了”。将其记录为发布者对 npm 1.0.0 的真实宿主验收确认，不将 CLI 安装检查改写成代理执行了桌面 UI 验收。当前远端 main 仍为 93446b9，稳定 marketplace 为 `plugins: []`，候选 Release 437560439 仍为 draft；需要为验收确认保存可访问的 HTTPS 记录，并执行稳定提升。尚未更改 npm latest、推送网站／本地 main 或公开 Release。
 - 用户按 README 添加远端来源后，安装报 `plugin was not found`。已核对远端 main 和本机缓存的 marketplace 均为 `plugins: []`；这是未收录条目，不是 npm 版本缺失。已在 `.ai/local/release-1.0.0/candidate-marketplace/` 准备独立的 `arknights-reader-candidate` 来源，固定 npm `arknights-story-reader@1.0.0`，通过 `codex plugin marketplace add` 和 `codex plugin add arknights-story-reader@arknights-reader-candidate --json` 实际安装成功。CLI 列表确认 installed／enabled 均为 true，缓存内 package.json 与根 plugin.json 均为 1.0.0；回执为 `.ai/local/release-1.0.0/candidate-install.json`。本地的只是来源清单，实际插件来自 npm，不是仓库开发构建。原 dev 0.1.25 安装仍保留；真实桌面验收须选择 candidate 来源并重启／新建会话，尚未确认实际 UI 入口或阅读交互。
 - 本轮只完成本机候选安装，远端稳定目录、npm dist-tags、GitHub Release 和私人记录未修改。现有 promote.yml 会更新固定目录并公开 Release，但尚不更新 npm latest；npm 标签需单独操作或后续明确加入稳定提升工作流。
 - 用户在 GitHub 批准原运行 42251044304 的 npm-production 后，首次 publish 作业 128008119039 完成上传，但在北京时间 20:11:44 立即查询 registry 仍为 404，脚本第 69 行报错。用户核对 npm 没有待审批暂存记录；20:15:54 的完整包元数据已出现 1.0.0，next 指向 1.0.0。最终证据支持 registry 同步延迟，不是待批准的暂存发布或已证实的 OIDC 配置错误。

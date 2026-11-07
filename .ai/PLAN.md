@@ -1,10 +1,10 @@
 # 下一步
 
-## 当前：1.0.0 已发布 next，先做真实桌面验收
+## 当前：用户确认 1.0.0 桌面验收通过，等待稳定提升
 
-网站 c29a113 与换机提交 e1a1c3e 已合入本地 main，未推送或部署。用户已两次批准原运行的 npm-production：1.0.0 通过 OIDC 发到 next，registry 实际归档和 provenance 已核对；一次同步延迟假失败后，只重跑 publish 完成回执／draft Release。v1.0.0 保持 cce87d6，下一步是真实桌面验收，尚未提升稳定来源。
+网站 c29a113 与换机提交 e1a1c3e 已合入本地 main，未推送或部署。用户已两次批准原运行的 npm-production：1.0.0 通过 OIDC 发到 next，registry 实际归档和 provenance 已核对；一次同步延迟假失败后，只重跑 publish 完成回执／draft Release。v1.0.0 保持 cce87d6。通过候选来源安装精确 npm 1.0.0 后，用户已明确确认“我已经验收好了”；下一步是保存验收确认的 HTTPS 记录并提升稳定来源，尚未执行公开发布。
 
-1. **完成 1.0.0 的真实桌面验收**：Release 42251044304 的验收和 publish 都 success，精确归档、回执及候选 draft 437560439 已核对。远端稳定目录为空，本机已通过独立 `arknights-reader-candidate` 来源执行 Codex 命令，从 npm 安装精确 1.0.0；CLI 的 installed／enabled 和缓存清单版本均已确认，清单及回执见 STATUS。下一步重启桌面／新建会话，选择 candidate 来源，验证实际入口、阅读与图片、续读、升级和卸载保留记录；原 dev 0.1.25 的体验不作为该包验收。取得真实 HTTPS 证据后再执行 promote.yml，公开稳定 Release；该工作流当前不更新 npm latest，标签另行处理。
+1. **提升 1.0.0 稳定来源**：Release 42251044304 的验收和 publish 都 success，精确归档、回执及候选 draft 437560439 已核对。本机已通过独立 `arknights-reader-candidate` 来源从 npm 安装精确 1.0.0，CLI 的 installed／enabled 和缓存清单版本已独立验证，用户已确认真实桌面验收完成。保存发布者验收确认的 HTTPS 记录后执行 promote.yml，向远端正式 marketplace 写入固定 1.0.0 条目并公开稳定 Release；该工作流当前不更新 npm latest，标签另行处理。不把没有收录条目误解成 npm 没有发布版本。
 2. **当前不独立发行 1.0.1**：用户明确不打 v1.0.1 标签。网站、兼容修正与发布工具的 404 同步等待／日志修复留在本地 main；没有升版、创建标签或重复发布。main／Pages 的推送按用户后续指令执行，不改已经发布的 1.0.0 归档。
 3. **新增基础搜索后发 1.1.0**：唯一一个模型可见工具，检索剧情名称、别名、分类、有来源的简介和可靠关键词，卡片进入对应篇目；保留原阅读器与记录兼容，不加 RAG、全库台词搜索、对话侧续读／进度工具。实现前核对当前 MCP 官方契约，完成新工具与阅读器的实际包／宿主验收后再发行。
 
