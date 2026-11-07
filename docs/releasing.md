@@ -1,14 +1,14 @@
 # npm 发布操作指南
 
-发布前先完成[发行包验证](testing.md#发行包)。0.1.26 已首次本机发布，registry integrity 与已验收归档一致；next 与 latest 当前均指向 0.1.26，稳定目录仍为空。后续发行使用新版本号，不重发 0.1.26。
+发布前先完成[发行包验证](testing.md#发行包)。截至 2026-11-07，1.0.0 已通过原 GitHub 工作流的 OIDC 发布到 next，实际 registry 归档与验收包一致；latest 仍为 0.1.26，稳定目录仍为空。1.0.0 的真实桌面验收及稳定提升尚未完成；后续发行使用新版本号，不重发已存在版本。
 
 ## 当前版本顺序（2026-11-07）
 
-1. **1.0.0 先收尾**：Release 运行 42251044304 已完成实际包验收，publish 仍等待 npm-production 网页审批；npm registry 的精确 1.0.0 为 404，已验收 artifact 未过期。批准后沿用 cce87d6 的同一归档发布为 next，再完成 registry／OIDC／回执核对和真实桌面验收，最后提升稳定来源与公开 Release。验收成功、npm 发布、稳定提升是三个独立阶段。
-2. **1.0.1 准备兼容修正**：网站新版及演示已在本地 main；仅网站、图片和文档变动无需 npm 发版，其中涉及插件行为的兼容修正归入后续 1.0.1。准备候选时再运行 release:version，重新验证该新包，不移动或覆盖 v1.0.0。
+1. **1.0.0 做真实桌面验收**：原运行 42251044304 的验收／发布已全部成功，registry 与 provenance、回执和候选 draft Release 均已核对。下一步验证精确 npm 版本的真实桌面路径，再提升稳定来源与公开 Release。验收成功、npm 发布、稳定提升是三个独立阶段。
+2. **当前不打 1.0.1 标签**：用户确认本阶段不独立发行 1.0.1；网站、兼容修正与发布工具同步等待修复保留在本地 main。网站可独立部署，不移动或覆盖 v1.0.0，不重复发布已有 npm 版本。
 3. **1.1.0 加入基础搜索**：新增唯一一个模型可见的基础剧情搜索工具并保持现有契约兼容时，使用 1.1.0。完成对应实际包、阅读器和真实宿主验收再发布，不将工具实现计划当作已交付。
 
-以上按[语义化版本规则](https://semver.org/lang/zh-CN/)区分兼容修正与功能新增；本轮只合并和记录顺序，当前版本文件仍是 1.0.0，未创建后续标签或批准发布。
+以上按[语义化版本规则](https://semver.org/lang/zh-CN/)区分兼容修正与功能新增；当前版本文件仍是 1.0.0，未创建后续标签或执行稳定提升。
 
 ## 自动发布所需配置
 
@@ -22,7 +22,7 @@
 
 1. 运行 `npm run release:version -- X.Y.Z`，完成 check、pack 和实际包验收。由发布者提交源码并推送匹配的 `vX.Y.Z` 标签，不单独执行 `npm version`。
 2. `release.yml` 在 Windows 固定 Node 26.13.0／npm 12.2.1，检查类型／测试／格式，构建 tgz，以一次全新 npm 安装完成全部离线协议／UI 和真实 PRTS 小样本验收，再执行源码 fixture 浏览器回归。
-3. 同一 tgz 与 `release.json` 上传到 Actions artifact。经 `npm-production` 审批后，核对版本、标签提交、干净状态、run ID 及归档 integrity，OIDC 发布为 `next`；发布 job 不重新构建。
+3. 同一 tgz 与 `release.json` 上传到 Actions artifact。经 `npm-production` 审批后，核对版本、标签提交、干净状态、run ID 及归档 integrity，OIDC 发布为 `next`；发布 job 不重新构建。npm 输出写入日志，发布后仅对 registry 404 最多等待五分钟；权限、格式或 hash 不符不按同步延迟重试。
 4. registry 返回同版本且 integrity 一致后，保存 `published.json` 和 draft Release。`next` 不是稳定安装入口。
 5. 发布者在 Windows x64 的真实 Codex 桌面验证该明确 npm 版本：干净安装、侧栏入口、三页阅读与图片、保存／重开、升级和卸载保留记录。记录 CLI／桌面／Node 版本及可访问的 HTTPS 证据 URL；浏览器或 app-server 结果不替代桌面验收。
 6. 从 main 手动运行 `promote.yml`，填写版本、证据 URL，并确认真实宿主通过。工作流核对标签内包名／版本、发布回执、源码提交和 registry integrity，更新 `.agents/plugins/marketplace.json` 及 `docs/releases/X.Y.Z.json`。推送成功才公开 Release。
@@ -35,6 +35,7 @@ marketplace 固定 npm 版本，不使用 latest 或版本范围。`check.yml` �
 - OIDC／npm 失败：稳定目录不动，核对包名权限和 publisher 的 repo／workflow／environment，不临时把 token 写入仓库。
 - registry 只有 `0.0.0-stage`：这是新包暂存发布的公开占位版，不能当作目标版本发布成功。先用 `npm stage list <包名>`／`npm stage view <stage-id>` 核对待批准版本、标签与归档；确认正确后由发布者通过 `npm stage approve <stage-id>` 或 npm 网页批准并完成 2FA。若没有待批准记录，先核对原发布命令结果，不盲目重发。[官方暂存发布说明](https://docs.npmjs.com/staged-publishing/)
 - npm 已成功但 Release 失败：重跑 publish job；只有 registry 同版本 integrity 与验收归档一致才跳过重复 publish。版本冲突立即失败，npm 版本不可覆盖。若验收 artifact 已过期，重新验收／打包；新归档不匹配已发布版本时发布新版本。
+- 发布命令成功但立刻查询为 404：可能存在同步窗口。1.0.0 的首次实际上传结束后约四分钟才出现在 registry，旧脚本即时查询误报失败。先核对精确版本、next 和真实归档 hash，不能把退出码 0 当作已经公开，也不要立即重复上传。确认同一版本／归档已存在后，只重跑 publish 补回执与 draft；GitHub 可能再次要求环境审批。当前 main 已补有限等待，旧 v1.0.0 标签不移动；暂存与普通同步延迟分别核对。
 - 宿主验收失败：保留 draft 和 next，修复后发行新版本，不提升稳定来源。
 - promotion 推送失败：远端目录保持原值，解决权限或以 PR 合并，不强推。若目录成功而 Release 编辑失败，可重跑 promotion 完成说明，不重发 npm。
 - 回退：将稳定来源指向既有已验收版本；先确认数据兼容，正常关闭会话并备份外部 `reading/`。不删除旧 npm 包，不清理私人记录。

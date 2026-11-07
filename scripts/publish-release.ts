@@ -6,6 +6,10 @@ import { z } from 'zod';
 import { checkVersions } from './release-version.js';
 import { npmCommand } from './npm-command.js';
 import { verifyTarball } from './artifact-integrity.js';
+import {
+  registeredPackage,
+  waitForRegisteredPackage,
+} from './publication-registry.js';
 
 const root = path.resolve(import.meta.dirname, '..');
 const identity = await checkVersions(root);
@@ -37,22 +41,10 @@ verifyTarball(
   artifact.integrity,
 );
 const registryUrl = `https://registry.npmjs.org/${encodeURIComponent(identity.name)}/${identity.version}`;
-async function registered() {
-  const response = await fetch(registryUrl);
-  if (response.status === 404) return null;
-  if (!response.ok)
-    throw new Error(`npm registry 检查失败：HTTP ${response.status}`);
-  return z
-    .object({
-      name: z.literal(identity.name),
-      version: z.literal(identity.version),
-      dist: z.object({ integrity: z.literal(artifact.integrity) }),
-    })
-    .parse(await response.json());
-}
-if (!(await registered())) {
+const expectedPublication = { ...identity, integrity: artifact.integrity };
+if (!(await registeredPackage(expectedPublication))) {
   // Publish exactly the accepted tarball; never rebuild in the publish job.
-  await npmCommand(
+  const result = await npmCommand(
     [
       'publish',
       path.join(root, '.local/releases', artifact.filename),
@@ -63,10 +55,17 @@ if (!(await registered())) {
       'public',
     ],
     root,
+    { streamStderr: true },
   );
+  if (result.stdout.trim()) console.info(result.stdout.trim());
+  await waitForRegisteredPackage(expectedPublication, {
+    onPending: (attempt) => {
+      console.info(
+        `npm registry 尚未同步该版本，正在等待（第 ${attempt} 次）。`,
+      );
+    },
+  });
 }
-if (!(await registered()))
-  throw new Error('npm 尚未返回刚发布的明确版本；不更新任何稳定来源。');
 const receipt = {
   ...artifact,
   registryUrl,

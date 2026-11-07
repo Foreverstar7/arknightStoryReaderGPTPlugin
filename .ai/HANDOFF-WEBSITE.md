@@ -1,8 +1,10 @@
 # 回家继续网站改版
 
-当前集成分支：本地 main。网站功能提交 c29a113 已连同换机基线 e1a1c3e 快进合并，codex/website-scroll-demo 保留；远端 main 仍为 93446b9，未推送、部署或发布 npm。用户已在本机预览认可效果。本机网站预览按要求运行在 http://127.0.0.1:4330/arknightStoryReaderGPTPlugin/ 。
+当前集成分支：本地 main。网站功能提交 c29a113 已连同换机基线 e1a1c3e 快进合并，codex/website-scroll-demo 保留；远端 main 仍为 93446b9，网站与本地工具修复未推送或部署。用户已在本机预览认可效果。本机网站预览按要求运行在 http://127.0.0.1:4330/arknightStoryReaderGPTPlugin/ 。
 
-下一步先收尾固定 cce87d6 的 v1.0.0：Release 42251044304 的验收 success／发布 waiting，artifact 未过期，npm 精确版本为 404，由用户网页批准 npm-production 后跟进。其后当前插件兼容修正准备为 1.0.1，新增唯一模型可见基础剧情搜索工具后准备 1.1.0。当前版本文件未升版，发布与稳定提升具体步骤见 .ai/PLAN.md 和 docs/releasing.md。
+1.0.0 已从固定 cce87d6 归档发布到 npm next，实际下载 hash 与验收包一致，provenance 指向原工作流。首次发布因约四分钟同步延迟误报失败，单独重跑 publish 后整个运行 42251044304 已成功，回执和候选 draft Release 437560439 已核对。下一步是真实桌面验收，再提升稳定来源。用户明确本阶段不打 v1.0.1；新增唯一模型可见基础搜索后再准备 1.1.0。
+
+本地发布工具已补仅对 404 的五分钟有限等待及 npm 输出，完整类型／132 项测试／格式通过；这项改动未用于旧标签的本次重跑，不改变已发布包。状态、实际 registry 归档、provenance 与附件核对在 .ai/local/release-1.0.0/published-1.0.0/。版本文件未升版，具体步骤见 .ai/PLAN.md 和 docs/releasing.md。
 
 ## 新电脑从正式源码运行
 

@@ -1,14 +1,16 @@
 # 当前状态
 
-更新：2026-11-07。用户本地预览认可后，图片／占位演示已提交为 c29a113，并连同另一台电脑的 e1a1c3e 快进合入本地 main。未推送或部署，远端 main 仍为 93446b9；v1.0.0 标签保持 cce87d6。已只读核实旧版验收通过、发布等待审批，下一步先收尾 1.0.0，再准备 1.0.1 修订版和新增基础搜索工具的 1.1.0。接续见 .ai/HANDOFF-WEBSITE.md。
+更新：2026-11-07。**1.0.0 已由原工作流通过 OIDC 发布到 npm next，实际下载归档与 cce87d6 验收包完全一致；单独重跑 publish 后 CI 收尾成功、回执和候选 draft Release 已生成。** 真实 Codex 桌面验收与稳定提升仍未完成。网站 c29a113 已合入本地 main，未推送或部署；v1.0.0 未移动。用户确认本阶段不打 v1.0.1 标签，不单独发行 1.0.1；后续新增基础搜索再准备 1.1.0。
 
-## 当前：本地 main 已合并，先收尾 1.0.0
+## 当前：1.0.0 已发布 next，等待真实桌面验收
 
-- 功能提交 c29a113 已在本地 main，合并无冲突；保留 codex/website-scroll-demo 分支。用户仅授权本次合并，未自动推送；main 推送会触发网站 Pages 工作流，另按用户后续指令执行。本机 4330 静态预览继续按用户要求保持运行。
-- GitHub 运行 42251044304 的 accept-package 实际为 success、publish 为 waiting；npm-candidate artifact 13520711785 未过期，关联提交仍为 cce87d6。npm registry 对 1.0.0 实际返回 HTTP 404（version not found）。远程注释标签对象仍为 31b92868b3a04f118716b0ebe3d6c568ae2ce827；本地解引用为 cce87d6c2abfc7760272981ad44f5349267d59a7。未重打包、移动标签或批准发布。
-- 发布顺序已按用户提议记录：先由用户在原 Release 运行批准 npm-production，将已验收的同一归档发到 next；核对 registry／OIDC／回执并完成该精确 npm 版本的真实桌面验收后，再提升稳定目录／公开 Release。当前网站合并不影响这份旧归档。
-- 1.0.1 用于当前分支包含的向后兼容插件修正；纯网站和截图更新可独立部署，无需单独发行 npm。1.1.0 用于之后新增唯一一个模型可见的基础剧情搜索工具，保持现有阅读入口和记录兼容，不扩大为 RAG、全文台词检索、对话续读或查询进度工具。
-- 本轮未执行升版：package／plugin／源码版本仍为 1.0.0，没有创建 v1.0.1 或 v1.1.0。1.0.0 收尾后用项目 release:version 脚本准备下一版，重新验收对应实际包。沿用本轮有效的 128 项测试、网站 6 项与阅读器 35 项回归，不因 Git 快进和文档记录重复测试。
+- 用户在 GitHub 批准原运行 42251044304 的 npm-production 后，首次 publish 作业 128008119039 完成上传，但在北京时间 20:11:44 立即查询 registry 仍为 404，脚本第 69 行报错。用户核对 npm 没有待审批暂存记录；20:15:54 的完整包元数据已出现 1.0.0，next 指向 1.0.0。最终证据支持 registry 同步延迟，不是待批准的暂存发布或已证实的 OIDC 配置错误。
+- 已独立下载 npm 的 1.0.0 tgz：7,923,617 字节，SHA-512 与原验收包完全一致，为 `sha512-06q8zw5cD1WDznpKV61DSPBXlzn1lXmyiROKRqQnZYlp8JQg5XRcUtx83ZYmb2scNgI5kSBkPXqJ2LOaE8COcw==`。公开 provenance 的 workflow 为 release.yml、ref 为 v1.0.0、提交为 cce87d6，invocation 为原运行 attempts/1；只读取并核对证明内容，不声称另做了证书链验签。
+- 确认版本与归档一致后，通过 GitHub 连接器只重跑失败的 publish。用户再次批准环境；第二次作业 128401773861 于 20:23 成功，原验收仍为 success。旧脚本查询到已存在的同哈希版本后跳过上传，生成 published.json 与候选 Release；没有重打包、移动标签或重复发版。
+- Draft Release 为 437560439（v1.0.0 candidate），四份附件全部 uploaded：tgz、published.json、release.json、verification-prts.json。GitHub 附件 SHA-256／字节数均与验收文件一致；回执由已验收字段按原脚本重建后，SHA-256 与附件 digest 完全一致，未将其描述为直接下载的 draft 附件。回执、registry 实际归档、provenance、附件清单与成功日志在 `.ai/local/release-1.0.0/published-1.0.0/`；首次失败日志在 `.ai/local/website-demo-media/publish-1.0.0-failed.log`。
+- npm next=1.0.0、latest=0.1.26；稳定 marketplace 仍为空，GitHub Release 仍为 draft。下一步验证这个精确 npm 版本在真实 Windows Codex 桌面的安装、入口、图片、续读、升级与卸载保留记录，取得实际 HTTPS 证据后再执行 promote.yml。不能用网站预览、包验收或 npm 发布代替真实桌面验收。
+- 已在本地 main 修复后续发布工具的同步误报：发布后仅对 404 最多等待 5 分钟、每 10 秒查询，每次请求最多 15 秒且受剩余总预算约束；权限／格式／哈希不符直接失败。补出 npm stderr 与成功 stdout。4 项定向回归和完整 check 的类型、132 项测试、格式全部通过，日志为上述目录的 publish-fix-check.log。该修复没有进入固定 cce87d6 的本次重跑或已发布包，不为它移动标签。
+- 网站 c29a113 已本地合入 main，保留工作分支；远端 main 仍为 93446b9，未推送或部署。4330 本机预览继续按用户要求保留。新发布工具与交接仅本地保存，当前不创建或发布 v1.0.1；后续新增唯一模型可见基础剧情搜索工具时再准备 1.1.0。当前版本文件未改，v1.0.0 注释标签仍为 31b92868b3a04f118716b0ebe3d6c568ae2ce827，指向 cce87d6。
 
 ## 已完成：点击体验区图片与占位内容
 

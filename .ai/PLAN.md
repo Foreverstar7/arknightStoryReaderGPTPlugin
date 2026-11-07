@@ -1,14 +1,14 @@
 # 下一步
 
-## 当前：本地合并完成，按 1.0.0 → 1.0.1 → 1.1.0 接续
+## 当前：1.0.0 已发布 next，先做真实桌面验收
 
-用户已认可本地网站效果，功能提交 c29a113 与换机提交 e1a1c3e 已快进合入本地 main；未推送、部署或升版，v1.0.0 保持 cce87d6。本轮只合并与记录后续顺序，不开始搜索工具实现或批准 npm 发布。
+网站 c29a113 与换机提交 e1a1c3e 已合入本地 main，未推送或部署。用户已两次批准原运行的 npm-production：1.0.0 通过 OIDC 发到 next，registry 实际归档和 provenance 已核对；一次同步延迟假失败后，只重跑 publish 完成回执／draft Release。v1.0.0 保持 cce87d6，下一步是真实桌面验收，尚未提升稳定来源。
 
-1. **先完成 1.0.0**：实际核对 Release 42251044304 的验收 success、publish waiting，artifact 未过期，npm 1.0.0 为 404。由用户网页批准 npm-production，随后核对同归档发布的 OIDC／registry integrity／回执，完成精确版本真实桌面验收，再提升稳定目录与公开 Release；不移动已验收标签。
-2. **再准备 1.0.1**：当前集成包含兼容性修正与演示适配；纯网站不需要 npm 发版，涉及插件行为的修正可以作为 1.0.1。到准备候选时再使用 release:version 脚本升版并验证新包，不替换 1.0.0 归档。远端 main／Pages 推送按用户后续指令执行。
+1. **完成 1.0.0 的真实桌面验收**：Release 42251044304 当前验收和 publish 都 success，npm next=1.0.0，下载包与已验收归档相同。回执及候选 draft 437560439 已核对。验证精确 npm 1.0.0 的 Windows Codex 安装、入口、阅读与图片、续读、升级和卸载保留记录，取得真实 HTTPS 证据后再执行 promote.yml，公开稳定 Release。
+2. **当前不独立发行 1.0.1**：用户明确不打 v1.0.1 标签。网站、兼容修正与发布工具的 404 同步等待／日志修复留在本地 main；没有升版、创建标签或重复发布。main／Pages 的推送按用户后续指令执行，不改已经发布的 1.0.0 归档。
 3. **新增基础搜索后发 1.1.0**：唯一一个模型可见工具，检索剧情名称、别名、分类、有来源的简介和可靠关键词，卡片进入对应篇目；保留原阅读器与记录兼容，不加 RAG、全库台词搜索、对话侧续读／进度工具。实现前核对当前 MCP 官方契约，完成新工具与阅读器的实际包／宿主验收后再发行。
 
-以上版本顺序不会自动触发标签、npm 发布、稳定提升或 Pages 部署。当前版本文件仍为 1.0.0；网站本机预览继续运行。
+当前版本文件仍为 1.0.0，未创建 v1.0.1／v1.1.0；稳定提升和 Pages 部署仍未执行。发布延迟修复已通过完整类型、132 项测试与格式检查，不需要为只改工具／文档重复网站和正文 UI 验收。
 
 ## 已完成：点击体验区图片与占位内容
 
@@ -25,15 +25,13 @@
 
 0.1.26 已完成首次本机 npm 发布，registry integrity 与验收归档一致，GitHub 仓库已公开，见 [STATUS](STATUS.md)。本地工作流仅 npm 发布 job 引用 `npm-production` environment；稳定提升保留手动触发和宿主验收确认，不绑定环境。普通检查使用 Ubuntu，标签验收使用 Windows，npm 上传使用 Ubuntu，无 macOS 验收矩阵。
 
-正式版目标保持 1.0.0。`cce87d6` 的 Ubuntu Check 与第八次 Windows Release accept-package 全部通过；119 项、完整实际包／PRTS 和原 34 项 Chromium 回归均通过。候选 v1.0.0 固定该提交，发布等待 npm-production 网页审批，见 [STATUS](STATUS.md)。
+1.0.0 已从固定的 cce87d6 验收归档发布到 next；原 Windows 实际包／PRTS 与 Chromium 验收沿用有效证据。首次发布的 registry 同步延迟已通过单独重跑 publish 收尾，两个 job 当前均成功；精确 hash 和 provenance 见 [STATUS](STATUS.md)。
 
-服务器验收修复完成，沿用该次有效证据和实际 artifact，不重建或移动已验收的候选。当前未完成项：
+当前未完成项：
 
-1. 由用户醒后在 [Release 运行](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42251044304) 点击 Review deployments，选择 npm-production 并 Approve and deploy；助手不批准。该步骤才会启动实际 npm next 发布。
-2. 审批后跟进 OIDC／registry integrity／发布回执，保留已验收的 cce87d6 标签和同一 tgz，不使用本地预检包、不覆盖 0.1.26。网站与文档变更正常提交 main，不重新打包或移动 v1.0.0。
-3. `npm-production` 的 Foreverstar7 审核、允许自审与禁止管理员绕过已独立核验；npm 网页截图确认 publisher 字段及 `npm publish` 权限匹配，仍为 `Pending validation`，须在 2026-11-08 12:11 UTC（北京时间 20:11）前完成首次成功发布。npm 发布仍由用户网页审批，OIDC 待实际验证，助手不代为批准。
-4. 1.0.0 候选发布后，验证该精确 npm 版本在真实 Windows Codex 桌面的安装、阅读、图片、续读、升级及卸载保留记录。
-5. 稳定 marketplace 仍为空。发行完成后统一补充 STATUS 与 GitHub Release 的实际结果；README 在打包前定稿，不随临时阶段改写，文档同步不重发同版本 npm 包或移动标签。
+1. 验证精确 npm 1.0.0 在真实 Windows Codex 桌面的安装、阅读、图片、续读、升级及卸载保留记录；保留可访问的 HTTPS 证据。
+2. 验收通过后由用户确认 promote.yml 的 host_accepted，提升固定稳定来源并公开 draft Release；稳定 marketplace 当前仍为空。
+3. 保存真实结果，保留 cce87d6 与同一 tgz。文档、网站和工具修复不重发 1.0.0、不移动标签；本阶段不打 1.0.1。
 
 其他系统、架构和宿主在实际环境验收后再列入支持范围。
 
