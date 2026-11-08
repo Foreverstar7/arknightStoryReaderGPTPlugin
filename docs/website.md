@@ -66,6 +66,7 @@ npm run preview:web
 npm run test:e2e:web
 ```
 
+- 手机窄屏的篇章目录为纵向卡片列表，不显示浏览线；电脑宽屏保留横向交错篇目轴。网页专用样式约束 Grid 最小列宽，长目录只在轴内横向滚动，不撑宽整页。
 - `web/transport.ts` 接入原 ReaderService、PrtsSource 和 ReaderApp；`scripts/build-web.mjs` 只为这个构建替换四个存储模块、SHA-256 和设置面板。未适配的 Node 内置模块会使构建失败，不能以空模块冒充实现。
 - `web/prts-api.ts` 通过带 `origin=*` 的 MediaWiki revisions/imageinfo 接口读取公开内容。API 统一直连 `m.prts.wiki`，避免标准域名对手机 UA 的 302 没有 CORS 头而导致加载失败；已核对两类 UA 返回相同公开 JSON。请求不携带凭据，不使用代理；白名单只接受 PRTS 标准／移动 API、media、torappu 来源。网络、缺页、数据格式与资源缺失沿用原有错误区分。普通 PRTS 网页可访问与跨域 API 可读取分别检查。
 - `web/database.ts` 使用 IndexedDB 事务持久保存 reading 和 counts 两种小量数据，解析后再进入领域模型。阅读记录包含锚点和哈希摘要，不包含正文或图片。清记录仍保留偏好与字数统计，并防止旧窗口保存恢复已删除记录。

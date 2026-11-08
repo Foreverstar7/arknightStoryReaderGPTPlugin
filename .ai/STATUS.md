@@ -14,12 +14,12 @@
 
 独立网页构建复用 ReaderApp、ReaderService 与解析器，选择浏览器存储、设置与字节／哈希适配；桌面存储、原始 PRTS 请求和 MCP 入口沿用主分支实现。共享服务的三处字数调用等待同步或异步结果。网页集成保留主分支 1.1.4 的搜索深链与发行能力；现有固定标签、发行物和安装未替换。
 
-- 与 1.1.4 主分支整合后，`npm run check`（类型、173 项单元／协议测试、格式）、`npm run build`、网页／网站类型检查、`node scripts/build-site.mjs` 及 Pages actionlint 通过；`playwright.config.ts` 的 39 项桌面 fixture、`playwright.host.config.ts` 的 27 项 SDK iframe、`playwright.site.config.ts` 的 10 项介绍演示及 `playwright.web.config.ts` 在 Edge／WebKit 各 16 项均通过。随后仅网页的移动 API 修复再次通过 check（173 项）、网页类型／静态构建和 Edge／WebKit 各 17 项，新增 Wiki 与 imageinfo 的手机请求阻断回归。
-- 已检查 320×760、768×900、1440×960、1024×400 双主题、触摸、键盘、正常／减少动画及连续缩放。网页沿用既有布局，窄屏目录收起，新增网页标识与返回介绍链接，移除持久内容缓存控制。
+- 本地类型／173 项单元与协议／格式检查、网页类型和完整静态构建通过。网页最新回归 Edge 19 项通过；WebKit 18 项通过、1 项 CDP 原生触摸专项按内核跳过。长目录覆盖手机原生纵向滑动、整卡点击、电脑浏览线末端定位和宽／窄窗口往返；目录截图覆盖四种窗口与双主题。既有桌面 39 项 fixture、27 项 SDK iframe 和 10 项介绍演示的成功记录保留，后续网页样式没有修改桌面源码。
+- 已检查 320×760、768×900、1440×960、1024×400 双主题和低高度：手机窄屏篇章目录为纵向卡片列表，隐藏浏览线与横向提示；电脑保持横向交错轴和浏览线。网页外壳列宽已约束，长目录不再撑宽整页。正文及阅读领域规则不变。
 - 手机 API 问题已复现：iPhone Safari 标识的真实请求在标准域名收到指向 `m.prts.wiki` 的无 CORS 302，出现与 iOS 27 用户相同的目录错误。网页改为直连源站移动 API 后，同一 WebKit／iPhone 标识通过真实 PRTS 目录、正文、立绘、CG 和刷新续读；桌面源码没有新增改动。自动回归模拟浏览器拒绝请求，实际 302／CORS 与真实数据验证分别留存本机证据，不能把模拟视为真机通过。
 - 集成后 Edge 真实 PRTS 目录、孤星阅读、进度保存／刷新恢复再次通过；独立切片的 CW-6 立绘和 CG 显示已验证，未访问本机业务 API 或 MCP。原始证据保存在被忽略的本机目录。Android／iPhone 真机、主屏幕启动和线上源站访问尚待验证。
 
-网页集成提交 `eadb4cc` 已推送 main，[Pages 42470970537](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42470970537) 构建与部署成功；[Check 42470970570](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42470970570) 已通过。正式 [网页阅读器](https://foreverstar7.github.io/arknightStoryReaderGPTPlugin/reader/) 已实测目录、孤星正文、阅读位置保存与刷新恢复，无浏览器异常或本机业务请求；本次网页更新没有另发 npm／插件版本。手机真机和主屏幕启动仍待验证。
+手机 API 修复 `28d09e9` 已推送 main，[Pages 42474015572](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42474015572) 构建与部署成功；[Check 42474015593](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42474015593) 全部作业成功或按已发布版本跳过。正式 [网页阅读器](https://foreverstar7.github.io/arknightStoryReaderGPTPlugin/reader/) 已在 iPhone 标识的 WebKit 上实测目录、孤星正文、立绘、CG、阅读位置保存与刷新恢复：API 直接返回移动域名响应，无跳转失败或浏览器异常。本次网页更新没有另发 npm／插件版本。用户已确认 iOS 27 总目录恢复可见；追加的纵向篇章目录布局和主屏幕启动仍需真机确认。
 
 ## 桌面端：1.1.4 已公开
 
@@ -64,7 +64,7 @@ npm 明确版本的 404 可见性等待从五分钟调整为 20 分钟，Publish
 | 1.1.1 固定归档 | GitHub／npm／正式来源及回执发布成功；固定源码 `baf8ee32bc79c37649f7e8ca49b744f990a64271`；不含高度修复 | [Publish 42459507527](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42459507527) |
 | 1.1.2 固定归档 | GitHub／npm latest／正式来源及回执均已发布成功                                                         | [Publish 42462147645](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42462147645) |
 | 1.1.4 固定归档 | GitHub／npm latest／正式来源及回执均已发布成功 | [Publish 42469568159](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42469568159) |
-| 网站           | 网页真实阅读入口的专项检查、构建与部署通过                                                                       | [Pages 42470970537](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42470970537)   |
+| 网站           | 网页真实阅读入口的专项检查、构建与部署通过                                                                       | [Pages 42474015572](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42474015572)   |
 | 正式来源       | `.agents/plugins/marketplace.json` 与 npm latest 均为 1.1.4；1.1.3 保留未发布            | [来源目录](../.agents/plugins/marketplace.json)                                                              |
 
 GitHub Release 公开与 npm／正式来源发布完成分别核对。[1.1.1 变更说明](../docs/releases/1.1.1-notes.md)保留该版搜索卡片的已知问题。已有标签与附件保持冻结，新变更使用新版本，不替换同名归档。

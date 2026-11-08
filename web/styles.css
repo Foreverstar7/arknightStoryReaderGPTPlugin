@@ -1,6 +1,7 @@
 .web-layout {
   height: 100dvh;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto minmax(0, 1fr);
 }
 .web-bar {
@@ -25,12 +26,68 @@
 }
 .web-reader {
   min-height: 0;
+  min-width: 0;
 }
 .web-reader > .app-shell {
   height: 100%;
 }
 .web-reader .body-copy {
   padding-bottom: max(24px, env(safe-area-inset-bottom));
+}
+/* Use the shared reader's existing phone breakpoint; wider views keep its axis. */
+@media (max-width: 600px) {
+  .web-reader .timeline-help,
+  .web-reader .axis-seek,
+  .web-reader .book-heading > p.muted:not(.data-help) {
+    display: none;
+  }
+  .web-reader .timeline-scroll {
+    flex: none;
+    min-height: 0;
+    margin: 0 16px max(24px, env(safe-area-inset-bottom));
+    overflow: visible;
+    touch-action: auto;
+    overscroll-behavior: auto;
+  }
+  .web-reader .timeline {
+    width: auto;
+    height: auto;
+    min-height: 0;
+    flex-direction: column;
+    gap: 14px;
+    padding: 0 0 0 10px;
+  }
+  .web-reader .timeline::before {
+    inset: 0 auto 0 10px;
+    width: 1px;
+    height: auto;
+  }
+  .web-reader .timeline-node {
+    flex: none;
+    width: 100%;
+    min-width: 0;
+    height: auto;
+    min-height: 0;
+    padding-left: 20px;
+  }
+  .web-reader .timeline-node::after,
+  .web-reader .timeline-node:nth-child(even)::after {
+    top: 26px;
+    left: 0;
+    width: 20px;
+    height: 1px;
+  }
+  .web-reader .timeline-node > .node-dot {
+    top: 22px;
+    left: 0;
+  }
+  .web-reader .timeline-node > .chapter-card,
+  .web-reader .timeline-node:nth-child(even) > .chapter-card {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    border: 1px solid var(--line);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .web-layout {

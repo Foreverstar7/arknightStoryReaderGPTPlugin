@@ -275,7 +275,43 @@ for (const colorScheme of ['light', 'dark'] as const)
         await page.goto('./');
         await expect(page.locator('.story-card')).toHaveCount(1);
         await page.screenshot({ path: info.outputPath('library.png') });
-        await openFirst(page);
+        await page
+          .getByRole('button', { name: '打开剧情：' + title, exact: true })
+          .click();
+        await expect(page.locator('.story-preparation')).toContainText(
+          '正文已加载 2 篇',
+        );
+        const firstCard = await page
+          .locator('.chapter-card')
+          .nth(0)
+          .boundingBox();
+        const secondCard = await page
+          .locator('.chapter-card')
+          .nth(1)
+          .boundingBox();
+        if (!firstCard || !secondCard) throw new Error('Missing chapter cards');
+        if (viewport.width <= 600) {
+          expect(Math.abs(firstCard.x - secondCard.x)).toBeLessThan(1);
+          expect(secondCard.y).toBeGreaterThan(firstCard.y + firstCard.height);
+          await expect(
+            page.getByRole('slider', { name: '篇目浏览线' }),
+          ).toHaveCount(0);
+          expect(
+            await page
+              .locator('.chapters')
+              .evaluate((node) => node.scrollWidth <= node.clientWidth + 1),
+          ).toBe(true);
+        } else {
+          expect(secondCard.x).toBeGreaterThan(firstCard.x + firstCard.width);
+          await expect(
+            page.getByRole('slider', { name: '篇目浏览线' }),
+          ).toBeVisible();
+        }
+        await page.screenshot({ path: info.outputPath('directory.png') });
+        await page.getByRole('button', { name: /^阅读 WX-1 / }).click();
+        await expect(
+          page.getByRole('main', { name: '剧情正文', exact: true }),
+        ).toBeVisible();
         expect(
           source.calls.some((url) => url.endsWith('/character.json')),
         ).toBe(false);
