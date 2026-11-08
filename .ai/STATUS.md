@@ -20,7 +20,7 @@
 
 网页更新独立于 npm／插件版本；本次整合为本地源码，不代表 Pages 已部署。
 
-## 当前交付：1.1.4
+## 桌面端：1.1.4 已公开
 
 package／lock／plugin／源码版本统一为 1.1.4。新增桌面搜索到侧栏的深链、已有阅读器的导航处理，以及从固定验收提交自动填写 Release 草稿标题／正文。包含 1.1.3 的按钮精简，不新增模型工具或设置入口。变更说明见 [1.1.4](../docs/releases/1.1.4-notes.md)，后续发布操作见 [发布指南](../docs/releasing.md)。
 
@@ -30,11 +30,11 @@ package／lock／plugin／源码版本统一为 1.1.4。新增桌面搜索到侧
 - 固定工具链 Node 的 `--import tsx scripts/probe-search.ts` 通过：真实剧情名称、R8-1、塔露拉出场及导语可查，断网重开复用缓存，阅读记录不变且正文下载为零。报告位于 `.ai/local/story-search/live-1794128870214/report.json`；UI 报告、截图和 trace 位于 `.ai/local/search-card-check/`。
 - 固定源码 `950e14e8efcaeacfaebaa914503b29703222bcfd` 已推送 main，[Check 42466429465](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42466429465) 的 Ubuntu、Windows 验收与草稿准备成功。Windows 172 项测试通过；Ubuntu 170 项通过、2 项 Windows 专项跳过。两平台各 39 项 fixture 浏览器和 27 项 SDK iframe 通过，[Pages 42466429578](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42466429578) 部署成功。
 - Windows 首轮图片验收失败；本地同版实际包的完整 PRTS 复测通过后，重跑该次 Check 的失败作业，第 2 次运行完成真实 117 部目录、64 块正文、1500×844 CG 及记录保存／重开／清缓存／模拟卸载保留验证，未跳过检查。两次日志保留于 `.ai/local/delivery-1.1.4/`；不能仅据首轮缺少错误详情的返回认定具体网络根因。
-- [1.1.4 草稿](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/releases/tag/untagged-cedb904a362874a0c28c) ID `438150329`，三个附件齐全，tgz 为 8,025,929 字节。v1.1.4 固定标签记录同一源码、dirty=false、integrity 与原 Check 第 2 次运行；已核对草稿标题和正文与该提交的版本说明一致。1.1.3 草稿与原三个附件 ID／体积／digest 均未变。1.1.4 尚未 Publish；浏览器／SDK fixture 不代替真实桌面 URI 跳转结论，当前用户安装未替换。
+- [1.1.4 草稿](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/releases/tag/untagged-cedb904a362874a0c28c) ID `438150329`，三个附件齐全，tgz 为 8,025,929 字节。v1.1.4 固定标签记录同一源码、dirty=false、integrity 与原 Check 第 2 次运行；已核对草稿标题和正文与该提交的版本说明一致。1.1.3 草稿与原三个附件 ID／体积／digest 均未变。1.1.4 已于 2026-11-08 公开，[Publish 42469568159](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42469568159) 成功；远端 `dd44ea9` 回写精确 marketplace 与 [1.1.4 回执](../docs/releases/1.1.4.json)，正式来源及 npm latest 为 1.1.4。浏览器／SDK fixture 不代替真实桌面 URI 跳转结论，当前用户安装未替换。
 
 ## 跳过 1.1.3
 
-用户已确认 **1.1.3 不 Publish，后续只发布 1.1.4**。保留 [1.1.3 草稿](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/releases/tag/untagged-092bb25f7780a44b621f)、v1.1.3 标签和三个附件，固定源码为 `7fddc89e0a21a3db48fbfa0624d5169742aa9b35`，不覆盖或替换。原验收见 [Check 42462612021](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42462612021)，该版改动已包含在后续源码中。
+1.1.3 按已确认规则保留未发布，后续 1.1.4 已公开。保留 [1.1.3 草稿](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/releases/tag/untagged-092bb25f7780a44b621f)、v1.1.3 标签和三个附件，固定源码为 `7fddc89e0a21a3db48fbfa0624d5169742aa9b35`，不覆盖或替换。原验收见 [Check 42462612021](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42462612021)，该版改动已包含在后续源码中。
 
 ## 搜索卡片高度修复
 
@@ -62,8 +62,9 @@ npm 明确版本的 404 可见性等待从五分钟调整为 20 分钟，Publish
 | -------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
 | 1.1.1 固定归档 | GitHub／npm／正式来源及回执发布成功；固定源码 `baf8ee32bc79c37649f7e8ca49b744f990a64271`；不含高度修复 | [Publish 42459507527](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42459507527) |
 | 1.1.2 固定归档 | GitHub／npm latest／正式来源及回执均已发布成功                                                         | [Publish 42462147645](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42462147645) |
+| 1.1.4 固定归档 | GitHub／npm latest／正式来源及回执均已发布成功 | [Publish 42469568159](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42469568159) |
 | 网站           | 1.1.4 源码的检查、构建与部署通过                                                                       | [Pages 42466429578](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42466429578)   |
-| 正式来源       | `.agents/plugins/marketplace.json` 与 npm latest 均为 1.1.2；1.1.3 跳过，1.1.4 为已验收草稿            | [来源目录](../.agents/plugins/marketplace.json)                                                              |
+| 正式来源       | `.agents/plugins/marketplace.json` 与 npm latest 均为 1.1.4；1.1.3 保留未发布            | [来源目录](../.agents/plugins/marketplace.json)                                                              |
 
 GitHub Release 公开与 npm／正式来源发布完成分别核对。[1.1.1 变更说明](../docs/releases/1.1.1-notes.md)保留该版搜索卡片的已知问题。已有标签与附件保持冻结，新变更使用新版本，不替换同名归档。
 
