@@ -53,10 +53,10 @@ Vite 默认使用 5173，并把 `/api` 代理到 4318。启动与来源切换见
 
 PRTS 搜索只读取既有目录和“剧情出场人物一览”的主线／活动子页，复用 metadata 缓存、保留天数与清理代次；人物名按源表精确匹配，不剥离疑问号或猜测匿名身份。`reader_story_info` 按需读取 PRTS 导语列表和主线章节说明，不从全文生成摘要。网站 BrowserDemoTransport 复用名称匹配逻辑，使用独立占位目录和会话记录。
 
-正式版本发布后，其他 MCP Apps 宿主可使用以下 stdio 命令；这些宿主尚未验收：
+其他 MCP Apps 宿主可参考以下 stdio 配置模板；将 X.Y.Z 替换为正式来源固定的 npm 版本。这些宿主尚未验收：
 
 ```sh
-npx --yes --ignore-scripts --package=arknights-story-reader@0.1.26 -- arknights-story-reader
+npx --yes --ignore-scripts --package=arknights-story-reader@X.Y.Z -- arknights-story-reader
 ```
 
 源码外包检查、CLI 加载器检查和真实桌面操作分别验收，步骤见[验证指南](testing.md)。

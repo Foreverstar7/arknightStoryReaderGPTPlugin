@@ -6,9 +6,9 @@
 
 [项目网站与界面示例](https://foreverstar7.github.io/arknightStoryReaderGPTPlugin/) · [安装指南](#quick-start) · [发行记录](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/releases)
 
-**版本定位：1.0.0 为首个正式版。** 实际发行版本、稳定来源收录情况及已验证的桌面／平台范围见[当前状态](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/blob/main/.ai/STATUS.md)。
+安装版本由[来源目录](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/blob/main/.agents/plugins/marketplace.json)固定；源码实现与已验证的桌面／平台范围见[当前状态](.ai/STATUS.md)。
 
-当前源码增加剧情搜索：可按剧情名称、篇目编号／标题、人物出场查询并展示卡片，点击进入篇章目录。也可以让 AI 先查找组织、地区或事件相关的剧情名称，再由工具定位。搜索不要求事先下载正文；首次按需取得 PRTS 目录和出场表，后续复用缓存。卡片不放简介，篇章目录展示可取得的 PRTS 导语。该功能的发布与真实宿主验证状态见上方当前状态。
+源码支持剧情搜索：可按剧情名称、篇目编号／标题、人物出场查询并展示卡片，点击进入篇章目录。也可以让 AI 先查找组织、地区或事件相关的剧情名称，再由工具定位。搜索不要求事先下载正文；首次按需取得 PRTS 目录和出场表，后续复用缓存。卡片不放简介，篇章目录展示可取得的 PRTS 导语。该功能的发布与真实宿主验证状态见上方当前状态。
 
 ## Quick Start
 

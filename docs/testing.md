@@ -59,7 +59,7 @@ npm run package:verify -- --prts
 
 已有 Edge 时，也可在浏览器测试前执行 `$env:PLAYWRIGHT_CHANNEL = 'msedge'`，无需另外下载 Chromium。记录实际使用的浏览器；最终 Windows CI 仍使用 Chromium。
 
-修复包验收脚本时，可先对现有 tgz 运行 `./scripts/npm.ps1 run package:verify '--' '.local/releases/arknights-story-reader-1.0.0.tgz'`，定位问题后再做完整预检。日志显示解压、依赖检查、MCP 初始化与清理阶段及耗时；失败时保留原始错误，即使清理也失败。目录持续被占用仍判失败，不忽略错误。成功报告只在临时目录清理完成后写入。
+修复包验收脚本时，可先对现有 tgz 运行 `./scripts/npm.ps1 run package:verify '--' '.local/releases/arknights-story-reader-X.Y.Z.tgz'`（X.Y.Z 替换为实际归档版本），定位问题后再做完整预检。日志显示解压、依赖检查、MCP 初始化与清理阶段及耗时；失败时保留原始错误，即使清理也失败。目录持续被占用仍判失败，不忽略错误。成功报告只在临时目录清理完成后写入。
 
 本地预检能提前发现构建、实际包和浏览器回归问题；main 的 Check 先通过 Ubuntu `verify`，再调用草稿准备工作流，对同一提交 SHA 的干净源码执行 Windows 验收，最后冻结包和标签。发布阶段只消费已验收附件，不重建包。需要调查桌面问题时另外做实际宿主体验检查，结论与自动检查区分，不另设人工发布门槛。
 
