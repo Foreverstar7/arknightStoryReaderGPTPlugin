@@ -16,7 +16,9 @@ package／lock／plugin／源码版本统一为 1.1.4。新增桌面搜索到侧
 - `run package` 与 `run package:verify` 通过：实际 tgz 在源码外解包，冷缓存离线安装、生产依赖、三种 MCP 入口和两份 UI 一致。`run plugin:prepare` 已生成 1.1.4 开发副本，开发 mcp.json 的目标身份与其 marketplace 一致；`run probe:host -- --isolated` 验证本机加载器的 12 项工具、唯一模型搜索和 global 入口。该探针只安装到隔离配置，未替换当前用户安装。
 - Edge 的 fixture 浏览器 39 项及 SDK iframe 27 项通过，使用独立端口和原创记录。新增的 9 项覆盖正式／开发身份、首次与重复链接、慢初始化中更新目标、保存排队／失败重试、最新目标、坏链接、宿主拒绝，以及四种窗口双主题。已查看 320×760、768×900、1440×960、1024×400 的生成截图，篇目轴、命中标记、键盘和减少动态效果保持原有布局。
 - 固定工具链 Node 的 `--import tsx scripts/probe-search.ts` 通过：真实剧情名称、R8-1、塔露拉出场及导语可查，断网重开复用缓存，阅读记录不变且正文下载为零。报告位于 `.ai/local/story-search/live-1794128870214/report.json`；UI 报告、截图和 trace 位于 `.ai/local/search-card-check/`。
-- 推送后由现有 Check 对固定提交进行 Ubuntu 检查和 Windows 发包验收，再准备 1.1.4 草稿。浏览器／SDK fixture 不代替真实 ChatGPT 桌面处理 URI 的实机结论；本轮不自动安装或 Publish。
+- 固定源码 `950e14e8efcaeacfaebaa914503b29703222bcfd` 已推送 main，[Check 42466429465](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42466429465) 的 Ubuntu、Windows 验收与草稿准备成功。Windows 172 项测试通过；Ubuntu 170 项通过、2 项 Windows 专项跳过。两平台各 39 项 fixture 浏览器和 27 项 SDK iframe 通过，[Pages 42466429578](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42466429578) 部署成功。
+- Windows 首轮图片验收失败；本地同版实际包的完整 PRTS 复测通过后，重跑该次 Check 的失败作业，第 2 次运行完成真实 117 部目录、64 块正文、1500×844 CG 及记录保存／重开／清缓存／模拟卸载保留验证，未跳过检查。两次日志保留于 `.ai/local/delivery-1.1.4/`；不能仅据首轮缺少错误详情的返回认定具体网络根因。
+- [1.1.4 草稿](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/releases/tag/untagged-cedb904a362874a0c28c) ID `438150329`，三个附件齐全，tgz 为 8,025,929 字节。v1.1.4 固定标签记录同一源码、dirty=false、integrity 与原 Check 第 2 次运行；已核对草稿标题和正文与该提交的版本说明一致。1.1.3 草稿与原三个附件 ID／体积／digest 均未变。1.1.4 尚未 Publish；浏览器／SDK fixture 不代替真实桌面 URI 跳转结论，当前用户安装未替换。
 
 ## 跳过 1.1.3
 
@@ -48,8 +50,8 @@ npm 明确版本的 404 可见性等待从五分钟调整为 20 分钟，Publish
 | -------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
 | 1.1.1 固定归档 | GitHub／npm／正式来源及回执发布成功；固定源码 `baf8ee32bc79c37649f7e8ca49b744f990a64271`；不含高度修复 | [Publish 42459507527](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42459507527) |
 | 1.1.2 固定归档 | GitHub／npm latest／正式来源及回执均已发布成功                                                         | [Publish 42462147645](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42462147645) |
-| 网站           | 1.1.3 源码的检查、构建与部署通过                                                                       | [Pages 42462612047](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42462612047)   |
-| 正式来源       | `.agents/plugins/marketplace.json` 与 npm latest 均为 1.1.2；1.1.3 为已验收草稿                        | [来源目录](../.agents/plugins/marketplace.json)                                                              |
+| 网站           | 1.1.4 源码的检查、构建与部署通过                                                                       | [Pages 42466429578](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42466429578)   |
+| 正式来源       | `.agents/plugins/marketplace.json` 与 npm latest 均为 1.1.2；1.1.3 跳过，1.1.4 为已验收草稿            | [来源目录](../.agents/plugins/marketplace.json)                                                              |
 
 GitHub Release 公开与 npm／正式来源发布完成分别核对。[1.1.1 变更说明](../docs/releases/1.1.1-notes.md)保留该版搜索卡片的已知问题。已有标签与附件保持冻结，新变更使用新版本，不替换同名归档。
 
