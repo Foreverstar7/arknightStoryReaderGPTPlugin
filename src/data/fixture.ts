@@ -1,6 +1,7 @@
 import { chapterWords } from '../domain/reading.js';
 import type { Block, Chapter, Story } from '../shared/contracts.js';
 import { ReaderError, type StorySource } from './source.js';
+import type { ScoreCatalog } from '../shared/score.js';
 
 // Original writing for development, deliberately distinct from PRTS/game dialogue.
 function blocks(index: number): Block[] {
@@ -192,6 +193,47 @@ export class FixtureSource implements StorySource {
   readonly label = '原创 fixture · 非游戏剧情';
   async catalog(): Promise<Story[]> {
     return structuredClone(stories);
+  }
+  async score(): Promise<ScoreCatalog> {
+    return {
+      sourceUrl: 'https://example.invalid/original-fixture',
+      unmatchedNames: [],
+      movements: [
+        {
+          id: 'fixture-score:fog',
+          code: 'FOG',
+          title: '雾中档案',
+          collection: false,
+          nodes: [
+            { kind: 'story', storyId: 'fixture-mist' },
+            {
+              kind: 'junction',
+              key: 'fog:road',
+              targetStoryId: 'fixture-road',
+              targetMovementId: 'fixture-score:road',
+              direction: 'outgoing',
+            },
+            { kind: 'story', storyId: 'fixture-lights' },
+          ],
+        },
+        {
+          id: 'fixture-score:road',
+          code: 'ROAD',
+          title: '远行记录',
+          collection: false,
+          nodes: [
+            { kind: 'story', storyId: 'fixture-road' },
+            {
+              kind: 'junction',
+              key: 'road:lights',
+              targetStoryId: 'fixture-lights',
+              targetMovementId: 'fixture-score:fog',
+              direction: 'incoming',
+            },
+          ],
+        },
+      ],
+    };
   }
   async chapter(chapterId: string): Promise<Chapter> {
     const chapter = chapters.find((item) => item.id === chapterId);

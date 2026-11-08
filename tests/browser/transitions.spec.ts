@@ -235,7 +235,7 @@ test('opposite horizontal waves reveal the new chapter while both sheets stay fl
     });
     await page
       .getByRole('button', {
-        name: direction === 'next' ? '下一篇 →' : '← 上一篇',
+        name: direction === 'next' ? /^下一篇：/ : /^上一篇：/,
         exact: true,
       })
       .click();
@@ -326,14 +326,14 @@ test('Web Animations fallback stays flat and supports interruption without a sta
   await reader.evaluate((element) => {
     element.scrollTop = element.scrollHeight;
   });
-  await page.getByRole('button', { name: '下一篇 →', exact: true }).click();
+  await page.getByRole('button', { name: /^下一篇：/ }).click();
   await expect(
     page.getByRole('heading', { name: '钟楼的方向', exact: true }),
   ).toBeVisible();
   await reader.evaluate((element) => {
     element.scrollTop = element.scrollHeight;
   });
-  await page.getByRole('button', { name: '← 上一篇', exact: true }).click();
+  await page.getByRole('button', { name: /^上一篇：/ }).click();
   await page.getByRole('button', { name: '⌂ 主页', exact: true }).click();
   await expect(
     page.getByRole('heading', { name: '剧情档案', exact: true }),

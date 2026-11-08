@@ -7,6 +7,7 @@ import type {
 } from '../shared/contracts.js';
 import type { SpeakerBinding } from './prts-speaker.js';
 import type { Appearance } from '../shared/search.js';
+import type { ScoreCatalog } from '../shared/score.js';
 
 export type ImageTarget =
   | {
@@ -20,6 +21,11 @@ export type ImageTarget =
 export interface StorySource {
   readonly label: string;
   catalog(retentionDays?: number, refresh?: boolean): Promise<Story[]>;
+  score?(
+    stories: Story[],
+    retentionDays: number,
+    refresh?: boolean,
+  ): Promise<ScoreCatalog>;
   chapter(chapterId: string, retentionDays?: number): Promise<Chapter>;
   isCurrentRevision?(revision: string): boolean;
   reparseCached?(chapter: Chapter): Chapter | null;

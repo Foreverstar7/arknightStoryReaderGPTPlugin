@@ -396,7 +396,7 @@ test('live PRTS story prefetch supplies all 16 counts without reading or images,
   await reader.evaluate((element) => {
     element.scrollTop = element.scrollHeight;
   });
-  await page.getByRole('button', { name: '下一篇 →' }).click();
+  await page.getByRole('button', { name: /^下一篇：/ }).click();
   await expect(
     page.getByRole('heading', { name: '日正当中 行动后', exact: true }),
   ).toBeVisible();

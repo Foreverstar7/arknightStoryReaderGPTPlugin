@@ -194,10 +194,11 @@ export class BrowserDemoTransport implements ReaderTransport {
       summary: '剧情简介占位符。此处为演示文字，不对应原作剧情。',
     }),
     reader_open: async () => ({ ready: true, source: this.source.label }),
-    reader_snapshot: async () => ({
+    reader_snapshot: async ({ includeScore }) => ({
       stories: await this.source.catalog(),
       state: structuredClone(this.state),
       sourceLabel: '占位演示 · 非原作剧情 · 图片仅作示意 · 记录仅存于本标签页',
+      ...(includeScore ? { score: { status: 'unavailable' as const } } : {}),
     }),
     reader_chapter: async ({ chapterId }) => {
       const chapter = await this.source.chapter(chapterId);

@@ -38,6 +38,9 @@ import { useCatalogRefresh } from './useCatalogRefresh.js';
 import { readerSnapshotReducer } from './snapshot-state.js';
 import { usePageTransition, type Motion } from './usePageTransition.js';
 import type { ReaderNavigationRequest } from '../shared/reader-links.js';
+import { useScoreCatalog } from './useScoreCatalog.js';
+import { useReaderChrome } from './useReaderChrome.js';
+import { Icon } from './components/Icon.js';
 
 type Route =
   | { page: 'library' }
@@ -78,6 +81,12 @@ export function ReaderApp({
   const [busy, setBusy] = useState(true);
   const [failure, setFailure] = useState<Failure | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const chrome = useReaderChrome(settingsOpen);
+  const [scoreRevision, setScoreRevision] = useState(0);
+  const score = useScoreCatalog(transport, Boolean(snapshot), scoreRevision);
+  const [catalogMode, setCatalogMode] = useState<'type' | 'movement' | null>(
+    null,
+  );
   const [reload, setReload] = useState(0);
   const [navigationAttempt, setNavigationAttempt] = useState(0);
   const requestedNavigation = useRef(navigationRequest);
@@ -116,6 +125,7 @@ export function ReaderApp({
     if (route.page === 'library' && library)
       libraryPosition.current = captureLibraryPosition(library);
     updateSnapshot({ type: 'catalog', data });
+    setScoreRevision((value) => value + 1);
   });
   const refreshCatalog = catalogRefresh.refresh;
   const registerFlush = useCallback((value: () => Promise<void>) => {
@@ -369,6 +379,17 @@ export function ReaderApp({
     const state = await transport.call('reader_settings', settings);
     updateSnapshot({ type: 'reading', state });
   }
+  async function persistCatalogMode(mode: 'type' | 'movement') {
+    if (!snapshot) return;
+    try {
+      await updateSettings({ ...snapshot.state.settings, catalogMode: mode });
+    } catch (error) {
+      setFailure({
+        message: `目录偏好保存失败：${errorText(error)}`,
+        retry: () => void persistCatalogMode(mode),
+      });
+    }
+  }
   async function clearHistory(storyId?: string) {
     ++navigation.current;
     await flush.current();
@@ -453,96 +474,156 @@ export function ReaderApp({
       ? snapshot?.state.records[route.chapter.id]
       : undefined;
   const migration = currentRecord?.migration;
+  const chapterIndex =
+    route.page === 'reader'
+      ? (activeStory?.chapters.findIndex(
+          (chapter) => chapter.id === route.chapter.id,
+        ) ?? -1)
+      : -1;
+  const previous =
+    chapterIndex >= 0 ? activeStory?.chapters[chapterIndex - 1] : undefined;
+  const next =
+    chapterIndex >= 0 ? activeStory?.chapters[chapterIndex + 1] : undefined;
 
   return (
-    <div className="app-shell" aria-busy={busy}>
-      <header className="topbar">
-        <nav aria-label="阅读器导航">
-          <button
-            aria-current={route.page === 'library' ? 'page' : undefined}
-            onClick={() => void browse({ page: 'library' })}
-          >
-            ⌂ 主页
-          </button>
-          {chapterNavigationStory && (
+    <div
+      className="app-shell"
+      aria-busy={busy}
+      ref={chrome.root}
+      data-chrome-collapsed={chrome.collapsed}
+      onScrollCapture={chrome.onScrollCapture}
+      onPointerDownCapture={chrome.onPointerDownCapture}
+    >
+      <button
+        className="chrome-toggle"
+        aria-label={chrome.collapsed ? '展开顶部工具栏' : '收起顶部工具栏'}
+        title={chrome.collapsed ? '展开顶部工具栏' : '收起顶部工具栏'}
+        aria-expanded={!chrome.collapsed}
+        aria-controls="reader-chrome"
+        onClick={chrome.toggle}
+      >
+        <Icon name={chrome.collapsed ? 'expand' : 'collapse'} />
+      </button>
+      <div
+        className="reader-chrome"
+        id="reader-chrome"
+        hidden={chrome.collapsed}
+      >
+        <header className="topbar">
+          <nav aria-label="阅读器导航">
             <button
-              aria-current={route.page === 'chapters' ? 'page' : undefined}
-              onClick={() => {
-                void browse({
-                  page: 'chapters',
-                  story: chapterNavigationStory,
-                });
-              }}
-              title={`篇章目录：${chapterNavigationStory.title}`}
+              aria-current={route.page === 'library' ? 'page' : undefined}
+              onClick={() => void browse({ page: 'library' })}
             >
-              篇章目录
+              ⌂ 主页
             </button>
-          )}
-          {recentId && recentTitle && (
-            <button
-              className="recent-button"
-              title={`最近阅读：${recentTitle}`}
-              aria-label={`最近阅读：${recentTitle}`}
-              onClick={() => void open(recentId, true)}
-            >
-              <span>最近阅读</span>
-              <strong>{recentTitle}</strong>
-              <span>↗</span>
-            </button>
-          )}
-        </nav>
-        <div className="top-tools">
-          {snapshot && route.page === 'reader' && (
-            <span className="progress">
-              {chapterContentKind(route.chapter) === 'video' ? (
-                '本篇视频'
-              ) : (
-                <>
-                  本篇已读{' '}
-                  <b>
-                    {progressLabel(
-                      chapterProgress(
-                        route.story,
-                        route.chapter.id,
-                        snapshot.state.records,
-                        chapterWords(route.chapter),
-                      ),
-                      snapshot.state.records[route.chapter.id]
-                        ?.progressKnown === false,
-                    )}
-                  </b>
-                </>
-              )}
-              <span> · </span>全剧情已读{' '}
-              <b>
-                {progressLabel(
-                  storyProgress(
-                    activeStory ?? route.story,
-                    snapshot.state.records,
-                  ),
-                  route.story.chapters.some(
-                    (chapter) =>
-                      snapshot.state.records[chapter.id]?.progressKnown ===
-                      false,
-                  ),
+            {chapterNavigationStory && (
+              <button
+                aria-current={route.page === 'chapters' ? 'page' : undefined}
+                onClick={() => {
+                  void browse({
+                    page: 'chapters',
+                    story: chapterNavigationStory,
+                  });
+                }}
+                title={`篇章目录：${chapterNavigationStory.title}`}
+              >
+                篇章目录
+              </button>
+            )}
+            {recentId && recentTitle && (
+              <button
+                className="recent-button"
+                title={`最近阅读：${recentTitle}`}
+                aria-label={`最近阅读：${recentTitle}`}
+                onClick={() => void open(recentId, true)}
+              >
+                <span>最近阅读</span>
+                <strong>{recentTitle}</strong>
+                <span>↗</span>
+              </button>
+            )}
+          </nav>
+          <div className="top-tools">
+            {route.page === 'reader' && (
+              <div className="chapter-tools" aria-label="切换篇目">
+                <button
+                  className="icon-button"
+                  aria-label={`上一篇${previous ? `：${previous.title}` : ''}`}
+                  title={previous?.title ?? '已是第一篇'}
+                  disabled={!previous || busy}
+                  onClick={() => {
+                    if (previous)
+                      void open(previous.id, false, false, 'previous');
+                  }}
+                >
+                  <Icon name="previous" />
+                </button>
+                <button
+                  className="icon-button"
+                  aria-label={`下一篇${next ? `：${next.title}` : ''}`}
+                  title={next?.title ?? '已是最后一篇'}
+                  disabled={!next || busy}
+                  onClick={() => {
+                    if (next) void open(next.id, false, false, 'next');
+                  }}
+                >
+                  <Icon name="next" />
+                </button>
+              </div>
+            )}
+            {snapshot && route.page === 'reader' && (
+              <span className="progress">
+                {chapterContentKind(route.chapter) === 'video' ? (
+                  '本篇视频'
+                ) : (
+                  <>
+                    本篇已读{' '}
+                    <b>
+                      {progressLabel(
+                        chapterProgress(
+                          route.story,
+                          route.chapter.id,
+                          snapshot.state.records,
+                          chapterWords(route.chapter),
+                        ),
+                        snapshot.state.records[route.chapter.id]
+                          ?.progressKnown === false,
+                      )}
+                    </b>
+                  </>
                 )}
-              </b>
-            </span>
-          )}
-          <button
-            aria-label="设置"
-            disabled={!snapshot}
-            onClick={() => {
-              pageTransition.cancel();
-              setSettingsOpen(true);
-            }}
-          >
-            ⚙ 设置
-          </button>
+                <span> · </span>全剧情已读{' '}
+                <b>
+                  {progressLabel(
+                    storyProgress(
+                      activeStory ?? route.story,
+                      snapshot.state.records,
+                    ),
+                    route.story.chapters.some(
+                      (chapter) =>
+                        snapshot.state.records[chapter.id]?.progressKnown ===
+                        false,
+                    ),
+                  )}
+                </b>
+              </span>
+            )}
+            <button
+              aria-label="设置"
+              disabled={!snapshot}
+              onClick={() => {
+                pageTransition.cancel();
+                setSettingsOpen(true);
+              }}
+            >
+              ⚙ 设置
+            </button>
+          </div>
+        </header>
+        <div className="source-note">
+          {snapshot?.sourceLabel ?? '正在核对剧情来源…'}
         </div>
-      </header>
-      <div className="source-note">
-        {snapshot?.sourceLabel ?? '正在核对剧情来源…'}
       </div>
       {migration && (
         <div className="revision-notice" role="status">
@@ -583,6 +664,13 @@ export function ReaderApp({
             initialPosition={libraryPosition.current}
             refreshStatus={catalogRefresh.status}
             refresh={() => void refreshCatalog()}
+            score={score.state}
+            retryScore={score.refresh}
+            mode={catalogMode ?? snapshot.state.settings.catalogMode ?? 'type'}
+            changeMode={(mode) => {
+              setCatalogMode(mode);
+              void persistCatalogMode(mode);
+            }}
             open={(story) => void browse({ page: 'chapters', story })}
           />
         )}
@@ -612,6 +700,7 @@ export function ReaderApp({
             chapter={route.chapter}
             initialPosition={route.position}
             autoImages={snapshot.state.settings.autoImages}
+            busy={busy || settingsOpen}
             open={(id, restore, direction) =>
               void open(id, restore, false, direction)
             }

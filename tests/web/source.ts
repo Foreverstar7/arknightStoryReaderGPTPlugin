@@ -55,6 +55,10 @@ export async function installSource(page: Page) {
     pages: new Map([
       ['剧情一览', '{{剧情导航|nocat=yes}}'],
       [
+        '关卡一览/曲谱',
+        `==乐章概览==\n{{/概览|WX|原创乐章|Wx}}\n==原创乐章==\n{{/乐章|名称=${title}|乐章=原创乐章}}`,
+      ],
+      [
         '模板:剧情导航',
         `{| class="wikitable"\n! [[剧情一览|活动剧情一览]]\n|-\n! width="120px"|${title}\n! width="40px"|支线\n| [[${chapterPages[0]}|WX-1 双岔]]{{dot}}[[${chapterPages[1]}|WX-2 回声]]\n|}`,
       ],

@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>剧情档案 · 乐章模式交互样例</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f4f5f4;
+        --panel: #ffffff;
+        --soft: #e9edee;
+        --text: #202b33;
+        --muted: #596975;
+        --line: #cad3d8;
+        --gold: #856008;
+        --gold-wash: #faf0cc;
+        --blue: #2d657c;
+        --blue-wash: #e9f1f4;
+        --radius: 5px;
+        --gap: 20px;
+        --motion: 180ms;
+        font: 14px/1.55 system-ui, 'Microsoft YaHei', sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+      :root[data-theme='dark'] {
+        color-scheme: dark;
+        --bg: #151b20;
+        --panel: #1d252c;
+        --soft: #242f38;
+        --text: #e9eef1;
+        --muted: #a4b3be;
+        --line: #374550;
+        --gold: #edc75a;
+        --gold-wash: #393525;
+        --blue: #8dc3d4;
+        --blue-wash: #253942;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; height: 100%; min-width: 0; }
+      body { overflow: hidden; }
+      button, select, input { font: inherit; }
+      button, select { color: inherit; }
+      button { cursor: pointer; }
+      button:focus-visible, select:focus-visible, input:focus-visible + span {
+        outline: 2px solid var(--blue);
+        outline-offset: 3px;
+      }
+      button:disabled { cursor: default; }
+      [hidden] { display: none !important; }
+      .app { height: 100dvh; display: grid; grid-template-rows: auto auto minmax(0, 1fr); }
+      .topbar {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 16px; padding: 13px 24px; background: var(--panel);
+        border-bottom: 1px solid var(--line);
+      }
+      .brand { display: flex; align-items: center; gap: 11px; min-width: 0; }
+      .brand img { width: 29px; height: 29px; }
+      :root[data-theme='dark'] .brand img { filter: invert(1); }
+      .brand strong { display: block; font-size: 16px; font-weight: 500; letter-spacing: .06em; }
+      .brand small, .eyebrow { color: var(--muted); font-size: 10px; letter-spacing: .16em; }
+      .brand small { display: block; }
+      .top-actions { display: flex; align-items: center; gap: 12px; }
+      .preview-label { color: var(--gold); font-size: 12px; white-space: nowrap; }
+      .plain-button {
+        border: 1px solid var(--line); border-radius: var(--radius);
+        background: var(--panel); padding: 8px 12px; min-height: 40px;
+      }
+      .sample-note {
+        padding: 8px 24px; color: var(--muted); font-size: 12px;
+        border-bottom: 1px solid var(--line); background: var(--bg);
+      }
+      .workspace { min-height: 0; display: grid; grid-template-columns: 190px minmax(0, 1fr); }
+      .sidebar {
+        min-height: 0; overflow: auto; padding: 25px 15px 18px;
+        background: var(--panel); border-right: 1px solid var(--line);
+        scrollbar-width: thin;
+      }
+      .sidebar-heading { padding: 0 10px 12px; }
+      .sidebar-heading strong { display: block; margin-top: 3px; font-size: 12px; font-weight: 400; color: var(--muted); }
+      .nav-list { display: flex; flex-direction: column; gap: 4px; }
+      .nav-button {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 7px; width: 100%; padding: 9px 10px; min-height: 40px;
+        border: 1px solid transparent; border-radius: var(--radius);
+        background: transparent; text-align: left; font-size: 13px;
+      }
+      .nav-button small { color: var(--muted); font-size: 10px; font-variant-numeric: tabular-nums; }
+      .nav-button[aria-current='true'] { color: var(--blue); background: var(--blue-wash); }
+      .sidebar-footer { margin: 23px 10px 0; padding-top: 15px; border-top: 1px solid var(--line); }
+      .sidebar-footer p { margin: 6px 0 0; color: var(--muted); font-size: 11px; }
+      .main { min-width: 0; min-height: 0; display: grid; grid-template-rows: auto auto minmax(0, 1fr); }
+      .directory-header { padding: 25px 30px 17px; border-bottom: 1px solid var(--line); }
+      .heading-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+      h1 { margin: 4px 0 2px; font-size: 28px; font-weight: 500; letter-spacing: .06em; }
+      .directory-header p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+      .directory-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+      .mode-control { display: flex; margin: 0; padding: 3px; gap: 3px; border: 1px solid var(--line); border-radius: 6px; background: var(--soft); }
+      .mode-control legend { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+      .mode-control label { position: relative; cursor: pointer; }
+      .mode-control input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+      .mode-control span { display: block; padding: 7px 15px; border: 1px solid transparent; border-radius: 4px; white-space: nowrap; }
+      .mode-control input:checked + span { background: var(--panel); border-color: var(--line); color: var(--text); box-shadow: 0 1px 3px #00000009; }
+      .refresh-button { color: var(--muted); background: transparent; }
+      .refresh-button > span { display: inline-block; font-size: 17px; margin-right: 5px; }
+      .refresh-button[aria-busy='true'] > span { animation: spin 650ms linear infinite; }
+      .mobile-nav { display: none; margin-top: 14px; align-items: center; gap: 10px; }
+      .mobile-nav label { color: var(--muted); white-space: nowrap; font-size: 13px; }
+      .mobile-nav select { width: 100%; min-width: 0; padding: 9px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
+      .return-bar {
+        display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
+        gap: 8px; padding: 10px 30px; background: var(--gold-wash); border-bottom: 1px solid var(--line);
+      }
+      .return-bar p { margin: 0; font-size: 12px; }
+      .return-bar p span { color: var(--muted); }
+      .return-bar button { background: var(--panel); font-size: 12px; }
+      .catalog { min-height: 0; overflow: auto; padding: 24px 30px 45px; scrollbar-color: var(--line) transparent; overscroll-behavior: contain; }
+      .catalog section { scroll-margin-top: 22px; margin-bottom: 40px; }
+      .section-heading { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+      .section-heading > div { min-width: 0; }
+      .section-heading h2 { margin: 0; font-size: 20px; font-weight: 500; }
+      .section-heading h2 span { color: var(--muted); font-size: 11px; letter-spacing: .09em; margin-right: 9px; vertical-align: middle; }
+      .section-heading > i { flex: 1; height: 1px; background: var(--line); }
+      .section-heading > small { color: var(--muted); font-size: 11px; white-space: nowrap; }
+      .scroll-hint { margin-left: 6px; }
+      .section-description { margin: -6px 0 17px; color: var(--muted); font-size: 12px; }
+      .card-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--gap); }
+      .story-card {
+        position: relative; min-width: 0; background: var(--panel);
+        border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden;
+        display: flex; flex-direction: column;
+      }
+      .cover { position: relative; aspect-ratio: 1560 / 500; overflow: hidden; background: #10212b; }
+      .cover img { width: 100%; height: 100%; display: block; object-fit: contain; object-position: right center; }
+      .cover::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, #091620d9, #0916204d 70%); }
+      .cover-title { position: absolute; z-index: 1; left: 19px; bottom: 17px; right: 16px; color: #f5ecda; }
+      .cover-title strong { display: block; font-size: clamp(19px, 1.7vw, 24px); font-weight: 400; letter-spacing: .07em; line-height: 1.4; }
+      .cover-title small { display: block; margin-top: 5px; font-size: 9px; letter-spacing: .15em; opacity: .78; }
+      .card-caption { padding: 15px 17px; display: flex; gap: 12px; justify-content: space-between; align-items: center; flex: 1; }
+      .card-copy { min-width: 0; }
+      .card-copy > strong { font-weight: 500; font-size: 15px; overflow-wrap: anywhere; }
+      .card-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 8px; margin-top: 6px; font-size: 11px; color: var(--muted); }
+      .movement-tag { padding: 1px 6px; border-radius: 3px; color: var(--blue); background: var(--blue-wash); }
+      .progress { flex: none; display: grid; place-items: center; height: 37px; width: 37px; border-radius: 50%; background: conic-gradient(#a77d17 calc(var(--progress) * 1%), #e6e8e8 0); }
+      .progress > span { display: grid; place-items: center; width: 29px; height: 29px; border-radius: 50%; background: #fff; color: #46525a; font-size: 9px; font-variant-numeric: tabular-nums; }
+      .card-open { position: absolute; inset: 0; border: 0; background: transparent; padding: 0; width: 100%; }
+      .card-open:focus-visible { outline-offset: -4px; }
+      .story-card.is-target { outline: 2px solid var(--gold); outline-offset: 3px; }
+      .target-label { position: absolute; z-index: 1; top: 9px; right: 9px; padding: 3px 7px; border-radius: 3px; background: var(--gold-wash); color: var(--gold); font-size: 10px; pointer-events: none; }
+      .score-track {
+        display: flex; align-items: stretch; user-select: none; cursor: grab;
+        gap: 24px; list-style: none; margin: 0; padding: 5px 4px 15px;
+        overflow-x: auto; scrollbar-width: none;
+        overscroll-behavior-x: contain;
+      }
+      .score-track::-webkit-scrollbar { display: none; }
+      .score-track.is-dragging, .score-track.is-dragging * { cursor: grabbing; }
+      .score-stop { position: relative; flex: 0 0 300px; min-width: 0; display: grid; grid-template-rows: 220px 40px; align-content: start; }
+      .score-stop::before, .score-junction::before { content: ''; position: absolute; left: -24px; right: -24px; top: 240px; height: 1px; background: var(--line); }
+      .score-track > :first-child::before { left: 50%; }
+      .score-track > :last-child::before { right: 50%; }
+      .score-track > :only-child::before { display: none; }
+      .score-stop .story-card { height: 220px; }
+      .score-stop .cover { flex: none; }
+      .score-stop .cover-title strong { font-size: 21px; }
+      .stop-pin { position: relative; justify-self: center; align-self: center; z-index: 1; width: 9px; height: 9px; background: var(--panel); border: 1px solid var(--blue); transform: rotate(45deg); }
+      .score-junction { position: relative; flex: 0 0 184px; min-width: 0; display: grid; grid-template-rows: 200px 36px 9px 15px; }
+      .connection-list { display: grid; align-self: end; gap: 7px; }
+      .junction-stem { width: 1px; justify-self: center; background: var(--blue); }
+      .score-junction .stop-pin { border-color: var(--gold); }
+      .connection-link {
+        position: relative; min-height: 47px; display: flex; align-items: center; justify-content: space-between;
+        gap: 8px; padding: 8px 11px; background: var(--panel); color: var(--blue);
+        border: 1px solid var(--line); border-radius: var(--radius); text-align: left;
+      }
+      .connection-link small { display: block; color: var(--muted); font-size: 10px; }
+      .connection-link strong { display: block; font-weight: 400; font-size: 12px; margin-top: 1px; }
+      .connection-link > span:last-child { font-size: 18px; }
+      .score-seek { display: flex; align-items: center; gap: 13px; color: var(--muted); font-size: 11px; margin-top: 6px; }
+      .score-seek input { min-width: 0; flex: 1; accent-color: var(--blue); cursor: ew-resize; }
+      .score-seek input:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+      .end-note { padding-top: 10px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; }
+      .toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); max-width: calc(100% - 32px); z-index: 5; padding: 10px 16px; border-radius: 5px; background: var(--text); color: var(--panel); font-size: 12px; box-shadow: 0 4px 18px #0002; }
+      dialog { width: min(500px, calc(100% - 32px)); max-height: calc(100dvh - 40px); padding: 0; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--text); }
+      dialog::backdrop { background: #0b1826a6; }
+      .dialog-header { display: flex; justify-content: space-between; gap: 15px; padding: 20px 22px; border-bottom: 1px solid var(--line); }
+      .dialog-header h2 { margin: 3px 0 0; font-weight: 500; font-size: 22px; }
+      .dialog-header button { align-self: start; }
+      .dialog-body { padding: 20px 22px 24px; }
+      .dialog-body > p { margin: 0 0 18px; color: var(--muted); font-size: 12px; }
+      .chapter-placeholder { display: flex; gap: 14px; align-items: center; padding: 13px 0; border-top: 1px solid var(--line); }
+      .chapter-placeholder > span { color: var(--gold); font-size: 12px; }
+      .chapter-placeholder strong { font-weight: 400; }
+      .chapter-placeholder small { display: block; color: var(--muted); font-size: 11px; }
+      .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      @media (min-width: 1500px) { .card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+      @media (max-width: 950px) {
+        .workspace { grid-template-columns: 164px minmax(0, 1fr); }
+        .directory-header { padding: 21px 22px 16px; }
+        .catalog { padding: 22px 22px 35px; }
+        .return-bar { padding: 10px 22px; }
+        .heading-row { align-items: start; }
+        .directory-tools { gap: 8px; }
+        .mode-control span { padding: 7px 12px; }
+      }
+      @media (max-width: 650px) {
+        .topbar { padding: 11px 16px; gap: 8px; }
+        .brand strong { font-size: 14px; }
+        .brand small { font-size: 8px; }
+        .brand img { width: 25px; height: 25px; }
+        .top-actions { gap: 7px; }
+        .preview-label { display: none; }
+        .sample-note { padding: 7px 16px; font-size: 11px; }
+        .workspace { grid-template-columns: minmax(0, 1fr); }
+        .sidebar { display: none; }
+        .directory-header { padding: 16px; }
+        h1 { font-size: 24px; margin-bottom: 4px; }
+        .heading-row { gap: 12px; }
+        .directory-tools { width: 100%; justify-content: space-between; }
+        .mode-control { flex: 1; }
+        .mode-control label { flex: 1; text-align: center; }
+        .mode-control span { padding: 7px 10px; }
+        .refresh-button { padding: 8px 10px; }
+        .mobile-nav { display: flex; }
+        .mobile-nav select { font-size: 16px; }
+        .directory-header > p { display: none; }
+        .catalog { padding: 20px 16px 35px; }
+        .return-bar { padding: 9px 16px; }
+        .card-grid { grid-template-columns: minmax(0, 1fr); gap: 15px; }
+        .section-heading h2 { font-size: 18px; }
+        .section-heading h2 span { margin-right: 6px; }
+        .section-heading { gap: 8px; }
+        .scroll-hint { display: none; }
+        .score-track { display: flex; flex-direction: column; gap: 21px; overflow: visible; padding: 5px 3px 10px 18px; }
+        .score-stop { display: block; flex: none; }
+        .score-stop::before, .score-junction::before { left: -14px; right: auto; top: -21px; bottom: -22px; width: 1px; height: auto; }
+        .score-track > :first-child::before { left: -14px; top: 29px; }
+        .score-track > :last-child::before { right: auto; bottom: 30px; }
+        .score-stop .story-card { height: auto; min-height: 175px; }
+        .stop-pin { position: absolute; left: -18px; top: 29px; }
+        .score-junction { display: block; flex: none; padding: 2px 0 2px 13px; }
+        .score-junction .stop-pin { top: 25px; }
+        .junction-stem { position: absolute; left: -14px; top: 29px; width: 27px; height: 1px; }
+        .score-seek { display: none; }
+        .cover-title strong, .score-stop .cover-title strong { font-size: 20px; }
+        .cover-title { left: 15px; bottom: 14px; }
+        .card-caption { padding: 13px; }
+      }
+      @media (max-height: 500px) and (min-width: 651px) {
+        .brand small, .sample-note, .directory-header > p { display: none; }
+        .topbar { padding-top: 8px; padding-bottom: 8px; }
+        .directory-header { padding-top: 10px; padding-bottom: 10px; }
+        h1 { font-size: 23px; }
+        .sidebar { padding-top: 17px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="brand">
+          <img src="../../website/assets/reader-mark.svg" alt="" />
+          <div><strong>方舟剧情阅读器</strong><small>ARKNIGHTS / STORY READER</small></div>
+        </div>
+        <div class="top-actions">
+          <span class="preview-label">目录交互样例</span>
+          <button class="plain-button" id="theme-button" type="button" aria-label="切换到深色主题">深色</button>
+        </div>
+      </header>
+      <div class="sample-note">节选目录 · 篇数与进度为示意 · 原创示意封面 · 仅演示目录交互</div>
+      <div class="workspace">
+        <aside class="sidebar" aria-label="目录分区">
+          <div class="sidebar-heading"><span class="eyebrow" id="nav-eyebrow">STORY LINES / 乐章</span><strong id="nav-subtitle">选择乐章，定位到对应分区</strong></div>
+          <nav class="nav-list" id="nav-list" aria-label="乐章导航"></nav>
+          <div class="sidebar-footer"><span class="eyebrow">RHODES ISLAND<br />STORY ARCHIVE</span><p>同一份目录，两种浏览方式。</p></div>
+        </aside>
+        <main class="main">
+          <div class="directory-header">
+            <div class="heading-row">
+              <div><span class="eyebrow">ARKNIGHTS / STORY ARCHIVE</span><h1>剧情档案</h1></div>
+              <div class="directory-tools">
+                <fieldset class="mode-control">
+                  <legend>目录组织方式</legend>
+                  <label><input type="radio" name="catalog-mode" value="type" /><span>按类型</span></label>
+                  <label><input type="radio" name="catalog-mode" value="movement" checked /><span>按乐章</span></label>
+                </fieldset>
+                <button class="plain-button refresh-button" id="refresh-button" type="button"><span aria-hidden="true">↻</span>刷新目录</button>
+              </div>
+            </div>
+            <p id="mode-description">沿着乐章浏览，在关联入口切换到另一条故事线。</p>
+            <div class="mobile-nav"><label for="section-select" id="mobile-nav-label">选择乐章</label><select id="section-select" aria-label="选择乐章"></select></div>
+          </div>
+          <div class="return-bar" id="return-bar" hidden>
+            <p><span>来自 </span><strong id="return-origin"></strong></p>
+            <button class="plain-button" type="button" id="return-button">← 返回来源位置</button>
+          </div>
+          <div class="catalog" id="catalog" tabindex="0" aria-label="剧情卡片目录"></div>
+        </main>
+      </div>
+    </div>
+    <div class="sr-only" role="status" aria-live="polite" id="status"></div>
+    <div class="toast" id="toast" role="status" hidden></div>
+    <dialog id="story-dialog" aria-labelledby="dialog-title">
+      <div class="dialog-header"><div><span class="eyebrow">CHAPTERS / 篇目列表示意</span><h2 id="dialog-title"></h2></div><button class="plain-button" id="dialog-close" type="button" aria-label="关闭篇目列表">关闭</button></div>
+      <div class="dialog-body"><p id="dialog-meta"></p><div id="dialog-chapters"></div></div>
+    </dialog>
+    <script>
+      // This isolated design sample does not call ReaderService or write reading records.
+      // The section names and sample associations are a visual subset of the PRTS score
+      // page checked on 2026-11-08, not a maintained production catalog or date model.
+      const movements = [
+        { id: 'ms', code: 'MS', title: '为了明日', description: '主题曲 · 主线章节节选' },
+        { id: 'rl', code: 'RL', title: '方舟', description: '试试《生于黑夜》与《遗尘漫步》中间的入口，跳到主线第七章，再返回这里。' },
+        { id: 'ur', code: 'UR', title: '燎原' },
+        { id: 'la', code: 'LA', title: '那被祝福的' },
+        { id: 'kj', code: 'KJ', title: '山雪与银铁' },
+        { id: 'si', code: 'SI', title: '七丘的新芽' },
+        { id: 'ka', code: 'KA', title: '霓虹之下' },
+        { id: 'su', code: 'SU', title: '岁岁今朝' },
+        { id: 'rh', code: 'RH', title: '摘取未来之人' },
+        { id: 'ae', code: 'Æ', title: '自海渊的一瞥' },
+        { id: 'le', code: 'LE', title: '高塔迷影' },
+        { id: 'ta', code: 'TA', title: '薪火重燃' },
+        { id: 'st', code: 'ST', title: '夏日律动', description: '收录分组 · 此处的排列不表示各章节组成一条连续故事线。' },
+        { id: 'ts', code: 'TS', title: '泰拉奇谈', description: '收录分组 · 此处的排列不表示各章节组成一条连续故事线。' },
+        { id: 'other', code: '＋', title: '其他内容', description: '保留集成战略、生息演算与联动等目录入口；这里不是新增的官方乐章。' },
+      ];
+      const rows = [
+        ['ep07', '第七章 · 苦难摇篮', '主线', 'ms', 38],
+        ['ep10', '第十章 · 破碎日冕', '主线', 'ms', 12],
+        ['ep14', '第十四章 · 慈悲灯塔', '主线', 'ms', 0],
+        ['dm', '生于黑夜', '支线', 'rl', 72],
+        ['wd', '遗尘漫步', '支线', 'rl', 24],
+        ['vi', '如我所见', '故事集', 'rl', 0],
+        ['bb', '巴别塔', '支线', 'rl', 46, 'babel'],
+        ['go', '追迹日落以西', '支线', 'rl', 0],
+        ['sys', '我们明日见', '故事集', 'rl', 0],
+        ['sv', '乌萨斯的孩子们', '故事集', 'ur', 0],
+        ['pa', '人们，我们', '支线', 'ur', 0],
+        ['ga', '吾导先路', '支线', 'la', 0],
+        ['he', '空想花庭', '支线', 'la', 0],
+        ['bi', '风雪过境', '支线', 'kj', 32],
+        ['rs', '银心湖列车', '支线', 'kj', 0],
+        ['is', '叙拉古人', '支线', 'si', 0, 'il-siracusano'],
+        ['pv', '揭幕者们', '支线', 'si', 0],
+        ['mn', '玛莉娅·临光', '支线', 'ka', 0],
+        ['ps', '红松林', '故事集', 'ka', 0],
+        ['nl', '长夜临光', '支线', 'ka', 15, 'near-light'],
+        ['af', '洪炉示岁', '故事集', 'su', 0],
+        ['wr', '画中人', '支线', 'su', 0],
+        ['iw', '将进酒', '支线', 'su', 0],
+        ['mb', '孤岛风云', '支线', 'rh', 0],
+        ['dv', '绿野幻梦', '支线', 'rh', 0],
+        ['cw', '孤星', '支线', 'rh', 40, 'lone-trail'],
+        ['gt', '骑兵与猎人', '支线', 'ae', 0],
+        ['ut', '覆潮之下', '支线', 'ae', 0],
+        ['sn', '愚人号', '支线', 'ae', 0, 'stultifera-navis'],
+        ['tw', '沃伦姆德的薄暮', '支线', 'le', 0],
+        ['le', '尘影余音', '支线', 'le', 0],
+        ['zt', '崔林特尔梅之金', '支线', 'le', 0],
+        ['fc', '照我以火', '支线', 'ta', 0],
+        ['tt', '挽歌燃烧殆尽', '支线', 'ta', 0],
+        ['of', '火蓝之心', '支线', 'st', 0],
+        ['dh', '多索雷斯假日', '支线', 'st', 0],
+        ['ic', '理想城：长夏狂欢季', '支线', 'st', 0],
+        ['sl', '火山旅梦', '支线', 'st', 0, 'so-long-adele'],
+        ['cb', '喧闹法则', '支线', 'ts', 0],
+        ['tc', '未尽篇章', '故事集', 'ts', 0],
+        ['is2', '傀影与猩红孤钻', '集成战略', 'other', 0],
+        ['ra', '沙洲遗闻', '生息演算', 'other', 0],
+        ['od', '源石尘行动', '支线', 'other', 0],
+      ];
+      const stories = rows.map(([id, title, type, movement, progress, cover], index) => ({ id, title, type, movement, progress, cover, count: 6 + index % 9 }));
+      const storyById = new Map(stories.map(story => [story.id, story]));
+      const movementById = new Map(movements.map(movement => [movement.id, movement]));
+      // Sample links use separate junction slots: after the source story and
+      // before the target story. Return navigation keeps the original direction.
+      const connections = [['dm', 'ep07'], ['wd', 'ep10'], ['bb', 'ep14'], ['go', 'tt'], ['he', 'zt'], ['cb', 'ga'], ['cb', 'is']];
+      const types = ['主线', '支线', '故事集', '集成战略', '生息演算', '四月辑录', '其他'];
+      const catalog = document.getElementById('catalog');
+      const navigation = document.getElementById('nav-list');
+      const selector = document.getElementById('section-select');
+      const status = document.getElementById('status');
+      const returnBar = document.getElementById('return-bar');
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      let mode = 'movement';
+      let activeGroup = 'rl';
+      let highlightId = null;
+      let returnStack = [];
+      let scrollFrame = 0;
+      let toastTimer = 0;
+      let axisDrag = null;
+      let blockedPointerClick = null;
+      const positions = { type: null, movement: null };
+      const escapeHtml = text => String(text).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+
+      function groupFor(story) { return mode === 'movement' ? story.movement : story.type; }
+      function groups() {
+        const result = mode === 'movement' ? movements : types.map(title => ({ id: title, title, code: '' }));
+        return result.map(group => ({ ...group, stories: stories.filter(story => groupFor(story) === group.id) })).filter(group => group.stories.length);
+      }
+      function coverFor(story) {
+        if (story.cover) return `../../website/assets/cover-${story.cover}.webp`;
+        const variant = rows.findIndex(row => row[0] === story.id) % 4;
+        const accent = ['#bda576', '#9baeb8', '#b89b83', '#8caba8'][variant];
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="936" height="300" viewBox="0 0 936 300"><rect width="936" height="300" fill="#10212b"/><g stroke="${accent}" fill="none" opacity=".58" stroke-width="1.3"><circle cx="729" cy="152" r="122"/><circle cx="729" cy="152" r="94"/><path d="M482 267L630 39L806 267ZM574 267L739 5L913 267M470 222H936M470 250H936M626 0V300M829 0V300"/><path d="M500 278L930 18M510 40L900 280" opacity=".45"/></g><g fill="${accent}" opacity=".75"><circle cx="729" cy="30" r="3"/><circle cx="607" cy="152" r="3"/><circle cx="851" cy="152" r="3"/></g><text x="886" y="279" fill="${accent}" font-size="12" font-family="serif" text-anchor="end" opacity=".8">${movementById.get(story.movement).code} / ARCHIVE</text></svg>`;
+        return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+      }
+      function card(story) {
+        const movement = movementById.get(story.movement);
+        const tag = story.movement === 'other' ? '' : `<span class="movement-tag">${escapeHtml(movement.title)}</span>`;
+        return `<article class="story-card${highlightId === story.id ? ' is-target' : ''}" data-story-id="${story.id}">
+          <div class="cover"><img src="${coverFor(story)}" alt="" loading="lazy" /><div class="cover-title"><strong>${escapeHtml(story.title)}</strong><small>STORY ARCHIVE / 原创示意封面</small></div></div>
+          ${highlightId === story.id ? '<span class="target-label">已定位 · 关联剧情</span>' : ''}
+          <div class="card-caption"><div class="card-copy"><strong>${escapeHtml(story.title)}</strong><div class="card-meta"><span>${story.type}</span>${tag}<span>${story.count} 篇</span></div></div><span class="progress" style="--progress:${story.progress}" aria-label="示例阅读进度 ${story.progress}%"><span>${story.progress}%</span></span></div>
+          <button class="card-open" type="button" data-open="${story.id}" aria-label="打开${escapeHtml(story.title)}的篇目列表示意"></button>
+        </article>`;
+      }
+      function links(entries) {
+        return entries.map(({ from, target: id }) => {
+          const target = storyById.get(id);
+          return `<button type="button" class="connection-link" data-jump="${id}" data-from="${from}" aria-label="定位到${movementById.get(target.movement).title}的${escapeHtml(target.title)}"><span><small>${movementById.get(target.movement).title}</small><strong>${escapeHtml(target.title)}</strong></span><span aria-hidden="true">↗</span></button>`;
+        }).join('');
+      }
+      function scoreTrack(group) {
+        const slots = Array.from({ length: group.stories.length + 1 }, () => []);
+        for (const [from, target] of connections) {
+          const sourceIndex = group.stories.findIndex(story => story.id === from);
+          const targetIndex = group.stories.findIndex(story => story.id === target);
+          if (sourceIndex >= 0) slots[sourceIndex + 1].push({ from, target });
+          if (targetIndex >= 0) slots[targetIndex].push({ from: target, target: from });
+        }
+        const items = [];
+        for (let index = 0; index <= group.stories.length; index++) {
+          if (slots[index].length) items.push(`<li class="score-junction" data-left-story="${group.stories[index - 1]?.id || ''}" data-right-story="${group.stories[index]?.id || ''}"><div class="connection-list">${links(slots[index])}</div><span class="junction-stem" aria-hidden="true"></span><span class="stop-pin" aria-hidden="true"></span></li>`);
+          if (index < group.stories.length) items.push(`<li class="score-stop">${card(group.stories[index])}<span class="stop-pin" aria-hidden="true"></span></li>`);
+        }
+        return `<ol class="score-track" aria-label="${group.title}剧情浏览轴">${items.join('')}</ol><label class="score-seek" hidden><span>浏览线</span><input type="range" min="0" max="1000" value="0" step="1" data-seek="${group.id}" aria-label="${group.title}横向浏览位置" /></label>`;
+      }
+      function render() {
+        const currentGroups = groups();
+        if (!currentGroups.some(group => group.id === activeGroup)) activeGroup = currentGroups[0].id;
+        navigation.setAttribute('aria-label', mode === 'movement' ? '乐章导航' : '类型导航');
+        navigation.innerHTML = currentGroups.map(group => `<button class="nav-button" type="button" data-group="${group.id}" aria-current="${group.id === activeGroup}"><span>${group.title}</span><small>${group.code || String(group.stories.length).padStart(2, '0')}</small></button>`).join('');
+        selector.innerHTML = currentGroups.map(group => `<option value="${group.id}">${group.code ? group.code + ' · ' : ''}${group.title}</option>`).join('');
+        selector.value = activeGroup;
+        document.getElementById('nav-eyebrow').textContent = mode === 'movement' ? 'STORY LINES / 乐章' : 'INDEX / 分类';
+        document.getElementById('nav-subtitle').textContent = mode === 'movement' ? '选择乐章，定位到对应分区' : '选择类型，定位到对应分区';
+        document.getElementById('mobile-nav-label').textContent = mode === 'movement' ? '选择乐章' : '选择类型';
+        selector.setAttribute('aria-label', mode === 'movement' ? '选择乐章' : '选择类型');
+        document.getElementById('mode-description').textContent = mode === 'movement' ? '沿着乐章浏览，在关联入口切换到另一条故事线。' : '保留熟悉的类型目录，在卡片上查看所属乐章。';
+        catalog.dataset.mode = mode;
+        catalog.innerHTML = currentGroups.map(group => `<section data-section="${group.id}" aria-label="${group.title}"><div class="section-heading"><h2>${group.code ? `<span>${group.code}</span>` : ''}${group.title}</h2><i></i><small>节选 ${group.stories.length} 部${mode === 'movement' && group.id !== 'other' && group.stories.length > 1 ? '<span class="scroll-hint">· 拖动或滑动 →</span>' : ''}</small></div>${group.description ? `<p class="section-description">${group.description}</p>` : ''}${mode === 'movement' && group.id !== 'other' ? scoreTrack(group) : `<div class="card-grid">${group.stories.map(card).join('')}</div>`}</section>`).join('') + '<p class="end-note">本页为交互方案样例，关联入口仅演示跨线定位；不标注事件日期或阅读优先级。未接入真实正文和阅读记录。</p>';
+        document.querySelectorAll('input[name="catalog-mode"]').forEach(input => { input.checked = input.value === mode; });
+        updateReturnBar();
+        updateAxes();
+      }
+      function sectionElement(id) { return [...catalog.querySelectorAll('[data-section]')].find(section => section.dataset.section === id); }
+      function cardElement(id) { return [...catalog.querySelectorAll('[data-story-id]')].find(element => element.dataset.storyId === id); }
+      function capturePosition() {
+        return { top: catalog.scrollTop, group: activeGroup, tracks: [...catalog.querySelectorAll('[data-section]')].map(section => [section.dataset.section, section.querySelector('.score-track')?.scrollLeft || 0]) };
+      }
+      function restorePosition(position) {
+        catalog.scrollTop = position.top;
+        for (const [id, left] of position.tracks) { const track = sectionElement(id)?.querySelector('.score-track'); if (track) track.scrollLeft = left; }
+        setActive(position.group);
+        updateAxes();
+      }
+      function setActive(id) {
+        activeGroup = id;
+        navigation.querySelectorAll('[data-group]').forEach(button => button.setAttribute('aria-current', String(button.dataset.group === id)));
+        selector.value = id;
+      }
+      function locateGroup(id, smooth = true) {
+        const section = sectionElement(id);
+        if (!section) return;
+        const top = catalog.scrollTop + section.getBoundingClientRect().top - catalog.getBoundingClientRect().top - 22;
+        catalog.scrollTo({ top: Math.max(0, top), behavior: smooth && !reducedMotion.matches ? 'smooth' : 'instant' });
+        setActive(id);
+      }
+      function locateCard(id) {
+        const element = cardElement(id);
+        if (!element) return;
+        const track = element.closest('.score-track');
+        if (track && getComputedStyle(track).overflowX === 'auto') {
+          track.scrollLeft += element.getBoundingClientRect().left - track.getBoundingClientRect().left - 4;
+        }
+        const top = catalog.scrollTop + element.getBoundingClientRect().top - catalog.getBoundingClientRect().top - 30;
+        catalog.scrollTo({ top: Math.max(0, top), behavior: 'instant' });
+        element.querySelector('.card-open').focus({ preventScroll: true });
+        setActive(groupFor(storyById.get(id)));
+      }
+      function updateReturnBar() {
+        returnBar.hidden = returnStack.length === 0;
+        const origin = returnStack.at(-1);
+        if (!origin) return;
+        const story = storyById.get(origin.id);
+        document.getElementById('return-origin').textContent = `${movementById.get(story.movement).title} · ${story.title}`;
+      }
+      function jumpTo(targetId, fromId) {
+        returnStack.push({ id: fromId, mode, position: capturePosition() });
+        highlightId = targetId;
+        render();
+        locateCard(targetId);
+        const target = storyById.get(targetId);
+        status.textContent = `已定位到${movementById.get(target.movement).title}的${target.title}，可返回来源位置。`;
+      }
+      function returnToOrigin() {
+        const origin = returnStack.pop();
+        if (!origin) return;
+        mode = origin.mode;
+        highlightId = origin.id;
+        activeGroup = origin.position.group;
+        render();
+        restorePosition(origin.position);
+        const sourceLink = [...catalog.querySelectorAll('[data-from]')].find(button => button.dataset.from === origin.id);
+        (sourceLink || cardElement(origin.id)?.querySelector('.card-open'))?.focus({ preventScroll: true });
+        status.textContent = `已返回${storyById.get(origin.id).title}的原浏览位置。`;
+      }
+      function changeMode(next) {
+        if (next === mode) return;
+        catalog.scrollTo({ top: catalog.scrollTop, behavior: 'instant' });
+        positions[mode] = capturePosition();
+        mode = next;
+        highlightId = null;
+        activeGroup = positions[mode]?.group || groups()[0].id;
+        render();
+        if (positions[mode]) restorePosition(positions[mode]); else catalog.scrollTop = 0;
+        status.textContent = mode === 'movement' ? '已切换为按乐章浏览。' : '已切换为按类型浏览，卡片保留所属乐章。';
+      }
+      function showToast(message) {
+        const toast = document.getElementById('toast');
+        clearTimeout(toastTimer); toast.textContent = message; toast.hidden = false;
+        toastTimer = window.setTimeout(() => { toast.hidden = true; }, 2800);
+      }
+      function openStory(id) {
+        const story = storyById.get(id);
+        document.getElementById('dialog-title').textContent = story.title;
+        document.getElementById('dialog-meta').textContent = `${story.type}${story.movement === 'other' ? '' : ' · ' + movementById.get(story.movement).title} · 以下仅展示篇目列表的占位布局。`;
+        document.getElementById('dialog-chapters').innerHTML = [1, 2, 3].map(index => `<div class="chapter-placeholder"><span>0${index}</span><div><strong>示例篇目${['一', '二', '三'][index - 1]}</strong><small>交互占位，不包含原作正文</small></div></div>`).join('');
+        document.getElementById('story-dialog').showModal();
+      }
+      function updateSeek(track) {
+        const section = track.closest('[data-section]');
+        const slider = section.querySelector('[data-seek]');
+        if (!slider) return;
+        const extent = track.scrollWidth - track.clientWidth;
+        slider.closest('label').hidden = extent <= 1 || window.innerWidth <= 650;
+        slider.value = extent > 0 ? String(Math.round(track.scrollLeft / extent * 1000)) : '0';
+        slider.setAttribute('aria-valuetext', `${Math.round(Number(slider.value) / 10)}%`);
+      }
+      function updateAxes() { catalog.querySelectorAll('.score-track').forEach(updateSeek); }
+      catalog.addEventListener('input', event => {
+        if (!event.target.matches('[data-seek]')) return;
+        const track = event.target.closest('[data-section]').querySelector('.score-track');
+        track.scrollLeft = Number(event.target.value) / 1000 * Math.max(0, track.scrollWidth - track.clientWidth);
+        updateSeek(track);
+      });
+      catalog.addEventListener('scroll', event => { if (event.target.matches('.score-track')) updateSeek(event.target); }, true);
+      // Same threshold and mouse-only dragging as ChapterList; touch keeps the
+      // browser's native pan behavior, and keyboard clicks are never suppressed.
+      catalog.addEventListener('pointerdown', event => {
+        const track = event.target.closest('.score-track');
+        if (!track || event.pointerType !== 'mouse' || event.button !== 0 || getComputedStyle(track).overflowX !== 'auto' || track.scrollWidth <= track.clientWidth) return;
+        axisDrag = { track, pointerId: event.pointerId, x: event.clientX, scroll: track.scrollLeft, moved: false };
+        blockedPointerClick = null;
+      });
+      catalog.addEventListener('pointermove', event => {
+        if (!axisDrag || axisDrag.pointerId !== event.pointerId) return;
+        const delta = axisDrag.x - event.clientX;
+        if (Math.abs(delta) > 6 && !axisDrag.moved) {
+          axisDrag.moved = true;
+          axisDrag.track.setPointerCapture(event.pointerId);
+          axisDrag.track.classList.add('is-dragging');
+        }
+        if (axisDrag.moved) {
+          event.preventDefault();
+          axisDrag.track.scrollLeft = axisDrag.scroll + delta;
+        }
+      });
+      function finishAxisDrag(event) {
+        if (!axisDrag || axisDrag.pointerId !== event.pointerId) return;
+        const { track, moved } = axisDrag;
+        track.classList.remove('is-dragging');
+        if (track.hasPointerCapture(event.pointerId)) track.releasePointerCapture(event.pointerId);
+        blockedPointerClick = moved ? { track, until: performance.now() + 400 } : null;
+        axisDrag = null;
+      }
+      catalog.addEventListener('pointerup', finishAxisDrag);
+      catalog.addEventListener('pointercancel', finishAxisDrag);
+      catalog.addEventListener('lostpointercapture', event => {
+        if (axisDrag?.pointerId === event.pointerId) finishAxisDrag(event);
+      });
+      catalog.addEventListener('click', event => {
+        if (event.detail > 0 && blockedPointerClick && performance.now() < blockedPointerClick.until && blockedPointerClick.track.contains(event.target)) {
+          event.preventDefault(); event.stopImmediatePropagation(); blockedPointerClick = null;
+        }
+      }, true);
+      navigation.addEventListener('click', event => { const button = event.target.closest('[data-group]'); if (button) locateGroup(button.dataset.group); });
+      selector.addEventListener('change', () => locateGroup(selector.value));
+      document.querySelectorAll('input[name="catalog-mode"]').forEach(input => input.addEventListener('change', () => changeMode(input.value)));
+      document.getElementById('return-button').addEventListener('click', returnToOrigin);
+      catalog.addEventListener('click', event => {
+        const jump = event.target.closest('[data-jump]');
+        if (jump) { jumpTo(jump.dataset.jump, jump.dataset.from); return; }
+        const open = event.target.closest('[data-open]');
+        if (open) openStory(open.dataset.open);
+      });
+      catalog.addEventListener('scroll', () => {
+        if (scrollFrame) return;
+        scrollFrame = requestAnimationFrame(() => {
+          scrollFrame = 0;
+          const top = catalog.getBoundingClientRect().top + 90;
+          const sections = [...catalog.querySelectorAll('[data-section]')];
+          const current = sections.find(section => section.getBoundingClientRect().bottom > top);
+          if (current) setActive(current.dataset.section);
+        });
+      }, { passive: true });
+      document.getElementById('theme-button').addEventListener('click', event => {
+        const dark = document.documentElement.dataset.theme !== 'dark';
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        event.currentTarget.textContent = dark ? '浅色' : '深色';
+        event.currentTarget.setAttribute('aria-label', dark ? '切换到浅色主题' : '切换到深色主题');
+      });
+      document.getElementById('refresh-button').addEventListener('click', event => {
+        const button = event.currentTarget;
+        if (button.getAttribute('aria-busy') === 'true') return;
+        button.setAttribute('aria-busy', 'true');
+        window.setTimeout(() => { button.setAttribute('aria-busy', 'false'); showToast('样例目录已刷新，当前浏览位置已保留。'); }, 550);
+      });
+      document.getElementById('dialog-close').addEventListener('click', () => document.getElementById('story-dialog').close());
+      document.getElementById('story-dialog').addEventListener('click', event => { if (event.target === event.currentTarget) { const box = event.currentTarget.getBoundingClientRect(); if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) event.currentTarget.close(); } });
+      const resizeObserver = new ResizeObserver(() => {
+        // Keep the selected section in view as the sample changes between the
+        // horizontal desktop score and the vertical phone score.
+        if (window.innerWidth !== resizeObserver.lastWidth) {
+          resizeObserver.lastWidth = window.innerWidth;
+          locateGroup(activeGroup, false);
+          updateAxes();
+        }
+      });
+      render();
+      locateGroup('rl', false);
+      resizeObserver.observe(document.body);
+    </script>
+  </body>
+</html>

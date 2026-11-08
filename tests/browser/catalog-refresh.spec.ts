@@ -13,6 +13,9 @@ import { deferred } from '../helpers/deferred.js';
 import { selectTheme } from './settings-helpers.js';
 
 async function setup(page: Page) {
+  // These tests hold a source response while exercising state authority; page
+  // animation duration must not consume the transport's real timeout budget.
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   const base = path.resolve('.ai/local/catalog-refresh-browser');
   await mkdir(base, { recursive: true });
   const root = await mkdtemp(path.join(base, 'run-'));

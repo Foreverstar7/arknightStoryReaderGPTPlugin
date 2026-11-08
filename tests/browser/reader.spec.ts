@@ -149,6 +149,8 @@ test('empty data and a failed initial request expose clear states and retry', as
   });
   await page.reload();
   await expect(page.getByText('目录暂时没有可用剧情。')).toBeVisible();
+  // The independently requested score snapshot may still be finishing.
+  await page.unrouteAll({ behavior: 'wait' });
 });
 
 test('320px, medium, desktop and low-height layouts in both themes remain usable with reduced motion', async ({
@@ -273,7 +275,7 @@ test('every navigation animates, adjacent chapters sweep in opposite directions,
   await reader.evaluate((element) => {
     element.scrollTop = element.scrollHeight;
   });
-  await page.getByRole('button', { name: '下一篇 →', exact: true }).click();
+  await page.getByRole('button', { name: /^下一篇：/ }).click();
   await expect.poll(observedAnimations).toContain('reader-wave-next');
   await page.screenshot({
     path: '.ai/local/screenshots/turn-next.png',
@@ -288,7 +290,7 @@ test('every navigation animates, adjacent chapters sweep in opposite directions,
   await reader.evaluate((element) => {
     element.scrollTop = element.scrollHeight;
   });
-  await page.getByRole('button', { name: '← 上一篇', exact: true }).click();
+  await page.getByRole('button', { name: /^上一篇：/ }).click();
   await expect.poll(observedAnimations).toContain('reader-wave-previous');
   await page.setViewportSize({ width: 320, height: 600 });
   await expect

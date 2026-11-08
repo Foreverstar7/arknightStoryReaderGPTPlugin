@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { MAX_IMAGE_LAYERS } from './image-limits.js';
+import { scoreResultSchema } from './score.js';
 
 export const cgLayerSchema = z.object({
   resource: z.string(),
@@ -157,6 +158,7 @@ export const settingsSchema = z.object({
   autoImages: z.boolean(),
   retentionDays: z.number().int().min(1).max(365),
   theme: z.enum(['system', 'light', 'dark']),
+  catalogMode: z.enum(['type', 'movement']).optional(),
 });
 export const readingStateSchema = z.object({
   version: z.literal(1),
@@ -170,12 +172,17 @@ export const readingStateSchema = z.object({
     .optional(),
 });
 export const snapshotInputSchema = z
-  .object({ refreshCatalog: z.boolean().optional() })
+  .object({
+    refreshCatalog: z.boolean().optional(),
+    includeScore: z.boolean().optional(),
+    refreshScore: z.boolean().optional(),
+  })
   .strict();
 export const snapshotSchema = z.object({
   stories: z.array(storySchema),
   state: readingStateSchema,
   sourceLabel: z.string(),
+  score: scoreResultSchema.optional(),
 });
 export const recordInputSchema = z.object({
   chapterId: z.string().min(1).max(200),

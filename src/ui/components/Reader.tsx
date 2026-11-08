@@ -10,6 +10,8 @@ import type { ReaderTransport } from '../transport.js';
 import { SourceImage, useVisible } from './SourceImage.js';
 import { PortraitPopover } from './PortraitPopover.js';
 import { useReadingPosition } from '../useReadingPosition.js';
+import { useChapterSwipe } from '../useChapterSwipe.js';
+import { Icon } from './Icon.js';
 
 function Cg({
   block,
@@ -51,6 +53,7 @@ function Cg({
 
 type Position = ReadingRecord['last'];
 interface ReaderProps {
+  busy?: boolean;
   story: Story;
   chapter: Chapter;
   initialPosition?: Position;
@@ -70,6 +73,7 @@ export function Reader({
   save,
   registerFlush,
   transport,
+  busy = false,
 }: ReaderProps) {
   const { scroll, nodes } = useReadingPosition({
     chapter,
@@ -78,10 +82,40 @@ export function Reader({
     registerFlush,
   });
   const [sidebar, setSidebar] = useState(false);
+  const [hint, setHint] = useState(() => {
+    try {
+      return sessionStorage.getItem('reader-swipe-hint') !== 'dismissed';
+    } catch {
+      return true;
+    }
+  });
+  function dismissHint() {
+    setHint(false);
+    try {
+      sessionStorage.setItem('reader-swipe-hint', 'dismissed');
+    } catch {
+      /* Session storage is optional in embedded hosts. */
+    }
+  }
   const [portrait, setPortrait] = useState<{
     blockId: string;
     hover: boolean;
   } | null>(null);
+  const currentIndex = story.chapters.findIndex(
+    (item) => item.id === chapter.id,
+  );
+  const previous = story.chapters[currentIndex - 1];
+  const next = story.chapters[currentIndex + 1];
+  const swipe = useChapterSwipe(
+    scroll,
+    previous,
+    next,
+    (id, restore, direction) => {
+      dismissHint();
+      open(id, restore, direction);
+    },
+    busy || sidebar || Boolean(portrait),
+  );
   const hoverClose = useRef<ReturnType<typeof setTimeout> | null>(null);
   function keepPortrait() {
     if (hoverClose.current) clearTimeout(hoverClose.current);
@@ -260,11 +294,6 @@ export function Reader({
         );
     }
   }
-  const currentIndex = story.chapters.findIndex(
-    (item) => item.id === chapter.id,
-  );
-  const previous = story.chapters[currentIndex - 1];
-  const next = story.chapters[currentIndex + 1];
   return (
     <div className="reader-layout page" onClick={() => setPortrait(null)}>
       <button
@@ -295,6 +324,28 @@ export function Reader({
           </button>
         ))}
       </aside>
+      <button
+        className="reader-side-turn reader-side-previous"
+        aria-label={`向前阅读${previous ? `：${previous.title}` : ''}`}
+        title={previous?.title ?? '已是第一篇'}
+        disabled={!previous || busy}
+        onClick={() => {
+          if (previous) open(previous.id, false, 'previous');
+        }}
+      >
+        <Icon name="previous" />
+      </button>
+      <button
+        className="reader-side-turn reader-side-next"
+        aria-label={`向后阅读${next ? `：${next.title}` : ''}`}
+        title={next?.title ?? '已是最后一篇'}
+        disabled={!next || busy}
+        onClick={() => {
+          if (next) open(next.id, false, 'next');
+        }}
+      >
+        <Icon name="next" />
+      </button>
       <main
         className="reader-scroll"
         ref={scroll}
@@ -302,6 +353,14 @@ export function Reader({
         aria-label="剧情正文"
       >
         <article className="reading-copy">
+          {hint && (
+            <div className="swipe-hint">
+              左右滑动切换篇目，松手前可查看目标；也可使用顶部箭头。
+              <button aria-label="关闭滑动提示" onClick={dismissHint}>
+                ×
+              </button>
+            </div>
+          )}
           <header className="reading-heading">
             <span className="eyebrow">
               STORY / {story.chapters[currentIndex]?.code}
@@ -346,26 +405,20 @@ export function Reader({
             ))}
           </div>
           <footer className="reader-end">
-            <button
-              disabled={!previous}
-              onClick={() => {
-                if (previous) open(previous.id, false, 'previous');
-              }}
-            >
-              ← 上一篇
-            </button>
             <span>本篇结束</span>
-            <button
-              disabled={!next}
-              onClick={() => {
-                if (next) open(next.id, false, 'next');
-              }}
-            >
-              下一篇 →
-            </button>
           </footer>
         </article>
       </main>
+      {swipe && (
+        <div
+          className={`swipe-preview${swipe.ready ? ' is-ready' : ''}`}
+          role="status"
+        >
+          <span>{swipe.direction === 'next' ? '← 下一篇' : '上一篇 →'}</span>
+          <strong>{swipe.title}</strong>
+          <small>{swipe.ready ? '松手切换' : '继续滑动'}</small>
+        </div>
+      )}
     </div>
   );
 }

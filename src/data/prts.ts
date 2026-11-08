@@ -14,6 +14,7 @@ import { placeholderPortrait, portraitResourceGroup } from './prts-portrait.js';
 import { resolvePortraitView } from './prts-portrait-view.js';
 import { PrtsMetadata } from './prts-metadata.js';
 import { PrtsSearchData } from './prts-search.js';
+import { PrtsScoreData } from './prts-score.js';
 
 export class PrtsSource implements StorySource {
   readonly label = 'PRTS 真实剧情 · 正文与图片按需获取';
@@ -21,6 +22,7 @@ export class PrtsSource implements StorySource {
   readonly resources: PrtsResources;
   private readonly metadata: PrtsMetadata;
   private readonly searchData: PrtsSearchData;
+  private readonly scoreData: PrtsScoreData;
   private readonly catalogPending = new Map<string, Promise<Story[]>>();
   isCurrentRevision(revision: string): boolean {
     return revision.startsWith('prts-script-v4:');
@@ -44,6 +46,10 @@ export class PrtsSource implements StorySource {
     this.resources = new PrtsResources(root, readWiki, request);
     this.metadata = new PrtsMetadata(root, readWiki);
     this.searchData = new PrtsSearchData(root, readWiki);
+    this.scoreData = new PrtsScoreData(root, readWiki);
+  }
+  score(stories: Story[], days: number, refresh = false) {
+    return this.scoreData.get(stories, days, refresh);
   }
   async catalog(retentionDays = 7, refresh = false): Promise<Story[]> {
     return this.cache.run(() => this.loadCatalog(retentionDays, refresh));

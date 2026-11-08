@@ -93,10 +93,20 @@ export class ReaderService {
       this.coordinator,
     );
   }
-  async snapshot(refreshCatalog = false): Promise<Snapshot> {
-    return this.coordinator.run(() => this.loadSnapshot(refreshCatalog));
+  async snapshot(
+    refreshCatalog = false,
+    includeScore = false,
+    refreshScore = false,
+  ): Promise<Snapshot> {
+    return this.coordinator.run(() =>
+      this.loadSnapshot(refreshCatalog, includeScore, refreshScore),
+    );
   }
-  private async loadSnapshot(refreshCatalog: boolean): Promise<Snapshot> {
+  private async loadSnapshot(
+    refreshCatalog: boolean,
+    includeScore: boolean,
+    refreshScore: boolean,
+  ): Promise<Snapshot> {
     const { settings } = await this.records.read();
     if (!refreshCatalog) {
       await this.cache.expire(settings.retentionDays);
@@ -108,7 +118,32 @@ export class ReaderService {
     );
     const state = await this.records.read();
     const counts = await this.counts.all();
+    let score: Snapshot['score'];
+    if (includeScore) {
+      if (!this.source.score) score = { status: 'unavailable' };
+      else {
+        try {
+          score = {
+            status: 'ready',
+            data: await this.source.score(
+              catalog,
+              settings.retentionDays,
+              refreshScore,
+            ),
+          };
+        } catch (error) {
+          score = {
+            status: 'failed',
+            message:
+              error instanceof Error
+                ? error.message
+                : '乐章资料暂时无法取得，请重试。',
+          };
+        }
+      }
+    }
     return {
+      ...(score ? { score } : {}),
       stories: catalog.map((story) => ({
         ...story,
         chapters: story.chapters.map((chapter) => {
@@ -346,8 +381,8 @@ export class ReaderService {
         return (await this.source.storyInfo?.(storyId, days, refresh)) ?? {};
       }),
     reader_open: async () => ({ ready: true, source: this.source.label }),
-    reader_snapshot: async ({ refreshCatalog }) =>
-      this.snapshot(refreshCatalog),
+    reader_snapshot: async ({ refreshCatalog, includeScore, refreshScore }) =>
+      this.snapshot(refreshCatalog, includeScore, refreshScore),
     reader_chapter: async ({ chapterId, refresh }) =>
       this.chapter(chapterId, refresh),
     reader_prepare_chapter: async ({ chapterId }) =>

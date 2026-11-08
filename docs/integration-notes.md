@@ -55,6 +55,8 @@ Vite 默认使用 5173，并把 `/api` 代理到 4318。启动与来源切换见
 
 PRTS 搜索只读取既有目录和“剧情出场人物一览”的主线／活动子页，复用 metadata 缓存、保留天数与清理代次；人物名按源表精确匹配，不剥离疑问号或猜测匿名身份。`reader_story_info` 按需读取 PRTS 导语列表和主线章节说明，不从全文生成摘要。网站 BrowserDemoTransport 复用名称匹配逻辑，使用独立占位目录和会话记录。
 
+乐章资料由 `PrtsScoreData` 独立解析公开曲谱索引，原始索引复用 metadata 缓存。app-only 的 `reader_snapshot` 可选 `includeScore`／`refreshScore` 返回独立的 ready／failed／unavailable 结果，不增加模型工具。UI 只消费该响应的乐章资料，避免迟到的公共元数据覆盖新阅读记录；普通快照无需等待读取曲谱。目录模式偏好是兼容旧设置的可选 `catalogMode` 字段。正文切篇沿用已有保存／导航队列与转场，手势不直接写进度。
+
 其他 MCP Apps 宿主可参考以下 stdio 配置模板；将 X.Y.Z 替换为正式来源固定的 npm 版本。这些宿主尚未验收：
 
 ```sh
