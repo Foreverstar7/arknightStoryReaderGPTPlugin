@@ -153,7 +153,7 @@ codex plugin add arknights-story-reader@arknights-reader-dev --json
 
 ## 独立网页版本地预览
 
-源码中新增纯前端阅读入口，与桌面插件共用界面、剧情解析和进度规则。介绍页提供“打开网页版”，正式阅读页在同站点 `reader/` 子路径；源码已在本地整合，真实网页入口尚未部署线上。
+源码中新增纯前端阅读入口，与桌面插件共用界面、剧情解析和进度规则。介绍页提供“打开网页版”，正式阅读页在同站点 `reader/` 子路径；可直接使用[网页版](https://foreverstar7.github.io/arknightStoryReaderGPTPlugin/reader/)，下列命令用于本地预览。
 
 ```sh
 node scripts/build-site.mjs

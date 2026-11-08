@@ -1,6 +1,6 @@
 # 项目网站
 
-网站采用紧凑首屏和滚动流程，下方“亲自试试”复用真实阅读器展示占位文案、六张线描封面／场景图片，以及卡通动物兔子。公开地址：[剧情阅读器](https://foreverstar7.github.io/arknightStoryReaderGPTPlugin/)。
+网站采用紧凑首屏和滚动流程，下方“亲自试试”复用真实阅读器展示占位文案、六张线描封面／场景图片，以及卡通动物兔子。公开地址：[项目介绍与演示](https://foreverstar7.github.io/arknightStoryReaderGPTPlugin/)、[真实网页阅读器](https://foreverstar7.github.io/arknightStoryReaderGPTPlugin/reader/)。
 
 ## 构建后查看完整页面
 
