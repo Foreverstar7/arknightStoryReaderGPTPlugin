@@ -2,12 +2,13 @@
 
 更新：2026-11-08。当前发布契约为 **推送 main → Check 的 Ubuntu 检查成功 → 同一提交的 Windows 验收与草稿准备 → 发布者点击一次 Publish release → 自动发布 npm latest、固定 marketplace 和回执**。此前 next／候选安装／宿主证据／独立 promote 的人工门槛已取消，后续不得按旧记录恢复。
 
-## 当前交付：1.1.1 已推送，PRTS 网络阻塞草稿准备
+## 当前交付：1.1.1 草稿已验收，等待用户返回发布
 
 - 用户已明确要求推送并跟进 Check／Prepare／网站，正式发布待其返回。9596c75944389a3703813753f428fc6393a46e7a 已从 codex/portrait-chat-polish 快进合入并推送 main，工作流与另一对话的既有改动完整保留。
-- [Check 42446767197](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42446767197) 的 Ubuntu verify 成功；[Pages 42446767205](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42446767205) 的网站检查、构建和部署成功。Prepare 为 Check 内的可复用作业，不能将 verify 成功写成整个运行已成功。
-- 截至本次交接，Windows accept-package 三次均在真实 PRTS 目录请求返回 network 错误，draft 跳过；168 项 check、构建、manifest／bin／npm-installed 三入口、两份 UI 和冷缓存离线 npm 安装已通过。三次均使用同一源码，不跳过联网验收、不以本地旧包代替 CI 新包。本机对同一公开 raw URL 的一次对照为 HTTP 200／text/x-wiki，363ms；这不证明运行器已恢复。诊断摘要在 .ai/local/portrait-chat-polish/ci-*-attempt-summary.log。
-- 1.1.1 尚无固定标签、草稿或正式发行；1.1.0、1.0.1 仍为 draft，三个附件的 ID／digest 与原记录一致。后续文档提交仍会触发 Check，最终状态应核对对应提交的 Actions 记录；正式 Publish 仍由用户操作。
+- [Check 42447808883](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42447808883) 的 Ubuntu verify、Windows accept-package 与 draft 全部成功，验收源码为交接提交 baf8ee32bc79c37649f7e8ca49b744f990a64271；[Pages 42446767205](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42446767205) 的网站检查、构建和部署成功。Windows 含类型／168 项／格式、实际包的三种 MCP 入口与两份 UI、冷缓存离线 npm 安装、真实 117 部目录／64 块正文／1500×844 CG／独立记录保留，以及 39 项 fixture 浏览器回归。
+- 此前 9596c75 的 [Check 42446767197](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42446767197) 中 Ubuntu verify 成功，但 Windows 真实 PRTS 目录连接三次失败，draft 跳过；随后 baf8ee3 的干净构建完整通过。没有放宽联网验收、修改网络规则或用本地旧包替代 CI 新包。失败摘要在 .ai/local/portrait-chat-polish/ci-*-attempt-summary.log，最终结构化回执为 accepted-1.1.1.json。
+- [1.1.1 草稿](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/releases/tag/untagged-212b10da730606fd3d43) ID 438038850，三个附件齐全；tgz 为 8,023,862 字节，integrity 为 sha512-XvXhwf49IwAuQsGQKYge2Bx+hoPEXkyV3/AlEkU/x0aeIiMpIetqb5BOJUfxQshUsetb3MK1tCnaE/WR4ukYLg==。v1.1.1 注释标签 d371c53105a08baf44f49d747b0e7f31ee133c05 指向 baf8ee3，标签内 source／integrity／体积／dirty=false／CI run 与草稿核对一致。后续文档不移动标签或替换附件。
+- 1.1.1 尚未正式发布；1.1.0、1.0.1 仍为 draft，原三个附件的 ID／digest 与此前记录一致。本轮交付止于已验收草稿，正式 Publish 等用户返回。后续文档提交的 Check 应通过已有完整草稿而跳过重建；实际桌面搜索卡片仍有下述已复现缺陷，不将自动验收写成该问题已解决。
 - 用户另要求只排查 maaTask 对话“查找莱茵生命相关剧情”的卡片问题。原三次调用均带完整结果、UI URI 和 _meta.readerSearch，宿主资源读取及 widget 初始化成功；并非搜索无结果或没有注册 UI。客户端同期有大量 ResizeObserver 尺寸循环错误，其他对话的 unknown MCP server 日志不能套作本次原因。
 - 已用安装的 1.1.0 原 HTML／SDK 与同一公共结果隔离复现：加载态先测量为 92px，100ms 后 DOM 已生成四卡，但外层与 .search-results 的 height: 100%／内部滚动使自动测量仍停在 92px；只在临时 DOM 使用自然高度后第二次通知为 649px，四卡可见。结果先于首次测量时另观察到约 654px，表现受时序影响。当前 1.1.1 没有改这组布局，缺陷仍在；未修改业务代码或真实安装。后续应区分 inline 搜索自然高度与 fullscreen 阅读器内部滚动，真实宿主修复尚待实施。
 - 完整只读报告、原始／对照 JSON 和截图在 .ai/local/portrait-chat-polish/card-diagnostic/；4348 临时服务与诊断标签已关闭，保留用户的 4330 预览及私人记录。本版可复制 Release 文案见 docs/releases/1.1.1-notes.md，已明确卡片已知问题，不将诊断写成修复。
