@@ -540,82 +540,92 @@
                       aria-label="ChatGPT 首页示例对话"
                       hidden
                     >
-                      <div class="chat-inner">
-                        <div class="chat-heading">
-                          <strong>ChatGPT</strong
-                          ><span class="chat-tag"
-                            >预设搜索演示 · 不调用 AI</span
-                          >
-                        </div>
-                        <div class="chat-messages">
-                          <div class="chat-message user">
-                            <span class="sr-only">你：</span>
-                            <p>我想用这个插件阅读方舟剧情，从哪里开始？</p>
-                          </div>
-                          <div class="chat-message assistant">
-                            <p class="chat-role">ChatGPT</p>
-                            <p>
-                              打开“明日方舟剧情阅读器”，选择剧情和篇目，就可以开始阅读。
-                            </p>
-                            <button
-                              class="plugin-launch"
-                              type="button"
-                              data-host-view="reader"
-                              aria-controls="demo-reader-panel"
-                              aria-label="打开明日方舟剧情阅读器"
+                      <div
+                        class="chat-scroll"
+                        role="region"
+                        aria-label="示例对话消息"
+                        tabindex="0"
+                      >
+                        <div class="chat-inner">
+                          <div class="chat-heading">
+                            <strong>ChatGPT</strong
+                            ><span class="chat-tag"
+                              >预设搜索演示 · 不调用 AI</span
                             >
-                              <svg
-                                class="reader-mark"
-                                viewBox="0 0 48 48"
-                                aria-hidden="true"
-                                focusable="false"
+                          </div>
+                          <div class="chat-messages">
+                            <div class="chat-message user">
+                              <span class="sr-only">你：</span>
+                              <p>我想用这个插件阅读方舟剧情，从哪里开始？</p>
+                            </div>
+                            <div class="chat-message assistant">
+                              <p class="chat-role">ChatGPT</p>
+                              <p>
+                                打开“明日方舟剧情阅读器”，选择剧情和篇目，就可以开始阅读。
+                              </p>
+                              <button
+                                class="plugin-launch"
+                                type="button"
+                                data-host-view="reader"
+                                aria-controls="demo-reader-panel"
+                                aria-label="打开明日方舟剧情阅读器"
                               >
-                                <use data-project-mark href="#project-glyph" />
-                              </svg>
-                              <span
-                                ><strong>明日方舟剧情阅读器</strong
-                                ><span class="small muted"
-                                  >打开阅读器</span
-                                ></span
-                              >
-                            </button>
+                                <svg
+                                  class="reader-mark"
+                                  viewBox="0 0 48 48"
+                                  aria-hidden="true"
+                                  focusable="false"
+                                >
+                                  <use
+                                    data-project-mark
+                                    href="#project-glyph"
+                                  />
+                                </svg>
+                                <span
+                                  ><strong>明日方舟剧情阅读器</strong
+                                  ><span class="small muted"
+                                    >打开阅读器</span
+                                  ></span
+                                >
+                              </button>
+                            </div>
+                            <div class="chat-message user">
+                              <span class="sr-only">你：</span>
+                              <p>也可以在对话中找剧情吗？</p>
+                            </div>
+                            <div class="chat-message assistant">
+                              <p class="chat-role">ChatGPT</p>
+                              <p>
+                                可以试试下方的预设搜索；也可以点击侧栏中的阅读器，自由浏览目录。
+                              </p>
+                            </div>
                           </div>
-                          <div class="chat-message user">
-                            <span class="sr-only">你：</span>
-                            <p>也可以在对话中找剧情吗？</p>
-                          </div>
-                          <div class="chat-message assistant">
-                            <p class="chat-role">ChatGPT</p>
-                            <p>
-                              可以试试下方的预设搜索；也可以点击侧栏中的阅读器，自由浏览目录。
-                            </p>
-                          </div>
+                          <p
+                            id="demo-search-status"
+                            class="small muted"
+                            role="status"
+                          >
+                            占位演示 ·
+                            非原作剧情。搜索结果复用下方阅读器的样例目录。
+                          </p>
+                          <div id="demo-search-cards"></div>
                         </div>
-                        <form id="demo-search-form" class="demo-search-form">
-                          <label for="demo-search-input">试试预设搜索</label>
-                          <div>
-                            <input
-                              id="demo-search-input"
-                              class="chat-composer"
-                              value="帮我找一下《孤星》"
-                              maxlength="120"
-                              list="demo-search-options"
-                            /><button type="submit">查找剧情</button>
-                          </div>
-                          <datalist id="demo-search-options">
-                            <option value="帮我找一下《孤星》"></option>
-                          </datalist>
-                        </form>
-                        <p
-                          id="demo-search-status"
-                          class="small muted"
-                          role="status"
-                        >
-                          占位演示 ·
-                          非原作剧情。搜索结果复用下方阅读器的样例目录。
-                        </p>
-                        <div id="demo-search-cards"></div>
                       </div>
+                      <form id="demo-search-form" class="demo-search-form">
+                        <label for="demo-search-input">试试预设搜索</label>
+                        <div>
+                          <input
+                            id="demo-search-input"
+                            class="chat-composer"
+                            value="帮我找一下《孤星》"
+                            maxlength="120"
+                            list="demo-search-options"
+                          /><button type="submit">查找剧情</button>
+                        </div>
+                        <datalist id="demo-search-options">
+                          <option value="帮我找一下《孤星》"></option>
+                        </datalist>
+                      </form>
                     </section>
                   </div>
                 </div>

@@ -285,10 +285,14 @@ h3 {
 .window-body {
   display: grid;
   grid-template-columns: 64px minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
   height: clamp(220px, calc(100svh - 150px), 680px);
 }
 .host-rail {
   display: flex;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   align-items: center;
   flex-direction: column;
   gap: 10px;
@@ -370,14 +374,22 @@ button.host-icon:hover {
   background: var(--surface);
 }
 .chat-view {
+  --chat-gutter: clamp(18px, 4vw, 44px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--surface);
+}
+.chat-scroll {
+  flex: 1;
+  min-height: 0;
   overflow: auto;
   overscroll-behavior: contain;
-  background: var(--surface);
 }
 .chat-inner {
   max-width: 780px;
   margin-inline: auto;
-  padding: 22px clamp(18px, 4vw, 44px) 28px;
+  padding: 22px var(--chat-gutter) 24px;
 }
 .chat-heading {
   display: flex;
@@ -397,6 +409,7 @@ button.host-icon:hover {
 .chat-messages {
   display: grid;
   gap: 24px;
+  margin-bottom: 24px;
 }
 .chat-message {
   min-width: 0;
@@ -465,7 +478,11 @@ button.host-icon:hover {
   opacity: 1;
 }
 .demo-search-form {
-  margin-top: 24px;
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: 780px;
+  margin-inline: auto;
+  padding: 12px var(--chat-gutter) 16px;
 }
 .demo-search-form > div {
   display: flex;
@@ -740,8 +757,8 @@ summary {
     flex-wrap: wrap;
     margin-bottom: 24px;
   }
-  .chat-inner {
-    padding-inline: 18px;
+  .chat-view {
+    --chat-gutter: 18px;
   }
   .plugin-launch {
     padding: 12px;

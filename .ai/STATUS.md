@@ -2,10 +2,12 @@
 
 更新：2026-11-08。当前发布契约为 **推送 main → Check 的 Ubuntu 检查成功 → 同一提交的 Windows 验收与草稿准备 → 发布者点击一次 Publish release → 自动发布 npm latest、固定 marketplace 和回执**。此前 next／候选安装／宿主证据／独立 promote 的人工门槛已取消，后续不得按旧记录恢复。
 
-## 当前交付：Check 通过后准备同提交草稿
+## 当前交付：检查后准备草稿与网站底部输入区
 
 - 用户要求 Check 成功后才执行 Prepare，两个阶段验证同一提交。Prepare 改为由 Check 的 `verify` 成功后调用的可复用工作流，仅 main push 调用；输入为该次 push 的完整 SHA，计划／草稿保存均检出该 SHA，计划另核对触发 SHA 与实际 HEAD，Windows 构建使用计划输出的固定提交。中断恢复仍复用原验收 artifact，正式发布入口和既有冻结标签／附件不变。
-- 固定 Node 26.13.0／npm 12.2.1 下，`./scripts/npm.ps1 run check`（168 项、类型和格式）、最终 `run typecheck` 与现有 actionlint 1.7.12 对全部工作流的检查通过。日志在 `.ai/local/check-before-draft/check.log` 和 `typecheck-final.log`；远端新调度仍需推送后检查。
+- 网站“亲自试试”的预设输入与提交按钮移到对话区域底部，消息、状态和结果在上方独立滚动；新增结果和错误定位最新消息。实际看图发现低高度下侧栏会撑高网格行并裁切输入区，现约束行高并允许侧栏独立滚动，输入与按钮完整可见。只调整 website 与其专项检查，不改变插件源码或 1.1.0 包版本。README 搜索截图已重新生成并看图，其余四张截图逐字节未变。
+- 固定 Node 26.13.0／npm 12.2.1 下，`./scripts/npm.ps1 run check`（168 项、类型和格式）、最终 `run typecheck`、网站类型／构建，以及既有 actionlint 1.7.12 对全部工作流的检查通过。Edge 最终网站全套 9 项通过，覆盖 320×760／768×900／1440×960／1024×400 双主题、真实滚轮／键盘／触摸、连续缩放、减少动态效果和错误后重试；8 张最终搜索画面均已实际查看。位置断言在同一帧读取几何，避免外层原生焦点滚动造成跨帧误差，并额外检查输入区不超出窗口内容边界。
+- 日志与截图在 `.ai/local/check-before-draft/`：`check.log`、`typecheck-final.log`、`site-build-final.log`、`site-verified.log`、`site-results-verified/` 与 `previews.log`。临时预览使用 4338／4331 且已停止，未接管保留给用户的 4330 服务；仅使用独立网站演示数据。
 - 用户已明确授权工作流与网站分两次提交，再一起推送 main。共享文档按职责拆分；远端 Check／Prepare 与 Pages 的结果以本次提交的 Actions 运行记录为准，不以本地 actionlint 或既有 1.1.0 验收替代。
 
 ## 当前交付：1.1.0 草稿就绪，等待 Publish release

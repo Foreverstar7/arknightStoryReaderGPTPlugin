@@ -8,7 +8,12 @@ const demo = document.querySelector<HTMLIFrameElement>('#reader-demo');
 const disclosure = document.querySelector<HTMLDetailsElement>('#try-reader');
 const readerPanel = document.getElementById('demo-reader-panel');
 const homePanel = document.getElementById('demo-home-panel');
+const chatScroll = homePanel?.querySelector<HTMLElement>('.chat-scroll');
 const reset = document.querySelector<HTMLButtonElement>('#reset-demo');
+
+function scrollChatToLatest() {
+  chatScroll?.scrollTo({ top: chatScroll.scrollHeight, behavior: 'instant' });
+}
 
 function showHostView(view: string | undefined) {
   if (!readerPanel || !homePanel) return;
@@ -95,6 +100,7 @@ searchForm?.addEventListener('submit', (event) => {
   if (!['孤星', '帮我找一下《孤星》', '我想阅读《孤星》'].includes(value)) {
     if (searchStatus)
       searchStatus.textContent = '此演示支持预设输入“帮我找一下《孤星》”。';
+    scrollChatToLatest();
     return;
   }
   pendingStory = undefined;
@@ -105,6 +111,7 @@ searchForm?.addEventListener('submit', (event) => {
   };
   if (searchStatus) searchStatus.textContent = '正在查找演示剧情…';
   searchCards?.replaceChildren();
+  scrollChatToLatest();
   demo?.contentWindow?.postMessage(pendingSearch, location.origin);
 });
 window.addEventListener('message', (event) => {
@@ -116,6 +123,7 @@ window.addEventListener('message', (event) => {
     return;
   if (event.data?.type === 'reader-demo:search-error') {
     if (searchStatus) searchStatus.textContent = '示例搜索失败，请重新提交。';
+    scrollChatToLatest();
     return;
   }
   if (event.data?.type !== 'reader-demo:search-result') return;
@@ -158,5 +166,5 @@ window.addEventListener('message', (event) => {
       showHostView('reader');
     });
   }
-  homePanel?.scrollTo({ top: homePanel.scrollHeight, behavior: 'instant' });
+  scrollChatToLatest();
 });

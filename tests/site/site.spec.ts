@@ -43,6 +43,29 @@ async function scrubDistance(page: Page, distance: number) {
   );
 }
 
+async function expectBottomComposer(page: Page) {
+  const gaps = await page.locator('#demo-home-panel').evaluate((panel) => {
+    const form = panel.querySelector('#demo-search-form');
+    const messages = panel.querySelector('.chat-scroll');
+    const windowBody = panel.closest('.window-body');
+    if (!form || !messages || !windowBody)
+      throw new Error('Missing conversation controls');
+    // Read in one frame while native focus scrolling may move the outer page.
+    const panelBounds = panel.getBoundingClientRect();
+    const formBounds = form.getBoundingClientRect();
+    const messageBounds = messages.getBoundingClientRect();
+    const windowBounds = windowBody.getBoundingClientRect();
+    return {
+      bottom: Math.abs(formBounds.bottom - panelBounds.bottom),
+      messages: Math.abs(messageBounds.bottom - formBounds.top),
+      overflow: Math.max(0, formBounds.bottom - windowBounds.bottom),
+    };
+  });
+  expect(gaps.bottom).toBeLessThan(1);
+  expect(gaps.messages).toBeLessThan(1);
+  expect(gaps.overflow).toBeLessThan(1);
+}
+
 test('same-window conversation route follows sidebar reading and preset cards open the existing demo directory', async ({
   page,
 }) => {
@@ -79,6 +102,12 @@ test('same-window conversation route follows sidebar reading and preset cards op
   await page
     .getByRole('button', { name: '首页：示例对话', exact: true })
     .click();
+  await expectBottomComposer(page);
+  await page.locator('#demo-search-input').fill('未支持的演示输入');
+  await page.locator('#demo-search-input').press('Enter');
+  await expect(page.locator('#demo-search-status')).toContainText(
+    '此演示支持预设输入',
+  );
   await page.locator('#demo-search-input').fill('帮我找一下《孤星》');
   await page.locator('#demo-search-input').press('Enter');
   await expect(page.locator('.demo-result-card')).toHaveCount(1);
@@ -97,7 +126,7 @@ test('same-window conversation route follows sidebar reading and preset cards op
   await expect(frame.locator('.chapters h1')).toHaveText('孤星');
   await expect(frame.locator('.story-intro')).toContainText('不对应原作剧情');
   await page.screenshot({
-    path: '.ai/local/story-search/evidence/site-directory.png',
+    path: test.info().outputPath('site-directory.png'),
   });
   expect(errors).toEqual([]);
 });
@@ -130,7 +159,9 @@ test('preset search remains readable and keyboard operable in four viewport size
             card.y + card.height <= stage.y + stage.height,
         ).toBe(true);
         await page.locator('.walk-window').screenshot({
-          path: `.ai/local/story-search/evidence/walk-search-${width}-${colorScheme}.png`,
+          path: test
+            .info()
+            .outputPath(`walk-search-${width}-${colorScheme}.png`),
         });
       }
       await page.locator('#try-reader > summary').click();
@@ -138,20 +169,45 @@ test('preset search remains readable and keyboard operable in four viewport size
         page.frameLocator('#reader-demo').locator('.story-card'),
       ).toHaveCount(6);
       await page.locator('[data-host-view="home"]:visible').first().click();
+      await expectBottomComposer(page);
       await page.locator('#demo-search-input').focus();
       await page.keyboard.press('Enter');
       await expect(page.locator('.demo-result-card')).toHaveCount(1);
+      await expectBottomComposer(page);
+      await page.locator('.chat-scroll').hover();
+      await page.mouse.wheel(0, -2000);
+      await expect
+        .poll(() =>
+          page.locator('.chat-scroll').evaluate((node) => node.scrollTop),
+        )
+        .toBe(0);
+      await expectBottomComposer(page);
+      await page.locator('.chat-scroll').focus();
+      await page.keyboard.press('End');
+      await expect
+        .poll(() =>
+          page
+            .locator('.chat-scroll')
+            .evaluate((node) =>
+              Math.abs(node.scrollHeight - node.clientHeight - node.scrollTop),
+            ),
+        )
+        .toBeLessThan(1);
+      await expectBottomComposer(page);
       expect(
         await page
           .locator('#demo-home-panel')
           .evaluate((node) => node.scrollWidth <= node.clientWidth),
       ).toBe(true);
       await page.locator('.demo-window').screenshot({
-        path: `.ai/local/story-search/evidence/site-search-${width}-${height}-${colorScheme}.png`,
+        path: test
+          .info()
+          .outputPath(`site-search-${width}-${height}-${colorScheme}.png`),
       });
       await page
         .getByRole('button', { name: '查看《孤星》篇章目录', exact: true })
         .focus();
+      await expectBottomComposer(page);
       await page.keyboard.press('Enter');
       await expect(
         page.frameLocator('#reader-demo').locator('.chapters h1'),
@@ -162,6 +218,19 @@ test('preset search remains readable and keyboard operable in four viewport size
         ),
       ).toBe(true);
     }
+  }
+  await page.locator('[data-host-view="home"]:visible').first().click();
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  for (const [width, height] of [
+    [1440, 960],
+    [320, 760],
+    [1024, 400],
+    [768, 900],
+  ]) {
+    if (!width || !height) continue;
+    await page.setViewportSize({ width, height });
+    await expect(page.locator('.demo-result-card')).toHaveCount(1);
+    await expectBottomComposer(page);
   }
 });
 
@@ -713,6 +782,14 @@ test('320px touch gestures advance the page and the real cover/chapter path is t
     await expect(frame.locator('.reading-heading h1')).toHaveText(
       '篇目标题占位符 01',
     );
+    await page.locator('[data-host-view="home"]:visible').first().tap();
+    await page.locator('#demo-search-form button').tap();
+    await expect(page.locator('.demo-result-card')).toHaveCount(1);
+    await expectBottomComposer(page);
+    await page
+      .getByRole('button', { name: '查看《孤星》篇章目录', exact: true })
+      .tap();
+    await expect(frame.locator('.chapters h1')).toHaveText('孤星');
     await cdp.detach();
   } finally {
     await context.close();
