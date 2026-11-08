@@ -7,25 +7,31 @@ export async function nativeSwipe(
   to: { x: number; y: number },
 ) {
   const session = await page.context().newCDPSession(page);
-  await session.send('Input.dispatchTouchEvent', {
-    type: 'touchStart',
-    touchPoints: [from],
-  });
-  for (let i = 1; i <= 10; i++) {
+  try {
     await session.send('Input.dispatchTouchEvent', {
-      type: 'touchMove',
-      touchPoints: [
-        {
-          x: from.x + ((to.x - from.x) * i) / 10,
-          y: from.y + ((to.y - from.y) * i) / 10,
-        },
-      ],
+      type: 'touchStart',
+      touchPoints: [from],
     });
-    await page.waitForTimeout(20);
+    for (let i = 1; i <= 10; i++) {
+      // Decelerate before lifting: a constant-speed release can leave a native
+      // fling active, consuming the next tap as a scroll stop instead of click.
+      const travel = 1 - (1 - i / 10) ** 3;
+      await session.send('Input.dispatchTouchEvent', {
+        type: 'touchMove',
+        touchPoints: [
+          {
+            x: from.x + (to.x - from.x) * travel,
+            y: from.y + (to.y - from.y) * travel,
+          },
+        ],
+      });
+      await page.waitForTimeout(20);
+    }
+    await session.send('Input.dispatchTouchEvent', {
+      type: 'touchEnd',
+      touchPoints: [],
+    });
+  } finally {
+    await session.detach();
   }
-  await session.send('Input.dispatchTouchEvent', {
-    type: 'touchEnd',
-    touchPoints: [],
-  });
-  await session.detach();
 }

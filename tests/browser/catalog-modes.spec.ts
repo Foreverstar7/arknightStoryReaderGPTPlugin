@@ -355,7 +355,12 @@ test('mobile vertical scrolling preserves manual chrome state, deliberate horizo
       page.getByRole('heading', { name: '一封未寄出的信', exact: true }),
     ).toBeVisible();
     await page.waitForTimeout(250);
+    const reader = page.locator('.reader-scroll');
     await nativeSwipe(page, { x: 260, y: 650 }, { x: 260, y: 320 });
+    await expect
+      .poll(() => reader.evaluate((node) => node.scrollTop))
+      .toBeGreaterThan(0);
+    const down = await reader.evaluate((node) => node.scrollTop);
     await expect(
       page.getByRole('button', { name: '收起顶部工具栏', exact: true }),
     ).toBeVisible();
@@ -363,10 +368,12 @@ test('mobile vertical scrolling preserves manual chrome state, deliberate horizo
       page.getByRole('heading', { name: '一封未寄出的信', exact: true }),
     ).toBeAttached();
     await nativeSwipe(page, { x: 260, y: 360 }, { x: 260, y: 470 });
+    await expect
+      .poll(() => reader.evaluate((node) => node.scrollTop))
+      .toBeLessThan(down);
     await expect(
       page.getByRole('button', { name: '收起顶部工具栏', exact: true }),
     ).toBeVisible();
-    await page.waitForTimeout(500);
     await page
       .getByRole('button', { name: '收起顶部工具栏', exact: true })
       .tap();

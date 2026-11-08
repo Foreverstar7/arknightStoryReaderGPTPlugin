@@ -80,8 +80,12 @@ test('web native mobile gestures reclaim the site header, preview and switch cha
     ).toBeVisible();
     await page.waitForTimeout(250);
     await nativeSwipe(page, { x: 260, y: 650 }, { x: 260, y: 320 });
+    await expect
+      .poll(() =>
+        page.locator('.reader-scroll').evaluate((node) => node.scrollTop),
+      )
+      .toBeGreaterThan(0);
     await expect(page.locator('.web-bar')).toBeVisible();
-    await page.waitForTimeout(500);
     await page
       .getByRole('button', { name: '收起顶部工具栏', exact: true })
       .tap();
