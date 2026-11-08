@@ -1,0 +1,39 @@
+.web-layout {
+  height: 100dvh;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+.web-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: calc(5px + env(safe-area-inset-top))
+    max(12px, env(safe-area-inset-right)) 5px
+    max(12px, env(safe-area-inset-left));
+  font-size: 12px;
+  color: var(--muted);
+  border-bottom: 1px solid var(--line);
+}
+.web-bar a {
+  color: var(--blue);
+  text-decoration: none;
+}
+.web-bar a:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+}
+.web-reader {
+  min-height: 0;
+}
+.web-reader > .app-shell {
+  height: 100%;
+}
+.web-reader .body-copy {
+  padding-bottom: max(24px, env(safe-area-inset-bottom));
+}
+@media (prefers-reduced-motion: reduce) {
+  .web-layout {
+    scroll-behavior: auto;
+  }
+}

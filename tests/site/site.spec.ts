@@ -437,7 +437,7 @@ test('real reader loads only on demand, supports reading/settings/resume/reset a
     frame.locator('.story-card').filter({ hasText: '孤星' }),
   ).toContainText('40%');
   await expect(
-    frame.locator('.story-card').filter({ hasText: '剧情标题占位符 03' }),
+    frame.locator('.story-card').filter({ hasText: '巴别塔' }),
   ).toContainText('32%');
   await frame
     .getByRole('button', { name: '最近阅读：篇目标题占位符 03' })

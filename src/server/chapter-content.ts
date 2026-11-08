@@ -26,7 +26,7 @@ export class ChapterContent {
   ) {}
 
   async acquire(id: string, retentionDays: number, request: ChapterRequest) {
-    const known = this.counts.all().get(id);
+    const known = (await this.counts.all()).get(id);
     const cached = await this.cache.get(id, retentionDays);
     const upgraded =
       cached &&
@@ -64,7 +64,7 @@ export class ChapterContent {
     // Preparation has no history transaction. Keep its post-fetch epoch fence
     // before public statistics, and retain the cache's own fence at commit.
     if (request.kind === 'prepare') this.coordinator.assertCurrent('text');
-    const count = this.counts.put(
+    const count = await this.counts.put(
       {
         chapterId: id,
         storyId: chapter.storyId,

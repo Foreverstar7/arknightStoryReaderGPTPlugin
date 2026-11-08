@@ -234,9 +234,11 @@ test('all six local covers, inline scenes and named/branch portraits load only w
   const snapshot = await demo.call('reader_snapshot', {});
   assert.equal(snapshot.stories.length, 6);
   assert.deepEqual(loaded, []);
+  assert.deepEqual(
+    snapshot.stories.map((story) => story.title),
+    ['孤星', '长夜临光', '巴别塔', '愚人号', '叙拉古人', '火山旅梦'],
+  );
   for (const story of snapshot.stories) {
-    if (story.id === 'fixture-mist') assert.equal(story.title, '孤星');
-    else assert.match(story.title, /占位符/u);
     const cover = await demo.call('reader_image', {
       kind: 'cover',
       storyId: story.id,

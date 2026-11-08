@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "web",
+    "src/ui",
+    "src/domain",
+    "src/shared",
+    "src/data",
+    "src/server/service.ts",
+    "src/server/chapter-content.ts"
+  ]
+}

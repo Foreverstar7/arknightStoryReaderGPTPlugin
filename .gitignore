@@ -33,3 +33,6 @@ test-results/
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+# Generated from the shared original icon by the web build.
+/web/public/icon.svg

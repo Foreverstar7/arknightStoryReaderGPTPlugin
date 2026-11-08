@@ -11,11 +11,11 @@ node scripts/build-site.mjs
 node scripts/serve-site.mjs
 ```
 
-打开 http://127.0.0.1:4330/arknightStoryReaderGPTPlugin/ 。修改源码后重新构建并刷新；网页不需要 fixture 开发服务、MCP、PRTS 或模型 API key。服务只绑定 127.0.0.1，Ctrl+C 停止自己的预览。
+打开 http://127.0.0.1:4330/arknightStoryReaderGPTPlugin/ 。修改源码后重新构建并刷新；介绍页与占位演示不需要 fixture 开发服务、MCP、PRTS 或模型 API key；`reader/` 真实阅读入口需要浏览器能够访问 PRTS。服务只绑定 127.0.0.1，Ctrl+C 停止自己的预览。
 
 - **观看流程**：同一个 ChatGPT 示意窗口先演示侧栏浏览：总目录 → 横向篇目轴 → 正文；再以“也可以在对话中，直接找想读的故事”过渡，演示输入“帮我找一下《孤星》”、结果卡片和进入篇章目录查看简介。保留原浏览路径的移动速度和五个停留，追加搜索输入、卡片、目录三个停留；18 单位时间映射为 570svh 动作和 262svh 停留，总区 932svh。停留只消耗原生滚动距离，上滑可倒放，不计时或锁输入。
 - **亲自试试**：首次展开才加载真实 ReaderApp。侧栏入口保留自由浏览；首页提供预填“帮我找一下《孤星》”的输入和原生提交按钮，只支持明确标示的预设。输入区始终保留在示意窗口的对话区域底部，消息、状态和结果卡片在上方独立滚动；结果与错误出现后滚动到最新内容，输入区不随消息滚走，也不覆盖卡片。提交通过同源 iframe 消息调用同一份目录匹配逻辑，返回不带简介的卡片；点击后保存原有样例位置，再进入《孤星》篇章目录，展示占位简介。侧栏与首页切换不重载阅读器；显式搜索跳转才切换目标。重置同时清理演示搜索结果。
-- **数据范围**：《孤星》名称用于演示真实名称定位，其余目录标题、篇目、简介、正文与人物仍使用占位文案，常驻“占位演示／非原作剧情”说明，不表示这些内容对应《孤星》原作。图片为本地 AI 生成示意；独立 sessionStorage v2 不读取安装后的插件数据，刷新进入主页，最近阅读保留续读。网站不调用真实 MCP、PRTS 或模型服务。
+- **数据范围**：六部目录分别显示《孤星》《长夜临光》《巴别塔》《愚人号》《叙拉古人》《火山旅梦》；篇目、简介、正文与人物仍使用占位文案，常驻“占位演示／非原作剧情”说明，不表示这些内容对应《孤星》原作。图片为本地 AI 生成示意；独立 sessionStorage v2 不读取安装后的插件数据，刷新进入主页，最近阅读保留续读。介绍页和占位演示不调用真实 MCP、PRTS 或模型服务。
 - **减少动态效果／矮窗口**：显示静态正文及包含侧栏、对话入口的六步说明；可交互搜索仍可使用，保留自然滚动，不缩放页面。
 
 ## 源码边界
@@ -24,7 +24,7 @@ node scripts/serve-site.mjs
 - website/walkthrough.ts、walkthrough.css：独立 GSAP／ScrollTrigger 分镜，不控制交互阅读器状态；walkthrough-timing.ts 是两段流程、原生滚动距离与停留的唯一参数来源。同一位置的倒放／缩放得到同一帧。
 - website/app.ts：按需加载、侧栏／首页切换、预设搜索和卡片交互；验证同源 iframe、消息来源及工具结果结构，不插入不可信 HTML。
 - website/demo/：复用 src/ui/ReaderApp、阅读器 CSS 与字数规则。data.ts 提供独立占位目录／正文，assets.ts 仅按请求读取打包图片；BrowserDemoTransport 适配浏览器会话数据，沿用工具输入／输出验证，不连接本机 API 或 PRTS。共享契约的可选 imagesAvailable 允许 fixture 正常走图片接口，sourceLabel 让本地素材正确标注来源；普通 fixture 和正式 PRTS 默认行为保留。
-- scripts/build-site.mjs：检查公开源目录／相对资源后，用已有 Vite／React 工具链构建两个静态入口至 build/site/；输出保持 Pages 项目子路径可用。不处理 npm 归档或私人阅读记录。
+- scripts/build-site.mjs：检查公开源目录／相对资源后，用已有 Vite／React 工具链构建介绍与演示入口至 build/site/，再调用独立的 build-web.mjs 构建真实阅读入口；输出保持 Pages 项目子路径可用。不处理 npm 归档或私人阅读记录。
 
 会话存储损坏或不可用时明确显示错误与重置入口，不静默改用另一份状态。缓存清理保留阅读记录；打包内不可变样例不是可删除的网络缓存。预置锚点仍为 fixture-mist 前两篇完整／第三篇 45%，fixture-lights 首篇 65%；当前占位字数计算出的剧情进度为 40%／32%，修改内容后检查锚点和测试，不写死显示百分比。
 
@@ -55,3 +55,25 @@ Playwright 会自行启停 4330 预览。运行前应先关闭自己在该端口
 .github/workflows/pages.yml 在网站及其复用的 UI、fixture、字数规则和工具契约变更时执行类型、样例数据、构建和浏览器检查，通过后部署 GitHub Pages。GSAP 通过项目锁文件安装，运行时没有 CDN 或第三方字体请求。
 
 网页改版和 npm 发布保持独立。推送 main 的相关变更会触发网站专项检查与 Pages 部署；以对应提交的工作流结果确认线上版本。纯网站更新不需要 npm 发版，插件发行按 [发布指南](releasing.md)操作。安装段与 README 统一按“添加来源 → 刷新来源 → 安装插件”展示三条命令。已安装插件不会因仓库发布而后台自动升级，用户需要主动刷新来源并安装。
+
+## 真实网页阅读入口
+
+在上述静态预览地址后加 `reader/`，例如 `http://127.0.0.1:4330/arknightStoryReaderGPTPlugin/reader/`。也可从介绍页“打开网页版”进入。此入口独立构建，仍由同一静态站点托管，不与占位演示共用记录。
+
+```sh
+npm run build:web
+npm run preview:web
+npm run test:e2e:web
+```
+
+- `web/transport.ts` 接入原 ReaderService、PrtsSource 和 ReaderApp；`scripts/build-web.mjs` 只为这个构建替换四个存储模块、SHA-256 和设置面板。未适配的 Node 内置模块会使构建失败，不能以空模块冒充实现。
+- `web/prts-api.ts` 通过带 `origin=*` 的 MediaWiki revisions/imageinfo 接口读取公开内容。请求不携带凭据，不使用代理；只接受现有 PRTS、media、torappu 来源。网络、缺页、数据格式与资源缺失沿用原有错误区分。
+- `web/database.ts` 使用 IndexedDB 事务持久保存 reading 和 counts 两种小量数据，解析后再进入领域模型。阅读记录包含锚点和哈希摘要，不包含正文或图片。清记录仍保留偏好与字数统计，并防止旧窗口保存恢复已删除记录。
+- `web/storage.ts` 对正文、映射和图片只作当前页面的内存复用；不注册 Service Worker，也不建立持久图片／正文缓存。设置面板明确说明联网阅读和浏览器本地记录，隐藏不适用的缓存保留期和清理按钮。
+- 网页开源组件许可统一保存在 `website/THIRD_PARTY_NOTICES.txt`，完整站点与单独网页构建均复制该文件；变更浏览器依赖时同步核对版本、版权和许可。
+- 网页复用原始剧情解析与立绘逻辑。Buffer 使用维护中的浏览器兼容包；SHA-256 适配通过同一 UTF-8 输入与 Node 原实现对照，保持既有段落、修订和迁移标识。
+- `web/public/manifest.webmanifest` 提供同子路径的独立窗口启动信息；图标由构建从现有原创标识复制生成。主屏幕安装体验需手机实测，不把 manifest 构建成功写成真机验证。
+- `?story=<编码后的剧情ID>` 可以直接进入指定篇章目录。应用内部保留主页、篇章目录和相邻篇导航；项目介绍链接返回站点根路径。
+- 仅网页变化不升 npm/插件版本；网页设置中的日期和提交标识表示本次构建。部署不会清除浏览器记录；未来记录格式变化需要独立的数据迁移。
+
+使用 `PLAYWRIGHT_CHANNEL=msedge` 可复用本机 Edge 运行网页检查；CI 使用项目锁定的 Chromium。自动检查使用原创网络样本和真实 IndexedDB，不启动 MCP 或业务后端。真实 PRTS 验证另行记录，不以 mock 代替。

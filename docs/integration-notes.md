@@ -9,7 +9,7 @@ React 阅读器
   → PRTS 数据适配 + 阅读记录 / 内容缓存 / 公共字数
 ```
 
-页面不直接访问 PRTS，也不调用模型。MCP UI 打包为单一 HTML；业务数据由本机 Node 服务管理，widget state 不承担持久阅读记录。
+桌面插件页面不直接访问 PRTS，也不调用模型。MCP UI 打包为单一 HTML；业务数据由本机 Node 服务管理，widget state 不承担持久阅读记录。
 
 - `src/ui/`：页面、导航、位置观察、保存队列、图片状态与动画。
 - `src/domain/`：字数、进度与正文修订迁移，独立于 DOM。
@@ -80,3 +80,9 @@ SQLite 事务处理多个宿主进程；清理代次阻止旧请求回填缓存�
 - [MCP Apps UI](https://developers.openai.com/plugins/build/chatgpt-ui)、[插件参考](https://developers.openai.com/plugins/reference)、[插件打包](https://developers.openai.com/plugins/build/plugins)。
 - [PRTS 规则与维护来源](maintenance.md)。
 - [发布与稳定目录](releasing.md)。
+
+## 浏览器独立构建
+
+`web/` 以构建适配复用上面的 React、ReaderService、PrtsSource、解析和进度代码。静态产物在 `build/site/reader/`；浏览器直接使用公开 PRTS API，存储改为网页独立 IndexedDB 和会话内存。原插件的构造入口、原始页请求、SQLite、缓存与 MCP 不改变。字数读取／写入调用支持 await，使同步本机存储与异步浏览器事务使用相同服务。
+
+网页所需兼容库仅为开发／构建依赖，不进入插件生产依赖。独立构建的模块替换表及 Node 模块拒绝检查在 `scripts/build-web.mjs`，不会用于插件或原演示。边界与命令见 [网站说明](website.md#真实网页阅读入口)。

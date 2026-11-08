@@ -41,7 +41,8 @@ async function inspect(directory, prefix = '') {
 await inspect(source);
 const html = await readFile(path.join(source, 'index.html'), 'utf8');
 for (const match of html.matchAll(/(?:src|href)="\.\/([^"?#]+)"/gu)) {
-  await readFile(path.join(source, match[1]));
+  // The independent reader build below owns this generated navigation target.
+  if (match[1] !== 'reader/') await readFile(path.join(source, match[1]));
 }
 await build({
   configFile: false,
@@ -66,3 +67,6 @@ await copyFile(
 );
 await writeFile(path.join(destination, '.nojekyll'), '');
 console.info(`Static project website prepared: ${destination}`);
+
+await import('./build-web.mjs');
+await readFile(path.join(destination, 'reader/index.html'));

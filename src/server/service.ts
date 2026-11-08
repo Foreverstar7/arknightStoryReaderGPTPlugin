@@ -107,7 +107,7 @@ export class ReaderService {
       refreshCatalog,
     );
     const state = await this.records.read();
-    const counts = this.counts.all();
+    const counts = await this.counts.all();
     return {
       stories: catalog.map((story) => ({
         ...story,

@@ -100,12 +100,12 @@ function blocks(): Block[] {
 }
 
 const groups = [
-  { id: 'fixture-mist', count: 6, category: '支线' },
-  { id: 'fixture-road', count: 2, category: '主线' },
-  { id: 'fixture-lights', count: 2, category: '支线' },
-  { id: 'fixture-voyage', count: 3, category: '支线' },
-  { id: 'fixture-rain', count: 3, category: '支线' },
-  { id: 'fixture-dream', count: 2, category: '支线' },
+  { id: 'fixture-mist', title: '孤星', count: 6, category: '支线' },
+  { id: 'fixture-road', title: '长夜临光', count: 2, category: '主线' },
+  { id: 'fixture-lights', title: '巴别塔', count: 2, category: '支线' },
+  { id: 'fixture-voyage', title: '愚人号', count: 3, category: '支线' },
+  { id: 'fixture-rain', title: '叙拉古人', count: 3, category: '支线' },
+  { id: 'fixture-dream', title: '火山旅梦', count: 2, category: '支线' },
 ];
 const chapters: Chapter[] = groups.flatMap((group) =>
   Array.from({ length: group.count }, (_, index) => ({
@@ -118,12 +118,9 @@ const chapters: Chapter[] = groups.flatMap((group) =>
     blocks: blocks(),
   })),
 );
-const stories: Story[] = groups.map((group, index) => ({
+const stories: Story[] = groups.map((group) => ({
   id: group.id,
-  title:
-    index === 0
-      ? '孤星'
-      : `剧情标题占位符 ${String(index + 1).padStart(2, '0')}`,
+  title: group.title,
   category: group.category,
   type: group.category,
   coverLabel: '封面占位符',

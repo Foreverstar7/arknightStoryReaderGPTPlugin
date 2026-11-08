@@ -4,16 +4,25 @@ on:
     branches: [main]
     paths:
       - 'website/**'
+      - 'web/**'
       - 'src/ui/**'
-      - 'src/data/fixture.ts'
-      - 'src/data/source.ts'
-      - 'src/domain/reading.ts'
+      - 'src/data/**'
+      - 'src/domain/**'
+      - 'src/server/service.ts'
+      - 'src/server/chapter-content.ts'
+      - 'src/storage/files.ts'
+      - 'src/storage/prts-catalog.ts'
       - 'src/shared/**'
       - 'scripts/build-site.mjs'
+      - 'scripts/build-web.mjs'
       - 'scripts/serve-site.mjs'
       - 'tests/site/**'
+      - 'tests/web/**'
+      - 'tests/browser-hash.test.ts'
       - 'playwright.site.config.ts'
       - 'tsconfig.website.json'
+      - 'tsconfig.web.json'
+      - 'playwright.web.config.ts'
       - 'tsconfig.json'
       - 'tests/website-demo.test.ts'
       - '.github/workflows/pages.yml'
@@ -42,10 +51,12 @@ jobs:
       - run: npm install --global npm@12.2.1
       - run: npm ci
       - run: npm exec -- tsc -p tsconfig.website.json --noEmit
+      - run: npm exec -- tsc -p tsconfig.web.json --noEmit
       - run: node --import tsx --test tests/website-demo.test.ts
       - run: node scripts/build-site.mjs
       - run: npx playwright install --with-deps chromium
       - run: npm exec -- playwright test --config playwright.site.config.ts
+      - run: npm run test:e2e:web
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5
         with:
@@ -54,7 +65,9 @@ jobs:
         if: always()
         with:
           name: site-evidence
-          path: test-results/site/
+          path: |
+            test-results/site/
+            test-results/web/
           if-no-files-found: ignore
           retention-days: 14
   deploy:

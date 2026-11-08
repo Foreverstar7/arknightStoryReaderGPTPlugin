@@ -150,3 +150,14 @@ codex plugin add arknights-story-reader@arknights-reader-dev --json
 - [发布步骤](docs/releasing.md)
 
 参与开发先读 [AGENTS.md](AGENTS.md) 与[当前状态](.ai/STATUS.md)。
+
+## 独立网页版本地预览
+
+源码中新增纯前端阅读入口，与桌面插件共用界面、剧情解析和进度规则。介绍页提供“打开网页版”，正式阅读页在同站点 `reader/` 子路径；当前分支仅作本地验收，未部署线上。
+
+```sh
+node scripts/build-site.mjs
+node scripts/serve-site.mjs
+```
+
+打开 `http://127.0.0.1:4330/arknightStoryReaderGPTPlugin/reader/`。仅构建／静态预览需要 Node；网页运行时直接匿名访问 PRTS，不使用本机业务服务或 MCP。阅读记录、必要字数信息和设置仅存于当前浏览器，正文与图片按需联网读取，不建立持久内容缓存，也不与插件记录同步。详细边界及检查命令见 [网站说明](docs/website.md#真实网页阅读入口)。

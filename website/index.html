@@ -6,7 +6,7 @@
     <meta name="color-scheme" content="light dark" />
     <meta
       name="description"
-      content="在桌面客户端中浏览 PRTS 剧情、阅读正文，并从上次停下的地方继续。观看使用流程，或亲自试试原创阅读样例。"
+      content="在网页或桌面插件中阅读 PRTS 剧情，保存本机阅读位置；也可体验占位阅读演示。"
     />
     <title>明日方舟剧情阅读器</title>
     <link rel="icon" href="./assets/reader-mark.svg" type="image/svg+xml" />
@@ -74,7 +74,7 @@
     <main id="main">
       <section class="hero wrap" id="hero" aria-labelledby="hero-title">
         <div class="hero-copy">
-          <p class="product-kind">为 ChatGPT 桌面端设计的非官方阅读插件</p>
+          <p class="product-kind">非官方剧情阅读器 · 网页版与桌面插件</p>
           <div class="hero-brand">
             <svg
               class="reader-mark"
@@ -89,10 +89,11 @@
             </h1>
           </div>
           <p class="hero-purpose">
-            通过插件浏览 PRTS 剧情、阅读正文，并保留本机阅读位置。
+            在浏览器或桌面插件中阅读 PRTS 剧情，并保留各自的本机阅读位置。
           </p>
           <div class="buttons" aria-label="主要入口">
-            <a class="button primary" href="#reader">体验阅读器</a>
+            <a class="button primary" href="./reader/">打开网页版</a>
+            <a class="button" href="#reader">体验演示</a>
             <a class="button" href="#install">安装指南</a>
             <a
               class="button github"
@@ -648,8 +649,8 @@
             <div class="install-intro">
               <h2 id="install-title">安装指南</h2>
               <p>
-                安装到支持 MCP Apps 的桌面客户端后，即可按需浏览和阅读 PRTS
-                剧情。
+                以下步骤用于桌面插件；网页版可直接打开，无需安装运行环境。安装到支持
+                MCP Apps 的桌面客户端后，即可按需浏览和阅读 PRTS 剧情。
               </p>
               <div class="buttons">
                 <a
@@ -710,7 +711,9 @@ codex plugin add arknights-story-reader@arknights-reader --json</code></pre>
               <details>
                 <summary>这个网页能阅读完整的游戏剧情吗？</summary>
                 <p>
-                  网页交互示例使用占位文案和示意图片。实际游戏剧情在安装后的阅读器中按需获取。
+                  本页交互示例仍使用占位文案和示意图片。<a href="./reader/"
+                    >进入真实阅读页</a
+                  >后，浏览器会按需从 PRTS 获取剧情；桌面插件也可独立使用。
                 </p>
               </details>
               <details>
@@ -723,7 +726,7 @@ codex plugin add arknights-story-reader@arknights-reader --json</code></pre>
               <details>
                 <summary>阅读记录存在哪里？</summary>
                 <p>
-                  正式阅读器的记录保存在本机，与内容缓存分开。网页样例使用浏览器会话存储，不读取或同步插件记录。
+                  桌面插件记录保存在本机文件中；真实网页版保存在当前浏览器，清理站点数据会删除记录。网页样例只保存本标签页的演示记录，三者互不读取或同步。
                 </p>
               </details>
               <details>
