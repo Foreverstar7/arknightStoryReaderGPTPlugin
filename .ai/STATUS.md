@@ -19,7 +19,7 @@
 - 手机 API 问题已复现：iPhone Safari 标识的真实请求在标准域名收到指向 `m.prts.wiki` 的无 CORS 302，出现与 iOS 27 用户相同的目录错误。网页改为直连源站移动 API 后，同一 WebKit／iPhone 标识通过真实 PRTS 目录、正文、立绘、CG 和刷新续读；桌面源码没有新增改动。自动回归模拟浏览器拒绝请求，实际 302／CORS 与真实数据验证分别留存本机证据，不能把模拟视为真机通过。
 - 集成后 Edge 真实 PRTS 目录、孤星阅读、进度保存／刷新恢复再次通过；独立切片的 CW-6 立绘和 CG 显示已验证，未访问本机业务 API 或 MCP。原始证据保存在被忽略的本机目录。Android／iPhone 真机、主屏幕启动和线上源站访问尚待验证。
 
-手机 API 修复 `28d09e9` 已推送 main，[Pages 42474015572](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42474015572) 构建与部署成功；[Check 42474015593](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42474015593) 全部作业成功或按已发布版本跳过。正式 [网页阅读器](https://foreverstar7.github.io/arknightStoryReaderGPTPlugin/reader/) 已在 iPhone 标识的 WebKit 上实测目录、孤星正文、立绘、CG、阅读位置保存与刷新恢复：API 直接返回移动域名响应，无跳转失败或浏览器异常。本次网页更新没有另发 npm／插件版本。用户已确认 iOS 27 总目录恢复可见；追加的纵向篇章目录布局和主屏幕启动仍需真机确认。
+网页布局更新 `4200727` 已推送 main，[Pages 42476966362](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42476966362) 与 [Check 42476966347](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42476966347) 均成功。正式 [网页阅读器](https://foreverstar7.github.io/arknightStoryReaderGPTPlugin/reader/) 已复查：iPhone 标识的 WebKit 中目录纵向排列、浏览线隐藏、整卡打开及正文／图片／续读正常；桌面真实长目录仍为横轴，浏览线能定位末篇，整页无横向溢出。用户已确认 iOS 27 总目录恢复可见；新版篇章列表的真机滑动和主屏幕启动仍待确认。本轮没有另发 npm／插件版本。
 
 ## 桌面端：1.1.4 已公开
 
