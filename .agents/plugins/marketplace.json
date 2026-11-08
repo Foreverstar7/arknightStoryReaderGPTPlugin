@@ -1,16 +1,21 @@
 {
   "name": "arknights-reader",
-  "interface": { "displayName": "方舟阅读器" },
+  "interface": {
+    "displayName": "方舟阅读器"
+  },
   "plugins": [
     {
       "name": "arknights-story-reader",
       "source": {
         "source": "npm",
         "package": "arknights-story-reader",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "registry": "https://registry.npmjs.org"
       },
-      "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
       "category": "Productivity"
     }
   ]
