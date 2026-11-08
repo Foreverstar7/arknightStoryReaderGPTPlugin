@@ -74,7 +74,7 @@ export async function installSource(page: Page) {
   await page
     .context()
     .route(
-      /https:\/\/(?:prts\.wiki|media\.prts\.wiki|torappu\.prts\.wiki)\//u,
+      /https:\/\/(?:(?:m\.)?prts\.wiki|media\.prts\.wiki|torappu\.prts\.wiki)\//u,
       async (route) => {
         const url = new URL(route.request().url());
         data.calls.push(url.href);

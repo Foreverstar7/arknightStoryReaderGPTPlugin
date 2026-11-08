@@ -3,8 +3,13 @@ import { ReaderError } from '../src/shared/errors.js';
 import { PRTS_ORIGIN, prtsPageUrl } from '../src/data/prts-client.js';
 import { limitedBytes } from '../src/data/prts-resource-source.js';
 
+// PRTS redirects mobile callers of the canonical API to this advertised origin
+// without CORS headers. Direct requests here return the same public API for
+// desktop and mobile callers; recheck both if the source changes its routing.
+const browserApi = new URL('/api.php', 'https://m.prts.wiki');
 const allowedHosts = new Set([
   'prts.wiki',
+  browserApi.hostname,
   'media.prts.wiki',
   'torappu.prts.wiki',
 ]);
@@ -21,8 +26,13 @@ export const browserPrtsFetch: typeof fetch = (input, init) => {
     return Promise.reject(
       new ReaderError('unsupported', '该资源不属于已支持的 PRTS 来源。'),
     );
-  if (url.origin === PRTS_ORIGIN && url.pathname === '/api.php')
+  if (
+    (url.origin === PRTS_ORIGIN || url.origin === browserApi.origin) &&
+    url.pathname === browserApi.pathname
+  ) {
+    url.host = browserApi.host;
     url.searchParams.set('origin', '*');
+  }
   return fetch(url, { ...init, credentials: 'omit', mode: 'cors' });
 };
 const apiErrorSchema = z.object({

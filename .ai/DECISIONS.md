@@ -102,6 +102,6 @@ imagesAvailable 与 sourceLabel 让有素材的样例沿用现有图片控件并
 
 网页仅长期保存 reading 与 counts，沿用原记录 schema、修订摘要和清除代次；正文／映射／图片只在当前页面复用，不注册 Service Worker。封面按可见范围请求，当前页面复用已加载图片以衔接转场，保留浏览器正常 HTTP 缓存；不预取或持久缓存全库封面。后续仅在实际重复流量或加载延迟证明需要时另评估有界缓存。网页内存没有 Node AsyncLocalStorage，释放内容时保守拒绝仍含旧代次的并发请求，避免旧内容回填；这不影响桌面事务实现。
 
-MediaWiki revisions 公开跨域入口用于替代浏览器无法读取的 action=raw；imageinfo 也补 origin=*，其他资源使用既有明确来源。域名白名单来自现有 PRTS／StoryPlayer 的三类来源，不接受任意 URL。原始 Wiki 沿用 2 MB 单页上限；API JSON 允许 4 MB 以容纳协议包裹和转义开销，超限仍显式报错。来源域名、API 结构或页面体积改变时核对实际响应并维护，不能猜替代地址或静默绕过限制。
+MediaWiki revisions 公开跨域入口用于替代浏览器无法读取的 action=raw；imageinfo 也补 origin=*。浏览器 API 统一直连 `https://m.prts.wiki/api.php`：2026-11-08 实测标准域名对手机 UA 返回指向该域名的 302，跳转响应没有 CORS 头，浏览器在读取正文前即拒绝；移动域名对桌面／手机 UA 均直接返回相同公开 JSON 与 `Access-Control-Allow-Origin: *`。使用源站明确给出的目的域名，避免 UA 猜测或放宽浏览器跨域限制；仅网页适配重写 API 请求，桌面原始页入口不变。域名白名单限于 PRTS 标准／移动 API、media 与 torappu；其他资源使用既有来源，不接受任意 URL。来源路由变化时重新核对两类 UA 的状态、Location、CORS 与 revisions/imageinfo，不能猜新域名。原始 Wiki 沿用 2 MB 单页上限；API JSON 允许 4 MB 以容纳协议包裹和转义开销，超限仍显式报错。来源域名、API 结构或页面体积改变时核对实际响应并维护，不能猜替代地址或静默绕过限制。
 
 `/reader/` 是同站点真实阅读入口；介绍页及 `/demo/` 继续使用占位内容，六个剧情名称与既有原创封面对应。网页构建与插件版本独立，不修改现有版本或发行包；本地源码集成、Pages 部署与 npm 发行分别记录，固定标签和已验收归档不随源码合并替换。

@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { devices, expect, test } from '@playwright/test';
 import { parsePrtsChapter } from '../../src/data/prts-script.js';
 import { chapterWords } from '../../src/domain/reading.js';
 import {
@@ -17,6 +17,62 @@ async function openFirst(page: import('@playwright/test').Page) {
     page.getByRole('main', { name: '剧情正文', exact: true }),
   ).toBeVisible();
 }
+test('mobile reader bypasses the source mobile redirect for both Wiki and imageinfo', async ({
+  browser,
+}) => {
+  const context = await browser.newContext({
+    ...devices['iPhone 13'],
+    reducedMotion: 'reduce',
+  });
+  try {
+    const page = await context.newPage();
+    expect(await page.evaluate(() => navigator.userAgent)).toContain('Mobile');
+    const errors: string[] = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    const source = await installSource(page);
+    let redirects = 0;
+    // Model the browser rejecting the canonical mobile redirect. The live 302
+    // without CORS is checked separately; WebKit routing cannot fulfill redirects.
+    await context.route(
+      /https:\/\/prts\.wiki\/api\.php(?:\?|$)/u,
+      async (route) => {
+        redirects++;
+        await route.abort('blockedbyclient');
+      },
+    );
+    await page.goto('./');
+    await expect(
+      page.getByRole('button', { name: '打开剧情：' + title, exact: true }),
+    ).toBeVisible({ timeout: 5000 });
+    await openFirst(page);
+    await page
+      .getByRole('button', { name: '查看 记录员 的立绘', exact: true })
+      .first()
+      .tap();
+    await expect(
+      page
+        .getByRole('dialog', { name: '记录员 立绘', exact: true })
+        .locator('.source-image'),
+    ).toBeVisible();
+    await page.keyboard.press('Escape');
+    await page.getByRole('button', { name: '◇ 查看 CG', exact: true }).click();
+    await expect(page.locator('.cg-image .source-image')).toBeVisible();
+    const apiCalls = source.calls
+      .map((call) => new URL(call))
+      .filter((call) => call.pathname === '/api.php');
+    expect(
+      apiCalls.some((call) => call.searchParams.get('prop') === 'imageinfo'),
+    ).toBe(true);
+    expect(apiCalls.every((call) => call.hostname === 'm.prts.wiki')).toBe(
+      true,
+    );
+    expect(redirects).toBe(0);
+    expect(errors).toEqual([]);
+  } finally {
+    await context.close();
+  }
+});
+
 test('browser-only reader preserves weighted progress and anchors across close/reopen; no body or images are durable', async ({
   page,
   context,

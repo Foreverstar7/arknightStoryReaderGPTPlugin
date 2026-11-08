@@ -10,12 +10,13 @@
 
 ## 纯前端网页阅读器
 
-`/reader/` 通过公开跨域 API 直接读取 PRTS。浏览器仅持久保存阅读记录、修订／字数摘要与设置；目录、正文、映射及图片只在当前页面复用，不注册 Service Worker。封面按可见范围加载，保留浏览器正常 HTTP 缓存，不预下载或长期保存全库封面。介绍页保留演示和桌面安装，六个演示剧情名与原创封面对应，其余内容仍是占位符。
+`/reader/` 通过 PRTS 移动域名的公开跨域 API 直接读取内容，避免手机 UA 在标准域名触发无 CORS 的 302。浏览器仅持久保存阅读记录、修订／字数摘要与设置；目录、正文、映射及图片只在当前页面复用，不注册 Service Worker。封面按可见范围加载，保留浏览器正常 HTTP 缓存，不预下载或长期保存全库封面。介绍页保留演示和桌面安装，六个演示剧情名与原创封面对应，其余内容仍是占位符。
 
 独立网页构建复用 ReaderApp、ReaderService 与解析器，选择浏览器存储、设置与字节／哈希适配；桌面存储、原始 PRTS 请求和 MCP 入口沿用主分支实现。共享服务的三处字数调用等待同步或异步结果。网页集成保留主分支 1.1.4 的搜索深链与发行能力；现有固定标签、发行物和安装未替换。
 
-- 与 1.1.4 主分支整合后，`npm run check`（类型、173 项单元／协议测试、格式）、`npm run build`、网页／网站类型检查、`node scripts/build-site.mjs` 及 Pages actionlint 通过；`playwright.config.ts` 的 39 项桌面 fixture、`playwright.host.config.ts` 的 27 项 SDK iframe、`playwright.site.config.ts` 的 10 项介绍演示及 `playwright.web.config.ts` 在 Edge／WebKit 各 16 项均通过。
+- 与 1.1.4 主分支整合后，`npm run check`（类型、173 项单元／协议测试、格式）、`npm run build`、网页／网站类型检查、`node scripts/build-site.mjs` 及 Pages actionlint 通过；`playwright.config.ts` 的 39 项桌面 fixture、`playwright.host.config.ts` 的 27 项 SDK iframe、`playwright.site.config.ts` 的 10 项介绍演示及 `playwright.web.config.ts` 在 Edge／WebKit 各 16 项均通过。随后仅网页的移动 API 修复再次通过 check（173 项）、网页类型／静态构建和 Edge／WebKit 各 17 项，新增 Wiki 与 imageinfo 的手机请求阻断回归。
 - 已检查 320×760、768×900、1440×960、1024×400 双主题、触摸、键盘、正常／减少动画及连续缩放。网页沿用既有布局，窄屏目录收起，新增网页标识与返回介绍链接，移除持久内容缓存控制。
+- 手机 API 问题已复现：iPhone Safari 标识的真实请求在标准域名收到指向 `m.prts.wiki` 的无 CORS 302，出现与 iOS 27 用户相同的目录错误。网页改为直连源站移动 API 后，同一 WebKit／iPhone 标识通过真实 PRTS 目录、正文、立绘、CG 和刷新续读；桌面源码没有新增改动。自动回归模拟浏览器拒绝请求，实际 302／CORS 与真实数据验证分别留存本机证据，不能把模拟视为真机通过。
 - 集成后 Edge 真实 PRTS 目录、孤星阅读、进度保存／刷新恢复再次通过；独立切片的 CW-6 立绘和 CG 显示已验证，未访问本机业务 API 或 MCP。原始证据保存在被忽略的本机目录。Android／iPhone 真机、主屏幕启动和线上源站访问尚待验证。
 
 网页集成提交 `eadb4cc` 已推送 main，[Pages 42470970537](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42470970537) 构建与部署成功；[Check 42470970570](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42470970570) 已通过。正式 [网页阅读器](https://foreverstar7.github.io/arknightStoryReaderGPTPlugin/reader/) 已实测目录、孤星正文、阅读位置保存与刷新恢复，无浏览器异常或本机业务请求；本次网页更新没有另发 npm／插件版本。手机真机和主屏幕启动仍待验证。
