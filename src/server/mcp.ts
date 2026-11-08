@@ -192,6 +192,7 @@ export function createReaderMcp(
         chapterId: z.string().max(200).optional(),
         blockId: z.string().max(200).optional(),
         refresh: z.boolean().optional(),
+        portraitView: z.enum(['default', 'scene']).optional(),
         ...imagePartRequestSchema.shape,
       }),
       output: z.object(imageResultSchema.shape).omit({ layers: true }),

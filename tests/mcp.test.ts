@@ -4,6 +4,7 @@ import { test } from 'node:test';
 import { Client, InMemoryTransport } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 import { FixtureSource } from '../src/data/fixture.js';
+import { placeholderPortrait } from '../src/data/prts-portrait.js';
 import {
   createReaderMcp,
   RESOURCE_URI,
@@ -17,18 +18,38 @@ import { ReaderService } from '../src/server/service.js';
 import {
   readingStateSchema,
   snapshotSchema,
+  type ImageInput,
   type ToolName,
 } from '../src/shared/contracts.js';
 import { readerFailureSchema } from '../src/shared/errors.js';
 import path from 'node:path';
-import { mkdir, mkdtemp, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 
 test('SDK negotiation, app-only visibility, extension registration and persistence tools work over MCP', async () => {
   const base = path.resolve('.ai/local/test-data');
   await mkdir(base, { recursive: true });
   const root = await mkdtemp(path.join(base, 'mcp-'));
-  const service = new ReaderService(new FixtureSource(), root);
-  const server = createReaderMcp(service, process.cwd());
+  const uiRoot = path.join(root, 'dist/ui');
+  await mkdir(uiRoot, { recursive: true });
+  await writeFile(
+    path.join(uiRoot, 'index.html'),
+    '<!doctype html><html lang="zh-CN"><body>原创协议测试界面</body></html>',
+    'utf8',
+  );
+  const forwardedViews: (string | undefined)[] = [];
+  const source = new (class extends FixtureSource {
+    async image(input: ImageInput) {
+      if (input.kind === 'portrait') forwardedViews.push(input.portraitView);
+      return placeholderPortrait(
+        'original-protocol-fixture',
+        'original-test',
+        '原创测试占位图。',
+        ['https://example.invalid/original-fixture'],
+      );
+    }
+  })();
+  const service = new ReaderService(source, root);
+  const server = createReaderMcp(service, root);
   const client = new Client({ name: 'reader-test', version: '0.1.0' });
   const [clientWire, serverWire] = InMemoryTransport.createLinkedPair();
   try {
@@ -73,6 +94,24 @@ test('SDK negotiation, app-only visibility, extension registration and persisten
     assert.deepEqual(await service.records.read(), beforeSearch);
     const resource = await client.readResource({ uri: SEARCH_RESOURCE_URI });
     assert.ok(JSON.stringify(resource).includes('data-entry=\\"search\\"'));
+    const readerResource = await client.readResource({ uri: RESOURCE_URI });
+    assert.ok(JSON.stringify(readerResource).includes('原创协议测试界面'));
+    assert.ok(
+      !JSON.stringify(readerResource).includes('data-entry=\\"search\\"'),
+    );
+    for (const portraitView of ['default', 'scene']) {
+      const image = await client.callTool({
+        name: 'reader_image',
+        arguments: {
+          kind: 'portrait',
+          chapterId: 'fixture-mist/1',
+          blockId: 'report',
+          portraitView,
+        },
+      });
+      assert.equal(image.isError, undefined);
+    }
+    assert.deepEqual(forwardedViews, ['default', 'scene']);
     const result = await client.callTool({
       name: 'reader_snapshot',
       arguments: {},

@@ -20,7 +20,7 @@ import {
   modelSearchResultSchema,
   searchResultSchema,
 } from '../src/shared/search.js';
-import { RESOURCE_URI } from '../src/server/mcp.js';
+import { RESOURCE_URI, SEARCH_RESOURCE_URI } from '../src/server/mcp.js';
 import { checkVersions } from './release-version.js';
 import {
   prepareOfflineNpmPackage,
@@ -218,6 +218,17 @@ const result = await withVerificationCleanup(async () => {
       html.text.includes('<html') &&
       !html.text.includes('src="/src/'),
   );
+  const searchResource = await verificationStep(
+    'Read packaged search UI HTML',
+    () => client.readResource({ uri: SEARCH_RESOURCE_URI }),
+  );
+  const searchHtml = searchResource.contents.find((item) => 'text' in item);
+  assert.ok(
+    searchHtml &&
+      'text' in searchHtml &&
+      searchHtml.text.includes('<html data-entry="search"') &&
+      !searchHtml.text.includes('src="/src/'),
+  );
   // Complete the offline protocol/HTML matrix before any PRTS request. --prts
   // includes these same checks, so Windows needs only one fresh npm install.
   for (const mode of ['bin', 'npm-installed'] as const) {
@@ -231,6 +242,14 @@ const result = await withVerificationCleanup(async () => {
         assert.ok(
           resource.contents.some(
             (item) => 'text' in item && item.text === html.text,
+          ),
+        );
+        const searchResource = await client.readResource({
+          uri: SEARCH_RESOURCE_URI,
+        });
+        assert.ok(
+          searchResource.contents.some(
+            (item) => 'text' in item && item.text === searchHtml.text,
           ),
         );
       },
