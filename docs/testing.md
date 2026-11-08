@@ -13,6 +13,8 @@ check 覆盖类型、单元／协议测试和格式。UI 变化还需实际操�
 
 搜索变更增加 `node --import tsx scripts/probe-search.ts`：使用全新隔离缓存访问真实 PRTS，验证批量名称、R8-1 编号、塔露拉出场、活动／主线导语及断网重开，并禁止正文或图片请求。报告位于 `.ai/local/story-search/live-*/report.json`，不读取私人记录。浏览器搜索入口可用 `/?search=记录员&by=character` 在 fixture 预览；这是开发验证入口，正式搜索由 MCP 调用渲染卡片。`tests/browser/search.spec.ts` 覆盖显式目录目标优先于续读、错误重试和四种窗口双主题。
 
+涉及内嵌尺寸或宿主模式时运行 `npm run test:e2e:host`。此项自行将应用和测试宿主构建到 `.ai/local/search-card-check/run-*`，经真实 MCP 资源／工具与官方 SDK 协商 iframe 高度，不需要先执行 `npm run build`，不改仓库 dist／marketplace 或现有预览。默认端口 4349，可用 `READER_HOST_E2E_PORT` 隔离；Edge 仍可通过 `PLAYWRIGHT_CHANNEL=msedge` 选择。18 项覆盖延迟结果、错误重试、连续更新／分页、实际窗口高度的 fullscreen／返回、拒绝全屏、窄窗口与双主题，同时检查内容边界、尺寸稳定及页面异常。报告为 `.ai/local/search-card-check/host-report.json`。它是 SDK 协议／布局验证，真实桌面复测仍需单独记录，见 [修复交接](search-card-height-fix.md)。
+
 ## 页面与真实来源
 
 ```sh
@@ -57,7 +59,7 @@ npm run package:verify -- --prts
 
 已有 Edge 时，也可在浏览器测试前执行 `$env:PLAYWRIGHT_CHANNEL = 'msedge'`，无需另外下载 Chromium。记录实际使用的浏览器；最终 Windows CI 仍使用 Chromium。
 
-修复包验收脚本时，可先对现有 tgz 运行 `./scripts/npm.ps1 run package:verify '--' '.local/releases/arknights-story-reader-1.0.0.tgz'`，定位问题后再做完整预检。日志显示解压、依赖检查、MCP 初始化与清理阶段及耗时；失败时保留原始错误，即使清理也失败。目录持续被占用仍判失败，不忽略错误。成功报告只在临时目录清理完成后写入。
+修复包验收脚本时，可先对现有 tgz 运行 `./scripts/npm.ps1 run package:verify '--' '.local/releases/arknights-story-reader-X.Y.Z.tgz'`（X.Y.Z 替换为实际归档版本），定位问题后再做完整预检。日志显示解压、依赖检查、MCP 初始化与清理阶段及耗时；失败时保留原始错误，即使清理也失败。目录持续被占用仍判失败，不忽略错误。成功报告只在临时目录清理完成后写入。
 
 本地预检能提前发现构建、实际包和浏览器回归问题；main 的 Check 先通过 Ubuntu `verify`，再调用草稿准备工作流，对同一提交 SHA 的干净源码执行 Windows 验收，最后冻结包和标签。发布阶段只消费已验收附件，不重建包。需要调查桌面问题时另外做实际宿主体验检查，结论与自动检查区分，不另设人工发布门槛。
 

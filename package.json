@@ -39,6 +39,7 @@
     "typecheck": "tsc --noEmit && tsc -p tsconfig.server.json --noEmit",
     "test": "tsx --test tests/*.test.ts",
     "test:e2e": "playwright test",
+    "test:e2e:host": "playwright test -c playwright.host.config.ts",
     "test:e2e:prts": "playwright test -c playwright.prts.config.ts",
     "format": "prettier --write src tests scripts *.json *.ts *.html",
     "format:check": "prettier --check src tests scripts *.json *.ts *.html",

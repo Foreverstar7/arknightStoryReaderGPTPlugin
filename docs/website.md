@@ -1,6 +1,6 @@
 # 项目网站
 
-网站沿用紧凑首屏和滚动流程，下方“亲自试试”复用真实阅读器展示占位文案、六张线描封面／场景图片，以及卡通动物兔子。公开地址：[剧情阅读器](https://foreverstar7.github.io/arknightStoryReaderGPTPlugin/)。
+网站采用紧凑首屏和滚动流程，下方“亲自试试”复用真实阅读器展示占位文案、六张线描封面／场景图片，以及卡通动物兔子。公开地址：[剧情阅读器](https://foreverstar7.github.io/arknightStoryReaderGPTPlugin/)。
 
 ## 构建后查看完整页面
 
@@ -20,7 +20,7 @@ node scripts/serve-site.mjs
 
 ## 源码边界
 
-- website/index.html、styles.css：沿用已认可 HTML 的布局、安装命令、常见问题与项目标识；已去除草稿工具栏和标注研究区。
+- website/index.html、styles.css：页面布局、安装命令、常见问题与项目标识。
 - website/walkthrough.ts、walkthrough.css：独立 GSAP／ScrollTrigger 分镜，不控制交互阅读器状态；walkthrough-timing.ts 是两段流程、原生滚动距离与停留的唯一参数来源。同一位置的倒放／缩放得到同一帧。
 - website/app.ts：按需加载、侧栏／首页切换、预设搜索和卡片交互；验证同源 iframe、消息来源及工具结果结构，不插入不可信 HTML。
 - website/demo/：复用 src/ui/ReaderApp、阅读器 CSS 与字数规则。data.ts 提供独立占位目录／正文，assets.ts 仅按请求读取打包图片；BrowserDemoTransport 适配浏览器会话数据，沿用工具输入／输出验证，不连接本机 API 或 PRTS。共享契约的可选 imagesAvailable 允许 fixture 正常走图片接口，sourceLabel 让本地素材正确标注来源；普通 fixture 和正式 PRTS 默认行为保留。
@@ -42,7 +42,7 @@ Playwright 会自行启停 4330 预览。运行前应先关闭自己在该端口
 
 ## 素材与维护
 
-- assets/reader-mark.svg 为已认可的兔耳书页／菱形切光静态图标；1.0.1 将同一矢量图的明暗配色副本放入根 assets/，由插件清单的 logo／composerIcon 引用并打包。网站部署与插件更新分别生效，网站推送不会替换已安装插件的图标。
+- assets/reader-mark.svg 为兔耳书页／菱形切光静态图标；根 assets/ 中的明暗配色副本由插件清单的 logo／composerIcon 引用并打包。网站部署与插件更新分别生效，网站推送不会替换已安装插件的图标。
 - 六张 assets/cover-*.webp 是已有内置 image_gen 线描意象图的等比网页副本（1000×563），合计约 308 KB；《巴别塔》使用二版。动画和点击体验共用这些图；体验区封面保留全图并填充深色背景，正文按 CG 交互原位展开全图，明确标注占位演示，不冒充原作目录或剧情。
 - 六张原始 PNG、完整提示词、选择清单与弃用的巴别塔首版编辑输入已归档 docs/design/website-covers/ 并随 Git 同步；正式构建只依赖 website/ 中的文件，不读取 .ai/local 或全局工具。
 - assets/rabbit-portrait.webp 为 768×768、52,462 字节的透明卡通动物兔子：四足坐姿、蓝色小吊坠和银色戒环，不采用人形。原始透明 PNG、动物体态编辑输入、设定核对与完整内置 image_gen 提示词见 [兔兔素材](design/website-demo-assets/PROMPTS.md)。已知角色和分支角色复用此示意图，匿名仍显示中性占位。
@@ -52,10 +52,6 @@ Playwright 会自行启停 4330 预览。运行前应先关闭自己在该端口
 
 ## GitHub Actions 与发布
 
-.github/workflows/pages.yml 继续使用原 GitHub Pages 构建／部署入口，增加复用 UI、fixture、字数规则和工具契约的变更触发，以及网站类型／样例数据检查。GSAP 通过项目锁文件安装，运行时没有 CDN 或第三方字体请求。
+.github/workflows/pages.yml 在网站及其复用的 UI、fixture、字数规则和工具契约变更时执行类型、样例数据、构建和浏览器检查，通过后部署 GitHub Pages。GSAP 通过项目锁文件安装，运行时没有 CDN 或第三方字体请求。
 
-网页改版和 npm 发布保持独立。推送 main 的相关变更会触发网站专项检查与 Pages 部署；以对应提交的工作流结果确认线上版本。纯网站更新不需要 npm 发版，插件修正与后续搜索工具的版本安排见 [发布指南](releasing.md)。安装段与 README 统一按“添加来源 → 刷新来源 → 安装插件”展示三条命令。已安装插件不会因仓库发布而后台自动升级，用户需要主动刷新来源并安装。
-
-## 首次上线记录
-
-2026-11-07，网站主体提交 f6d4221 的 [Pages 构建／部署](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42254140503) 和 [Ubuntu Check](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42254140890) 通过。实际公开地址已验证 HTTP 200，线上桌面／320px 深色布局、三页预览切换、图片与说明展开正常，没有页面脚本错误或失败资源。README 复用相同原创建面图，并提供目录／篇目／正文的说明。
+网页改版和 npm 发布保持独立。推送 main 的相关变更会触发网站专项检查与 Pages 部署；以对应提交的工作流结果确认线上版本。纯网站更新不需要 npm 发版，插件发行按 [发布指南](releasing.md)操作。安装段与 README 统一按“添加来源 → 刷新来源 → 安装插件”展示三条命令。已安装插件不会因仓库发布而后台自动升级，用户需要主动刷新来源并安装。
