@@ -17,6 +17,12 @@ import {
 } from '../shared/search.js';
 import { readerFailureSchema } from '../shared/errors.js';
 import { SearchFlow } from './SearchFlow.js';
+import {
+  readerLinkRequest,
+  readerPluginTargetSchema,
+  readerSidebarUrl,
+  type ReaderNavigationRequest,
+} from '../shared/reader-links.js';
 
 function applyHostContext(context: McpUiHostContext | undefined) {
   const root = document.documentElement;
@@ -34,6 +40,19 @@ function HostedReader() {
   const [searchFailure, setSearchFailure] = useState('');
   const [retryInput, setRetryInput] = useState<SearchInput>();
   const readingFlush = useRef<() => Promise<void>>(async () => undefined);
+  const [navigationRequest, setNavigationRequest] =
+    useState<ReaderNavigationRequest>();
+  const linkSequence = useRef(0);
+  const acceptHostContext = useCallback(
+    (context: McpUiHostContext | undefined) => {
+      applyHostContext(context);
+      if (searchEntry) return;
+      const link = readerLinkRequest(context?.['openai/deepLink']);
+      if (link)
+        setNavigationRequest({ ...link, sequence: ++linkSequence.current });
+    },
+    [searchEntry],
+  );
   const onFlushReady = useCallback((flush: () => Promise<void>) => {
     readingFlush.current = flush;
   }, []);
@@ -61,7 +80,7 @@ function HostedReader() {
           );
         }
       };
-      instance.onhostcontextchanged = applyHostContext;
+      instance.onhostcontextchanged = acceptHostContext;
       instance.onteardown = async () => {
         await readingFlush.current();
         return {};
@@ -70,8 +89,8 @@ function HostedReader() {
   });
   const transport = useMemo(() => (app ? hostTransport(app) : null), [app]);
   useEffect(() => {
-    applyHostContext(app?.getHostContext());
-  }, [app]);
+    acceptHostContext(app?.getHostContext());
+  }, [app, acceptHostContext]);
   if (error)
     return (
       <main className="startup" role="alert">
@@ -91,6 +110,29 @@ function HostedReader() {
         initialResult={searchResult}
         initialError={searchFailure}
         retryInput={retryInput}
+        openSidebar={async (card) => {
+          const target = readerPluginTargetSchema.safeParse(
+            document.documentElement.dataset.pluginTarget,
+          );
+          if (
+            !app ||
+            !target.success ||
+            app.getHostContext()?.platform !== 'desktop' ||
+            !app.getHostCapabilities()?.openLinks
+          )
+            return false;
+          const response = await app.openLink({
+            url: readerSidebarUrl(target.data, {
+              storyId: card.id,
+              matchedChapterIds: card.matchedChapters.map(
+                (chapter) => chapter.id,
+              ),
+            }),
+          });
+          if (response.isError)
+            throw new Error('宿主未能打开侧栏阅读器，请重试。');
+          return true;
+        }}
         onFlushReady={onFlushReady}
         fullscreen={async () => {
           if (!app) return;
@@ -105,6 +147,7 @@ function HostedReader() {
     <ReaderApp
       transport={transport}
       environment="MCP Apps 宿主"
+      navigationRequest={navigationRequest}
       onFlushReady={onFlushReady}
     />
   );

@@ -10,15 +10,17 @@
    ./scripts/npm.ps1 run release:version '--' X.Y.Z
    ```
 
-   该命令同步 package、lock、plugin 和源码版本。纯网站、文档或工作流调整可以不升包版本。
+   该命令同步 package、lock、plugin 和源码版本。为新版本编写 `docs/releases/X.Y.Z-notes.md`，第一行使用 `# vX.Y.Z` 或 `# vX.Y.Z · 发行标题`，后面填写面向用户的 Markdown 正文。可以使用已跳过草稿之后的新版本号。纯网站、文档或工作流调整可以不升包版本。
 
 2. 提交并推送 main。普通 push／PR 运行 Check 的 Ubuntu `verify`；只有 main 的 push 且该作业成功，才调用 Prepare release draft 可复用工作流。草稿准备作业显示在同一次 Check 运行内，不再由 push 独立并行触发。准备前判断该版本是否已经有固定标签／完整草稿／公开发行；已有版本的普通提交、正式清单回写不会重复创建发行。
 3. Check 将本次 push 的完整提交 SHA 传给 Prepare；计划、构建和草稿保存使用固定提交，不在等待后改取最新 main。新版本在 Windows 使用固定 Node 26.13.0／npm 12.2.1 执行类型／测试／格式、构建、实际包离线与真实 PRTS 验证、fixture 浏览器及 SDK iframe 高度回归；Ubuntu Check 也运行两套浏览器回归。全部通过后才创建固定的 `vX.Y.Z` 注释标签和 Release 草稿，将验收的同一份 tgz、release.json、verification-prts.json 上传。标签记录源码提交、integrity 和原验收运行，之后不移动。中断恢复仍复用固定标签记录的原提交和 artifact，不用新源码替换原包。
-4. 等待 Prepare release draft 成功，在 GitHub Releases 打开对应草稿，确认版本与说明，保持 **Set as a pre-release** 未选中，点击 **Publish release**。不要另建标签或手动上传替代包。
+4. 等待 Prepare release draft 成功，在 GitHub Releases 打开对应草稿。草稿已从固定验收源码的 `docs/releases/X.Y.Z-notes.md` 自动填写标题与正文，并附上 Source、Integrity 和 Build；无需再复制粘贴说明。确认版本与说明，保持 **Set as a pre-release** 未选中，点击 **Publish release**。不要另建标签或手动上传替代包。
 5. Publish release 工作流由 `release.published` 触发，只处理正式版本。它从该 Release 取附件，核对固定标签、源码提交、包版本、实际归档 integrity 和验证报告，使用 OIDC 将同一归档发布到 npm latest，不从最新 main 重新打包。作业总时限为 30 分钟；npm 命令完成后，明确版本的 registry 可见性最多等待 20 分钟，已存在版本的 latest 回读最多五分钟，确认即继续。这些是作业内的分阶段上限，不会额外等待 20／30 分钟。
 6. npm 确认后，工作流自动向 main 提交 `.agents/plugins/marketplace.json` 和 `docs/releases/X.Y.Z.json`。清单固定精确版本，回执保存归档身份、构建运行和发布运行。
 
 **点击 Publish 只是开始发布。Publish release 工作流成功，并且 npm 版本、main 的正式清单与版本回执一致，才算全部完成。** 不要求先发 next、安装候选来源、填写宿主验收链接或另外运行 promote。
+
+Git 标签注释继续保存机器校验使用的验收 JSON；发行文案属于 GitHub Release。新草稿创建前校验文案，缺失、空白或标题版本不匹配时立即失败，不先创建固定标签。中断恢复从原验收提交读取说明；已有草稿的标题与正文保持原样，只补缺失附件。未来每个新版本按上述约定提交说明后，推送阶段自动完成草稿文案，人工发布动作仍只有一次 Publish release。
 
 ## 一次性网页配置
 

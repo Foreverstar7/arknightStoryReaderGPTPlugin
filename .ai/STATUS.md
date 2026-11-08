@@ -5,18 +5,22 @@
 ## 实现状态
 
 - 阅读器已具备七类目录、三页导航、全部分支、按需图片、本机续读、字数进度和独立缓存管理。姓名与场景资源分开处理，立绘匹配及限制见 [立绘说明](../docs/portrait-speaker-evidence.md)。
-- 基础剧情搜索已实现：唯一模型可见工具为 `reader_search`，支持剧情名称、篇目编号／标题、PRTS 人物实际出场；其余十一项工具仅供页面使用。搜索卡片进入篇章目录，简介只在目录中展示。结果页保留失败重试和分页，移除常驻的“刷新搜索资料”按钮，资料获取继续沿用现有缓存规则。
+- 基础剧情搜索已实现：唯一模型可见工具为 `reader_search`，支持剧情名称、篇目编号／标题、PRTS 人物实际出场；其余十一项工具仅供页面使用。桌面搜索卡片通过官方深链进入同一安装来源的侧栏阅读器，保留命中篇目标记；其他宿主保留当前容器阅读。结果页保留失败重试和分页，不显示常驻“刷新搜索资料”按钮。深链身份、协议和验证见 [侧栏跳转](../docs/sidebar-reader-links.md)。
 - 网站包含侧栏浏览与对话搜索的滚动演示、占位阅读器和安装指南。构建与维护见 [网站说明](../docs/website.md)。
 
-## 当前交付：1.1.3
+## 当前交付：1.1.4
 
-package／lock／plugin／源码版本统一为 1.1.3。结果页移除资料刷新按钮及其回调，搜索卡片目标已不在目录时改为提示重新搜索；保留工具 refresh 参数、失败重试和分页，不新增设置入口。变更说明见 [1.1.3](../docs/releases/1.1.3-notes.md)。
+package／lock／plugin／源码版本统一为 1.1.4。新增桌面搜索到侧栏的深链、已有阅读器的导航处理，以及从固定验收提交自动填写 Release 草稿标题／正文。包含 1.1.3 的按钮精简，不新增模型工具或设置入口。变更说明见 [1.1.4](../docs/releases/1.1.4-notes.md)，后续发布操作见 [发布指南](../docs/releasing.md)。
 
-- 本地 `./scripts/npm.ps1 run check`、`run build` 通过，包含 169 项单元／协议测试与格式检查。
-- Edge 的 fixture 浏览器 39 项及 SDK iframe 18 项回归通过，使用独立端口与测试记录；覆盖 320×760、768×900、1440×960、1024×400、双主题、键盘、减少动态效果、失败重试、分页及卡片进入／返回。已检查生成截图，按钮移除后无空白占位，卡片仍按窗口重排。
-- 固定工具链 Node 的 `--import tsx scripts/probe-search.ts` 通过：真实剧情名称、R8-1、塔露拉出场及导语可查，断网重开复用缓存，阅读记录不变且正文下载为零。报告保留在 `.ai/local/story-search/live-1794126014004/report.json`，UI 证据见 `.ai/local/story-search/evidence/` 与 `.ai/local/search-card-check/`。
-- 固定源码 `7fddc89e0a21a3db48fbfa0624d5169742aa9b35` 已推送 main，[Check 42462612021](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42462612021) 的 Ubuntu 检查、Windows 实际包／真实 PRTS 验收和草稿准备全部成功。两平台各 39 项 fixture 浏览器与 18 项 SDK iframe 通过；Windows 169 项单元／协议测试通过，Ubuntu 167 项通过、2 项 Windows 专项按平台跳过。[Pages 42462612047](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42462612047) 的检查和部署成功。
-- [1.1.3 草稿](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/releases/tag/untagged-092bb25f7780a44b621f) ID `438124255`，三个附件齐全，tgz 为 8,023,944 字节。v1.1.3 注释标签记录同一源码、dirty=false、integrity 和 Check 运行，已核对；1.1.2 附件 ID／体积／digest 保持不变。1.1.3 尚未 Publish，本轮未替换已安装插件或共享预览；浏览器／SDK iframe 验证不代替真实桌面操作。
+- 本地 `./scripts/npm.ps1 run check`、`run build` 通过，包含 172 项单元／协议测试与格式检查。发行文案回归用真实隔离 Git 提交验证固定来源、错版／空白拒绝和已有草稿恢复保留文案。
+- `run package` 与 `run package:verify` 通过：实际 tgz 在源码外解包，冷缓存离线安装、生产依赖、三种 MCP 入口和两份 UI 一致。`run plugin:prepare` 已生成 1.1.4 开发副本，开发 mcp.json 的目标身份与其 marketplace 一致；`run probe:host -- --isolated` 验证本机加载器的 12 项工具、唯一模型搜索和 global 入口。该探针只安装到隔离配置，未替换当前用户安装。
+- Edge 的 fixture 浏览器 39 项及 SDK iframe 27 项通过，使用独立端口和原创记录。新增的 9 项覆盖正式／开发身份、首次与重复链接、慢初始化中更新目标、保存排队／失败重试、最新目标、坏链接、宿主拒绝，以及四种窗口双主题。已查看 320×760、768×900、1440×960、1024×400 的生成截图，篇目轴、命中标记、键盘和减少动态效果保持原有布局。
+- 固定工具链 Node 的 `--import tsx scripts/probe-search.ts` 通过：真实剧情名称、R8-1、塔露拉出场及导语可查，断网重开复用缓存，阅读记录不变且正文下载为零。报告位于 `.ai/local/story-search/live-1794128870214/report.json`；UI 报告、截图和 trace 位于 `.ai/local/search-card-check/`。
+- 推送后由现有 Check 对固定提交进行 Ubuntu 检查和 Windows 发包验收，再准备 1.1.4 草稿。浏览器／SDK fixture 不代替真实 ChatGPT 桌面处理 URI 的实机结论；本轮不自动安装或 Publish。
+
+## 跳过 1.1.3
+
+用户已确认 **1.1.3 不 Publish，后续只发布 1.1.4**。保留 [1.1.3 草稿](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/releases/tag/untagged-092bb25f7780a44b621f)、v1.1.3 标签和三个附件，固定源码为 `7fddc89e0a21a3db48fbfa0624d5169742aa9b35`，不覆盖或替换。原验收见 [Check 42462612021](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42462612021)，该版改动已包含在后续源码中。
 
 ## 搜索卡片高度修复
 

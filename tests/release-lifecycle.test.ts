@@ -209,6 +209,11 @@ test('partial draft uploads resume without moving tags or replacing already acce
     let tags = 0;
     let creates = 0;
     let failUpload = true;
+    let notesReads = 0;
+    const notes = async () => {
+      notesReads++;
+      return '# v1.2.3 · 原创发行验证\n\n- 自动填入该版本的说明。';
+    };
     const uploaded = new Map<number, Buffer>();
     const store: ReleaseStore = {
       hasArtifact: async () => true,
@@ -217,7 +222,11 @@ test('partial draft uploads resume without moving tags or replacing already acce
         if (!release) throw new Error('no release');
         return release;
       },
-      create: async () => {
+      create: async (_tag, source, body, title) => {
+        assert.equal(source, accepted.sourceCommit);
+        assert.equal(title, 'v1.2.3 · 原创发行验证');
+        assert.ok(body.includes('自动填入该版本的说明。'));
+        assert.ok(body.includes(accepted.integrity));
         creates++;
         release = {
           id: 1,
@@ -253,18 +262,34 @@ test('partial draft uploads resume without moving tags or replacing already acce
         frozen = { commit: value.sourceCommit, message: JSON.stringify(value) };
       },
     };
-    await assert.rejects(saveDraft(store, git, accepted, root), /interrupted/u);
+    await assert.rejects(
+      saveDraft(store, git, accepted, root, async () => ''),
+      /发行说明/u,
+    );
+    assert.equal(tags, 0);
+    assert.equal(creates, 0);
+    await assert.rejects(
+      saveDraft(store, git, accepted, root, notes),
+      /interrupted/u,
+    );
     failUpload = false;
-    await saveDraft(store, git, accepted, root);
-    await saveDraft(store, git, accepted, root);
+    await saveDraft(store, git, accepted, root, notes);
+    await saveDraft(store, git, accepted, root, notes);
+    assert.equal(notesReads, 1, 'resume must preserve the existing draft text');
     assert.equal(tags, 1);
     assert.equal(creates, 1);
     assert.equal(uploaded.size, 3);
     uploaded.set(1, Buffer.from('substituted'));
-    await assert.rejects(saveDraft(store, git, accepted, root), /内容不一致/u);
+    await assert.rejects(
+      saveDraft(store, git, accepted, root, notes),
+      /内容不一致/u,
+    );
     assert.equal(uploaded.size, 3);
     frozen = { commit: 'c'.repeat(40), message: JSON.stringify(accepted) };
-    await assert.rejects(saveDraft(store, git, accepted, root), /不移动标签/u);
+    await assert.rejects(
+      saveDraft(store, git, accepted, root, notes),
+      /不移动标签/u,
+    );
     assert.equal(tags, 1);
   } finally {
     await rm(root, { recursive: true, force: true });

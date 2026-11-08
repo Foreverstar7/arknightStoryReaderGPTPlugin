@@ -33,6 +33,13 @@
         height: 150px;
         border: 0;
       }
+      #sidebar {
+        display: none;
+        height: 100dvh;
+      }
+      body[data-sidebar-open='true'] #sidebar {
+        display: block;
+      }
       body[data-mode='fullscreen'] iframe {
         height: 100dvh;
       }
@@ -57,8 +64,14 @@
       <button id="fullscreen">切到全屏</button>
       <button id="theme">切换主题</button>
       <label><input id="deny" type="checkbox" />拒绝全屏</label>
+      <label><input id="deny-link" type="checkbox" />拒绝侧栏跳转</label>
+      <label>侧栏路径<input id="route" value="/" /></label>
+      <button id="navigate">发送侧栏链接</button>
     </div>
     <iframe id="app" title="原创 MCP 搜索验证"></iframe>
+    <iframe id="sidebar" title="原创 MCP 侧栏阅读器"></iframe>
+    <output id="opened-link" aria-label="打开的深链"></output>
+    <output id="sidebar-loads" aria-label="侧栏加载次数">0</output>
     <output id="status" role="status">正在连接原创 fixture</output>
     <output id="sizes" aria-label="尺寸通知">[]</output>
     <script type="module" src="./host.ts"></script>

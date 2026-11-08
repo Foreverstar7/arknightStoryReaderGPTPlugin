@@ -7,12 +7,14 @@ import {
 } from './release-artifact.js';
 import type { ReleaseStore } from './github-release.js';
 import type { ReleaseGit } from './release-git.js';
+import { releasePresentation } from './release-notes.js';
 
 export async function saveDraft(
   store: ReleaseStore,
   git: ReleaseGit,
   receipt: ReleaseReceipt,
   directory: string,
+  notes: () => Promise<string>,
 ) {
   const tag = `v${receipt.version}`;
   const existing = await git.tag(tag);
@@ -40,13 +42,20 @@ export async function saveDraft(
         throw new Error(`同名附件内容不一致：${file.name}`);
     }
   }
+  // Validate notes before creating any immutable tag. Existing drafts retain
+  // their reviewed title/body, including on interrupted-upload recovery.
+  const presentation = release
+    ? undefined
+    : releasePresentation(receipt, await notes());
   if (!existing) await git.createTag(tag, receipt);
-  if (!release)
+  if (!release && presentation)
     release = await store.create(
       tag,
       receipt.sourceCommit,
-      `# ${tag}\n\n自动验收已通过。草稿准备工作流成功后，点击 Publish release 即开始 npm 和插件目录发布。\n\n- Source: ${receipt.sourceCommit}\n- Integrity: ${receipt.integrity}\n- Build: https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${receipt.ciRun}\n\n发布工作流成功后才算全部完成；已安装插件不会后台自动升级。`,
+      presentation.body,
+      presentation.title,
     );
+  if (!release) throw new Error('尚未取得 Release 草稿。');
   for (const file of files) {
     if (!release.assets.some((item) => item.name === file.name))
       await store.upload(release.id, file.name, file.bytes);

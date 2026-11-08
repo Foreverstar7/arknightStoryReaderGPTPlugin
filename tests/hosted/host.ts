@@ -11,6 +11,7 @@ function element<T extends HTMLElement>(id: string, kind: new () => T): T {
   return node;
 }
 const frame = element('app', HTMLIFrameElement);
+const sidebar = element('sidebar', HTMLIFrameElement);
 const status = element('status', HTMLOutputElement);
 const sizes = element('sizes', HTMLOutputElement);
 const query = element('query', HTMLInputElement);
@@ -25,12 +26,13 @@ document.body.dataset.mode = mode;
 const bridge = new AppBridge(
   null,
   { name: 'original-iframe-check', version: '1.0.0' },
-  { serverTools: {} },
+  { serverTools: {}, openLinks: {} },
   {
     hostContext: {
       displayMode: mode,
       theme,
       availableDisplayModes: ['inline', 'fullscreen'],
+      ...(params.has('sidebar') ? { platform: 'desktop' } : {}),
     },
   },
 );
@@ -47,6 +49,48 @@ async function callTool(name: string, args: object) {
   );
 }
 bridge.oncalltool = ({ name, arguments: args }) => callTool(name, args ?? {});
+let sidebarBridge: AppBridge | undefined;
+let sidebarLoads = 0;
+async function openSidebar(path: string) {
+  if (sidebarBridge) {
+    sidebarBridge.setHostContext({ 'openai/deepLink': { url: path } });
+    return;
+  }
+  sidebarBridge = new AppBridge(
+    null,
+    { name: 'original-sidebar-check', version: '1.0.0' },
+    { serverTools: {}, openLinks: {} },
+    {
+      hostContext: {
+        platform: 'desktop',
+        theme,
+        displayMode: 'fullscreen',
+        availableDisplayModes: ['fullscreen'],
+        'openai/deepLink': { url: path },
+      },
+    },
+  );
+  sidebarBridge.oncalltool = ({ name, arguments: args }) =>
+    callTool(name, args ?? {});
+  sidebarBridge.oninitialized = () => {
+    void callTool('reader_open', {})
+      .then((result) => sidebarBridge?.sendToolResult(result))
+      .catch(failed);
+  };
+  const child = sidebar.contentWindow;
+  if (!child) throw new Error('Missing sidebar iframe window');
+  await sidebarBridge.connect(new PostMessageTransport(child, child));
+  sidebar.src = '/resource?entry=reader';
+  document.body.dataset.sidebarOpen = 'true';
+  element('sidebar-loads', HTMLOutputElement).value = String(++sidebarLoads);
+}
+bridge.onopenlink = async ({ url }) => {
+  element('opened-link', HTMLOutputElement).value = url;
+  if (element('deny-link', HTMLInputElement).checked) return { isError: true };
+  const link = new URL(url);
+  await openSidebar(link.searchParams.get('path') ?? '/');
+  return {};
+};
 function displayMode(next: McpUiDisplayMode) {
   mode = next;
   document.body.dataset.mode = next;
@@ -122,8 +166,12 @@ element('fullscreen', HTMLButtonElement).onclick = () =>
 element('theme', HTMLButtonElement).onclick = () => {
   theme = theme === 'light' ? 'dark' : 'light';
   bridge.setHostContext({ theme });
+  sidebarBridge?.setHostContext({ theme });
+};
+element('navigate', HTMLButtonElement).onclick = () => {
+  void openSidebar(element('route', HTMLInputElement).value).catch(failed);
 };
 const child = frame.contentWindow;
 if (!child) throw new Error('Missing iframe window');
 await bridge.connect(new PostMessageTransport(child, child));
-frame.src = `/resource?entry=${params.get('entry') === 'reader' ? 'reader' : 'search'}`;
+frame.src = `/resource?entry=${params.get('entry') === 'reader' ? 'reader' : 'search'}&target=${params.get('sidebar') ?? ''}`;

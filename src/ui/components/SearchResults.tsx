@@ -7,10 +7,12 @@ export function SearchCardView({
   card,
   transport,
   open,
+  disabled,
 }: {
   card: SearchCard;
   transport: ReaderTransport;
   open: (id: string) => void;
+  disabled?: boolean;
 }) {
   const story: Story = { ...card, coverLabel: card.title, chapters: [] };
   return (
@@ -18,6 +20,7 @@ export function SearchCardView({
       <Cover story={story} transport={transport} />
       <button
         className="search-card-open"
+        disabled={disabled}
         onClick={() => open(card.id)}
         aria-label={`查看《${card.title}》篇章目录`}
       >
@@ -42,12 +45,14 @@ export function SearchResults({
   open,
   more,
   loading,
+  opening,
 }: {
   result: SearchResult;
   transport: ReaderTransport;
   open: (id: string) => void;
   more?: () => void;
   loading?: boolean;
+  opening?: boolean;
 }) {
   return (
     <main className="search-results" aria-label="剧情搜索结果">
@@ -77,11 +82,12 @@ export function SearchResults({
             card={card}
             transport={transport}
             open={open}
+            disabled={opening}
           />
         ))}
       </div>
       {result.hasMore && more && (
-        <button onClick={more} disabled={loading}>
+        <button onClick={more} disabled={loading || opening}>
           查看更多结果
         </button>
       )}

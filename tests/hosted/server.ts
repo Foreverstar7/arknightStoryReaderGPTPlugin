@@ -27,15 +27,34 @@ await build({
   build: { outDir: path.join(root, 'host'), emptyOutDir: true },
 });
 const service = new ReaderService(new FixtureSource(), path.join(root, 'data'));
-const server = createReaderMcp(service, root);
-const client = new Client({ name: 'original-iframe-check', version: '1.0.0' });
-const [clientWire, serverWire] = InMemoryTransport.createLinkedPair();
-await server.connect(serverWire);
-await client.connect(clientWire);
+const connections = await Promise.all(
+  [undefined, 'arknights-reader', 'arknights-reader-dev'].map(
+    async (marketplace) => {
+      const server = createReaderMcp(service, root, {
+        pluginTarget: marketplace
+          ? `arknights-story-reader@${marketplace}`
+          : undefined,
+      });
+      const client = new Client({
+        name: 'original-iframe-check',
+        version: '1.0.0',
+      });
+      const [clientWire, serverWire] = InMemoryTransport.createLinkedPair();
+      await server.connect(serverWire);
+      await client.connect(clientWire);
+      return { client, server, marketplace };
+    },
+  ),
+);
+const defaultClient = connections[0]?.client;
+if (!defaultClient) throw new Error('Missing original fixture client');
 const app = express();
 app.use(express.json());
 app.get('/health', (_req, res) => res.json({ ok: true, source: 'fixture' }));
 app.get('/resource', async (req, res) => {
+  const client =
+    connections.find((entry) => entry.marketplace === req.query.target)
+      ?.client ?? defaultClient;
   const resource = await client.readResource({
     uri: req.query.entry === 'reader' ? RESOURCE_URI : SEARCH_RESOURCE_URI,
   });
@@ -46,7 +65,7 @@ app.get('/resource', async (req, res) => {
 app.post('/tool', async (req, res) => {
   const tool = toolRequestSchema.parse(req.body);
   res.json(
-    await client.callTool({
+    await defaultClient.callTool({
       name: tool.name,
       arguments: z.record(z.string(), z.unknown()).parse(tool.arguments),
     }),
@@ -60,6 +79,8 @@ const http = app.listen(
 for (const signal of ['SIGINT', 'SIGTERM'] as const)
   process.on(signal, () => {
     http.close();
-    void client.close();
-    void server.close();
+    for (const { client, server } of connections) {
+      void client.close();
+      void server.close();
+    }
   });

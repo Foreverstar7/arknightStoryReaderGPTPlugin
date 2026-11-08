@@ -23,13 +23,18 @@ import {
   searchForModel,
   searchResultSchema,
 } from '../shared/search.js';
+import { readerPluginTargetSchema } from '../shared/reader-links.js';
 
 export const RESOURCE_URI = 'ui://arknights-reader/v1/index.html';
 export const SEARCH_RESOURCE_URI = 'ui://arknights-reader/v1/search.html';
 export function createReaderMcp(
   service: ReaderService,
   projectRoot: string,
+  options: { pluginTarget?: string } = {},
 ): McpServer {
+  const pluginTarget = options.pluginTarget
+    ? readerPluginTargetSchema.parse(options.pluginTarget)
+    : undefined;
   const server = new McpServer({
     name: 'arknights-story-reader',
     version: VERSION,
@@ -55,7 +60,7 @@ export function createReaderMcp(
               )
             ).replace(
               '<html',
-              resource.search ? '<html data-entry="search"' : '<html',
+              `<html${resource.search ? ' data-entry="search"' : ''}${pluginTarget ? ` data-plugin-target="${pluginTarget}"` : ''}`,
             ),
             _meta: {
               'openai/ui': {

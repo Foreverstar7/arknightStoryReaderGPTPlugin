@@ -37,10 +37,11 @@ import { useStoryPreparation } from './useStoryPreparation.js';
 import { useCatalogRefresh } from './useCatalogRefresh.js';
 import { readerSnapshotReducer } from './snapshot-state.js';
 import { usePageTransition, type Motion } from './usePageTransition.js';
+import type { ReaderNavigationRequest } from '../shared/reader-links.js';
 
 type Route =
   | { page: 'library' }
-  | { page: 'chapters'; story: Story }
+  | { page: 'chapters'; story: Story; matchedChapterIds?: string[] }
   | {
       page: 'reader';
       story: Story;
@@ -60,6 +61,7 @@ export function ReaderApp({
   resumeOnStart = true,
   initialStoryId,
   matchedChapterIds,
+  navigationRequest,
 }: {
   transport: ReaderTransport;
   environment: string;
@@ -69,6 +71,7 @@ export function ReaderApp({
   /** Explicit search target takes precedence over automatic recent-reading restoration. */
   initialStoryId?: string;
   matchedChapterIds?: string[];
+  navigationRequest?: ReaderNavigationRequest;
 }) {
   const [snapshot, updateSnapshot] = useReducer(readerSnapshotReducer, null);
   const [route, setRoute] = useState<Route>({ page: 'library' });
@@ -76,6 +79,14 @@ export function ReaderApp({
   const [failure, setFailure] = useState<Failure | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [reload, setReload] = useState(0);
+  const [navigationAttempt, setNavigationAttempt] = useState(0);
+  const requestedNavigation = useRef(navigationRequest);
+  requestedNavigation.current = navigationRequest;
+  const handledNavigation = useRef<{
+    request: ReaderNavigationRequest;
+    attempt: number;
+  }>(undefined);
+  const saveFailure = useRef<unknown>(null);
   const flush = useRef<() => Promise<void>>(async () => undefined);
   const clearingHistory = useRef(false);
   const historyGeneration = useRef(0);
@@ -139,6 +150,9 @@ export function ReaderApp({
         });
         if (cancelled) return;
         updateSnapshot({ type: 'initialize', data });
+        // Deep links own navigation, including root/invalid links. A later link
+        // also cancels an in-flight automatic resume through navigation.current.
+        if (requestedNavigation.current) return;
         const recent = data.state.recentChapterId
           ? data.state.records[data.state.recentChapterId]
           : undefined;
@@ -210,9 +224,12 @@ export function ReaderApp({
     const generation = historyGeneration.current;
     try {
       const state = await transport.call('reader_record', input);
-      if (generation === historyGeneration.current)
+      if (generation === historyGeneration.current) {
+        saveFailure.current = null;
         updateSnapshot({ type: 'reading', state });
+      }
     } catch (error) {
+      saveFailure.current = error;
       setFailure({
         message: `阅读位置保存失败：${errorText(error)}`,
         retry:
@@ -362,6 +379,7 @@ export function ReaderApp({
         'reader_clear_history',
         storyId ? { storyId } : {},
       );
+      saveFailure.current = null;
       flushSync(() => {
         updateSnapshot({ type: 'reading', state });
         setBusy(false);
@@ -371,6 +389,56 @@ export function ReaderApp({
       clearingHistory.current = false;
     }
   }
+  useEffect(() => {
+    if (!navigationRequest || !snapshot) return;
+    if (
+      handledNavigation.current?.request === navigationRequest &&
+      handledNavigation.current.attempt === navigationAttempt
+    )
+      return;
+    handledNavigation.current = {
+      request: navigationRequest,
+      attempt: navigationAttempt,
+    };
+    const id = ++navigation.current;
+    pageTransition.cancel();
+    const retry = () => setNavigationAttempt((value) => value + 1);
+    setBusy(true);
+    void (async () => {
+      try {
+        await flush.current();
+        if (navigation.current !== id) return;
+        if (saveFailure.current)
+          throw new Error(
+            `阅读位置保存失败：${errorText(saveFailure.current)}`,
+          );
+        if ('error' in navigationRequest)
+          throw new Error(navigationRequest.error);
+        const target = navigationRequest.target;
+        const story = target
+          ? snapshot.stories.find((item) => item.id === target.storyId)
+          : undefined;
+        if (target && !story)
+          throw new Error('这部剧情已不在当前目录中，请重新搜索。');
+        setFailure(null);
+        await changeRoute(
+          story && target
+            ? {
+                page: 'chapters',
+                story,
+                matchedChapterIds: target.matchedChapterIds,
+              }
+            : { page: 'library' },
+          retry,
+        );
+      } catch (error) {
+        if (navigation.current === id)
+          setFailure({ message: errorText(error), retry });
+      } finally {
+        if (navigation.current === id) setBusy(false);
+      }
+    })();
+  }, [navigationRequest, navigationAttempt, snapshot]);
   const recentId = snapshot?.state.recentChapterId;
   const recentStory = snapshot?.stories.find((story) =>
     story.chapters.some((chapter) => chapter.id === recentId),
@@ -524,7 +592,10 @@ export function ReaderApp({
             transport={transport}
             story={activeStory ?? route.story}
             matchedChapterIds={
-              route.story.id === initialStoryId ? matchedChapterIds : undefined
+              route.matchedChapterIds ??
+              (route.story.id === initialStoryId
+                ? matchedChapterIds
+                : undefined)
             }
             state={snapshot.state}
             preparation={preparation.status}
