@@ -553,7 +553,7 @@
                               >预设搜索演示 · 不调用 AI</span
                             >
                           </div>
-                          <div class="chat-messages">
+                          <div class="chat-messages" id="demo-chat-messages">
                             <div class="chat-message user">
                               <span class="sr-only">你：</span>
                               <p>我想用这个插件阅读方舟剧情，从哪里开始？</p>
@@ -601,14 +601,13 @@
                             </div>
                           </div>
                           <p
-                            id="demo-search-status"
+                            id="demo-search-hint"
                             class="small muted"
                             role="status"
                           >
                             占位演示 ·
                             非原作剧情。搜索结果复用下方阅读器的样例目录。
                           </p>
-                          <div id="demo-search-cards"></div>
                         </div>
                       </div>
                       <form id="demo-search-form" class="demo-search-form">
@@ -618,6 +617,7 @@
                             id="demo-search-input"
                             class="chat-composer"
                             value="帮我找一下《孤星》"
+                            placeholder="输入剧情名，或选择预设"
                             maxlength="120"
                             list="demo-search-options"
                           /><button type="submit">查找剧情</button>

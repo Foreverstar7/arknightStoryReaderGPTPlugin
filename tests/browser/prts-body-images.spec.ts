@@ -145,7 +145,7 @@ test('real repaired legacy, whitespace and variable portraits plus ambiguous sce
     if (ambiguous) {
       await page.locator(`[id="name-${ambiguous.id}"]`).click();
       await expect(
-        page.getByRole('dialog').getByRole('img', { name: '中性人物占位图' }),
+        page.getByRole('dialog').getByText('暂无可显示的立绘', { exact: true }),
       ).toBeVisible();
       await page.keyboard.press('Escape');
     }
@@ -308,7 +308,7 @@ test('real omitted CGItem and cggroup render composed SVGs on demand and keep al
   }
 });
 
-test('injected default, neutral and network states remain distinct, retryable and usable at all viewport/theme sizes', async ({
+test('injected default, unavailable and network portraits stay distinct and only network failures can retry', async ({
   page,
   request,
 }) => {
@@ -398,6 +398,7 @@ test('injected default, neutral and network states remain distinct, retryable an
       await page.setViewportSize(viewport);
       for (const state of ['placeholder', 'default', 'network'] as const) {
         mode = state;
+        retried = false;
         await button.focus();
         await page.keyboard.press('Enter');
         const dialog = page.getByRole('dialog');
@@ -419,22 +420,24 @@ test('injected default, neutral and network states remain distinct, retryable an
         await page.screenshot({
           path: `.ai/local/screenshots/body-${state}-${theme}-${viewport.width}x${viewport.height}.png`,
         });
-        await dialog
-          .getByRole('button', {
-            name:
-              state === 'placeholder'
-                ? '重新核验立绘'
-                : state === 'default'
-                  ? '重试原立绘'
-                  : '重试图片',
-          })
-          .focus();
-        await page.keyboard.press('Space');
-        await expect.poll(() => retried).toBe(true);
-        if (state === 'placeholder' && viewport.width === 320) {
-          retried = false;
-          await dialog.getByRole('button', { name: '重新核验立绘' }).tap();
+        if (state === 'network') {
+          await expect(dialog.getByRole('img')).toHaveCount(0);
+          await dialog
+            .getByRole('button', { name: '重试图片', exact: true })
+            .focus();
+          await page.keyboard.press('Space');
           await expect.poll(() => retried).toBe(true);
+        } else {
+          await expect(dialog.getByRole('button')).toHaveCount(0);
+          await expect(dialog.locator('.image-source')).toBeVisible();
+          if (state === 'placeholder') {
+            await expect(dialog.getByRole('img')).toHaveCount(0);
+            await expect(dialog.locator('.portrait-placeholder p')).toHaveText(
+              '暂无可显示的立绘',
+            );
+          } else {
+            await expect(dialog.locator('.portrait-resolution')).toHaveCount(0);
+          }
         }
         await page.keyboard.press('Escape');
         await expect(button).toBeFocused();

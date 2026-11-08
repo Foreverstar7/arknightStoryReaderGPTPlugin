@@ -414,6 +414,10 @@ button.host-icon:hover {
 .chat-message {
   min-width: 0;
 }
+.chat-message {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 .chat-message.user {
   max-width: 88%;
   justify-self: end;

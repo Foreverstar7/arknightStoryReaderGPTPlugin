@@ -46,12 +46,24 @@ test('square portrait selector supports both views, native keyboard controls and
           'data-portrait-state',
           'default',
         );
+        await expect(portrait.locator('.portrait-resolution')).toHaveCount(0);
+        await expect(portrait.getByRole('button')).toHaveCount(0);
+        await expect(portrait.locator('.image-source')).toBeVisible();
+        await portrait.screenshot({
+          path: test
+            .info()
+            .outputPath(
+              `portrait-default-${colorScheme}-${viewport.width}.png`,
+            ),
+        });
         await normal.press('ArrowRight');
         await expect(scene).toBeChecked();
         await expect(portrait.locator('.source-image')).toHaveAttribute(
           'data-portrait-state',
           'original',
         );
+        await expect(portrait.locator('.portrait-resolution')).toHaveCount(0);
+        await expect(portrait.getByRole('button')).toHaveCount(0);
         expect(
           await portrait.evaluate((node) => {
             const rect = node.getBoundingClientRect();
@@ -72,14 +84,21 @@ test('square portrait selector supports both views, native keyboard controls and
         await expect(page.locator('#name-report')).toBeFocused();
         await page.locator('#name-anonymous').click();
         await expect(page.locator('.portrait-placeholder')).toContainText(
-          '不推定身份',
+          '暂无可显示的立绘',
         );
         await expect(
-          page.getByRole('radio', { name: '默认立绘', exact: true }),
-        ).toBeDisabled();
-        await expect(
-          page.getByRole('radio', { name: '场景立绘', exact: true }),
-        ).toBeDisabled();
+          page.locator('.portrait .portrait-view-picker'),
+        ).toHaveCount(0);
+        await expect(page.locator('.portrait svg')).toHaveCount(0);
+        await expect(page.locator('.portrait').getByRole('button')).toHaveCount(
+          0,
+        );
+        await expect(page.locator('.portrait .image-source')).toBeVisible();
+        await page.locator('.portrait').screenshot({
+          path: test
+            .info()
+            .outputPath(`portrait-empty-${colorScheme}-${viewport.width}.png`),
+        });
         expect(errors).toEqual([]);
       } finally {
         await context.close();

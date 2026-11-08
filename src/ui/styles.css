@@ -1171,16 +1171,16 @@ button[aria-disabled='true'] {
 .portrait-view-content {
   min-height: min(225px, 42dvh);
 }
+.portrait-view-content:has(> .portrait-placeholder),
+.portrait-view-content:has(> .image-error) {
+  min-height: 0;
+}
 .portrait-view-warning {
   margin-bottom: 8px;
   border-left: 2px solid var(--gold);
   padding-left: 7px;
   font-weight: 600;
   color: var(--text);
-}
-.portrait-mismatch {
-  border-left: 2px solid var(--gold);
-  padding-left: 7px;
 }
 .portrait-image > p {
   font-size: 11px;
@@ -1791,15 +1791,7 @@ fieldset {
   text-align: center;
   padding: 8px;
 }
-.portrait-placeholder svg {
-  display: block;
-  width: 100%;
-  height: min(180px, 30vh);
-  color: var(--muted);
-  opacity: 0.45;
-}
 .portrait-placeholder p,
-.portrait-resolution,
 .image-description {
   font-size: 12px;
   line-height: 1.6;

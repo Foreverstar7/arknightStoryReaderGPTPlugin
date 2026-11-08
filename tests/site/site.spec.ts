@@ -108,8 +108,16 @@ test('same-window conversation route follows sidebar reading and preset cards op
   await expect(page.locator('#demo-search-status')).toContainText(
     '此演示支持预设输入',
   );
+  await expect(page.locator('[data-search-message="user"]').last()).toHaveText(
+    '你：未支持的演示输入',
+  );
+  await expect(page.locator('#demo-search-input')).toHaveValue('');
   await page.locator('#demo-search-input').fill('帮我找一下《孤星》');
   await page.locator('#demo-search-input').press('Enter');
+  await expect(page.locator('[data-search-message="user"]').last()).toHaveText(
+    '你：帮我找一下《孤星》',
+  );
+  await expect(page.locator('#demo-search-input')).toHaveValue('');
   await expect(page.locator('.demo-result-card')).toHaveCount(1);
   await expect(page.locator('.demo-result-card img')).toBeVisible();
   await expect
@@ -129,6 +137,46 @@ test('same-window conversation route follows sidebar reading and preset cards op
     path: test.info().outputPath('site-directory.png'),
   });
   expect(errors).toEqual([]);
+});
+
+test('submitted queries become ordered conversation turns and resetting clears their replies', async ({
+  page,
+}) => {
+  await page.goto('./');
+  await page.locator('#try-reader > summary').click();
+  await page.locator('[data-host-view="home"]:visible').first().click();
+  const input = page.locator('#demo-search-input');
+  await input.press('Enter');
+  await input.fill('我想阅读《孤星》');
+  await input.press('Enter');
+  await expect(page.locator('[data-search-message="user"]')).toHaveText([
+    '你：帮我找一下《孤星》',
+    '你：我想阅读《孤星》',
+  ]);
+  const replies = page.locator('[data-search-message="assistant"]');
+  await expect(replies).toHaveCount(2);
+  await expect(replies.first().locator('.demo-result-card')).toHaveCount(1);
+  await expect(replies.last().locator('.demo-result-card')).toHaveCount(1);
+  await expect(input).toHaveValue('');
+  await input.fill('X'.repeat(120));
+  await input.press('Enter');
+  await expect(page.locator('[data-search-message="user"]').last()).toHaveText(
+    `你：${'X'.repeat(120)}`,
+  );
+  await expect(page.locator('#demo-search-status')).toContainText(
+    '此演示支持预设输入',
+  );
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await expectBottomComposer(page);
+  await page.locator('#reset-demo').click();
+  await page.locator('[data-host-view="home"]:visible').first().click();
+  await expect(page.locator('[data-search-message]')).toHaveCount(0);
+  await expect(page.locator('.demo-result-card')).toHaveCount(0);
+  await expect(input).toHaveValue('帮我找一下《孤星》');
 });
 
 test('preset search remains readable and keyboard operable in four viewport sizes and both themes', async ({
@@ -565,7 +613,7 @@ test('four viewport sizes and both themes keep the animation and interactive rea
   }
 });
 
-test('local images support manual loading, portrait retry, keyboard dismissal and neutral anonymous display', async ({
+test('local images support manual loading, network retry, keyboard dismissal and compact unavailable portraits', async ({
   page,
 }) => {
   const errors: string[] = [];
@@ -591,7 +639,12 @@ test('local images support manual loading, portrait retry, keyboard dismissal an
   await frame.locator('#name-report').focus();
   await frame.locator('#name-report').press('Enter');
   await expect(frame.locator('.portrait .image-error')).toContainText(
-    'HTTP 503',
+    '立绘加载失败',
+  );
+  await expect(frame.locator('.portrait svg')).toHaveCount(0);
+  await expect(frame.locator('.portrait .image-error')).toHaveAttribute(
+    'title',
+    /HTTP 503/,
   );
   await page
     .locator('#reader-demo')
@@ -618,7 +671,7 @@ test('local images support manual loading, portrait retry, keyboard dismissal an
   await expect(frame.locator('.cg-image')).toHaveCount(0);
   await frame.locator('#name-anonymous').click();
   await expect(frame.locator('.portrait-placeholder')).toContainText(
-    '不推定身份',
+    '暂无可显示的立绘',
   );
   await expect(frame.locator('.portrait .source-image')).toHaveCount(0);
   expect(rabbitRequests).toBe(2);

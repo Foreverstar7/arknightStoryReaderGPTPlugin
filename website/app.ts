@@ -59,11 +59,13 @@ disclosure?.addEventListener('toggle', () => {
 
 reset?.addEventListener('click', () => {
   ++requestId;
-  pendingSearch = undefined;
+  searchTurns.clear();
   pendingStory = undefined;
-  searchCards?.replaceChildren();
-  if (searchStatus)
-    searchStatus.textContent = '占位演示 · 非原作剧情。可重新提交预设搜索。';
+  messageStream
+    ?.querySelectorAll('[data-search-message]')
+    .forEach((node) => node.remove());
+  if (searchHint) searchHint.hidden = false;
+  if (searchInput) searchInput.value = '帮我找一下《孤星》';
   demo?.contentWindow?.postMessage(
     { type: 'reader-demo:reset' },
     location.origin,
@@ -74,20 +76,56 @@ reset?.addEventListener('click', () => {
 const searchForm = document.querySelector<HTMLFormElement>('#demo-search-form');
 const searchInput =
   document.querySelector<HTMLInputElement>('#demo-search-input');
-const searchStatus = document.getElementById('demo-search-status');
-const searchCards = document.getElementById('demo-search-cards');
+const messageStream = document.getElementById('demo-chat-messages');
+const searchHint = document.getElementById('demo-search-hint');
 let requestId = 0;
-let pendingSearch:
-  | {
-      type: string;
-      requestId: number;
-      input: { queries: string[]; by: 'story' };
-    }
-  | undefined;
+type SearchRequest = {
+  type: 'reader-demo:search';
+  requestId: number;
+  input: { queries: string[]; by: 'story' };
+};
+type SearchTurn = {
+  status: HTMLParagraphElement;
+  cards: HTMLDivElement;
+  request?: SearchRequest;
+};
+const searchTurns = new Map<number, SearchTurn>();
 let pendingStory: string | undefined;
+
+function appendSearchTurn(value: string): SearchTurn | undefined {
+  if (!messageStream) return;
+  document.getElementById('demo-search-status')?.removeAttribute('id');
+  document.getElementById('demo-search-cards')?.removeAttribute('id');
+  if (searchHint) searchHint.hidden = true;
+  const user = document.createElement('div');
+  user.className = 'chat-message user';
+  user.dataset.searchMessage = 'user';
+  const userRole = document.createElement('span');
+  userRole.className = 'sr-only';
+  userRole.textContent = '你：';
+  const query = document.createElement('p');
+  query.textContent = value;
+  user.append(userRole, query);
+  const assistant = document.createElement('div');
+  assistant.className = 'chat-message assistant';
+  assistant.dataset.searchMessage = 'assistant';
+  const role = document.createElement('p');
+  role.className = 'chat-role';
+  role.textContent = 'ChatGPT';
+  const status = document.createElement('p');
+  status.id = 'demo-search-status';
+  status.className = 'small muted';
+  status.setAttribute('role', 'status');
+  const cards = document.createElement('div');
+  cards.id = 'demo-search-cards';
+  assistant.append(role, status, cards);
+  messageStream.append(user, assistant);
+  return { status, cards };
+}
 demo?.addEventListener('load', () => {
-  if (pendingSearch)
-    demo.contentWindow?.postMessage(pendingSearch, location.origin);
+  for (const turn of searchTurns.values())
+    if (turn.request)
+      demo.contentWindow?.postMessage(turn.request, location.origin);
   if (pendingStory)
     demo.contentWindow?.postMessage(
       { type: 'reader-demo:open-story', storyId: pendingStory },
@@ -97,44 +135,49 @@ demo?.addEventListener('load', () => {
 searchForm?.addEventListener('submit', (event) => {
   event.preventDefault();
   const value = searchInput?.value.trim() ?? '';
+  if (!value) return;
+  const turn = appendSearchTurn(value);
+  if (!turn) return;
+  if (searchInput) searchInput.value = '';
   if (!['孤星', '帮我找一下《孤星》', '我想阅读《孤星》'].includes(value)) {
-    if (searchStatus)
-      searchStatus.textContent = '此演示支持预设输入“帮我找一下《孤星》”。';
+    turn.status.textContent = '此演示支持预设输入“帮我找一下《孤星》”。';
     scrollChatToLatest();
     return;
   }
   pendingStory = undefined;
-  pendingSearch = {
+  turn.request = {
     type: 'reader-demo:search',
     requestId: ++requestId,
     input: { by: 'story', queries: ['孤星'] },
   };
-  if (searchStatus) searchStatus.textContent = '正在查找演示剧情…';
-  searchCards?.replaceChildren();
+  searchTurns.set(requestId, turn);
+  turn.status.textContent = '正在查找演示剧情…';
   scrollChatToLatest();
-  demo?.contentWindow?.postMessage(pendingSearch, location.origin);
+  demo?.contentWindow?.postMessage(turn.request, location.origin);
 });
 window.addEventListener('message', (event) => {
   if (
     event.origin !== location.origin ||
     event.source !== demo?.contentWindow ||
-    event.data?.requestId !== requestId
+    typeof event.data?.requestId !== 'number'
   )
     return;
+  const turn = searchTurns.get(event.data.requestId);
+  if (!turn) return;
   if (event.data?.type === 'reader-demo:search-error') {
-    if (searchStatus) searchStatus.textContent = '示例搜索失败，请重新提交。';
+    delete turn.request;
+    turn.status.textContent = '示例搜索失败，请重新提交。';
     scrollChatToLatest();
     return;
   }
   if (event.data?.type !== 'reader-demo:search-result') return;
   const parsed = searchResultSchema.safeParse(event.data.result);
-  if (!parsed.success || !searchCards) return;
-  pendingSearch = undefined;
-  searchCards.replaceChildren();
-  if (searchStatus)
-    searchStatus.textContent = parsed.data.total
-      ? '找到《孤星》了，点击卡片查看篇章目录。'
-      : '当前样例未找到匹配剧情。';
+  if (!parsed.success) return;
+  delete turn.request;
+  turn.cards.replaceChildren();
+  turn.status.textContent = parsed.data.total
+    ? '找到《孤星》了，点击卡片查看篇章目录。'
+    : '当前样例未找到匹配剧情。';
   for (const card of parsed.data.results) {
     if (card.id !== 'fixture-mist') continue;
     const article = document.createElement('article');
@@ -156,7 +199,7 @@ window.addEventListener('message', (event) => {
     action.textContent = '查看篇章目录 →';
     button.append(type, title, action);
     article.append(image, button);
-    searchCards.append(article);
+    turn.cards.append(article);
     button.addEventListener('click', () => {
       pendingStory = card.id;
       demo?.contentWindow?.postMessage(
