@@ -69,7 +69,7 @@ try {
     animations: 'disabled',
   });
   await page
-    .getByRole('button', { name: '打开剧情：剧情标题占位符 01', exact: true })
+    .getByRole('button', { name: '打开剧情：孤星', exact: true })
     .click();
   await page.getByRole('region', { name: '横向篇目轴' }).waitFor();
   await expect(page.locator('.mini-cover .source-image').first()).toBeVisible();
@@ -104,10 +104,29 @@ try {
     path: path.join(output, 'demo-portrait.png'),
     animations: 'disabled',
   });
+  await page.goto(`${origin}/arknightStoryReaderGPTPlugin/`);
+  await page.locator('#try-reader > summary').click();
+  await expect(
+    page.frameLocator('#reader-demo').locator('.story-card'),
+  ).toHaveCount(6);
+  await page.locator('[data-host-view="home"]:visible').first().click();
+  await page.locator('#demo-search-input').press('Enter');
+  await expect(page.locator('.demo-result-card')).toHaveCount(1);
+  await expect
+    .poll(() =>
+      page
+        .locator('.demo-result-card img')
+        .evaluate((image) => image.naturalWidth),
+    )
+    .toBeGreaterThan(0);
+  await page.locator('.demo-window').screenshot({
+    path: path.join(output, 'demo-search.png'),
+    animations: 'disabled',
+  });
   if (external.length)
     throw new Error('Screenshots attempted nonlocal requests.');
   console.info(
-    'Captured four website placeholder UI previews with local artwork.',
+    'Captured five website UI previews with local artwork and placeholder reading content.',
   );
 } finally {
   await browser?.close();

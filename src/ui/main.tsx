@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { useApp } from '@modelcontextprotocol/ext-apps/react';
 import { ReaderApp } from './ReaderApp.js';
@@ -6,8 +6,20 @@ import { hostTransport, previewTransport } from './transport.js';
 import './styles.css';
 import { VERSION } from '../shared/version.js';
 import { CoverImagesProvider } from './cover-images.js';
+import {
+  searchInputSchema,
+  searchResultSchema,
+  type SearchResult,
+  type SearchInput,
+} from '../shared/search.js';
+import { readerFailureSchema } from '../shared/errors.js';
+import { SearchFlow } from './SearchFlow.js';
 
 function HostedReader() {
+  const searchEntry = document.documentElement.dataset.entry === 'search';
+  const [searchResult, setSearchResult] = useState<SearchResult | null>(null);
+  const [searchFailure, setSearchFailure] = useState('');
+  const [retryInput, setRetryInput] = useState<SearchInput>();
   const readingFlush = useRef<() => Promise<void>>(async () => undefined);
   const onFlushReady = useCallback((flush: () => Promise<void>) => {
     readingFlush.current = flush;
@@ -17,8 +29,25 @@ function HostedReader() {
     capabilities: {},
     onAppCreated: (instance) => {
       // Lifecycle handlers must be registered before connect(). No model calls/messages.
-      instance.ontoolinput = () => undefined;
-      instance.ontoolresult = () => undefined;
+      instance.ontoolinput = ({ arguments: args }) => {
+        if (!searchEntry) return;
+        const input = searchInputSchema.safeParse(args);
+        if (input.success) setRetryInput(input.data);
+      };
+      instance.ontoolresult = (result) => {
+        const parsed = searchResultSchema.safeParse(result._meta?.readerSearch);
+        if (parsed.success) {
+          setSearchResult(parsed.data);
+          setSearchFailure('');
+        } else if (searchEntry && result.isError) {
+          const failure = readerFailureSchema.safeParse(
+            result._meta?.readerError,
+          );
+          setSearchFailure(
+            failure.success ? failure.data.message : '搜索未完成，请重试。',
+          );
+        }
+      };
       instance.onhostcontextchanged = (context) => {
         if (context.theme)
           document.documentElement.dataset.hostTheme = context.theme;
@@ -46,6 +75,21 @@ function HostedReader() {
         正在连接阅读器宿主…
       </main>
     );
+  if (searchEntry)
+    return (
+      <SearchFlow
+        transport={transport}
+        initialResult={searchResult}
+        initialError={searchFailure}
+        retryInput={retryInput}
+        onFlushReady={onFlushReady}
+        fullscreen={() =>
+          app
+            ? app.requestDisplayMode({ mode: 'fullscreen' })
+            : Promise.resolve()
+        }
+      />
+    );
   return (
     <ReaderApp
       transport={transport}
@@ -57,10 +101,19 @@ function HostedReader() {
 
 const root = document.getElementById('root');
 if (!root) throw new Error('页面缺少应用根节点。');
+const previewQuery = new URLSearchParams(location.search).get('search');
+const previewSearch = searchInputSchema.safeParse({
+  queries: [previewQuery ?? ''],
+  by: new URLSearchParams(location.search).get('by') ?? 'story',
+});
 createRoot(root).render(
   <CoverImagesProvider>
     {window.parent === window ? (
-      <ReaderApp transport={previewTransport} environment="浏览器开发预览" />
+      previewQuery && previewSearch.success ? (
+        <SearchFlow transport={previewTransport} input={previewSearch.data} />
+      ) : (
+        <ReaderApp transport={previewTransport} environment="浏览器开发预览" />
+      )
     ) : (
       <HostedReader />
     )}

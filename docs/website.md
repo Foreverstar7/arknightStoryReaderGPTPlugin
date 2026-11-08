@@ -13,16 +13,16 @@ node scripts/serve-site.mjs
 
 打开 http://127.0.0.1:4330/arknightStoryReaderGPTPlugin/ 。修改源码后重新构建并刷新；网页不需要 fixture 开发服务、MCP、PRTS 或模型 API key。服务只绑定 127.0.0.1，Ctrl+C 停止自己的预览。
 
-- **观看流程**：滚动进入“阅读器示例”，下滑推进，停下暂停，上滑倒放。侧栏选中、封面目录、篇目轴出现、定位篇目和正文展开有五段明确停留；画面保持不动，继续滚动一小段距离后才推进，并显示“停留中 · 继续下滑”。停留不计时、不拦截滚轮／触摸。总区为 650svh，其中动作占 380svh、五个停留共 170svh，另保留一个 sticky 视口；比 600svh 版本的停留距离增加约 42%，转场移动速度保持，正文停留略长。动画里的操作是示意，不是按钮。
-- **亲自试试**：点击或用键盘展开，首次才加载真实 ReaderApp；可翻页、点姓名查看兔兔、原位展开场景、调整设置和续读。收起再展开不重置页面；“重置演示”恢复预置占位样例。
-- **数据范围**：标题、正文和角色名是占位符，图片是本地 AI 生成示意；记录存在独立的浏览器 sessionStorage，不读取或同步安装后的插件数据。刷新进入主页，最近阅读可恢复位置；新版 v2 会话键不覆盖早期 v1，关闭标签页后的清理由浏览器管理。
-- **减少动态效果／矮窗口**：显示静态正文和四步说明，保留自然网页滚动，不将整页缩小。
+- **观看流程**：同一个 ChatGPT 示意窗口先演示侧栏浏览：总目录 → 横向篇目轴 → 正文；再以“也可以在对话中，直接找想读的故事”过渡，演示输入“帮我找一下《孤星》”、结果卡片和进入篇章目录查看简介。保留原浏览路径的移动速度和五个停留，追加搜索输入、卡片、目录三个停留；18 单位时间映射为 570svh 动作和 262svh 停留，总区 932svh。停留只消耗原生滚动距离，上滑可倒放，不计时或锁输入。
+- **亲自试试**：首次展开才加载真实 ReaderApp。侧栏入口保留自由浏览；首页提供预填“帮我找一下《孤星》”的输入和原生提交按钮，只支持明确标示的预设。提交通过同源 iframe 消息调用同一份目录匹配逻辑，返回不带简介的卡片；点击后保存原有样例位置，再进入《孤星》篇章目录，展示占位简介。侧栏与首页切换不重载阅读器；显式搜索跳转才切换目标。重置同时清理演示搜索结果。
+- **数据范围**：《孤星》名称用于演示真实名称定位，其余目录标题、篇目、简介、正文与人物仍使用占位文案，常驻“占位演示／非原作剧情”说明，不表示这些内容对应《孤星》原作。图片为本地 AI 生成示意；独立 sessionStorage v2 不读取安装后的插件数据，刷新进入主页，最近阅读保留续读。网站不调用真实 MCP、PRTS 或模型服务。
+- **减少动态效果／矮窗口**：显示静态正文及包含侧栏、对话入口的六步说明；可交互搜索仍可使用，保留自然滚动，不缩放页面。
 
 ## 源码边界
 
 - website/index.html、styles.css：沿用已认可 HTML 的布局、安装命令、常见问题与项目标识；已去除草稿工具栏和标注研究区。
-- website/walkthrough.ts、walkthrough.css：独立 GSAP／ScrollTrigger 分镜和响应式样式，和可交互阅读器不共享阅读状态。walkthrough-timing.ts 将滚动距离映射到原 12 单位动作时间，在完整画面插入真正冻结整条时间轴的停留段；同位置倒放／刷新布局得到同一帧，CSS 区域高度由同一参数生成。
-- website/app.ts：按需加载体验区、示意外壳切换及显式重置。
+- website/walkthrough.ts、walkthrough.css：独立 GSAP／ScrollTrigger 分镜，不控制交互阅读器状态；walkthrough-timing.ts 是两段流程、原生滚动距离与停留的唯一参数来源。同一位置的倒放／缩放得到同一帧。
+- website/app.ts：按需加载、侧栏／首页切换、预设搜索和卡片交互；验证同源 iframe、消息来源及工具结果结构，不插入不可信 HTML。
 - website/demo/：复用 src/ui/ReaderApp、阅读器 CSS 与字数规则。data.ts 提供独立占位目录／正文，assets.ts 仅按请求读取打包图片；BrowserDemoTransport 适配浏览器会话数据，沿用工具输入／输出验证，不连接本机 API 或 PRTS。共享契约的可选 imagesAvailable 允许 fixture 正常走图片接口，sourceLabel 让本地素材正确标注来源；普通 fixture 和正式 PRTS 默认行为保留。
 - scripts/build-site.mjs：检查公开源目录／相对资源后，用已有 Vite／React 工具链构建两个静态入口至 build/site/；输出保持 Pages 项目子路径可用。不处理 npm 归档或私人阅读记录。
 
@@ -48,7 +48,7 @@ Playwright 会自行启停 4330 预览。运行前应先关闭自己在该端口
 - assets/rabbit-portrait.webp 为 768×768、52,462 字节的透明卡通动物兔子：四足坐姿、蓝色小吊坠和银色戒环，不采用人形。原始透明 PNG、动物体态编辑输入、设定核对与完整内置 image_gen 提示词见 [兔兔素材](design/website-demo-assets/PROMPTS.md)。已知角色和分支角色复用此示意图，匿名仍显示中性占位。
 - 主题封面用于网站公开演示；不加入玛恩纳、官方截图、游戏立绘、CG 或转载正文。
 - GitHub 图标来自官方 Octicons，MIT 许可在 HTML 中保留。GSAP 3.15.1 为网站开发依赖，使用其标准许可，不将项目 MIT 扩展为素材或第三方库的许可。
-- README 使用 demo-library.png、demo-chapters.png、demo-reader.png、demo-portrait.png 四张实际截图，路径相对当前分支。旧三张图保留作历史素材。重新截图先构建网站，再运行 `node scripts/capture-site-previews.mjs`：它自启 4331 静态服务、使用全新浏览器会话并禁止外部请求，不依赖 dist/server 或私人数据；Windows 可设 PLAYWRIGHT_CHANNEL=msedge。
+- README 使用 demo-library.png、demo-chapters.png、demo-reader.png、demo-portrait.png、demo-search.png 五张实际截图。重新截图先构建网站，再运行 `node scripts/capture-site-previews.mjs`；脚本自启独立 4331 服务、全新会话并禁止外部请求，Windows 可设 PLAYWRIGHT_CHANNEL=msedge。
 
 ## GitHub Actions 与发布
 

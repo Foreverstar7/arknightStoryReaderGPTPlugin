@@ -1,14 +1,16 @@
-// Keep the original 12-unit choreography. Motion consumes 380svh; five complete
-// poses consume another 170svh without advancing any animation. Together with
-// the sticky viewport this yields a 650svh section, with no timers or input lock.
-export const WALK_CONTENT_DURATION = 12;
-const motionSvh = 380;
+// Preserve the original motion distance per unit. A second route demonstrates
+// conversation search inside the same host window, with native reversible scroll.
+export const WALK_CONTENT_DURATION = 18;
+const motionSvh = 570;
 const holds = [
   { id: 'sidebar', at: 2.18, span: 24 },
   { id: 'library', at: 3.45, span: 36 },
   { id: 'chapters', at: 5.85, span: 32 },
   { id: 'chapter-selected', at: 7.56, span: 28 },
   { id: 'reader', at: 8.9, span: 50 },
+  { id: 'search-input', at: 14.2, span: 24 },
+  { id: 'search-results', at: 15.4, span: 36 },
+  { id: 'search-directory', at: 17.5, span: 32 },
 ] as const;
 
 export const WALK_HOLDS = holds.map((hold, index) => {

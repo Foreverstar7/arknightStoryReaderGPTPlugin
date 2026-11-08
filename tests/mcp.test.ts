@@ -4,7 +4,15 @@ import { test } from 'node:test';
 import { Client, InMemoryTransport } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 import { FixtureSource } from '../src/data/fixture.js';
-import { createReaderMcp, RESOURCE_URI } from '../src/server/mcp.js';
+import {
+  createReaderMcp,
+  RESOURCE_URI,
+  SEARCH_RESOURCE_URI,
+} from '../src/server/mcp.js';
+import {
+  modelSearchResultSchema,
+  searchResultSchema,
+} from '../src/shared/search.js';
 import { ReaderService } from '../src/server/service.js';
 import {
   readingStateSchema,
@@ -27,11 +35,19 @@ test('SDK negotiation, app-only visibility, extension registration and persisten
     await server.connect(serverWire);
     await client.connect(clientWire);
     const tools = (await client.listTools()).tools;
-    assert.equal(tools.length, 10);
+    assert.equal(tools.length, 12);
     assert.ok(
-      tools.every((tool) =>
-        JSON.stringify(tool._meta?.ui).includes('"visibility":["app"]'),
-      ),
+      tools
+        .filter((tool) => tool.name !== 'reader_search')
+        .every((tool) =>
+          JSON.stringify(tool._meta?.ui).includes('"visibility":["app"]'),
+        ),
+    );
+    assert.deepEqual(
+      tools
+        .filter((tool) => JSON.stringify(tool._meta?.ui).includes('model'))
+        .map((tool) => tool.name),
+      ['reader_search'],
     );
     const open = tools.find((tool) => tool.name === 'reader_open');
     assert.ok(open);
@@ -39,6 +55,24 @@ test('SDK negotiation, app-only visibility, extension registration and persisten
       entrypoints: [{ type: 'global' }, { type: 'thread' }],
     });
     assert.ok(JSON.stringify(open._meta?.ui).includes(RESOURCE_URI));
+    const beforeSearch = await service.records.read();
+    const searched = await client.callTool({
+      name: 'reader_search',
+      arguments: { by: 'character', queries: ['记录员'] },
+    });
+    assert.equal(searched.isError, undefined);
+    assert.equal(
+      modelSearchResultSchema.parse(searched.structuredContent).total,
+      3,
+    );
+    assert.equal(
+      searchResultSchema.parse(searched._meta?.readerSearch).results[0]
+        ?.matchedChapters.length,
+      6,
+    );
+    assert.deepEqual(await service.records.read(), beforeSearch);
+    const resource = await client.readResource({ uri: SEARCH_RESOURCE_URI });
+    assert.ok(JSON.stringify(resource).includes('data-entry=\\"search\\"'));
     const result = await client.callTool({
       name: 'reader_snapshot',
       arguments: {},

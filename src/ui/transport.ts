@@ -118,7 +118,9 @@ export function hostTransport(
                 );
               }
             })
-          : result.structuredContent;
+          : name === 'reader_search'
+            ? result._meta?.readerSearch
+            : result.structuredContent;
       return decodeToolResult(name, args, value);
     },
   };

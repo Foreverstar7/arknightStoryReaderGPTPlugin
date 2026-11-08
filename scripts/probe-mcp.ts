@@ -56,7 +56,11 @@ try {
   assert.deepEqual(refreshed.state, snapshot.state);
   assert.ok(
     tools.every((tool) =>
-      JSON.stringify(tool._meta?.ui).includes('"visibility":["app"]'),
+      JSON.stringify(tool._meta?.ui).includes(
+        tool.name === 'reader_search'
+          ? '"visibility":["model","app"]'
+          : '"visibility":["app"]',
+      ),
     ),
   );
   const first = (

@@ -16,6 +16,7 @@ import {
   type ToolName,
 } from './contracts.js';
 import { ReaderError } from './errors.js';
+import { searchInputSchema, searchResultSchema } from './search.js';
 
 function contract<Input extends z.ZodType, Output extends z.ZodType>(
   input: Input,
@@ -45,6 +46,14 @@ function contract<Input extends z.ZodType, Output extends z.ZodType>(
 /** Logical tool contracts shared by HTTP, MCP and the page. Image transport
  * framing is separate: only MCP moves binary layers into app-only metadata. */
 const definitions = {
+  reader_search: contract(searchInputSchema, searchResultSchema),
+  reader_story_info: contract(
+    z.strictObject({
+      storyId: z.string().min(1).max(200),
+      refresh: z.boolean().optional(),
+    }),
+    chapterInfoSchema,
+  ),
   reader_open: contract(
     z.object({}),
     z.object({ ready: z.boolean(), source: z.string() }),

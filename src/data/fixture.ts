@@ -170,6 +170,25 @@ const stories: Story[] = groups.map((group) => ({
 }));
 
 export class FixtureSource implements StorySource {
+  async storyInfo() {
+    return {
+      summary:
+        '原创剧情导语示意：旅人翻开沿途记录，循着尚未清晰的线索继续前行。',
+    };
+  }
+  async appearances() {
+    return chapters.map((chapter) => ({
+      chapterId: chapter.id,
+      names: [
+        ...new Set(
+          chapter.blocks.flatMap((block) =>
+            block.kind === 'speech' ? [block.name] : [],
+          ),
+        ),
+      ],
+      sourceUrl: 'https://example.invalid/original-fixture',
+    }));
+  }
   readonly label = '原创 fixture · 非游戏剧情';
   async catalog(): Promise<Story[]> {
     return structuredClone(stories);

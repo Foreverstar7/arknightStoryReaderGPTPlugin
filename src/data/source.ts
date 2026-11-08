@@ -6,6 +6,7 @@ import type {
   CgComposition,
 } from '../shared/contracts.js';
 import type { SpeakerBinding } from './prts-speaker.js';
+import type { Appearance } from '../shared/search.js';
 
 export type ImageTarget =
   | {
@@ -22,6 +23,12 @@ export interface StorySource {
   chapter(chapterId: string, retentionDays?: number): Promise<Chapter>;
   isCurrentRevision?(revision: string): boolean;
   reparseCached?(chapter: Chapter): Chapter | null;
+  appearances?(retentionDays: number, refresh?: boolean): Promise<Appearance[]>;
+  storyInfo?(
+    storyId: string,
+    retentionDays: number,
+    refresh?: boolean,
+  ): Promise<{ summary?: string; sourceUrl?: string }>;
   chapterInfo?(
     chapterId: string,
     retentionDays: number,

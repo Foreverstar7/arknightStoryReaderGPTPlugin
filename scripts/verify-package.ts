@@ -9,12 +9,17 @@ import { npmCommand } from './npm-command.js';
 import { readReaderLaunch } from './reader-launch.js';
 import {
   chapterSchema,
+  chapterInfoSchema,
   readingStateSchema,
   snapshotSchema,
   type ReadingState,
 } from '../src/shared/contracts.js';
 import { collectImageResult } from '../src/shared/image-transfer.js';
 import { imageResultSchema } from '../src/shared/contracts.js';
+import {
+  modelSearchResultSchema,
+  searchResultSchema,
+} from '../src/shared/search.js';
 import { RESOURCE_URI } from '../src/server/mcp.js';
 import { checkVersions } from './release-version.js';
 import {
@@ -178,15 +183,18 @@ const result = await withVerificationCleanup(async () => {
   }
   let client = await connect();
   const tools = await verificationStep(
-    'Read app-only tools',
+    'Read reader tool contracts',
     async () => (await client.listTools()).tools,
   );
-  assert.equal(tools.length, 10);
+  assert.equal(tools.length, 12);
   for (const tool of tools) {
     const meta = z
       .object({ ui: z.object({ visibility: z.array(z.string()) }) })
       .parse(tool._meta);
-    assert.deepEqual(meta.ui.visibility, ['app']);
+    assert.deepEqual(
+      meta.ui.visibility,
+      tool.name === 'reader_search' ? ['model', 'app'] : ['app'],
+    );
   }
   const open = tools.find((tool) => tool.name === 'reader_open');
   assert.ok(open);
@@ -246,6 +254,25 @@ const result = await withVerificationCleanup(async () => {
       JSON.stringify(snapshotResult._meta?.readerError),
     );
     const snapshot = snapshotSchema.parse(snapshotResult.structuredContent);
+    const searchResult = await client.callTool({
+      name: 'reader_search',
+      arguments: { by: 'story', queries: ['孤星'] },
+    });
+    assert.notEqual(searchResult.isError, true);
+    assert.equal(
+      modelSearchResultSchema.parse(searchResult.structuredContent).total,
+      1,
+    );
+    const searchCards = searchResultSchema.parse(
+      searchResult._meta?.readerSearch,
+    );
+    assert.equal(searchCards.results[0]?.title, '孤星');
+    const intro = await client.callTool({
+      name: 'reader_story_info',
+      arguments: { storyId: searchCards.results[0]?.id },
+    });
+    assert.notEqual(intro.isError, true);
+    assert.ok(chapterInfoSchema.parse(intro.structuredContent).summary);
     const story = snapshot.stories.find(
       (item) => item.id === 'prts:骑兵与猎人',
     );
@@ -389,7 +416,8 @@ const result = await withVerificationCleanup(async () => {
     files: files.length,
     tools: tools.length,
     globalEntrypoint: true,
-    allToolsAppOnly: true,
+    modelVisibleTools: ['reader_search'],
+    appOnlyTools: tools.length - 1,
     htmlBytes: Buffer.byteLength(html.text),
     developmentContentAbsent: true,
     ...readingEvidence,

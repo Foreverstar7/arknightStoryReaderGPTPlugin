@@ -28,6 +28,25 @@ function storage() {
   };
 }
 
+test('preset story search and directory intro use only demo metadata and preserve stored reading records', async () => {
+  const saved = storage();
+  const demo = await BrowserDemoTransport.create(saved);
+  const before = saved.getItem(DEMO_STORAGE_KEY);
+  const result = await demo.call('reader_search', {
+    by: 'story',
+    queries: ['孤星'],
+  });
+  assert.equal(result.total, 1);
+  assert.equal(result.results[0]?.id, 'fixture-mist');
+  assert.equal('summary' in (result.results[0] ?? {}), false);
+  assert.ok(
+    (
+      await demo.call('reader_story_info', { storyId: 'fixture-mist' })
+    ).summary?.includes('不对应原作剧情'),
+  );
+  assert.equal(saved.getItem(DEMO_STORAGE_KEY), before);
+});
+
 test('browser demo presets use real fixture word weights and are isolated from unrelated storage', async () => {
   const saved = storage();
   saved.setItem('unrelated-records', 'leave this alone');
@@ -216,7 +235,8 @@ test('all six local covers, inline scenes and named/branch portraits load only w
   assert.equal(snapshot.stories.length, 6);
   assert.deepEqual(loaded, []);
   for (const story of snapshot.stories) {
-    assert.match(story.title, /占位符/u);
+    if (story.id === 'fixture-mist') assert.equal(story.title, '孤星');
+    else assert.match(story.title, /占位符/u);
     const cover = await demo.call('reader_image', {
       kind: 'cover',
       storyId: story.id,

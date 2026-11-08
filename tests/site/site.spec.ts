@@ -43,6 +43,128 @@ async function scrubDistance(page: Page, distance: number) {
   );
 }
 
+test('same-window conversation route follows sidebar reading and preset cards open the existing demo directory', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 960 });
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.goto('./');
+  await scrub(page, 8.9);
+  await expect(page.locator('.walk-reader')).toBeVisible();
+  await scrub(page, 15.4);
+  await expect(page.locator('.walk-search-card')).toBeVisible();
+  await expect(page.locator('.walkthrough')).toHaveAttribute(
+    'data-entrypoint',
+    'conversation',
+  );
+  const forward = await page
+    .locator('.walk-search')
+    .evaluate((node) => getComputedStyle(node).opacity);
+  await scrub(page, 17.5);
+  await expect(page.locator('.walk-chapters')).toBeVisible();
+  await expect(page.locator('.walk-chapters .walk-intro')).toBeVisible();
+  await scrub(page, 15.4);
+  expect(
+    await page
+      .locator('.walk-search')
+      .evaluate((node) => getComputedStyle(node).opacity),
+  ).toBe(forward);
+  await expect(page.locator('#reader-demo')).not.toHaveAttribute('src');
+  await page.locator('#try-reader > summary').click();
+  const frame = page.frameLocator('#reader-demo');
+  await expect(
+    frame.locator('.story-card').filter({ hasText: '孤星' }),
+  ).toBeVisible();
+  await page
+    .getByRole('button', { name: '首页：示例对话', exact: true })
+    .click();
+  await page.locator('#demo-search-input').fill('帮我找一下《孤星》');
+  await page.locator('#demo-search-input').press('Enter');
+  await expect(page.locator('.demo-result-card')).toHaveCount(1);
+  await expect(page.locator('.demo-result-card img')).toBeVisible();
+  await expect
+    .poll(() =>
+      page
+        .locator('.demo-result-card img')
+        .evaluate((node: HTMLImageElement) => node.naturalWidth),
+    )
+    .toBeGreaterThan(0);
+  await expect(page.locator('.demo-result-card')).not.toContainText('简介');
+  await page
+    .getByRole('button', { name: '查看《孤星》篇章目录', exact: true })
+    .click();
+  await expect(frame.locator('.chapters h1')).toHaveText('孤星');
+  await expect(frame.locator('.story-intro')).toContainText('不对应原作剧情');
+  await page.screenshot({
+    path: '.ai/local/story-search/evidence/site-directory.png',
+  });
+  expect(errors).toEqual([]);
+});
+
+test('preset search remains readable and keyboard operable in four viewport sizes and both themes', async ({
+  page,
+}) => {
+  test.setTimeout(60_000);
+  for (const colorScheme of ['light', 'dark'] as const) {
+    await page.emulateMedia({ colorScheme, reducedMotion: 'no-preference' });
+    for (const [width, height] of [
+      [320, 760],
+      [768, 900],
+      [1440, 960],
+      [1024, 400],
+    ]) {
+      if (!width || !height) continue;
+      await page.setViewportSize({ width, height });
+      await page.goto('./');
+      if (height > 480) {
+        await scrub(page, 15.4);
+        await expect(page.locator('.walk-search-card')).toBeVisible();
+        const stage = await page.locator('.walk-stage').boundingBox();
+        const card = await page.locator('.walk-search-card').boundingBox();
+        expect(
+          stage &&
+            card &&
+            card.x >= stage.x &&
+            card.x + card.width <= stage.x + stage.width &&
+            card.y + card.height <= stage.y + stage.height,
+        ).toBe(true);
+        await page.locator('.walk-window').screenshot({
+          path: `.ai/local/story-search/evidence/walk-search-${width}-${colorScheme}.png`,
+        });
+      }
+      await page.locator('#try-reader > summary').click();
+      await expect(
+        page.frameLocator('#reader-demo').locator('.story-card'),
+      ).toHaveCount(6);
+      await page.locator('[data-host-view="home"]:visible').first().click();
+      await page.locator('#demo-search-input').focus();
+      await page.keyboard.press('Enter');
+      await expect(page.locator('.demo-result-card')).toHaveCount(1);
+      expect(
+        await page
+          .locator('#demo-home-panel')
+          .evaluate((node) => node.scrollWidth <= node.clientWidth),
+      ).toBe(true);
+      await page.locator('.demo-window').screenshot({
+        path: `.ai/local/story-search/evidence/site-search-${width}-${height}-${colorScheme}.png`,
+      });
+      await page
+        .getByRole('button', { name: '查看《孤星》篇章目录', exact: true })
+        .focus();
+      await page.keyboard.press('Enter');
+      await expect(
+        page.frameLocator('#reader-demo').locator('.chapters h1'),
+      ).toHaveText('孤星');
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+      ).toBe(true);
+    }
+  }
+});
+
 test('scroll controls the complete flow, pauses at rest and reverses the same geometry', async ({
   page,
 }) => {
@@ -195,7 +317,7 @@ test('real reader loads only on demand, supports reading/settings/resume/reset a
   await summary.press('Enter');
   const frame = page.frameLocator('#reader-demo');
   await expect(
-    frame.locator('.story-card').filter({ hasText: '剧情标题占位符 01' }),
+    frame.locator('.story-card').filter({ hasText: '孤星' }),
   ).toContainText('40%');
   await expect(
     frame.locator('.story-card').filter({ hasText: '剧情标题占位符 03' }),
@@ -250,7 +372,7 @@ test('real reader loads only on demand, supports reading/settings/resume/reset a
     frame.getByRole('heading', { name: '剧情档案', exact: true }),
   ).toBeVisible();
   await expect(
-    frame.locator('.story-card').filter({ hasText: '剧情标题占位符 01' }),
+    frame.locator('.story-card').filter({ hasText: '孤星' }),
   ).toContainText('40%');
   expect(requests.some((url) => url.includes('/api/'))).toBe(false);
   expect(
@@ -295,7 +417,7 @@ test('four viewport sizes and both themes keep the animation and interactive rea
       await page.locator('#try-reader > summary').click();
       const frame = page.frameLocator('#reader-demo');
       await expect(
-        frame.locator('.story-card').filter({ hasText: '剧情标题占位符 01' }),
+        frame.locator('.story-card').filter({ hasText: '孤星' }),
       ).toBeVisible();
       expect(
         await frame
@@ -309,7 +431,7 @@ test('four viewport sizes and both themes keep the animation and interactive rea
       });
       await frame
         .getByRole('button', {
-          name: '打开剧情：剧情标题占位符 01',
+          name: '打开剧情：孤星',
           exact: true,
         })
         .click();
@@ -390,7 +512,7 @@ test('local images support manual loading, portrait retry, keyboard dismissal an
   await page.locator('#try-reader > summary').click();
   const frame = page.frameLocator('#reader-demo');
   await frame
-    .getByRole('button', { name: '打开剧情：剧情标题占位符 01', exact: true })
+    .getByRole('button', { name: '打开剧情：孤星', exact: true })
     .click();
   await frame.locator('.chapter-card').first().click();
   await expect(frame.locator('.cg-image')).toHaveCount(0);
@@ -530,21 +652,23 @@ test('reduced motion uses static steps, can change live, and demo storage errors
     .getByRole('button', { name: '重置样例记录', exact: true })
     .click();
   await expect(
-    frame.locator('.story-card').filter({ hasText: '剧情标题占位符 01' }),
+    frame.locator('.story-card').filter({ hasText: '孤星' }),
   ).toBeVisible();
 });
 
 test('320px touch gestures advance the page and the real cover/chapter path is tappable', async ({
   browser,
+  baseURL,
 }) => {
   const context = await browser.newContext({
+    baseURL,
     viewport: { width: 320, height: 760 },
     isMobile: true,
     hasTouch: true,
   });
   try {
     const page = await context.newPage();
-    await page.goto('http://127.0.0.1:4330/arknightStoryReaderGPTPlugin/');
+    await page.goto('./');
     await page.evaluate(() => {
       document.documentElement.dataset.touchScrollEnded = 'false';
       document.addEventListener(
@@ -582,7 +706,7 @@ test('320px touch gestures advance the page and the real cover/chapter path is t
     await expect(page.locator('#try-reader')).toHaveAttribute('open', '');
     const frame = page.frameLocator('#reader-demo');
     await frame
-      .getByRole('button', { name: '打开剧情：剧情标题占位符 01', exact: true })
+      .getByRole('button', { name: '打开剧情：孤星', exact: true })
       .tap();
     await expect(frame.locator('.timeline-scroll')).toBeVisible();
     await frame.locator('.timeline-scroll button').first().tap();

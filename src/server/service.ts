@@ -30,6 +30,7 @@ import {
 } from '../storage/reading-store.js';
 import { ChapterContent } from './chapter-content.js';
 import { chapterSpeakerBindings } from '../data/prts-speaker.js';
+import { searchStories } from '../domain/search.js';
 
 function historyToken(state: StoredReadingState, storyId: string) {
   return `${state.historyEpoch}:${state.storyHistoryEpochs[storyId] ?? 0}`;
@@ -324,6 +325,26 @@ export class ReaderService {
     return this.handlers[name](args);
   }
   private readonly handlers: ToolHandlers = {
+    reader_search: async (input) =>
+      this.coordinator.run(async () => {
+        const days = (await this.records.read()).settings.retentionDays;
+        const stories = await this.source.catalog(days, input.refresh);
+        if (input.by === 'character' && !this.source.appearances)
+          throw new ReaderError(
+            'unsupported',
+            '当前剧情来源未提供人物出场表。',
+          );
+        const appearances =
+          input.by === 'character'
+            ? await this.source.appearances?.(days, input.refresh)
+            : [];
+        return searchStories(stories, input, appearances);
+      }),
+    reader_story_info: async ({ storyId, refresh }) =>
+      this.coordinator.run(async () => {
+        const days = (await this.records.read()).settings.retentionDays;
+        return (await this.source.storyInfo?.(storyId, days, refresh)) ?? {};
+      }),
     reader_open: async () => ({ ready: true, source: this.source.label }),
     reader_snapshot: async ({ refreshCatalog }) =>
       this.snapshot(refreshCatalog),

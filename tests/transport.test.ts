@@ -4,6 +4,28 @@ import { ReaderError, type ReaderFailure } from '../src/shared/errors.js';
 import { hostTransport, previewTransport } from '../src/ui/transport.js';
 import { FixtureSource } from '../src/data/fixture.js';
 import { initialState } from '../src/shared/contracts.js';
+import { searchStories } from '../src/domain/search.js';
+import { searchForModel, searchInputSchema } from '../src/shared/search.js';
+
+test('search UI hydrates full cards from metadata while the model receives only compact public results', async () => {
+  const full = searchStories(
+    await new FixtureSource().catalog(),
+    searchInputSchema.parse({ queries: ['雾中来信'] }),
+  );
+  const compact = searchForModel(full);
+  const transport = hostTransport({
+    callServerTool: async () => ({
+      structuredContent: compact,
+      _meta: { readerSearch: full },
+      content: [{ type: 'text', text: '搜索完成' }],
+    }),
+  });
+  const hydrated = await transport.call('reader_search', {
+    queries: ['雾中来信'],
+  });
+  assert.equal(hydrated.results[0]?.chapterCount, 6);
+  assert.equal('chapterCount' in (compact.results[0] ?? {}), false);
+});
 
 test('preview preserves structured failure codes and sources even when messages are identical; absent codes are never guessed', async () => {
   const original = globalThis.fetch;

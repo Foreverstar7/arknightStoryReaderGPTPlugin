@@ -2,12 +2,17 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { z } from 'zod';
 import {
   Client,
   StreamableHTTPClientTransport,
 } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
-import { snapshotSchema, imageResultSchema } from '../src/shared/contracts.js';
+import {
+  snapshotSchema,
+  imageResultSchema,
+  toolNames,
+} from '../src/shared/contracts.js';
 import {
   coverPresentation,
   textCoverTitle,
@@ -64,12 +69,19 @@ try {
     `Connected ${installed ? 'package stdio' : 'HTTP'} ${client.getServerVersion()?.version}`,
   );
   const tools = (await client.listTools()).tools;
-  assert.equal(tools.length, 10);
-  assert.ok(
-    tools.every((tool) =>
-      JSON.stringify(tool._meta?.ui).includes('"visibility":["app"]'),
-    ),
+  assert.deepEqual(
+    tools.map((tool) => tool.name).sort(),
+    [...toolNames].sort(),
   );
+  for (const tool of tools) {
+    const { ui } = z
+      .object({ ui: z.object({ visibility: z.array(z.string()) }) })
+      .parse(tool._meta);
+    assert.deepEqual(
+      [...ui.visibility].sort(),
+      tool.name === 'reader_search' ? ['app', 'model'] : ['app'],
+    );
+  }
   const snapshot = snapshotSchema.parse(
     (await client.callTool({ name: 'reader_snapshot', arguments: {} }))
       .structuredContent,

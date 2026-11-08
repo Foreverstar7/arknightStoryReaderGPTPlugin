@@ -486,6 +486,7 @@
 }
 .walk-steps {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: 12px;
   list-style: none;
@@ -493,6 +494,65 @@
   margin: 0;
   font-size: 14px;
   color: var(--muted);
+}
+.walk-interlude {
+  display: grid;
+  place-items: center;
+  background: var(--surface);
+  text-align: center;
+  font-size: clamp(20px, 3vw, 32px);
+}
+.walk-search {
+  background: var(--surface);
+}
+.walk-search-content {
+  max-width: 620px;
+  padding: 12px clamp(14px, 4vw, 36px);
+  margin: 0 auto;
+}
+.walk-search-query {
+  width: fit-content;
+  margin: 0 0 20px auto;
+  padding: 12px 18px;
+  border-radius: 18px;
+  background: var(--soft);
+}
+.walk-search-answer > p {
+  font-size: clamp(12px, 1.5vw, 15px);
+}
+.walk-search-card {
+  max-width: 310px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--page);
+}
+.walk-search-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1560 / 500;
+  object-fit: contain;
+  background: #16232c;
+}
+.walk-search-card > div {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+}
+.walk-search-card strong {
+  font-size: 20px;
+}
+.walk-search-card small {
+  color: var(--muted);
+}
+.walk-search-card span {
+  color: var(--accent);
+  font-size: 13px;
+}
+.walk-book .walk-intro {
+  max-width: 40ch;
+  font-size: 12px;
 }
 .walk-steps li {
   transition: color 150ms;

@@ -37,15 +37,19 @@ Vite 默认使用 5173，并把 `/api` 代理到 4318。启动与来源切换见
 
 ## MCP 与宿主
 
-使用官方 MCP Apps SDK 注册 UI 资源及工具；生命周期处理器先注册再连接。`reader_open` 声明 global／thread 入口；十个工具均为 app-only：
+使用官方 MCP Apps SDK 注册 UI 资源及工具；生命周期处理器先注册再连接。`reader_open` 声明 global／thread 入口。`reader_search` 是唯一模型可见工具，另十一项为 app-only：
 
 - 打开／快照：`reader_open`、`reader_snapshot`。
-- 正文／公共字数／简介：`reader_chapter`、`reader_prepare_chapter`、`reader_chapter_info`。
+- 正文／公共字数／简介：`reader_chapter`、`reader_prepare_chapter`、`reader_chapter_info`、`reader_story_info`。
 - 图片：`reader_image`。
 - 记录与偏好：`reader_record`、`reader_settings`。
 - 清理：`reader_clear_cache`、`reader_clear_history`。
 
 输入、输出和返回篇目标识由 `src/shared/tools.ts` 校验。HTTP 传逻辑结果；MCP 把图片字节放在 app-only 的 `_meta.readerImage`，类型化错误放 `_meta.readerError`。大图分段传输并按原字节重组，UI 不需要外域 CSP。
+
+搜索参数为 `by: story | chapter | character`、`queries: string[]`，可选 offset／limit／refresh；不支持组织／国家／事件关系推理。完整公共卡片数据放在 `_meta.readerSearch`，`structuredContent` 仅含剧情 ID／名称／类型、命中查询和篇目数等简短信息，避免把出场表或正文交给模型筛选。`ui://arknights-reader/v1/search.html` 默认 inline，点击卡片后请求宿主 fullscreen 并复用 ReaderApp；不支持更大显示模式的宿主仍可在当前容器操作。`initialStoryId` 明确指定目录目标，优先于最近阅读。搜索结果不包含私人记录；目录中的进度继续由页面内部快照取得。
+
+PRTS 搜索只读取既有目录和“剧情出场人物一览”的主线／活动子页，复用 metadata 缓存、保留天数与清理代次；人物名按源表精确匹配，不剥离疑问号或猜测匿名身份。`reader_story_info` 按需读取 PRTS 导语列表和主线章节说明，不从全文生成摘要。网站 BrowserDemoTransport 复用名称匹配逻辑，使用独立占位目录和会话记录。
 
 正式版本发布后，其他 MCP Apps 宿主可使用以下 stdio 命令；这些宿主尚未验收：
 

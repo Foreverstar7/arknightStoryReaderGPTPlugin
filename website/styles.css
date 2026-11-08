@@ -464,6 +464,81 @@ button.host-icon:hover {
   color: var(--muted);
   opacity: 1;
 }
+.demo-search-form {
+  margin-top: 24px;
+}
+.demo-search-form > div {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  margin-top: 8px;
+}
+.demo-search-form .chat-composer {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  color: var(--ink);
+  -webkit-text-fill-color: var(--ink);
+}
+.demo-search-form button {
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--ink);
+  background: var(--soft);
+  font: inherit;
+}
+.demo-result-card {
+  position: relative;
+  max-width: 340px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: 16px;
+  background: var(--page);
+}
+.demo-result-card button::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+  border-radius: inherit;
+}
+.demo-result-card button:focus-visible::after {
+  outline: 2px solid var(--accent);
+  outline-offset: -3px;
+}
+.demo-result-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1560 / 500;
+  object-fit: contain;
+  background: #16232c;
+}
+.demo-result-card button {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  padding: 14px;
+  text-align: left;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  font: inherit;
+}
+.demo-result-card strong {
+  font-size: 19px;
+}
+@media (max-width: 380px) {
+  .demo-search-form > div {
+    flex-wrap: wrap;
+  }
+  .demo-search-form .chat-composer {
+    flex-basis: 100%;
+  }
+}
 .demo-bottom {
   display: flex;
   align-items: center;

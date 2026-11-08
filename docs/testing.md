@@ -11,6 +11,8 @@ npm run build
 
 check 覆盖类型、单元／协议测试和格式。UI 变化还需实际操作，不以构建成功代替界面验收。
 
+搜索变更增加 `node --import tsx scripts/probe-search.ts`：使用全新隔离缓存访问真实 PRTS，验证批量名称、R8-1 编号、塔露拉出场、活动／主线导语及断网重开，并禁止正文或图片请求。报告位于 `.ai/local/story-search/live-*/report.json`，不读取私人记录。浏览器搜索入口可用 `/?search=记录员&by=character` 在 fixture 预览；这是开发验证入口，正式搜索由 MCP 调用渲染卡片。`tests/browser/search.spec.ts` 覆盖显式目录目标优先于续读、错误重试和四种窗口双主题。
+
 ## 页面与真实来源
 
 ```sh

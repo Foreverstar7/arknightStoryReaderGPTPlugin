@@ -13,12 +13,14 @@ import { PrtsResources, portraitReference } from './prts-resources.js';
 import { placeholderPortrait, portraitResourceGroup } from './prts-portrait.js';
 import { resolvePortraitView } from './prts-portrait-view.js';
 import { PrtsMetadata } from './prts-metadata.js';
+import { PrtsSearchData } from './prts-search.js';
 
 export class PrtsSource implements StorySource {
   readonly label = 'PRTS 真实剧情 · 正文与图片按需获取';
   private readonly cache: PrtsCatalogCache;
   readonly resources: PrtsResources;
   private readonly metadata: PrtsMetadata;
+  private readonly searchData: PrtsSearchData;
   private readonly catalogPending = new Map<string, Promise<Story[]>>();
   isCurrentRevision(revision: string): boolean {
     return revision.startsWith('prts-script-v4:');
@@ -41,6 +43,7 @@ export class PrtsSource implements StorySource {
     this.cache = new PrtsCatalogCache(root);
     this.resources = new PrtsResources(root, readWiki, request);
     this.metadata = new PrtsMetadata(root, readWiki);
+    this.searchData = new PrtsSearchData(root, readWiki);
   }
   async catalog(retentionDays = 7, refresh = false): Promise<Story[]> {
     return this.cache.run(() => this.loadCatalog(retentionDays, refresh));
@@ -101,6 +104,15 @@ export class PrtsSource implements StorySource {
         ? { group: story.title }
         : {}),
     });
+  }
+  appearances(days: number, refresh = false) {
+    return this.searchData.appearances(days, refresh);
+  }
+  async storyInfo(id: string, days: number, refresh = false) {
+    const story = (await this.catalog(days)).find((item) => item.id === id);
+    if (!story)
+      throw new ReaderError('not_found', '该剧情不在 PRTS 正文目录内。');
+    return this.searchData.storyInfo(story, days, refresh);
   }
   async chapterInfo(id: string, days: number) {
     if (

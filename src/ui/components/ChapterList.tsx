@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { ReadingState, Story } from '../../shared/contracts.js';
 import {
   chapterProgress,
@@ -9,6 +9,7 @@ import { Cover } from './Library.js';
 import type { ReaderTransport } from '../transport.js';
 import { useVisible } from './SourceImage.js';
 import { storyTypeLabel } from '../catalog.js';
+import { StoryIntro } from './StoryIntro.js';
 import type { StoryPreparation } from '../useStoryPreparation.js';
 
 function Summary({
@@ -73,6 +74,7 @@ export function ChapterList({
   preparation,
   retryPreparation,
   clearHistory,
+  matchedChapterIds = [],
 }: {
   story: Story;
   state: ReadingState;
@@ -81,6 +83,7 @@ export function ChapterList({
   preparation: StoryPreparation | null;
   retryPreparation: () => void;
   clearHistory: () => Promise<void>;
+  matchedChapterIds?: string[];
 }) {
   const scroller = useRef<HTMLDivElement>(null);
   const drag = useRef<{
@@ -93,6 +96,16 @@ export function ChapterList({
   const [confirmClear, setConfirmClear] = useState(false);
   const [clearing, setClearing] = useState(false);
   const [clearMessage, setClearMessage] = useState('');
+  const matches = new Set(matchedChapterIds);
+  const matchSignature = matchedChapterIds.join('|');
+  useLayoutEffect(() => {
+    const node = scroller.current?.querySelector<HTMLElement>(
+      '[data-search-match="true"]',
+    );
+    const parent = node?.closest<HTMLElement>('.timeline-node');
+    if (parent && scroller.current)
+      scroller.current.scrollLeft = Math.max(0, parent.offsetLeft - 22);
+  }, [story.id, matchSignature]);
   const pending = pendingReadingChapters(story, state.records);
   const recent = Object.values(state.records)
     .filter((record) => record.storyId === story.id)
@@ -109,6 +122,12 @@ export function ChapterList({
         <div className="book-heading">
           <span className="eyebrow">STORY / {storyTypeLabel(story)}</span>
           <h1>{story.title}</h1>
+          {matches.size > 0 && (
+            <p className="search-match-label">
+              本次搜索命中 {matches.size} 篇，已定位首个匹配篇目。
+            </p>
+          )}
+          <StoryIntro key={story.id} storyId={story.id} transport={transport} />
           <p className="muted">{story.chapters.length} 篇记录 · 从左到右浏览</p>
           <div className="story-preparation" role="status">
             {preparation?.phase === 'ready'
@@ -308,7 +327,10 @@ export function ChapterList({
           {story.chapters.map((chapter, index) => (
             <div className="timeline-node" key={chapter.id}>
               <span className="node-dot" />
-              <div className="chapter-card">
+              <div
+                className="chapter-card"
+                data-search-match={matches.has(chapter.id) ? 'true' : undefined}
+              >
                 <button
                   className="chapter-open"
                   onClick={() => open(chapter.id, false)}
@@ -319,6 +341,9 @@ export function ChapterList({
                     <span>{String(index + 1).padStart(2, '0')}</span>
                   </span>
                   <strong>{chapter.title}</strong>
+                  {matches.has(chapter.id) && (
+                    <span className="search-match-label">搜索命中</span>
+                  )}
                 </button>
                 <Summary
                   chapter={chapter}

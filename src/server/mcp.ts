@@ -18,8 +18,14 @@ import type { ReaderService } from './service.js';
 import { VERSION } from '../shared/version.js';
 import { imageToolMetadata } from './image-transfer.js';
 import { imagePartRequestSchema } from '../shared/image-transfer.js';
+import {
+  modelSearchResultSchema,
+  searchForModel,
+  searchResultSchema,
+} from '../shared/search.js';
 
 export const RESOURCE_URI = 'ui://arknights-reader/v1/index.html';
+export const SEARCH_RESOURCE_URI = 'ui://arknights-reader/v1/search.html';
 export function createReaderMcp(
   service: ReaderService,
   projectRoot: string,
@@ -28,34 +34,43 @@ export function createReaderMcp(
     name: 'arknights-story-reader',
     version: VERSION,
   });
-  registerAppResource(
-    server,
-    'reader',
-    RESOURCE_URI,
-    { mimeType: RESOURCE_MIME_TYPE },
-    async () => ({
-      contents: [
-        {
-          uri: RESOURCE_URI,
-          mimeType: RESOURCE_MIME_TYPE,
-          text: await readFile(
-            path.join(projectRoot, 'dist/ui/index.html'),
-            'utf8',
-          ),
-          _meta: {
-            'openai/ui': {
-              preferredDisplayMode: 'fullscreen',
-              availableDisplayModes: ['inline', 'fullscreen'],
-            },
-            ui: {
-              csp: { connectDomains: [], resourceDomains: [] },
-              prefersBorder: false,
+  for (const resource of [
+    { uri: RESOURCE_URI, search: false },
+    { uri: SEARCH_RESOURCE_URI, search: true },
+  ])
+    registerAppResource(
+      server,
+      resource.search ? 'story-search' : 'reader',
+      resource.uri,
+      { mimeType: RESOURCE_MIME_TYPE },
+      async () => ({
+        contents: [
+          {
+            uri: resource.uri,
+            mimeType: RESOURCE_MIME_TYPE,
+            text: (
+              await readFile(
+                path.join(projectRoot, 'dist/ui/index.html'),
+                'utf8',
+              )
+            ).replace(
+              '<html',
+              resource.search ? '<html data-entry="search"' : '<html',
+            ),
+            _meta: {
+              'openai/ui': {
+                preferredDisplayMode: resource.search ? 'inline' : 'fullscreen',
+                availableDisplayModes: ['inline', 'fullscreen'],
+              },
+              ui: {
+                csp: { connectDomains: [], resourceDomains: [] },
+                prefersBorder: false,
+              },
             },
           },
-        },
-      ],
-    }),
-  );
+        ],
+      }),
+    );
 
   function register<
     Args extends Record<string, unknown>,
@@ -77,11 +92,14 @@ export function createReaderMcp(
         title,
         description: title,
         inputSchema: schemas.input,
-        outputSchema: schemas.output,
+        outputSchema:
+          name === 'reader_search' ? modelSearchResultSchema : schemas.output,
         annotations: {
           readOnlyHint: readOnly,
           destructiveHint: name === 'reader_clear_history',
           openWorldHint: [
+            'reader_search',
+            'reader_story_info',
             'reader_snapshot',
             'reader_chapter',
             'reader_prepare_chapter',
@@ -90,18 +108,38 @@ export function createReaderMcp(
           ].includes(name),
         },
         _meta:
-          name === 'reader_open'
+          name === 'reader_search'
             ? {
-                ui: { resourceUri: RESOURCE_URI, visibility: ['app'] },
-                'openai/ui': {
-                  entrypoints: [{ type: 'global' }, { type: 'thread' }],
+                ui: {
+                  resourceUri: SEARCH_RESOURCE_URI,
+                  visibility: ['model', 'app'],
                 },
               }
-            : { ui: { visibility: ['app'] } },
+            : name === 'reader_open'
+              ? {
+                  ui: { resourceUri: RESOURCE_URI, visibility: ['app'] },
+                  'openai/ui': {
+                    entrypoints: [{ type: 'global' }, { type: 'thread' }],
+                  },
+                }
+              : { ui: { visibility: ['app'] } },
       },
       async (args) => {
         try {
           const { value, meta } = await run(args);
+          if (name === 'reader_search') {
+            const results = searchResultSchema.parse(value);
+            return {
+              structuredContent: searchForModel(results),
+              _meta: { readerSearch: results },
+              content: [
+                {
+                  type: 'text',
+                  text: `找到 ${results.total} 部剧情；卡片可打开篇章目录。${results.unmatchedQueries.length ? `当前资料未找到：${results.unmatchedQueries.join('、')}。` : ''}`,
+                },
+              ],
+            };
+          }
           return {
             structuredContent: value,
             ...(meta ? { _meta: meta } : {}),
@@ -175,6 +213,12 @@ export function createReaderMcp(
     },
   );
   tool('reader_chapter_info', '按需读取可见篇目的关卡简介', true);
+  tool('reader_story_info', '按需读取篇章目录中的 PRTS 剧情导语', true);
+  tool(
+    'reader_search',
+    '查找并展示可点击的剧情卡片。by=story 按剧情名称定位，支持 AI 已查到的多个名称；by=chapter 按篇目编号或标题查找；by=character 仅查询 PRTS 明确收录的实际出场。queries 填关键词而非整句问题。组织、国家、事件请先借助可用搜索查找 PRTS 依据，再以 by=story 定位剧情名；本工具不确认这类主题关联。不读取正文、不返回私人阅读记录。',
+    true,
+  );
   tool('reader_open', '打开方舟剧情阅读器', true);
   tool('reader_snapshot', '读取页面目录与本机阅读记录，可主动刷新目录', true);
   tool('reader_chapter', '按需读取一个篇目的正文', true);

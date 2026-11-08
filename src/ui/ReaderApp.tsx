@@ -58,12 +58,17 @@ export function ReaderApp({
   environment,
   onFlushReady,
   resumeOnStart = true,
+  initialStoryId,
+  matchedChapterIds,
 }: {
   transport: ReaderTransport;
   environment: string;
   onFlushReady?: (flush: () => Promise<void>) => void;
   /** Website demos may open the library while retaining records and the recent shortcut. */
   resumeOnStart?: boolean;
+  /** Explicit search target takes precedence over automatic recent-reading restoration. */
+  initialStoryId?: string;
+  matchedChapterIds?: string[];
 }) {
   const [snapshot, updateSnapshot] = useReducer(readerSnapshotReducer, null);
   const [route, setRoute] = useState<Route>({ page: 'library' });
@@ -140,7 +145,17 @@ export function ReaderApp({
         const story = data.stories.find(
           (story) => story.id === recent?.storyId,
         );
-        if (
+        if (initialStoryId && navigation.current === initialNavigation) {
+          const target = data.stories.find(
+            (item) => item.id === initialStoryId,
+          );
+          if (!target)
+            throw new ReaderError(
+              'not_found',
+              '这部剧情已不在当前目录中，请返回搜索后刷新资料。',
+            );
+          setRoute({ page: 'chapters', story: target });
+        } else if (
           resumeOnStart &&
           recent &&
           story &&
@@ -176,7 +191,14 @@ export function ReaderApp({
     return () => {
       cancelled = true;
     };
-  }, [transport, reload, acceptSnapshot, refreshCatalog, resumeOnStart]);
+  }, [
+    transport,
+    reload,
+    acceptSnapshot,
+    refreshCatalog,
+    resumeOnStart,
+    initialStoryId,
+  ]);
 
   useEffect(() => {
     document.documentElement.dataset.theme =
@@ -501,6 +523,9 @@ export function ReaderApp({
             key={route.story.id}
             transport={transport}
             story={activeStory ?? route.story}
+            matchedChapterIds={
+              route.story.id === initialStoryId ? matchedChapterIds : undefined
+            }
             state={snapshot.state}
             preparation={preparation.status}
             retryPreparation={preparation.retry}

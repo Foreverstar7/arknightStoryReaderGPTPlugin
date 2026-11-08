@@ -302,6 +302,8 @@ export type Snapshot = z.infer<typeof snapshotSchema>;
 export type RecordInput = z.infer<typeof recordInputSchema>;
 
 export const toolNames = [
+  'reader_search',
+  'reader_story_info',
   'reader_open',
   'reader_snapshot',
   'reader_chapter',

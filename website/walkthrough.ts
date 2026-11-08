@@ -23,6 +23,8 @@ export function initializeWalkthrough() {
   const chapters = find('.walk-chapters');
   const reader = find('.walk-reader');
   const home = find('.walk-home');
+  const search = find('.walk-search');
+  const interlude = find('.walk-interlude');
   const cursor = find('.walk-cursor');
   const movingCover = find('.walk-moving-cover');
   const source = find('.walk-cover-selected img');
@@ -39,10 +41,31 @@ export function initializeWalkthrough() {
     '浏览封面，选择想读的故事。',
     '沿着篇目轴，找到这一章。',
     '进入正文，把注意力留给故事。',
+    '也可以在对话中，直接找想读的故事。',
+    '点击剧情卡片，查看简介并选择篇目。',
   ];
   function setStage(time: number) {
-    const index = time < 2.5 ? 0 : time < 5.2 ? 1 : time < 8.2 ? 2 : 3;
-    root.dataset.scene = ['home', 'library', 'chapters', 'reader'][index];
+    const index =
+      time < 2.5
+        ? 0
+        : time < 5.2
+          ? 1
+          : time < 8.2
+            ? 2
+            : time < 12.3
+              ? 3
+              : time < 16.6
+                ? 4
+                : 5;
+    root.dataset.scene = [
+      'home',
+      'library',
+      'chapters',
+      'reader',
+      'search',
+      'search-chapters',
+    ][index];
+    root.dataset.entrypoint = index < 4 ? 'sidebar' : 'conversation';
     if (caption) caption.textContent = captions[index] ?? '';
     steps.forEach((step, i) => step.classList.toggle('current', index === i));
   }
@@ -72,22 +95,38 @@ export function initializeWalkthrough() {
       const staticMode = context.conditions?.reduced || context.conditions?.low;
       root.classList.toggle('motion-static', Boolean(staticMode));
       if (staticMode) {
-        gsap.set([home, library, chapters, cursor, movingCover], {
-          autoAlpha: 0,
-        });
+        gsap.set(
+          [home, library, chapters, search, interlude, cursor, movingCover],
+          {
+            autoAlpha: 0,
+          },
+        );
         gsap.set(reader, { autoAlpha: 1 });
         gsap.set('.walk-rail', { autoAlpha: 1 });
-        setStage(WALK_CONTENT_DURATION);
+        setStage(8.9);
         delete root.dataset.hold;
         direction.textContent = movingHint;
         if (caption)
-          caption.textContent = '打开插件，选择剧情与篇目，开始阅读。';
+          caption.textContent =
+            '从侧栏浏览，或从对话搜索卡片，进入目录开始阅读。';
         return () => root.classList.remove('motion-static');
       }
       root.classList.add('motion-ready');
-      gsap.set([library, chapters, reader, cursor, movingCover, '.walk-rail'], {
-        autoAlpha: 0,
-      });
+      gsap.set(
+        [
+          library,
+          chapters,
+          reader,
+          search,
+          interlude,
+          cursor,
+          movingCover,
+          '.walk-rail',
+        ],
+        {
+          autoAlpha: 0,
+        },
+      );
       gsap.set('.walk-drawer', { x: 0, xPercent: -100 });
       gsap.set('.walk-progress span', { scaleX: 0, transformOrigin: 'left' });
       const timeline = gsap.timeline({
@@ -231,6 +270,39 @@ export function initializeWalkthrough() {
           { y: -110, duration: 2.25, ease: 'power1.inOut' },
           9.1,
         )
+        .to(reader, { autoAlpha: 0, duration: 0.4 }, 12)
+        .to(interlude, { autoAlpha: 1, duration: 0.35 }, 12.3)
+        .to(interlude, { autoAlpha: 0, duration: 0.35 }, 13)
+        .to(search, { autoAlpha: 1, duration: 0.4 }, 13.3)
+        .fromTo(
+          '.walk-search-query',
+          { clipPath: 'inset(0 100% 0 0)' },
+          { clipPath: 'inset(0 0% 0 0)', duration: 0.6 },
+          13.5,
+        )
+        .fromTo(
+          '.walk-search-answer',
+          { autoAlpha: 0, y: 10 },
+          { autoAlpha: 1, y: 0, duration: 0.5 },
+          14.6,
+        )
+        .to(
+          cursor,
+          {
+            autoAlpha: 1,
+            x: () => box(find('.walk-search-card')).x + 140,
+            y: () =>
+              box(find('.walk-search-card')).y +
+              find('.walk-search-card').offsetHeight -
+              24,
+            duration: 0.45,
+          },
+          15.7,
+        )
+        .to(cursor, { scale: 0.85, duration: 0.1 }, 16.2)
+        .to(cursor, { scale: 1, autoAlpha: 0, duration: 0.2 }, 16.3)
+        .to(search, { autoAlpha: 0, duration: 0.35 }, 16.45)
+        .to(chapters, { autoAlpha: 1, y: 0, duration: 0.5 }, 16.8)
         .to(
           '.walk-progress span',
           { scaleX: 1, duration: WALK_CONTENT_DURATION },

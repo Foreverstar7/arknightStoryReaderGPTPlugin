@@ -19,6 +19,7 @@ import {
   type ToolOutput,
 } from '../../src/shared/tools.js';
 import type { ReaderTransport } from '../../src/ui/transport.js';
+import { searchStories } from '../../src/domain/search.js';
 
 export const DEMO_STORAGE_KEY = 'arknights-reader.website-demo.v2';
 type DemoStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
@@ -187,6 +188,11 @@ export class BrowserDemoTransport implements ReaderTransport {
   }
 
   private readonly handlers: ToolHandlers = {
+    reader_search: async (input) =>
+      searchStories(await this.source.catalog(), input),
+    reader_story_info: async () => ({
+      summary: '剧情简介占位符。此处为演示文字，不对应原作剧情。',
+    }),
     reader_open: async () => ({ ready: true, source: this.source.label }),
     reader_snapshot: async () => ({
       stories: await this.source.catalog(),
