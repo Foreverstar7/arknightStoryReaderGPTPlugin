@@ -11,6 +11,8 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
       - uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
@@ -33,3 +35,12 @@ jobs:
           overwrite: true
           include-hidden-files: true
           retention-days: 14
+  prepare-release:
+    needs: verify
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+      actions: read
+    uses: ./.github/workflows/prepare-release.yml
+    with:
+      source_sha: ${{ github.sha }}

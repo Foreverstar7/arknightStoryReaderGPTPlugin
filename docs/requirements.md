@@ -21,7 +21,7 @@
 
 ## 发行方式
 
-- 修改代码并更新版本后推送 main，自动检查并准备固定标签和已验收的 Release 草稿。每个版本唯一的人工发布确认是点击 Publish release。
+- 修改代码并更新版本后推送 main，Check 的 Ubuntu 检查通过后才调用 Prepare release draft，使用通过检查的同一个提交 SHA 在 Windows 构建和验收，成功后准备固定标签与 Release 草稿。每个版本唯一的人工发布确认是点击 Publish release。
 - 正式 release.published 事件使用 OIDC 发布草稿阶段的同一份包到 npm latest，确认后自动更新 main 的精确版本插件清单和发布回执；工作流成功才算全部完成。普通提交不重复创建发行，不移动已固定标签或覆盖已发布包。
 - 不要求先发布 next、安装候选来源、提交宿主验收证据或另行 promote。开发与自动验证工具按实际用途保留，已安装插件不后台自动升级。
 

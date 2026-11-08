@@ -43,7 +43,7 @@ codex plugin remove arknights-story-reader@arknights-reader --json
 
 ## 发布
 
-修改代码并更新版本号 → 推送 main → 自动检查、验收同一发行包并准备固定标签和 Release 草稿 → 点击一次 **Publish release** → 自动发布 npm latest 并更新正式插件清单。
+修改代码并更新版本号 → 推送 main → Check 的 Ubuntu 检查通过 → 同一提交的 Windows 发行验收与固定标签／Release 草稿 → 点击一次 **Publish release** → 自动发布 npm latest 并更新正式插件清单。
 
 发布工作流成功，npm 和 main 的插件目录都更新后才算完成。完整操作与一次性 OIDC 配置见[发布指南](docs/releasing.md)。
 

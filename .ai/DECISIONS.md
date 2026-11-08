@@ -355,3 +355,7 @@ PRTS 已提供 [剧情出场人物一览](https://prts.wiki/w/剧情出场人物
 首次 1.1.0 推送的 CI 在 `npm run check` 阶段没有 dist，暴露新增搜索资源协议测试误用仓库构建产物。复用现有 projectRoot 注入边界，在测试临时目录写原创最小 HTML，验证 global／search 注册与搜索入口标记；不调整构建顺序、不跳过测试，也不在生产缺少构建文件时兜底。实际打包验收读取真实 global 与 search HTML，并核对清单／解包 bin／npm 安装 bin 三种入口一致。
 
 立绘逻辑契约已有 portraitView，而 MCP 的图片对象信封需要显式声明同一可选字段，避免 SDK 解码时剥离该字段。通过 MCP 客户端向隔离原创来源分别发送 default／scene，检查参数到达来源；保留现有字节分段与缓存代次逻辑。此项补齐已确认功能的宿主传输，不新增模型工具或阅读行为。
+
+## Check 成功后才准备同提交草稿（2026-11-08）
+
+用户要求 Ubuntu Check 成功后再执行 Windows 发行验收，避免独立并行运行出现 Check 失败而草稿已冻结。Check 通过 `needs: verify` 调用仓库相对路径的 Prepare 可复用工作流，仅 main push 调用，显式传入该次 `github.sha`；计划与草稿保存也使用该提交，不在排队后检出最新 main。Windows 新包继续使用计划输出的同一提交，保留平台与真实 PRTS 验收。已有固定草稿的恢复仍复用原提交和 artifact，不替换包。正式 `release.yml` 与 npm OIDC 入口不变，也不增加人工确认步骤。

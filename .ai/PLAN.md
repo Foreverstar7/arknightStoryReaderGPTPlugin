@@ -1,5 +1,10 @@
 # 下一步
 
+## 当前交付：Check 通过后准备同提交草稿
+
+1. Check 的 Ubuntu `verify` 成功后调用 Prepare，显式固定同一次 push 的完整 SHA；全部工作流 actionlint 和现有回归通过。此项与发布说明、相应需求／协作记录组成第一笔提交。
+2. 用户已授权工作流与网站分两次提交，再一起推送 main；网站改动留在后一笔。推送后核对 Check 中的 `verify → prepare-release / plan` 顺序与固定提交；已有 1.1.0 草稿保持冻结，正式 Publish 仍由发布者操作。
+
 ## 当前交付：1.1.0
 
 1. 两笔功能提交及 MCP 修复均已推送 main；Check、Pages 与 1.1.0 草稿准备成功，具体运行与固定源码见 STATUS.md。草稿使用 CI 新包，不复用本地预检包；标签和附件保持冻结。

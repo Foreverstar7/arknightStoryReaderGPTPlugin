@@ -1,7 +1,11 @@
 name: Prepare release draft
 on:
-  push:
-    branches: [main]
+  workflow_call:
+    inputs:
+      source_sha:
+        description: Full commit SHA that passed the caller's Check verify job.
+        required: true
+        type: string
 permissions:
   contents: read
   actions: read
@@ -22,7 +26,15 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
+          ref: ${{ inputs.source_sha }}
           fetch-depth: 0
+      - name: Verify the source that passed Check
+        env:
+          CHECKED_SOURCE_SHA: ${{ inputs.source_sha }}
+          TRIGGER_SOURCE_SHA: ${{ github.sha }}
+        run: |
+          test "$CHECKED_SOURCE_SHA" = "$TRIGGER_SOURCE_SHA"
+          test "$(git rev-parse HEAD)" = "$CHECKED_SOURCE_SHA"
       - uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
@@ -85,7 +97,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: main
+          ref: ${{ inputs.source_sha }}
           fetch-depth: 0
       - uses: actions/setup-node@v7
         with:
