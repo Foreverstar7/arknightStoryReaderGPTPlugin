@@ -47,7 +47,9 @@ Vite 默认使用 5173，并把 `/api` 代理到 4318。启动与来源切换见
 
 输入、输出和返回篇目标识由 `src/shared/tools.ts` 校验。HTTP 传逻辑结果；MCP 把图片字节放在 app-only 的 `_meta.readerImage`，类型化错误放 `_meta.readerError`。大图分段传输并按原字节重组，UI 不需要外域 CSP。
 
-搜索参数为 `by: story | chapter | character`、`queries: string[]`，可选 offset／limit／refresh；不支持组织／国家／事件关系推理。完整公共卡片数据放在 `_meta.readerSearch`，`structuredContent` 仅含剧情 ID／名称／类型、命中查询和篇目数等简短信息，避免把出场表或正文交给模型筛选。`ui://arknights-reader/v1/search.html` 默认 inline，点击卡片后请求宿主 fullscreen 并复用 ReaderApp；不支持更大显示模式的宿主仍可在当前容器操作。`initialStoryId` 明确指定目录目标，优先于最近阅读。搜索结果不包含私人记录；目录中的进度继续由页面内部快照取得。
+搜索参数为 `by: story | chapter | character`、`queries: string[]`，可选 offset／limit／refresh；不支持组织／国家／事件关系推理。完整公共卡片数据放在 `_meta.readerSearch`，`structuredContent` 仅含剧情 ID／名称／类型、命中查询和篇目数等简短信息，避免把出场表或正文交给模型筛选。`ui://arknights-reader/v1/search.html` 默认 inline。桌面宿主通过标准 `ui/open-link` 打开 `reader_open` 的 global 深链，接收端从初始化和 host-context 更新读取 `openai/deepLink`，当前容器保留搜索卡片。不支持侧栏链接的环境继续复用 SearchFlow 内的 ReaderApp 与 fullscreen 请求。显式目标优先于最近阅读；搜索结果不包含私人记录。
+
+深链契约与验证见 [侧栏跳转](sidebar-reader-links.md)。`mcp.json` 的 `READER_PLUGIN_TARGET` 明确指定正式安装身份，开发准备脚本按生成的 marketplace 名称写入开发身份。服务把经过校验的身份放入 UI HTML；不从插件缓存路径或未知宿主字段猜来源。已有侧栏实例通过同一 ReaderApp 的导航流程保存当前位置后切换，不重建阅读器或通过“最近阅读”记录传递浏览目标。
 
 内嵌搜索使用自然文档高度，让 SDK 在加载、结果、错误与宽度变化后重新发送尺寸；宿主限制高度时允许文档滚动。fullscreen 搜索及已选中的目录／正文保留受限视口和内部滚动，返回结果时恢复对应模式布局。初始化、host-context 更新与显示模式请求返回的实际模式均需同步；搜索入口在 ReaderApp 尚未读取偏好时先跟随宿主主题。隔离 iframe 复测见 [卡片高度修复](search-card-height-fix.md)，不以固定窗口的浏览器预览代替。
 

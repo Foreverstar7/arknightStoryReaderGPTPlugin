@@ -49,7 +49,9 @@ test('SDK negotiation, app-only visibility, extension registration and persisten
     }
   })();
   const service = new ReaderService(source, root);
-  const server = createReaderMcp(service, root);
+  const server = createReaderMcp(service, root, {
+    pluginTarget: 'arknights-story-reader@original-protocol-fixture',
+  });
   const client = new Client({ name: 'reader-test', version: '0.1.0' });
   const [clientWire, serverWire] = InMemoryTransport.createLinkedPair();
   try {
@@ -95,6 +97,16 @@ test('SDK negotiation, app-only visibility, extension registration and persisten
     const resource = await client.readResource({ uri: SEARCH_RESOURCE_URI });
     assert.ok(JSON.stringify(resource).includes('data-entry=\\"search\\"'));
     const readerResource = await client.readResource({ uri: RESOURCE_URI });
+    assert.ok(
+      JSON.stringify(resource).includes(
+        'data-plugin-target=\\"arknights-story-reader@original-protocol-fixture\\"',
+      ),
+    );
+    assert.ok(
+      JSON.stringify(readerResource).includes(
+        'data-plugin-target=\\"arknights-story-reader@original-protocol-fixture\\"',
+      ),
+    );
     assert.ok(JSON.stringify(readerResource).includes('原创协议测试界面'));
     assert.ok(
       !JSON.stringify(readerResource).includes('data-entry=\\"search\\"'),

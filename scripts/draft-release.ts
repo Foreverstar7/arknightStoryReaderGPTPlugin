@@ -9,6 +9,7 @@ import {
 import { releaseGit } from './release-git.js';
 import { githubReleases } from './github-release.js';
 import { saveDraft } from './draft-assets.js';
+import { readReleaseNotes } from './release-notes.js';
 
 const root = path.resolve(import.meta.dirname, '..');
 if (
@@ -40,5 +41,6 @@ console.info(
     git,
     receipt,
     directory,
+    () => readReleaseNotes(root, receipt),
   ),
 );

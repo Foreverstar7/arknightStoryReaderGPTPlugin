@@ -85,12 +85,12 @@ export function githubReleases(
     async get(id: number) {
       return githubReleaseSchema.parse(await api(`releases/${id}`));
     },
-    async create(tag: string, source: string, body: string) {
+    async create(tag: string, source: string, body: string, title = tag) {
       return githubReleaseSchema.parse(
         await api('releases', 'POST', {
           tag_name: tag,
           target_commitish: source,
-          name: tag,
+          name: title,
           draft: true,
           prerelease: false,
           body,

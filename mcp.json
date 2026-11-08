@@ -4,6 +4,9 @@
     "reader": {
       "type": "stdio",
       "command": "node",
+      "env": {
+        "READER_PLUGIN_TARGET": "arknights-story-reader@arknights-reader"
+      },
       "args": [
         "${PLUGIN_ROOT}/dist/server/production.js",
         "--stdio",

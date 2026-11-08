@@ -2,7 +2,11 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ReaderApp } from './ReaderApp.js';
 import { SearchResults } from './components/SearchResults.js';
 import type { ReaderTransport } from './transport.js';
-import type { SearchInput, SearchResult } from '../shared/search.js';
+import type {
+  SearchCard,
+  SearchInput,
+  SearchResult,
+} from '../shared/search.js';
 
 export function SearchFlow({
   transport,
@@ -11,6 +15,7 @@ export function SearchFlow({
   retryInput,
   input,
   fullscreen,
+  openSidebar,
   onFlushReady,
 }: {
   transport: ReaderTransport;
@@ -19,6 +24,7 @@ export function SearchFlow({
   retryInput?: SearchInput;
   input?: SearchInput;
   fullscreen?: () => Promise<unknown>;
+  openSidebar?: (card: SearchCard) => Promise<boolean>;
   onFlushReady?: (flush: () => Promise<void>) => void;
 }) {
   const [result, setResult] = useState<SearchResult | null>(
@@ -27,6 +33,13 @@ export function SearchFlow({
   const [selected, setSelected] = useState<string>();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [opening, setOpening] = useState(false);
+  const [openFailure, setOpenFailure] = useState<{
+    id: string;
+    message: string;
+  }>();
+  const openingRef = useRef(false);
+  const openGeneration = useRef(0);
   const flush = useRef<() => Promise<void>>(async () => undefined);
   const generation = useRef(0);
   const registerFlush = useCallback(
@@ -41,6 +54,10 @@ export function SearchFlow({
       setResult(initialResult);
       setSelected(undefined);
       setError('');
+      setOpenFailure(undefined);
+      ++openGeneration.current;
+      openingRef.current = false;
+      setOpening(false);
     }
   }, [initialResult]);
   useEffect(() => {
@@ -78,6 +95,7 @@ export function SearchFlow({
     if (input) void search(input);
     return () => {
       ++generation.current;
+      ++openGeneration.current;
     };
   }, [input, search]);
   const args = result
@@ -89,6 +107,37 @@ export function SearchFlow({
         refresh: true,
       }
     : (retryInput ?? input);
+  function openInPlace(id: string) {
+    setOpenFailure(undefined);
+    setSelected(id);
+    if (fullscreen) void fullscreen().catch(() => undefined);
+  }
+  async function openCard(id: string) {
+    const card = result?.results.find((item) => item.id === id);
+    if (!card || openingRef.current) return;
+    const run = ++openGeneration.current;
+    openingRef.current = true;
+    setOpening(true);
+    setOpenFailure(undefined);
+    try {
+      const opened = await openSidebar?.(card);
+      if (run === openGeneration.current && !opened) openInPlace(id);
+    } catch (cause) {
+      if (run === openGeneration.current)
+        setOpenFailure({
+          id,
+          message:
+            cause instanceof Error
+              ? cause.message
+              : '侧栏阅读器打开失败，请重试。',
+        });
+    } finally {
+      if (run === openGeneration.current) {
+        openingRef.current = false;
+        setOpening(false);
+      }
+    }
+  }
   if (selected)
     return (
       <div className="search-reader">
@@ -123,6 +172,23 @@ export function SearchFlow({
     );
   return (
     <div className="search-flow">
+      {openFailure && (
+        <div className="search-error" role="alert">
+          {openFailure.message}{' '}
+          <button
+            disabled={opening}
+            onClick={() => void openCard(openFailure.id)}
+          >
+            重试打开
+          </button>{' '}
+          <button
+            disabled={opening}
+            onClick={() => openInPlace(openFailure.id)}
+          >
+            在当前窗口打开
+          </button>
+        </div>
+      )}
       {error && (
         <div className="search-error" role="alert">
           {error}{' '}
@@ -138,10 +204,8 @@ export function SearchFlow({
         <SearchResults
           result={result}
           transport={transport}
-          refreshing={loading}
-          refresh={() => {
-            if (args) void search(args);
-          }}
+          loading={loading}
+          opening={opening}
           more={() => {
             if (args)
               void search(
@@ -153,10 +217,7 @@ export function SearchFlow({
                 true,
               );
           }}
-          open={(id) => {
-            setSelected(id);
-            if (fullscreen) void fullscreen().catch(() => undefined);
-          }}
+          open={(id) => void openCard(id)}
         />
       )}
     </div>

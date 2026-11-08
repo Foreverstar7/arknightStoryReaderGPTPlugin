@@ -69,6 +69,7 @@ npm run test:e2e:web
 - `web/transport.ts` 接入原 ReaderService、PrtsSource 和 ReaderApp；`scripts/build-web.mjs` 只为这个构建替换四个存储模块、SHA-256 和设置面板。未适配的 Node 内置模块会使构建失败，不能以空模块冒充实现。
 - `web/prts-api.ts` 通过带 `origin=*` 的 MediaWiki revisions/imageinfo 接口读取公开内容。请求不携带凭据，不使用代理；只接受现有 PRTS、media、torappu 来源。网络、缺页、数据格式与资源缺失沿用原有错误区分。
 - `web/database.ts` 使用 IndexedDB 事务持久保存 reading 和 counts 两种小量数据，解析后再进入领域模型。阅读记录包含锚点和哈希摘要，不包含正文或图片。清记录仍保留偏好与字数统计，并防止旧窗口保存恢复已删除记录。
+- 封面滚动到可见范围附近才向 PRTS 请求，当前页面复用已加载图片，浏览器正常 HTTP 缓存由源站响应控制；不预取或长期保存全部封面。
 - `web/storage.ts` 对正文、映射和图片只作当前页面的内存复用；不注册 Service Worker，也不建立持久图片／正文缓存。设置面板明确说明联网阅读和浏览器本地记录，隐藏不适用的缓存保留期和清理按钮。
 - 网页开源组件许可统一保存在 `website/THIRD_PARTY_NOTICES.txt`，完整站点与单独网页构建均复制该文件；变更浏览器依赖时同步核对版本、版权和许可。
 - 网页复用原始剧情解析与立绘逻辑。Buffer 使用维护中的浏览器兼容包；SHA-256 适配通过同一 UTF-8 输入与 Node 原实现对照，保持既有段落、修订和迁移标识。

@@ -39,9 +39,9 @@ export async function startReader(
 
   if (process.argv.includes('--stdio')) {
     // stdout is exclusively MCP protocol traffic, including when launched by a plugin host.
-    await createReaderMcp(service, projectRoot).connect(
-      new StdioServerTransport(),
-    );
+    await createReaderMcp(service, projectRoot, {
+      pluginTarget: process.env.READER_PLUGIN_TARGET,
+    }).connect(new StdioServerTransport());
   } else {
     const port = Number(process.env.PORT ?? 4318);
     const app = createMcpExpressApp({ host: '127.0.0.1' });
@@ -89,7 +89,9 @@ export async function startReader(
       }
     });
     app.all('/mcp', async (req, res) => {
-      const server = createReaderMcp(service, projectRoot);
+      const server = createReaderMcp(service, projectRoot, {
+        pluginTarget: process.env.READER_PLUGIN_TARGET,
+      });
       const transport = new NodeStreamableHTTPServerTransport({
         sessionIdGenerator: undefined,
       });
