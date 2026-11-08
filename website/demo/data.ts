@@ -193,6 +193,12 @@ export class WebsiteDemoSource {
           reason: 'anonymous-demo',
           message: '匿名角色保留中性占位，不推定身份。',
           evidence: [],
+          views: {
+            selected: null,
+            defaultAvailable: false,
+            sceneAvailable: false,
+            sceneRelation: 'unconfirmed',
+          },
         },
       };
     const selected = input.kind === 'portrait' ? rabbitAsset : asset;
@@ -211,6 +217,26 @@ export class WebsiteDemoSource {
       resource: `website-demo:${selected.id}`,
       sourceUrl: selected.url,
       sourceLabel: '演示素材原图',
+      ...(input.kind === 'portrait'
+        ? ({
+            portrait: {
+              status: input.portraitView === 'default' ? 'default' : 'original',
+              requested: rabbitAsset.id,
+              reason: 'website-demo',
+              message:
+                input.portraitView === 'default'
+                  ? '演示角色的默认立绘，两种模式均使用同一张原创示意图。'
+                  : '演示场景立绘。',
+              evidence: [],
+              views: {
+                selected: input.portraitView ?? 'scene',
+                defaultAvailable: true,
+                sceneAvailable: true,
+                sceneRelation: 'matched',
+              },
+            },
+          } as const)
+        : {}),
       layers: [
         {
           dataUrl: raster.dataUrl,

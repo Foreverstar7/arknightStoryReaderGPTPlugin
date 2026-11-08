@@ -1,6 +1,16 @@
 # 当前状态
 
-更新：2026-11-07。当前发布契约为 **推送 main 自动准备草稿 → 发布者点击一次 Publish release → 自动发布 npm latest、固定 marketplace 和回执**。此前 next／候选安装／宿主证据／独立 promote 的人工门槛已取消，后续不得按旧记录恢复。
+更新：2026-11-08。当前发布契约为 **推送 main 自动准备草稿 → 发布者点击一次 Publish release → 自动发布 npm latest、固定 marketplace 和回执**。此前 next／候选安装／宿主证据／独立 promote 的人工门槛已取消，后续不得按旧记录恢复。
+
+## 当前：立绘假冲突、原场景查看与说明，本地已实现
+
+- 用户确认默认点击、开启“自动显示图片”后才悬停的既有规则保留，仅补清楚文档。新增方形双选控件，左“默认立绘”、右“场景立绘”，角色一致时仍保留；悬停选项直接说明含义，不增加 i 图标，并提供无障碍描述和原生方向键操作。没有可靠资源的一侧禁用，选择只在当前浮层有效。
+- BW-ST2 中妻的源图片确实存在。旧规则把妻在丈夫画面中的反应对白算作妻的身份，造成假冲突；现使用同篇同分支的独立展示及其他已确认画面归属排除这类冲突，不靠焦点、姓名例外或猜资源地址。当前场景有该角色时仍优先指定表情；画面只显示其他人时使用已确认的发言人同造型默认图，无画面与不一致分别说明。
+- 用户选择允许查看不一致的原场景：图片上方始终提示“场景立绘与发言人不一致”，两种模式下方分别解释当前显示的内容；未知对应关系写“尚未确认角色与立绘的对应关系”，多个原场景候选并列保留，不把查看图片当作身份已确认。占位进一步区分身份、造型、无画面、引用与来源缺图，网络／解析失败仍可重试。
+- 已有 1,756 篇公开正文样本重算无解析失败；107 篇新增 1,358 处可确认的多人场景绑定，旧绑定丢失／改变均为 0。这是规则覆盖数，不是完整图片链路的净修复数，未下载全库图片。妻／夫 17 处真实绑定，以及 CW-6 塞雷娅、LE-6 别格勒的指定表情均已实际取得。用户提供的 ASS 页公开数据中，妻的一处反应行仍指向丈夫图；只核对了部署代码与数据，没有取得其后端生成算法或完成该站 UI 验收。
+- 最终固定 Node 26.13.0 下，`node --import tsx --test tests/prts-speaker.test.ts tests/body-images.test.ts tests/portrait-views.test.ts` 的 22 项通过；`./scripts/npm.ps1 run build`（含类型检查）、网站 `tsc -p tsconfig.website.json --noEmit` 与 `node scripts/build-site.mjs` 通过。日志为 `.ai/local/wife-portrait-20261107/final-{tests,build,site}.log`。修改文件的 Prettier 检查与 `git diff --check` 通过。没有运行本轮全套检查，也不将另一搜索任务的验收混作本轮结果。
+- Edge 网站专项 `tests/site/portrait-views.spec.ts` 通过：320×760、768×900、1440×960、1024×400 双主题共 8 组，检查切换、方向键、禁用状态、焦点返回与浮层边界，截图已实际查看。真实 PRTS 专项 `tests/browser/prts-body-images.spec.ts --config=playwright.prts.config.ts --grep='confirmed wife/scene mismatch'` 通过，妻的默认图与原场景丈夫图内容不同，两侧不一致提示均可见，方向键可切回；截图为 `test-results/prts/prts-body-images-confirmed-46e3f-in-independently-selectable/wife-{default,scene}.png`。最终追加的原生悬停说明不改变布局，未为该文案重复运行浏览器。
+- README、需求、PLAN、DECISIONS 与 `docs/portrait-speaker-evidence.md` 已同步。全部诊断使用隔离缓存／数据，不读取或改写私人阅读记录。新实现尚未在已安装的真实桌面插件验收，也未为本项修正单独重新打包或安装；已冻结 1.0.1 归档和标签保持不动。用户已授权将本项修正与搜索实现分成两次提交，随后统一为 1.1.0 推送；交付时以最终源码重新准备包。
 
 ## 当前：网站部署已恢复
 

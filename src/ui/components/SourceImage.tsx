@@ -1,8 +1,9 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useId, useRef, useState } from 'react';
 import {
   imageInputSchema,
   type ImageInput,
   type ReaderImage,
+  type PortraitViews,
 } from '../../shared/contracts.js';
 import type { ReaderTransport } from '../transport.js';
 import { ReaderError, type ReaderFailure } from '../../shared/errors.js';
@@ -57,6 +58,8 @@ export function ImageLayers({
       aria-label={label}
       data-image-state="ready"
       data-portrait-state={image.portrait?.status}
+      data-portrait-view={image.portrait?.views?.selected ?? undefined}
+      data-portrait-relation={image.portrait?.views?.sceneRelation}
       data-source-url={image.attribution?.sourceUrl ?? image.sourceUrl}
       data-cover-presentation={cover ? coverPresentation(image) : undefined}
     >
@@ -83,20 +86,109 @@ export function ImageLayers({
   );
 }
 
-export function SourceImage({
-  input,
-  transport,
-  label,
-  cover = false,
-  retryable = true,
-  enabled = true,
-}: {
+type SourceImageProps = {
   input: ImageInput;
   transport: ReaderTransport;
   label: string;
   cover?: boolean;
   retryable?: boolean;
   enabled?: boolean;
+};
+
+export function SourceImage({ input, ...props }: SourceImageProps) {
+  if (input.kind === 'portrait')
+    return (
+      <PortraitImage
+        key={`${input.chapterId}:${input.blockId}`}
+        input={input}
+        {...props}
+      />
+    );
+  return <ImageContent input={input} {...props} />;
+}
+
+function PortraitImage({
+  input,
+  ...props
+}: Omit<SourceImageProps, 'input'> & {
+  input: Extract<ImageInput, { kind: 'portrait' }>;
+}) {
+  const group = useId();
+  const [view, setView] = useState<'default' | 'scene' | undefined>(undefined);
+  const [views, setViews] = useState<PortraitViews>();
+  const selected = view ?? views?.selected;
+  return (
+    <>
+      <fieldset className="portrait-view-picker">
+        <legend className="portrait-view-legend">立绘显示方式</legend>
+        {(
+          [
+            [
+              'default',
+              '默认立绘',
+              '该角色当前造型的基础立绘，不代表本句剧情表情。',
+              Boolean(views?.defaultAvailable),
+              '尚未确认该发言人的可靠默认立绘',
+            ],
+            [
+              'scene',
+              '场景立绘',
+              '剧情当前画面使用的立绘，可能与发言人不一致。',
+              Boolean(views?.sceneAvailable),
+              '当前片段没有可查看的场景立绘',
+            ],
+          ] as const
+        ).map(([value, text, description, available, unavailable]) => (
+          <label
+            key={value}
+            className="portrait-view-choice"
+            title={available ? description : `${description}\n${unavailable}`}
+          >
+            <input
+              type="radio"
+              name={group}
+              value={value}
+              aria-description={description}
+              checked={selected === value}
+              disabled={!available}
+              onChange={() => setView(value)}
+            />
+            <span>{text}</span>
+          </label>
+        ))}
+      </fieldset>
+      {views?.sceneRelation === 'mismatch' && (
+        <p className="portrait-view-warning" role="note">
+          场景立绘与发言人不一致
+        </p>
+      )}
+      {views?.sceneRelation === 'unconfirmed' && selected === 'scene' && (
+        <p className="portrait-view-warning" role="note">
+          尚未确认角色与立绘的对应关系
+        </p>
+      )}
+      <div className="portrait-view-content">
+        <ImageContent
+          key={view ?? 'auto'}
+          input={{ ...input, ...(view ? { portraitView: view } : {}) }}
+          {...props}
+          reportPortrait={setViews}
+        />
+      </div>
+    </>
+  );
+}
+
+function ImageContent({
+  input,
+  transport,
+  label,
+  cover = false,
+  retryable = true,
+  enabled = true,
+  reportPortrait,
+}: SourceImageProps & {
+  reportPortrait?: (views: PortraitViews) => void;
 }) {
   // The semantic key avoids re-fetching when the parent re-renders during scroll saves.
   const key = JSON.stringify(input);
@@ -157,6 +249,18 @@ export function SourceImage({
       active = false;
     };
   }, [transport, key, attempt, enabled, cover, covers]);
+  useEffect(() => {
+    if (state.status !== 'ready' || !reportPortrait) return;
+    const available = state.image.layers.length > 0;
+    reportPortrait(
+      state.image.portrait?.views ?? {
+        selected: available ? 'scene' : null,
+        defaultAvailable: available,
+        sceneAvailable: available,
+        sceneRelation: available ? 'matched' : 'unconfirmed',
+      },
+    );
+  }, [state, reportPortrait]);
   if (state.status === 'error')
     return (
       <span
@@ -222,7 +326,7 @@ export function SourceImage({
           <circle cx="80" cy="55" r="27" fill="currentColor" />
           <path d="M28 155v-20a52 52 0 0 1 104 0v20z" fill="currentColor" />
         </svg>
-        <p>暂无可确认的立绘</p>
+        <p>{portraitPlaceholderTitle(state.image.portrait.reason)}</p>
         <p className="muted">{state.image.portrait.message}</p>
         {retryable && (
           <button
@@ -241,7 +345,15 @@ export function SourceImage({
     <>
       <ImageLayers
         image={state.image}
-        label={label}
+        label={
+          state.image.portrait?.views?.selected === 'scene' &&
+          state.image.portrait.views.sceneRelation === 'mismatch'
+            ? '原场景立绘（与发言人不一致）'
+            : state.image.portrait?.views?.selected === 'scene' &&
+                state.image.portrait.views.sceneRelation === 'unconfirmed'
+              ? '原场景立绘（尚未确认与发言人的对应关系）'
+              : label
+        }
         cover={cover}
         onError={() => {
           if (cover) covers?.delete(key);
@@ -255,24 +367,36 @@ export function SourceImage({
           });
         }}
       />
-      {state.image.portrait?.status === 'default' && (
-        <p
-          className="portrait-resolution"
-          role="status"
-          data-portrait-state="default"
-        >
-          {state.image.portrait.message}
-          <button
-            type="button"
-            onClick={(event) => {
-              event.stopPropagation();
-              setAttempt((value) => value + 1);
-            }}
+      {state.image.portrait &&
+        (state.image.portrait.status === 'default' ||
+          ['mismatch', 'unconfirmed'].includes(
+            state.image.portrait.views?.sceneRelation ?? '',
+          )) && (
+          <p
+            className={`portrait-resolution${state.image.portrait.views?.sceneRelation === 'mismatch' ? ' portrait-mismatch' : ''}`}
+            role="status"
+            data-portrait-state={state.image.portrait.status}
           >
-            重试原立绘
-          </button>
-        </p>
-      )}
+            {state.image.portrait.message}
+            {state.image.portrait.status === 'default' && (
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setAttempt((value) => value + 1);
+                }}
+              >
+                {state.image.portrait.views?.selected === 'default' ||
+                [
+                  'chapter_speaker_portrait_mismatch',
+                  'chapter_confirmed_speaker_default',
+                ].includes(state.image.portrait.reason)
+                  ? '重新核验立绘'
+                  : '重试原立绘'}
+              </button>
+            )}
+          </p>
+        )}
       {state.image.description && (
         <p className="muted image-description">{state.image.description}</p>
       )}
@@ -295,6 +419,28 @@ type ImageState =
   | { status: 'idle' | 'loading' }
   | { status: 'ready'; image: ReaderImage }
   | { status: 'error'; failure: ReaderFailure };
+
+function portraitPlaceholderTitle(reason: string) {
+  switch (reason) {
+    case 'ambiguous_scene':
+      return '无法确认发言人对应的立绘';
+    case 'ambiguous_costume':
+      return '无法确认当前造型';
+    case 'no_scene':
+      return '此处没有明确的角色画面';
+    case 'unresolved_variable':
+    case 'unconfirmed_resource':
+      return '立绘引用尚未确认';
+    case 'unsupported_reference':
+      return '此立绘引用暂未适配';
+    case 'image_missing':
+      return '来源图片已确认缺失';
+    case 'default_unconfirmed':
+      return '尚未确认该角色的默认立绘';
+    default:
+      return '暂无可确认的立绘';
+  }
+}
 
 function coverFailureLabel(code: ReaderFailure['code']) {
   switch (code) {

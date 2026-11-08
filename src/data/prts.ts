@@ -10,7 +10,8 @@ import { readPrtsWiki, prtsPageUrl, type WikiReader } from './prts-client.js';
 import { parsePrtsCatalog } from './prts-catalog.js';
 import { parsePrtsChapter } from './prts-script.js';
 import { PrtsResources, portraitReference } from './prts-resources.js';
-import { placeholderPortrait } from './prts-portrait.js';
+import { placeholderPortrait, portraitResourceGroup } from './prts-portrait.js';
+import { resolvePortraitView } from './prts-portrait-view.js';
 import { PrtsMetadata } from './prts-metadata.js';
 
 export class PrtsSource implements StorySource {
@@ -115,6 +116,26 @@ export class PrtsSource implements StorySource {
     target: ImageTarget | undefined,
     days: number,
   ): Promise<ReaderImage> {
+    if (input.kind === 'portrait' && target?.kind === 'portrait')
+      return resolvePortraitView(
+        input,
+        target,
+        async () => {
+          const image = await this.loadImage(input, target, days);
+          if (!image.portrait)
+            throw new ReaderError('parse', '立绘返回缺少人物状态。');
+          return { ...image, portrait: image.portrait };
+        },
+        (reference, defaultOnly) =>
+          this.resources.portrait(reference, days, input.refresh, defaultOnly),
+      );
+    return this.loadImage(input, target, days);
+  }
+  private async loadImage(
+    input: ImageInput,
+    target: ImageTarget | undefined,
+    days: number,
+  ): Promise<ReaderImage> {
     if (input.kind === 'cover') {
       const story = (await this.catalog(days)).find(
         (story) => story.id === input.storyId,
@@ -135,6 +156,39 @@ export class PrtsSource implements StorySource {
     if (input.kind !== target?.kind)
       throw new ReaderError('resource_missing', '该段落没有对应图片资源。');
     if (target.kind === 'portrait') {
+      if (target.speakerBinding?.absentFromScene) {
+        const mismatch = target.resources.length > 0;
+        const image = await this.resources.portrait(
+          target.speakerBinding.reference,
+          days,
+          input.refresh,
+          true,
+        );
+        return {
+          ...image,
+          portrait: {
+            ...image.portrait,
+            evidence: [
+              prtsPageUrl(input.chapterId.slice(5)),
+              ...image.portrait.evidence,
+            ],
+            ...(image.portrait.status === 'default'
+              ? {
+                  reason: mismatch
+                    ? 'chapter_speaker_portrait_mismatch'
+                    : 'chapter_confirmed_speaker_default',
+                  message: mismatch
+                    ? '场景立绘与发言人不一致，已根据同篇单人片段显示发言人的同造型默认立绘。'
+                    : '当前未展示发言人，已根据同篇单人片段显示该角色的同造型默认立绘。',
+                }
+              : mismatch
+                ? {
+                    message: `场景立绘与发言人不一致。${image.portrait.message}`,
+                  }
+                : {}),
+          },
+        };
+      }
       let reference: string;
       try {
         reference = portraitReference(target.resources);
@@ -183,10 +237,24 @@ export class PrtsSource implements StorySource {
             };
           }
         }
+        const groups = target.resources.map(portraitResourceGroup);
+        const costumeUncertain =
+          groups.every((group) => group !== null) &&
+          new Set(groups.map((group) => group?.split('$')[0])).size === 1 &&
+          new Set(groups.map((group) => group?.split('$')[1] ?? '1')).size > 1;
         return placeholderPortrait(
           target.resources.join(' / '),
-          target.resources.length ? 'ambiguous_scene' : 'no_scene',
-          error.message,
+          target.resources.length
+            ? costumeUncertain
+              ? 'ambiguous_costume'
+              : 'ambiguous_scene'
+            : 'no_scene',
+          target.resources.length
+            ? costumeUncertain
+              ? '当前片段给出了不同造型的引用，现有信息无法确认应使用哪一种。暂用中性占位，不代表源站缺图。'
+              : '当前片段有多个立绘候选，暂时无法确认角色与立绘的对应关系。暂用中性占位，不代表源站缺图。'
+            : '该段未提供明确的角色画面，也没有足够的同篇身份线索。暂用中性占位，尚不能判断源站是否有图。',
+          [prtsPageUrl(input.chapterId.slice(5))],
         );
       }
       return this.resources.portrait(reference, days, input.refresh);

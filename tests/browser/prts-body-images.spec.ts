@@ -124,6 +124,10 @@ test('real repaired legacy, whitespace and variable portraits plus ambiguous sce
     await expect(dialog).toBeFocused();
     await page.keyboard.press('Tab');
     await expect(
+      dialog.getByRole('radio', { name: '场景立绘', exact: true }),
+    ).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(
       dialog.getByRole('link', { name: 'PRTS', exact: true }),
     ).toBeFocused();
     await page.keyboard.press('Escape');
@@ -146,6 +150,52 @@ test('real repaired legacy, whitespace and variable portraits plus ambiguous sce
       await page.keyboard.press('Escape');
     }
   }
+});
+
+test('confirmed wife/scene mismatch stays labelled while default and original scene views remain independently selectable', async ({
+  page,
+  request,
+}) => {
+  test.setTimeout(120_000);
+  await page.setViewportSize({ width: 1024, height: 768 });
+  const chapter = await open(page, request, 'prts:BW-ST2 隔墙有你/NBT');
+  const reaction = chapter.blocks.find(
+    (block) =>
+      block.kind === 'speech' &&
+      block.name === '妻' &&
+      block.paragraphs.some((text) => text.includes('刚刚就说了')),
+  );
+  if (!reaction || reaction.kind !== 'speech')
+    throw new Error('Missing live reaction sample');
+  await page.locator(`[id="name-${reaction.id}"]`).click();
+  const dialog = page.getByRole('dialog', { name: '妻 立绘', exact: true });
+  const normal = dialog.getByRole('radio', { name: '默认立绘', exact: true });
+  const scene = dialog.getByRole('radio', { name: '场景立绘', exact: true });
+  const image = dialog.locator('.source-image');
+  await expect(normal).toBeChecked({ timeout: 30_000 });
+  await expect(image).toHaveAttribute('data-portrait-view', 'default');
+  const defaultBytes = await image
+    .locator('image')
+    .first()
+    .getAttribute('href');
+  const warning = dialog.getByText('场景立绘与发言人不一致', { exact: true });
+  await expect(warning).toBeInViewport();
+  await dialog.screenshot({ path: test.info().outputPath('wife-default.png') });
+  await dialog.getByText('场景立绘', { exact: true }).click();
+  await expect(scene).toBeChecked();
+  await expect(image).toHaveAttribute('data-portrait-view', 'scene');
+  await expect(image).toHaveAttribute('data-portrait-relation', 'mismatch');
+  expect(await image.locator('image').first().getAttribute('href')).not.toBe(
+    defaultBytes,
+  );
+  await expect(warning).toBeInViewport();
+  await dialog.screenshot({ path: test.info().outputPath('wife-scene.png') });
+  await scene.press('ArrowLeft');
+  await expect(normal).toBeChecked();
+  await expect(image).toHaveAttribute('data-portrait-view', 'default');
+  expect(await image.locator('image').first().getAttribute('href')).toBe(
+    defaultBytes,
+  );
 });
 
 test('same-chapter evidence resolves NPC portraits throughout the prologue mixed scenes without name exceptions', async ({

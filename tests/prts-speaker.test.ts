@@ -72,3 +72,52 @@ test('speaker evidence is never transferred between mutually exclusive branch co
   );
   assert.equal(chapterSpeakerBindings(chapter).size, 0);
 });
+
+test('a reaction over another consistently anchored speaker does not poison independently shown identity', () => {
+  const chapter = parse(
+    '[Character(name="char_900_reader",name2="char_901_other",focus=1)]\n[name="访客"]请问有人吗？\n[Character(name="char_901_other")]\n[name="访客"]我在门口。\n[Character(name="char_900_reader")]\n[name="值班人员"]请进。\n[name="访客"]谢谢。\n[name="值班人员"]这边走。',
+  );
+  const [mixed, own, , reaction] = speeches(chapter);
+  assert.ok(mixed && own && reaction);
+  const bindings = chapterSpeakerBindings(chapter);
+  assert.deepEqual(bindings.get(mixed.id), {
+    reference: 'char_901_other',
+    default: false,
+    evidenceBlocks: [own.id],
+  });
+  assert.deepEqual(bindings.get(reaction.id), {
+    reference: 'char_901_other',
+    default: false,
+    evidenceBlocks: [own.id],
+    absentFromScene: true,
+  });
+});
+
+test('an unconfirmed or anonymous image owner cannot explain away conflicting identities', () => {
+  for (const name of ['？？？', '另一位访客']) {
+    const chapter = parse(
+      `[Character(name="char_901_other")]\n[name="访客"]我在门口。\n[Character(name="char_900_reader")]\n[name="${name}"]请进。\n[name="访客"]谢谢。\n[Character(name="char_902_third")]\n[name="${name}"]另一张图。\n[Character(name="char_900_reader",name2="char_901_other")]\n[name="访客"]继续。`,
+    );
+    const mixed = speeches(chapter).at(-1);
+    assert.ok(mixed);
+    assert.equal(chapterSpeakerBindings(chapter).get(mixed.id), undefined);
+  }
+});
+
+test('a missing image context only gets a default after an independent single-speaker identity is confirmed', () => {
+  const chapter = parse(
+    '[Character(name="char_901_other")]\n[name="访客"]我在这里。\n[Character]\n[name="访客"]稍后再见。',
+  );
+  const [own, absent] = speeches(chapter);
+  assert.ok(own && absent);
+  assert.equal(
+    chapterSpeakerBindings(chapter).get(absent.id)?.absentFromScene,
+    true,
+  );
+  const weak = parse(
+    '[Character(name="char_900_reader")]\n[name="值班人员"]请进。\n[name="访客"]谢谢。\n[Character]\n[name="访客"]稍后再见。',
+  );
+  const weakAbsent = speeches(weak).at(-1);
+  assert.ok(weakAbsent);
+  assert.equal(chapterSpeakerBindings(weak).get(weakAbsent.id), undefined);
+});

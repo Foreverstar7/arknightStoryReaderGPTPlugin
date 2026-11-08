@@ -229,7 +229,7 @@ export class PrtsResources {
         return placeholderPortrait(
           reference,
           'unresolved_variable',
-          '无法确认此处人物资源，显示中性占位。',
+          '来源尚未明确此人物引用对应哪张立绘。暂用中性占位，未据此判定图片不存在。',
           [STORY_VARIABLES],
         );
       resolved = normalizePortraitReference(value);
@@ -268,7 +268,7 @@ export class PrtsResources {
       return placeholderPortrait(
         reference,
         'unconfirmed_resource',
-        '无法确认此处人物资源，显示中性占位。',
+        '尚未从来源映射确认此人物引用对应的立绘。暂用中性占位，未据此判定图片不存在。',
         [CHARACTER_MAP, prtsPageUrl(LEGACY_LINK), ...evidence],
       );
     const missingUrls: string[] = [];

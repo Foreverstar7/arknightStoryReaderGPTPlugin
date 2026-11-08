@@ -214,7 +214,14 @@ export const imageInputSchema = z.discriminatedUnion('kind', [
     refresh: z.boolean().optional(),
   }),
   z.object({
-    kind: z.enum(['portrait', 'cg']),
+    kind: z.literal('portrait'),
+    chapterId: z.string().min(1).max(200),
+    blockId: z.string().min(1).max(200),
+    refresh: z.boolean().optional(),
+    portraitView: z.enum(['default', 'scene']).optional(),
+  }),
+  z.object({
+    kind: z.literal('cg'),
     chapterId: z.string().min(1).max(200),
     blockId: z.string().min(1).max(200),
     refresh: z.boolean().optional(),
@@ -239,6 +246,12 @@ export const imageLayerSchema = z.object({
   rotation: z.number().finite().optional(),
   opacity: z.number().min(0).max(1).optional(),
 });
+export const portraitViewsSchema = z.object({
+  selected: z.enum(['default', 'scene']).nullable(),
+  defaultAvailable: z.boolean(),
+  sceneAvailable: z.boolean(),
+  sceneRelation: z.enum(['matched', 'mismatch', 'unconfirmed', 'absent']),
+});
 export const portraitResolutionSchema = z.object({
   status: z.enum(['original', 'default', 'placeholder']),
   requested: z.string(),
@@ -246,6 +259,7 @@ export const portraitResolutionSchema = z.object({
   reason: z.string(),
   message: z.string(),
   evidence: z.array(z.string().url()),
+  views: portraitViewsSchema.optional(),
 });
 export const imageResultSchema = z
   .object({
@@ -274,6 +288,7 @@ export const imageResultSchema = z
   );
 export type ImageInput = z.infer<typeof imageInputSchema>;
 export type ReaderImage = z.infer<typeof imageResultSchema>;
+export type PortraitViews = z.infer<typeof portraitViewsSchema>;
 export type Block = z.infer<typeof blockSchema>;
 export type Leaf = z.infer<typeof leafSchema>;
 export type Scene = z.infer<typeof sceneSchema>;

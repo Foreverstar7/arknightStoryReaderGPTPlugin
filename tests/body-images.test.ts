@@ -16,6 +16,7 @@ import {
 } from '../src/data/prts-portrait.js';
 import { parseOperatorIdentity } from '../src/data/prts-metadata.js';
 import { parsePrtsChapter } from '../src/data/prts-script.js';
+import { PrtsSource } from '../src/data/prts.js';
 import { cgItem, tiledCg } from '../src/data/prts-cg.js';
 import { imageResultSchema } from '../src/shared/contracts.js';
 import { CacheCoordinator } from '../src/storage/cache-coordinator.js';
@@ -481,6 +482,149 @@ test('speaker matching preserves original expression and explicit default fallba
       (error: unknown) =>
         error instanceof ReaderError && error.code === 'network',
     );
+  } finally {
+    new CacheCoordinator(root).close();
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('a confirmed offscreen speaker uses its own sourced default instead of the visible listener, preserving retryable failures', async () => {
+  const base = path.resolve('.ai/local/test-data');
+  await mkdir(base, { recursive: true });
+  const root = await mkdtemp(path.join(base, 'offscreen-speaker-'));
+  const requests: string[] = [];
+  let offline = false;
+  const png = Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==',
+    'base64',
+  );
+  const source = new PrtsSource(
+    root,
+    async (title) => {
+      if (title === 'Widget:Data_Link') return JSON.stringify(legacy.link);
+      if (title === 'Widget:Data_Char')
+        return [...legacy.images]
+          .map(([key, url]) => key + ',' + url)
+          .join('\n');
+      throw new Error('此路径不应查询名称或其他篇目');
+    },
+    async (input) => {
+      if (offline) throw new ReaderError('network', '注入断网');
+      requests.push(String(input));
+      if (String(input) === CHARACTER_MAP)
+        return Response.json({ char_901_other: modern.Unit });
+      return new Response(png, { headers: { 'content-type': 'image/png' } });
+    },
+  );
+  try {
+    const image = await source.image(
+      { kind: 'portrait', chapterId: 'prts:原创测试', blockId: 'reaction' },
+      {
+        kind: 'portrait',
+        resources: ['char_900_reader'],
+        speaker: '访客',
+        speakerBinding: {
+          reference: 'char_901_other$2',
+          default: false,
+          evidenceBlocks: ['independent-scene'],
+          absentFromScene: true,
+        },
+      },
+      7,
+    );
+    assert.equal(image.portrait?.status, 'default');
+    assert.equal(image.portrait?.reason, 'chapter_speaker_portrait_mismatch');
+    assert.match(image.portrait?.message ?? '', /场景立绘与发言人不一致/u);
+    assert.match(image.layers[0]?.sourceUrl ?? '', /body2-default/u);
+    assert.ok(
+      image.portrait?.evidence.some((url) => url.includes('prts.wiki/w/')),
+    );
+    assert.ok(requests.every((url) => !url.includes('char_900_reader')));
+    const absent = await source.image(
+      { kind: 'portrait', chapterId: 'prts:原创测试', blockId: 'absent' },
+      {
+        kind: 'portrait',
+        resources: [],
+        speaker: '访客',
+        speakerBinding: {
+          reference: 'char_901_other$2',
+          default: false,
+          evidenceBlocks: ['independent-scene'],
+          absentFromScene: true,
+        },
+      },
+      7,
+    );
+    assert.equal(absent.portrait?.reason, 'chapter_confirmed_speaker_default');
+    assert.doesNotMatch(absent.portrait?.message ?? '', /不一致/u);
+    offline = true;
+    await assert.rejects(
+      () =>
+        source.image(
+          {
+            kind: 'portrait',
+            chapterId: 'prts:原创测试',
+            blockId: 'reaction',
+            refresh: true,
+          },
+          {
+            kind: 'portrait',
+            resources: ['char_900_reader'],
+            speaker: '访客',
+            speakerBinding: {
+              reference: 'char_901_other$2',
+              default: false,
+              evidenceBlocks: ['independent-scene'],
+              absentFromScene: true,
+            },
+          },
+          7,
+        ),
+      (error: unknown) =>
+        error instanceof ReaderError && error.code === 'network',
+    );
+  } finally {
+    new CacheCoordinator(root).close();
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('unconfirmed identity, uncertain costume and absent scene stay distinct without guessing or claiming missing source images', async () => {
+  const base = path.resolve('.ai/local/test-data');
+  await mkdir(base, { recursive: true });
+  const root = await mkdtemp(path.join(base, 'unconfirmed-speaker-'));
+  const source = new PrtsSource(
+    root,
+    async () => {
+      throw new ReaderError('not_found', '没有身份资料');
+    },
+    async () => {
+      throw new Error('身份未确认时不应请求猜测的图片');
+    },
+  );
+  try {
+    for (const [resources, reason] of [
+      [['char_900_reader', 'char_901_other'], 'ambiguous_scene'],
+      [['char_900_reader$1', 'char_900_reader$2'], 'ambiguous_costume'],
+      [[], 'no_scene'],
+    ] as const) {
+      const image = await source.image(
+        { kind: 'portrait', chapterId: 'prts:原创测试', blockId: 'ambiguous' },
+        {
+          kind: 'portrait',
+          resources: [...resources],
+          speaker: '无资料的角色',
+        },
+        7,
+      );
+      assert.equal(image.portrait?.status, 'placeholder');
+      assert.equal(image.portrait?.reason, reason);
+      assert.equal(image.layers.length, 0);
+      assert.match(
+        image.portrait?.message ?? '',
+        /不代表源站缺图|尚不能判断源站是否有图/u,
+      );
+    }
   } finally {
     new CacheCoordinator(root).close();
     await rm(root, { recursive: true, force: true });
