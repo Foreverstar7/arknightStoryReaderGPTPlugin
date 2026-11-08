@@ -138,10 +138,7 @@ export function SearchFlow({
         <SearchResults
           result={result}
           transport={transport}
-          refreshing={loading}
-          refresh={() => {
-            if (args) void search(args);
-          }}
+          loading={loading}
           more={() => {
             if (args)
               void search(

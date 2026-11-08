@@ -41,15 +41,13 @@ export function SearchResults({
   transport,
   open,
   more,
-  refreshing,
-  refresh,
+  loading,
 }: {
   result: SearchResult;
   transport: ReaderTransport;
   open: (id: string) => void;
   more?: () => void;
-  refreshing?: boolean;
-  refresh?: () => void;
+  loading?: boolean;
 }) {
   return (
     <main className="search-results" aria-label="剧情搜索结果">
@@ -60,11 +58,6 @@ export function SearchResults({
         </p>
         {result.by === 'character' && (
           <p className="muted">按来源资料收录的实际出场匹配。</p>
-        )}
-        {refresh && (
-          <button onClick={refresh} disabled={refreshing}>
-            {refreshing ? '正在刷新…' : '刷新搜索资料'}
-          </button>
         )}
       </div>
       {result.total === 0 && (
@@ -88,7 +81,7 @@ export function SearchResults({
         ))}
       </div>
       {result.hasMore && more && (
-        <button onClick={more} disabled={refreshing}>
+        <button onClick={more} disabled={loading}>
           查看更多结果
         </button>
       )}

@@ -152,7 +152,7 @@ export function ReaderApp({
           if (!target)
             throw new ReaderError(
               'not_found',
-              '这部剧情已不在当前目录中，请返回搜索后刷新资料。',
+              '这部剧情已不在当前目录中，请重新搜索。',
             );
           setRoute({ page: 'chapters', story: target });
         } else if (

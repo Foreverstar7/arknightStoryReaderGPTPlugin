@@ -5,8 +5,17 @@
 ## 实现状态
 
 - 阅读器已具备七类目录、三页导航、全部分支、按需图片、本机续读、字数进度和独立缓存管理。姓名与场景资源分开处理，立绘匹配及限制见 [立绘说明](../docs/portrait-speaker-evidence.md)。
-- 基础剧情搜索已实现：唯一模型可见工具为 `reader_search`，支持剧情名称、篇目编号／标题、PRTS 人物实际出场；其余十一项工具仅供页面使用。搜索卡片进入篇章目录，简介只在目录中展示。
+- 基础剧情搜索已实现：唯一模型可见工具为 `reader_search`，支持剧情名称、篇目编号／标题、PRTS 人物实际出场；其余十一项工具仅供页面使用。搜索卡片进入篇章目录，简介只在目录中展示。结果页保留失败重试和分页，移除常驻的“刷新搜索资料”按钮，资料获取继续沿用现有缓存规则。
 - 网站包含侧栏浏览与对话搜索的滚动演示、占位阅读器和安装指南。构建与维护见 [网站说明](../docs/website.md)。
+
+## 当前交付：1.1.3
+
+package／lock／plugin／源码版本统一为 1.1.3。结果页移除资料刷新按钮及其回调，搜索卡片目标已不在目录时改为提示重新搜索；保留工具 refresh 参数、失败重试和分页，不新增设置入口。变更说明见 [1.1.3](../docs/releases/1.1.3-notes.md)。
+
+- 本地 `./scripts/npm.ps1 run check`、`run build` 通过，包含 169 项单元／协议测试与格式检查。
+- Edge 的 fixture 浏览器 39 项及 SDK iframe 18 项回归通过，使用独立端口与测试记录；覆盖 320×760、768×900、1440×960、1024×400、双主题、键盘、减少动态效果、失败重试、分页及卡片进入／返回。已检查生成截图，按钮移除后无空白占位，卡片仍按窗口重排。
+- 固定工具链 Node 的 `--import tsx scripts/probe-search.ts` 通过：真实剧情名称、R8-1、塔露拉出场及导语可查，断网重开复用缓存，阅读记录不变且正文下载为零。报告保留在 `.ai/local/story-search/live-1794126014004/report.json`，UI 证据见 `.ai/local/story-search/evidence/` 与 `.ai/local/search-card-check/`。
+- 推送 main 后，由 Check 对固定提交执行 Ubuntu 检查和 Windows 发包验收，再自动准备 1.1.3 草稿；以该次工作流和归档回执为准。本地浏览器／SDK iframe 验证不代替真实桌面操作。
 
 ## 搜索卡片高度修复
 
@@ -16,13 +25,13 @@
 - 类型检查、168 项单元／协议测试和格式检查分别通过。
 - 修复版尚待真实桌面操作；已冻结的 1.1.1 归档不含此修复。
 
-## 当前交付：1.1.2 草稿已验收
+## 上一版：1.1.2 已公开
 
 package／lock／plugin／源码版本已统一为 1.1.2，固定验收源码为 `4ebce5660234ab811f3642263c27a209131a00be`。[Check 42460035613](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42460035613) 的 Ubuntu、同提交 Windows 验收及草稿准备全部成功；[Pages 42460035698](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42460035698) 的检查与部署成功。
 
 - Windows 类型／169 项／格式、源码外实际包与冷缓存离线安装、三种 MCP 入口和两份 UI、真实 117 部目录／64 块正文／1500×844 CG、记录保存／重开／清缓存／模拟卸载保留均通过。Windows 与 Ubuntu 的 39 项 fixture 浏览器、18 项 SDK iframe 回归分别通过；Ubuntu 单元测试为 167 项通过、2 项 Windows 锁定专项按平台跳过。
-- [1.1.2 草稿](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/releases/tag/untagged-1929afdd88a3fccb29fc) ID `438108095`，三个附件齐全，tgz 为 8,023,998 字节。v1.1.2 标签指向固定源码 4ebce56，标签内版本、dirty=false、integrity 与 CI 运行已核对；原有四个 Release 的附件 ID／体积／digest 均未变。
-- 1.1.2 尚未 Publish，npm latest／正式来源仍为 1.1.1。本轮没有替换已安装开发插件或共享预览；本地完整 check、Edge 18 项和 actionlint 也已通过。复测和已验收边界见 [修复说明](../docs/search-card-height-fix.md)，原始回执与摘要仅留在 `.ai/local/delivery-1.1.2/`。
+- [1.1.2 Release](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/releases/tag/v1.1.2) ID `438108095`，三个附件齐全，tgz 为 8,023,998 字节。v1.1.2 标签指向固定源码 4ebce56，标签内版本、dirty=false、integrity 与 CI 运行已核对；原有四个 Release 的附件 ID／体积／digest 均未变。
+- 1.1.2 已于 2026-11-08 公开；本轮核对时 [Publish 42462147645](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42462147645) 正在发布 npm，正式来源最近已记录为 1.1.1，最终以工作流与回写回执为准。本轮没有替换已安装开发插件或共享预览。复测和已验收边界见 [修复说明](../docs/search-card-height-fix.md)，原始回执与摘要仅留在 `.ai/local/delivery-1.1.2/`。
 
 npm 明确版本的 404 可见性等待从五分钟调整为 20 分钟，Publish release 作业总时限从 15 调整为 30 分钟；查询成功即继续。已存在版本的 latest 回读仍限五分钟，权限／JSON／integrity 错误仍立即失败。调整依据为 1.1.0 的 Validating 超过原等待预算，重跑后完成发布；这不是 npm 的统一时限。内容见 [1.1.2 说明](../docs/releases/1.1.2-notes.md)。
 

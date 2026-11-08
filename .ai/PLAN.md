@@ -10,6 +10,6 @@
 
 ## 发行交接
 
-1.1.1 已完成发布收尾。1.1.2 固定源码 `4ebce56` 的自动验收和草稿准备已成功，由发行负责人点击一次 Publish release，随后核对工作流、npm latest、main 的精确 marketplace 与版本回执一致。新脚本的版本可见性最多等待 20 分钟、发布作业总时限 30 分钟；既有 v1.1.2 标签和三个验收附件保持冻结。
+核对 1.1.3 main 推送的 Check：Ubuntu 检查成功后，同一提交须通过 Windows 发包验收并自动准备草稿。草稿成功后，由发行负责人点击一次 Publish release，随后核对工作流、npm latest、main 的精确 marketplace 与版本回执一致。既有 v1.1.2 标签和三个验收附件保持冻结；其 npm 发布进度以 [Publish 工作流](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42462147645)为准。
 
 完成标准：发布工作流成功，包身份和各处版本一致；不移动固定标签或替换已有附件。已安装用户按 [安装与更新说明](../README.md#升级与卸载)主动刷新来源并安装。
