@@ -65,6 +65,7 @@ jobs:
       - run: npm.cmd run package:verify -- --prts
       - run: npx playwright install chromium
       - run: npm run test:e2e
+      - run: npm run test:e2e:host
       - uses: actions/upload-artifact@v7
         with:
           name: release-package
@@ -84,6 +85,9 @@ jobs:
           path: |
             .local/releases/npm-install-logs/
             test-results/fixture/
+            .ai/local/search-card-check/host-report.json
+            .ai/local/search-card-check/results/
+            .ai/local/search-card-check/*.png
           if-no-files-found: ignore
           include-hidden-files: true
           retention-days: 14

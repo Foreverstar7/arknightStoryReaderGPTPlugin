@@ -41,10 +41,12 @@ export async function waitForRegisteredPackage(
 ) {
   const now = options.now ?? Date.now;
   const delay = options.delay ?? ((milliseconds) => setTimeout(milliseconds));
-  // The first real 1.0.0 upload was visible about four minutes after npm exited.
-  // Allow five minutes for 404 propagation only, with each request bounded by
-  // the remaining budget. Other HTTP, decoding and integrity errors still fail.
-  const deadline = now() + 300_000;
+  // npm accepted 1.1.0 but its validating stage outlasted the old five-minute
+  // budget. Allow up to 20 minutes for 404 visibility lag, inside the publish
+  // job's 30-minute limit (latest readback keeps its separate five minutes).
+  // This is our operational cap, not npm's SLA; recheck against real release
+  // timings when changing it. HTTP, decoding and integrity errors still fail.
+  const deadline = now() + 20 * 60_000;
   let attempt = 0;
   while (true) {
     const requestBudget = deadline - now();
@@ -60,6 +62,6 @@ export async function waitForRegisteredPackage(
     if (remaining > 0) await delay(Math.min(10_000, remaining));
   }
   throw new Error(
-    'npm 发布命令已结束，但 registry 在 5 分钟内仍未返回该版本；请核对发布日志和暂存记录，不更新稳定来源。',
+    'npm 发布命令已结束，但 registry 在 20 分钟内仍未返回该版本；请核对发布日志和暂存记录，不更新稳定来源。',
   );
 }

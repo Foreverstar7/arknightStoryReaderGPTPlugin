@@ -57,6 +57,37 @@ test('a new archive is uploaded once and confirmed before latest is checked', as
   assert.equal(uploaded, true);
 });
 
+test('npm validation beyond five minutes completes without another upload or an early latest check', async () => {
+  let elapsed = 0;
+  let uploads = 0;
+  let latestReads = 0;
+  await publishAcceptedArchive(expected, {
+    now: () => elapsed,
+    delay: async (milliseconds) => {
+      elapsed += milliseconds;
+    },
+    fetchRegistry: async (input) => {
+      if (String(input).endsWith('/latest')) {
+        assert.ok(elapsed >= 420_000);
+        latestReads++;
+        return publication();
+      }
+      return uploads && elapsed >= 420_000
+        ? publication()
+        : new Response(null, { status: 404 });
+    },
+    publishArchive: async () => {
+      uploads++;
+    },
+    updateLatest: async () => {
+      assert.fail('The accepted publish already selected latest');
+    },
+  });
+  assert.equal(uploads, 1);
+  assert.equal(latestReads, 1);
+  assert.equal(elapsed, 420_000);
+});
+
 test('legacy tags can migrate existing packages but can never upload a missing npm version', async () => {
   await assert.rejects(
     publishAcceptedArchive(expected, {

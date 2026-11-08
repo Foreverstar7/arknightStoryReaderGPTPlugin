@@ -47,8 +47,10 @@ export async function ensureLatest(
   await options.updateLatest();
   const now = options.now ?? Date.now;
   const delay = options.delay ?? ((milliseconds) => setTimeout(milliseconds));
-  // Use the publication propagation budget for the tag readback as well. Only
-  // an absent or still-old tag is pending; HTTP/JSON/integrity failures abort.
+  // Keep tag readback at five minutes: the exact package already exists here.
+  // The separate 20-minute package visibility wait and this budget fit inside
+  // the publish job's 30 minutes. Only an absent or still-old tag is pending;
+  // HTTP/JSON/integrity failures abort.
   const deadline = now() + 300_000;
   let attempt = 0;
   while (true) {

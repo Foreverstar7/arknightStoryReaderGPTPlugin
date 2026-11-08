@@ -24,6 +24,7 @@ jobs:
       - run: npm run package:verify
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
+      - run: npm run test:e2e:host
       - uses: actions/upload-artifact@v7
         if: always()
         with:
@@ -32,6 +33,9 @@ jobs:
             .local/releases/*.json
             .local/releases/npm-install-logs/
             test-results/fixture/
+            .ai/local/search-card-check/host-report.json
+            .ai/local/search-card-check/results/
+            .ai/local/search-card-check/*.png
           overwrite: true
           include-hidden-files: true
           retention-days: 14

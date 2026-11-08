@@ -85,7 +85,7 @@ test('a missing version stops after a bounded wait without claiming publication'
       },
       fetchRegistry: async () => new Response(null, { status: 404 }),
     }),
-    /5 分钟内仍未返回/u,
+    /20 分钟内仍未返回/u,
   );
-  assert.equal(elapsed, 300_000);
+  assert.equal(elapsed, 1_200_000);
 });

@@ -13,9 +13,9 @@
    该命令同步 package、lock、plugin 和源码版本。纯网站、文档或工作流调整可以不升包版本。
 
 2. 提交并推送 main。普通 push／PR 运行 Check 的 Ubuntu `verify`；只有 main 的 push 且该作业成功，才调用 Prepare release draft 可复用工作流。草稿准备作业显示在同一次 Check 运行内，不再由 push 独立并行触发。准备前判断该版本是否已经有固定标签／完整草稿／公开发行；已有版本的普通提交、正式清单回写不会重复创建发行。
-3. Check 将本次 push 的完整提交 SHA 传给 Prepare；计划、构建和草稿保存使用固定提交，不在等待后改取最新 main。新版本在 Windows 使用固定 Node 26.13.0／npm 12.2.1 执行类型／测试／格式、构建、实际包离线与真实 PRTS 验证、fixture 浏览器回归。全部通过后才创建固定的 `vX.Y.Z` 注释标签和 Release 草稿，将验收的同一份 tgz、release.json、verification-prts.json 上传。标签记录源码提交、integrity 和原验收运行，之后不移动。中断恢复仍复用固定标签记录的原提交和 artifact，不用新源码替换原包。
+3. Check 将本次 push 的完整提交 SHA 传给 Prepare；计划、构建和草稿保存使用固定提交，不在等待后改取最新 main。新版本在 Windows 使用固定 Node 26.13.0／npm 12.2.1 执行类型／测试／格式、构建、实际包离线与真实 PRTS 验证、fixture 浏览器及 SDK iframe 高度回归；Ubuntu Check 也运行两套浏览器回归。全部通过后才创建固定的 `vX.Y.Z` 注释标签和 Release 草稿，将验收的同一份 tgz、release.json、verification-prts.json 上传。标签记录源码提交、integrity 和原验收运行，之后不移动。中断恢复仍复用固定标签记录的原提交和 artifact，不用新源码替换原包。
 4. 等待 Prepare release draft 成功，在 GitHub Releases 打开对应草稿，确认版本与说明，保持 **Set as a pre-release** 未选中，点击 **Publish release**。不要另建标签或手动上传替代包。
-5. Publish release 工作流由 `release.published` 触发，只处理正式版本。它从该 Release 取附件，核对固定标签、源码提交、包版本、实际归档 integrity 和验证报告，使用 OIDC 将同一归档发布到 npm latest，不从最新 main 重新打包。
+5. Publish release 工作流由 `release.published` 触发，只处理正式版本。它从该 Release 取附件，核对固定标签、源码提交、包版本、实际归档 integrity 和验证报告，使用 OIDC 将同一归档发布到 npm latest，不从最新 main 重新打包。作业总时限为 30 分钟；npm 命令完成后，明确版本的 registry 可见性最多等待 20 分钟，已存在版本的 latest 回读最多五分钟，确认即继续。这些是作业内的分阶段上限，不会额外等待 20／30 分钟。
 6. npm 确认后，工作流自动向 main 提交 `.agents/plugins/marketplace.json` 和 `docs/releases/X.Y.Z.json`。清单固定精确版本，回执保存归档身份、构建运行和发布运行。
 
 **点击 Publish 只是开始发布。Publish release 工作流成功，并且 npm 版本、main 的正式清单与版本回执一致，才算全部完成。** 不要求先发 next、安装候选来源、填写宿主验收链接或另外运行 promote。
@@ -69,7 +69,7 @@ codex plugin add arknights-story-reader@arknights-reader --json
 
 - 自动检查失败：修复后推送。Ubuntu `verify` 失败时不会启动草稿准备；Windows 验收失败时不会创建新标签或草稿。没有固定标签时会再次构建；已完整准备的版本保持冻结，要发行改动应使用新版本号。
 - 草稿保存中断：在原 Check 运行中重跑失败的草稿准备作业，或再次推送。已有固定标签记录原验收运行，工作流复用该次 artifact，只补缺失附件；同名不同内容立即报错，不覆盖包或移动标签。artifact 已过期且缺失的附件无法补齐时，发行新版本。
-- npm 发布失败：修复配置后重跑原 Publish release，不需要再次点击 Publish。已有同版本且 integrity 一致时跳过上传；不一致报错，不覆盖 npm 版本。仅 registry 暂时缺失或旧标签回读最多等待五分钟，其他权限／JSON／hash 错误直接失败。
+- npm 发布失败：修复配置后重跑原 Publish release，不需要再次点击 Publish。已有同版本且 integrity 一致时跳过上传；不一致报错，不覆盖 npm 版本。明确版本暂时 404 最多等 20 分钟，旧／缺失 latest 回读仍最多五分钟；其他权限／JSON／hash 错误直接失败。若 npm 仍显示 Validating，等版本能由 registry 查询到后重跑失败作业，不重复上传或重新创建 Release。
 - npm 已成功、main 回写失败：npm 版本保留，处理权限或并发提交后重跑原发布工作流，继续清单和回执。工作流自身的提交不增加版本号，不触发重复发行；不自动回退已经公开的 npm 包。
 - 已存在的旧版本只做 registry／integrity 核对和标签、清单、回执迁移，不重新上传包，也不移动旧标签。
 
