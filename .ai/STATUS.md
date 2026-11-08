@@ -2,7 +2,14 @@
 
 更新：2026-11-08。当前发布契约为 **推送 main → Check 的 Ubuntu 检查成功 → 同一提交的 Windows 验收与草稿准备 → 发布者点击一次 Publish release → 自动发布 npm latest、固定 marketplace 和回执**。此前 next／候选安装／宿主证据／独立 promote 的人工门槛已取消，后续不得按旧记录恢复。
 
-## 当前交付：1.1.1 草稿已验收，等待用户返回发布
+## 当前：桌面对话搜索卡片高度修复，本地已验证
+
+- 本轮修复授权取代此前“只排查不改代码”。起点为干净的 `main@b4821f1befce2c4a1050db36f7aed9dcdaa775af`，修复保存在本地 `codex/fix-search-card-height`；未创建 worktree、推送、升版或发布。冻结的 1.1.1 验收源码仍为 baf8ee3，草稿 ID 438038850、标签和三个附件不含本修复且保持不动。
+- inline 搜索的 html／body／root／结果容器按内容提供自然高度；fullscreen 搜索在错误条下独立滚动，选中目录／正文后沿用受限视口和内部滚动。宿主初始化、context 更新及显示模式请求的实际返回值均同步布局；不靠固定大高度或自定义尺寸观察器。搜索尚未载入 ReaderApp 时也能跟随宿主主题。
+- 新增 `npm run test:e2e:host`：独立构建到 `.ai/local/search-card-check/run-*`，经实际 MCP 资源和工具、官方 AppBridge／PostMessageTransport／App SDK 进行 iframe 高度协商。旧布局的延迟结果检查真实失败；修复后 1280px 宽时通知由加载态 92px 增为三卡 484px。最终 Windows Edge 157.0.4341.42 的 18 项通过，覆盖延迟／即刻结果、无结果、错误重试、连续更新、分页、模式切换／拒绝全屏／仅返回实际模式、封面真实点击、正文滚动与返回、宿主高度上限、连续宽度变化、四种窗口双主题、键盘及减少动态效果；同时检查尺寸稳定和页面运行错误。截图已实际查看。
+- 本轮类型检查、168 项既有单元／协议测试、最终格式检查通过。未重建仓库 `dist/`、已安装开发插件或 `.local/marketplace`，未操作私人记录或 4330 预览；临时服务已由测试清理。命令、证据和复测边界见 [卡片高度修复交接](../docs/search-card-height-fix.md)。真实 Codex 桌面的修复版卡片仍待原验收对话接续，不能以隔离 SDK 宿主代替。
+
+## 此前交付：1.1.1 草稿已验收，等待用户返回发布
 
 - 用户已明确要求推送并跟进 Check／Prepare／网站，正式发布待其返回。9596c75944389a3703813753f428fc6393a46e7a 已从 codex/portrait-chat-polish 快进合入并推送 main，工作流与另一对话的既有改动完整保留。
 - [Check 42447808883](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42447808883) 的 Ubuntu verify、Windows accept-package 与 draft 全部成功，验收源码为交接提交 baf8ee32bc79c37649f7e8ca49b744f990a64271；[Pages 42446767205](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42446767205) 的网站检查、构建和部署成功。Windows 含类型／168 项／格式、实际包的三种 MCP 入口与两份 UI、冷缓存离线 npm 安装、真实 117 部目录／64 块正文／1500×844 CG／独立记录保留，以及 39 项 fixture 浏览器回归。
@@ -10,7 +17,7 @@
 - [1.1.1 草稿](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/releases/tag/untagged-212b10da730606fd3d43) ID 438038850，三个附件齐全；tgz 为 8,023,862 字节，integrity 为 sha512-XvXhwf49IwAuQsGQKYge2Bx+hoPEXkyV3/AlEkU/x0aeIiMpIetqb5BOJUfxQshUsetb3MK1tCnaE/WR4ukYLg==。v1.1.1 注释标签 d371c53105a08baf44f49d747b0e7f31ee133c05 指向 baf8ee3，标签内 source／integrity／体积／dirty=false／CI run 与草稿核对一致。后续文档不移动标签或替换附件。
 - 1.1.1 尚未正式发布；1.1.0、1.0.1 仍为 draft，原三个附件的 ID／digest 与此前记录一致。本轮交付止于已验收草稿，正式 Publish 等用户返回。后续文档提交的 Check 应通过已有完整草稿而跳过重建；实际桌面搜索卡片仍有下述已复现缺陷，不将自动验收写成该问题已解决。
 - 用户另要求只排查 maaTask 对话“查找莱茵生命相关剧情”的卡片问题。原三次调用均带完整结果、UI URI 和 _meta.readerSearch，宿主资源读取及 widget 初始化成功；并非搜索无结果或没有注册 UI。客户端同期有大量 ResizeObserver 尺寸循环错误，其他对话的 unknown MCP server 日志不能套作本次原因。
-- 已用安装的 1.1.0 原 HTML／SDK 与同一公共结果隔离复现：加载态先测量为 92px，100ms 后 DOM 已生成四卡，但外层与 .search-results 的 height: 100%／内部滚动使自动测量仍停在 92px；只在临时 DOM 使用自然高度后第二次通知为 649px，四卡可见。结果先于首次测量时另观察到约 654px，表现受时序影响。当前 1.1.1 没有改这组布局，缺陷仍在；未修改业务代码或真实安装。后续应区分 inline 搜索自然高度与 fullscreen 阅读器内部滚动，真实宿主修复尚待实施。
+- 已用安装的 1.1.0 原 HTML／SDK 与同一公共结果隔离复现：加载态先测量为 92px，100ms 后 DOM 已生成四卡，但外层与 .search-results 的 height: 100%／内部滚动使自动测量仍停在 92px；只在临时 DOM 使用自然高度后第二次通知为 649px，四卡可见。结果先于首次测量时另观察到约 654px，表现受时序影响。已冻结的 1.1.1 没有改这组布局，缺陷仍在；当次排查未修改业务代码或真实安装。本地源码后续修复与尚待真实桌面复测的边界见页首。
 - 完整只读报告、原始／对照 JSON 和截图在 .ai/local/portrait-chat-polish/card-diagnostic/；4348 临时服务与诊断标签已关闭，保留用户的 4330 预览及私人记录。本版可复制 Release 文案见 docs/releases/1.1.1-notes.md，已明确卡片已知问题，不将诊断写成修复。
 
 ## 1.1.1 立绘浮层与网站消息

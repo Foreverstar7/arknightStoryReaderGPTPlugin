@@ -122,7 +122,7 @@ export function SearchFlow({
       </div>
     );
   return (
-    <>
+    <div className="search-flow">
       {error && (
         <div className="search-error" role="alert">
           {error}{' '}
@@ -159,6 +159,6 @@ export function SearchFlow({
           }}
         />
       )}
-    </>
+    </div>
   );
 }

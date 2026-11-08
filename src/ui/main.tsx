@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { useApp } from '@modelcontextprotocol/ext-apps/react';
+import {
+  useApp,
+  type McpUiHostContext,
+} from '@modelcontextprotocol/ext-apps/react';
 import { ReaderApp } from './ReaderApp.js';
 import { hostTransport, previewTransport } from './transport.js';
 import './styles.css';
@@ -14,6 +17,16 @@ import {
 } from '../shared/search.js';
 import { readerFailureSchema } from '../shared/errors.js';
 import { SearchFlow } from './SearchFlow.js';
+
+function applyHostContext(context: McpUiHostContext | undefined) {
+  const root = document.documentElement;
+  if (context?.theme) {
+    root.dataset.hostTheme = context.theme;
+    // Search can render before ReaderApp loads the saved preference.
+    root.dataset.theme ??= 'system';
+  }
+  if (context?.displayMode) root.dataset.displayMode = context.displayMode;
+}
 
 function HostedReader() {
   const searchEntry = document.documentElement.dataset.entry === 'search';
@@ -48,10 +61,7 @@ function HostedReader() {
           );
         }
       };
-      instance.onhostcontextchanged = (context) => {
-        if (context.theme)
-          document.documentElement.dataset.hostTheme = context.theme;
-      };
+      instance.onhostcontextchanged = applyHostContext;
       instance.onteardown = async () => {
         await readingFlush.current();
         return {};
@@ -60,8 +70,7 @@ function HostedReader() {
   });
   const transport = useMemo(() => (app ? hostTransport(app) : null), [app]);
   useEffect(() => {
-    const theme = app?.getHostContext()?.theme;
-    if (theme) document.documentElement.dataset.hostTheme = theme;
+    applyHostContext(app?.getHostContext());
   }, [app]);
   if (error)
     return (
@@ -83,11 +92,13 @@ function HostedReader() {
         initialError={searchFailure}
         retryInput={retryInput}
         onFlushReady={onFlushReady}
-        fullscreen={() =>
-          app
-            ? app.requestDisplayMode({ mode: 'fullscreen' })
-            : Promise.resolve()
-        }
+        fullscreen={async () => {
+          if (!app) return;
+          const { mode } = await app.requestDisplayMode({ mode: 'fullscreen' });
+          // A host may return a different actual mode, without another context
+          // notification. Layout follows that result rather than the request.
+          applyHostContext({ displayMode: mode });
+        }}
       />
     );
   return (
