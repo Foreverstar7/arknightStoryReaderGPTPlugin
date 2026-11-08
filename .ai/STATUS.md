@@ -8,7 +8,7 @@
 - 基础剧情搜索已实现：唯一模型可见工具为 `reader_search`，支持剧情名称、篇目编号／标题、PRTS 人物实际出场；其余十一项工具仅供页面使用。桌面搜索卡片通过官方深链进入同一安装来源的侧栏阅读器，保留命中篇目标记；其他宿主保留当前容器阅读。结果页保留失败重试和分页，不显示常驻“刷新搜索资料”按钮。深链身份、协议和验证见 [侧栏跳转](../docs/sidebar-reader-links.md)。
 - 网站包含介绍／占位演示、安装指南和独立 `/reader/` 真实网页阅读入口。真实网页入口已部署到同站点 `/reader/`；构建与维护见 [网站说明](../docs/website.md)。
 
-## 乐章目录与阅读导航：1.1.6 共享实现
+## 乐章目录与阅读导航：1.1.6 已公开
 
 用户已授权正式实施、提交推送和清理被忽略的备份／检查文件。共享 ReaderApp 已接入类型／乐章双视图、模式偏好、所属乐章标签、独立分叉及往返定位。桌面剧情轴保留拖动、原生横向滚动与浏览线，隐藏额外滚动条；手机乐章视图为纵向列表与选择器。来源未收录的现有剧情保留在“其他”，资料错误可单独重试。初始 [HTML 样例](../docs/design/catalog-modes-preview.html) 仅作布局参考，其虚构数据不进入生产构建。
 
@@ -17,9 +17,11 @@
 - 1.1.6 类型、178 项单元／协议及格式检查分别通过；`run package`、`run package:verify -- --prts` 通过，实际包在源码外解包、冷缓存离线安装，12 项工具／唯一模型搜索／global 入口和两份 UI 一致。真实包读取 117 部目录、64 块正文、1500×844 CG，保存／重开／清缓存／模拟卸载保留均通过。
 - 1.1.6 在 Edge 157.0.4341.42 的 45 项 fixture 浏览器、27 项 SDK iframe、22 项独立网页回归通过；WebKit 27.2 的网页 20 项通过、两项 CDP 原生触摸专项按内核跳过并由 Edge 覆盖。检查包含手动状态、导航选择保持、留白上／下位置点击、透明悬停、原生滚轮、选区保护、首尾入口、模式／续读、独立失败重试、清缓存代次、低高度目标可见、减少动态效果，以及 320×760、768×900、1440×960、1024×400 双主题。已查看窄屏、桌面、低高度与真实源截图；收起／展开的可见段落误差不超过 1px。网页正文固定在第二行，收起外壳后仍占满剩余高度。
 - 正式桌面请求成功读取当前 PRTS 曲谱；独立网页真实源确认 117 部剧情全部保留、87 部归入 14 个乐章、29 个连接点，无未对应名称。真实网页往返定位、320px 深色布局通过，目录浏览未请求正文且没有脚本错误。这是当次源核对结果，不是硬编码数量。
-- 本次修改由网页与插件共用；Pages 部署和插件发行仍分开。首轮 `3f25634` 已推送，Pages 42489638092 部署成功且线上 WebKit 27.2／320px 真实源复查通过，Check 42489638187 的 Ubuntu 验收通过；Windows 真实图片工具未取得可解析的结构化结果而失败，该次未生成 1.1.5 草稿，不据此猜测网络根因。该提交包含先前自动隐藏方案；用户后续修订和导航状态修复进入 1.1.6，1.1.5 本地包及历史归档保留。变更见 [1.1.6 说明](../docs/releases/1.1.6-notes.md)。本轮不执行 Publish release，也未替换当前用户安装；正式已公开版本仍为 1.1.4。手机真机手势和实际桌面升级体验仍按 PLAN 后续验证。
-- 最新功能提交 `651449b` 已推送；[Pages 42491906231](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42491906231) 成功。线上 WebKit 27.2／320px 再次确认 117 部目录、87 个乐章标签、29 个连接点、滚动保持手动状态、展开／收起后选择保留及可用高度，无整页横向溢出或脚本错误。[Check 42491906251](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42491906251) 的 Ubuntu 验收通过；Windows 第一次在真实图片阶段失败，重跑失败作业后在目录请求报明确 `network`／20 秒超时（job 128768297264），草稿步骤跳过。该远端取数限制与本地同版本实际包的真实源成功结果分别保留，1.1.6 草稿尚未生成。
-- [Check 42493173720](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42493173720) 的 Windows 实际包及真实 PRTS 验证已通过，随后失败于手机触摸回归。用相同 Chromium 156.0.8078.4 本地重现：匀速 CDP 拖动释放后偶发保留滚动手势，下一次 tap 没有派发 click；等待五秒仍可重现。测试输入改为释放前减速，正文确实上下滚动与单次点击收起均保留断言，删除固定 500ms 等待，应用代码与手动收起规则未变。修复后该项连续八次、完整 fixture 45 项与网页 22 项通过，类型／178 项单元协议／格式检查通过；新的远端候选验收待完成。
+- 本次修改由网页与插件共用；Pages 部署和插件发行仍分开。首轮 `3f25634` 已推送，Pages 42489638092 部署成功且线上 WebKit 27.2／320px 真实源复查通过，Check 42489638187 的 Ubuntu 验收通过；Windows 真实图片工具未取得可解析的结构化结果而失败，该次未生成 1.1.5 草稿，不据此猜测网络根因。该提交包含先前自动隐藏方案；用户后续修订和导航状态修复进入 1.1.6，1.1.5 本地包及历史归档保留。变更见 [1.1.6 说明](../docs/releases/1.1.6-notes.md)。手机真机手势和实际桌面升级体验仍按 PLAN 后续验证，当前用户安装未替换。
+- 功能提交 `651449b` 已推送；[Pages 42491906231](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42491906231) 成功。线上 WebKit 27.2／320px 再次确认 117 部目录、87 个乐章标签、29 个连接点、滚动保持手动状态、展开／收起后选择保留及可用高度，无整页横向溢出或脚本错误。[Check 42491906251](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42491906251) 的 Ubuntu 验收通过；Windows 第一次在真实图片阶段失败，重跑失败作业后在目录请求报明确 `network`／20 秒超时（job 128768297264），当次草稿步骤跳过。该远端取数限制与后续验收结果分别记录。
+- [Check 42493173720](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42493173720) 的 Windows 实际包及真实 PRTS 验证已通过，随后失败于手机触摸回归。用相同 Chromium 156.0.8078.4 本地重现：匀速 CDP 拖动释放后偶发保留滚动手势，下一次 tap 没有派发 click；等待五秒仍可重现。测试输入改为释放前减速，补充正文确实上下滚动的断言，保留单次点击收起，删除固定 500ms 等待；应用代码与手动收起规则未变。修复后该项连续八次、完整 fixture 45 项与网页 22 项通过，类型／178 项单元协议／格式检查通过。
+- 修复提交 `058a026618bf74050adfe591979a5446de366683` 的 [Check 42495495516](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42495495516) 首次运行即通过 Ubuntu／Windows 全部验收及草稿准备。Windows 真实源完成 117 部目录、64 块正文、1500×844 CG 及记录保存／重开／清缓存／模拟卸载保留，45 项 fixture 与 27 项 SDK iframe 通过；[Pages 42495495493](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42495495493) 检查和部署成功。
+- [1.1.6 Release](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/releases/tag/v1.1.6) ID `438343143`，三个附件齐全，tgz 为 8,033,385 字节。已下载核对三个附件的 GitHub SHA-256，以及包的 SHA-512、固定标签和原验收提交／运行，全部一致，dirty=false。草稿准备后该 Release 已被公开，[Publish 42496508211](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42496508211) 成功；`c917733` 自动回写精确 marketplace 与 [1.1.6 回执](../docs/releases/1.1.6.json)，npm latest 和正式来源已确认为 1.1.6。本次修复没有执行 Publish release 操作；已安装插件仍需用户刷新来源并更新。
 - 已按用户要求清理约 1.29 GB 的历史备份、实验下载、旧日志与检查产物；真实 `.runtime/reading/records.sqlite` 哈希未变，依赖／工具链、发行包、注册工作树和离线回归必需样本保留。历史条目中的本机临时报告路径只记录当时取证位置，后续复现使用仓库脚本和已列 Actions。当前验收摘要与截图基线保留在被忽略的 `.ai/local/score-implementation/`。
 
 ## 纯前端网页阅读器
@@ -37,9 +39,9 @@
 
 网页布局更新 `4200727` 已推送 main，[Pages 42476966362](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42476966362) 与 [Check 42476966347](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42476966347) 均成功。正式 [网页阅读器](https://foreverstar7.github.io/arknightStoryReaderGPTPlugin/reader/) 已复查：iPhone 标识的 WebKit 中目录纵向排列、浏览线隐藏、整卡打开及正文／图片／续读正常；桌面真实长目录仍为横轴，浏览线能定位末篇，整页无横向溢出。用户已在 iOS 27 手机上确认总目录可见、新版篇章列表可上下滑动且可打开篇目；手机图片交互、重开续读、主屏幕启动和 Android 真机仍待确认。本轮没有另发 npm／插件版本。
 
-## 桌面端：1.1.4 已公开
+## 之前的正式版：1.1.4
 
-package／lock／plugin／源码版本统一为 1.1.4。新增桌面搜索到侧栏的深链、已有阅读器的导航处理，以及从固定验收提交自动填写 Release 草稿标题／正文。包含 1.1.3 的按钮精简，不新增模型工具或设置入口。变更说明见 [1.1.4](../docs/releases/1.1.4-notes.md)，后续发布操作见 [发布指南](../docs/releasing.md)。
+该版 package／lock／plugin／源码版本统一为 1.1.4。新增桌面搜索到侧栏的深链、已有阅读器的导航处理，以及从固定验收提交自动填写 Release 草稿标题／正文。包含 1.1.3 的按钮精简，不新增模型工具或设置入口。变更说明见 [1.1.4](../docs/releases/1.1.4-notes.md)，后续发布操作见 [发布指南](../docs/releasing.md)。
 
 - 本地 `./scripts/npm.ps1 run check`、`run build` 通过，包含 172 项单元／协议测试与格式检查。发行文案回归用真实隔离 Git 提交验证固定来源、错版／空白拒绝和已有草稿恢复保留文案。
 - `run package` 与 `run package:verify` 通过：实际 tgz 在源码外解包，冷缓存离线安装、生产依赖、三种 MCP 入口和两份 UI 一致。`run plugin:prepare` 已生成 1.1.4 开发副本，开发 mcp.json 的目标身份与其 marketplace 一致；`run probe:host -- --isolated` 验证本机加载器的 12 项工具、唯一模型搜索和 global 入口。该探针只安装到隔离配置，未替换当前用户安装。
@@ -80,8 +82,9 @@ npm 明确版本的 404 可见性等待从五分钟调整为 20 分钟，Publish
 | 1.1.1 固定归档 | GitHub／npm／正式来源及回执发布成功；固定源码 `baf8ee32bc79c37649f7e8ca49b744f990a64271`；不含高度修复 | [Publish 42459507527](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42459507527) |
 | 1.1.2 固定归档 | GitHub／npm latest／正式来源及回执均已发布成功                                                         | [Publish 42462147645](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42462147645) |
 | 1.1.4 固定归档 | GitHub／npm latest／正式来源及回执均已发布成功 | [Publish 42469568159](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42469568159) |
-| 网站           | 网页真实阅读入口的专项检查、构建与部署通过                                                                       | [Pages 42474015572](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42474015572)   |
-| 正式来源       | `.agents/plugins/marketplace.json` 与 npm latest 均为 1.1.4；1.1.3 保留未发布            | [来源目录](../.agents/plugins/marketplace.json)                                                              |
+| 1.1.6 固定归档 | GitHub／npm latest／正式来源及回执均已发布成功 | [Publish 42496508211](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42496508211) |
+| 网站           | 网页真实阅读入口的专项检查、构建与部署通过                                                                       | [Pages 42495495493](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42495495493)   |
+| 正式来源       | `.agents/plugins/marketplace.json` 与 npm latest 均为 1.1.6；1.1.3 保留未发布            | [来源目录](../.agents/plugins/marketplace.json)                                                              |
 
 GitHub Release 公开与 npm／正式来源发布完成分别核对。[1.1.1 变更说明](../docs/releases/1.1.1-notes.md)保留该版搜索卡片的已知问题。已有标签与附件保持冻结，新变更使用新版本，不替换同名归档。
 
