@@ -2,9 +2,19 @@
 
 更新：2026-11-08。当前发布契约为 **推送 main → Check 的 Ubuntu 检查成功 → 同一提交的 Windows 验收与草稿准备 → 发布者点击一次 Publish release → 自动发布 npm latest、固定 marketplace 和回执**。此前 next／候选安装／宿主证据／独立 promote 的人工门槛已取消，后续不得按旧记录恢复。
 
-## 当前本地修正：1.1.1 立绘浮层与网站消息
+## 当前交付：1.1.1 已推送，PRTS 网络阻塞草稿准备
 
-- 用户要求先等另一对话提交并推送；已确认工作流 64d6d67、网站 e7a31c4 已推送后开始本轮，保留其全部改动；该对话现已完成。当前分支 codex/portrait-chat-polish，候选版本通过既有脚本统一到 1.1.1；未推送或生成新发行，既有 1.1.0 固定包、标签与附件保持原样。
+- 用户已明确要求推送并跟进 Check／Prepare／网站，正式发布待其返回。9596c75944389a3703813753f428fc6393a46e7a 已从 codex/portrait-chat-polish 快进合入并推送 main，工作流与另一对话的既有改动完整保留。
+- [Check 42446767197](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42446767197) 的 Ubuntu verify 成功；[Pages 42446767205](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42446767205) 的网站检查、构建和部署成功。Prepare 为 Check 内的可复用作业，不能将 verify 成功写成整个运行已成功。
+- 截至本次交接，Windows accept-package 三次均在真实 PRTS 目录请求返回 network 错误，draft 跳过；168 项 check、构建、manifest／bin／npm-installed 三入口、两份 UI 和冷缓存离线 npm 安装已通过。三次均使用同一源码，不跳过联网验收、不以本地旧包代替 CI 新包。本机对同一公开 raw URL 的一次对照为 HTTP 200／text/x-wiki，363ms；这不证明运行器已恢复。诊断摘要在 .ai/local/portrait-chat-polish/ci-*-attempt-summary.log。
+- 1.1.1 尚无固定标签、草稿或正式发行；1.1.0、1.0.1 仍为 draft，三个附件的 ID／digest 与原记录一致。后续文档提交仍会触发 Check，最终状态应核对对应提交的 Actions 记录；正式 Publish 仍由用户操作。
+- 用户另要求只排查 maaTask 对话“查找莱茵生命相关剧情”的卡片问题。原三次调用均带完整结果、UI URI 和 _meta.readerSearch，宿主资源读取及 widget 初始化成功；并非搜索无结果或没有注册 UI。客户端同期有大量 ResizeObserver 尺寸循环错误，其他对话的 unknown MCP server 日志不能套作本次原因。
+- 已用安装的 1.1.0 原 HTML／SDK 与同一公共结果隔离复现：加载态先测量为 92px，100ms 后 DOM 已生成四卡，但外层与 .search-results 的 height: 100%／内部滚动使自动测量仍停在 92px；只在临时 DOM 使用自然高度后第二次通知为 649px，四卡可见。结果先于首次测量时另观察到约 654px，表现受时序影响。当前 1.1.1 没有改这组布局，缺陷仍在；未修改业务代码或真实安装。后续应区分 inline 搜索自然高度与 fullscreen 阅读器内部滚动，真实宿主修复尚待实施。
+- 完整只读报告、原始／对照 JSON 和截图在 .ai/local/portrait-chat-polish/card-diagnostic/；4348 临时服务与诊断标签已关闭，保留用户的 4330 预览及私人记录。本版可复制 Release 文案见 docs/releases/1.1.1-notes.md，已明确卡片已知问题，不将诊断写成修复。
+
+## 1.1.1 立绘浮层与网站消息
+
+- 用户要求先等另一对话提交并推送；已确认工作流 64d6d67、网站 e7a31c4 已推送后开始本轮，保留其全部改动；该对话现已完成。实现分支为 codex/portrait-chat-polish，通过既有脚本统一到 1.1.1，已交付 main；既有 1.1.0 固定包、标签与附件保持原样。
 - 有可用立绘时保留图片、模式选择与来源，图片下方不显示成功／默认状态说明或刷新按钮。不一致与未确认关系的提示仍在图片上方。无可用立绘时只留“暂无可显示的立绘”和原来源链接，移除灰色人形、长诊断、核验按钮；两种图都不可选时隐藏双选框并收紧空态高度。
 - 立绘仅在结构化错误码为 network 时显示简短失败提示与重试按钮；网络失败也不显示人形占位。详细错误保留在 title／无障碍说明及结构化状态中，不把缺图、解析或身份不确定等错误猜成网络失败。封面与 CG 重试行为保留。
 - 网站提交非空输入后创建用户气泡、对应助手回复并清空输入框。每个请求分别持有回复节点，支持加载期间与连续提交，结果不覆盖先前对话；错误、未支持输入及重置均保留演示范围。仍为原创样例，没有模型或 PRTS 调用。
