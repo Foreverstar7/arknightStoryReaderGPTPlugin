@@ -80,7 +80,20 @@ test('web native mobile gestures reclaim the site header, preview and switch cha
     ).toBeVisible();
     await page.waitForTimeout(250);
     await nativeSwipe(page, { x: 260, y: 650 }, { x: 260, y: 320 });
+    await expect(page.locator('.web-bar')).toBeVisible();
+    await page.waitForTimeout(500);
+    await page
+      .getByRole('button', { name: '收起顶部工具栏', exact: true })
+      .tap();
     await expect(page.locator('.web-bar')).toBeHidden();
+    expect(
+      await page
+        .locator('.reader-scroll')
+        .evaluate((node) => node.clientHeight),
+    ).toBeGreaterThan(500);
+    await page.screenshot({
+      path: test.info().outputPath('manual-mobile.png'),
+    });
     const first = Object.values((await storedState(page)).records)[0];
     if (!first) throw Error('Missing original record');
     expect(first.complete).toBe(false);
@@ -90,11 +103,13 @@ test('web native mobile gestures reclaim the site header, preview and switch cha
       type: 'touchStart',
       touchPoints: [{ x: 290, y: 430 }],
     });
-    for (const x of [270, 245, 215, 180, 140, 100])
+    for (const x of [270, 245, 215, 180, 140, 100]) {
       await session.send('Input.dispatchTouchEvent', {
         type: 'touchMove',
         touchPoints: [{ x, y: 432 }],
       });
+      await page.waitForTimeout(30);
+    }
     await expect(page.locator('.swipe-preview')).toContainText('回声');
     await expect(page.locator('.swipe-preview')).toContainText('松手切换');
     await session.send('Input.dispatchTouchEvent', {
@@ -115,4 +130,63 @@ test('web native mobile gestures reclaim the site header, preview and switch cha
   } finally {
     await context.close();
   }
+});
+
+test('desktop margins click across their height, stay transparent on hover, scroll natively and preserve text selection', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 960 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await installSource(page);
+  await page.goto('./');
+  await page
+    .getByRole('button', { name: `打开剧情：${title}`, exact: true })
+    .click();
+  await page.getByRole('button', { name: /^阅读 WX-1 / }).click();
+  const reader = page.locator('.reader-scroll'),
+    zone = page.locator('.reader-side-next');
+  await expect(zone).toBeVisible();
+  const box = await zone.boundingBox();
+  const viewport = await reader.boundingBox();
+  const copy = await page.locator('.reading-copy').boundingBox();
+  if (!box || !viewport || !copy) throw Error('Missing reading margins');
+  expect(box.x).toBeGreaterThanOrEqual(copy.x + copy.width);
+  expect(box.height).toBeCloseTo(viewport.height, 0);
+  const before = await zone.evaluate((node) => ({
+    background: getComputedStyle(node).backgroundColor,
+    color: getComputedStyle(node).color,
+  }));
+  await page.mouse.move(box.x + box.width * 0.7, box.y + 60);
+  expect(
+    await zone.evaluate((node) => ({
+      background: getComputedStyle(node).backgroundColor,
+      color: getComputedStyle(node).color,
+    })),
+  ).toEqual(before);
+  expect(await zone.evaluate((node) => getComputedStyle(node).cursor)).toBe(
+    'pointer',
+  );
+  await page.screenshot({ path: test.info().outputPath('desktop-margin.png') });
+  await page.mouse.wheel(0, 250);
+  await expect
+    .poll(() => reader.evaluate((node) => node.scrollTop))
+    .toBeGreaterThan(100);
+  await page.locator('.body-copy').evaluate((node) => {
+    const range = document.createRange();
+    range.selectNodeContents(node.firstElementChild ?? node);
+    const selection = getSelection();
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+  });
+  await page.mouse.click(box.x + box.width * 0.7, box.y + 60);
+  await expect(page.locator('.reading-heading h1')).toHaveText('双岔');
+  await page.evaluate(() => getSelection()?.removeAllRanges());
+  await page.mouse.click(box.x + box.width * 0.7, box.y + 60);
+  await expect(page.locator('.reading-heading h1')).toHaveText('回声');
+  const left = await page.locator('.reader-side-previous').boundingBox();
+  if (!left) throw Error('Missing left margin');
+  await page.mouse.click(left.x + left.width * 0.3, left.y + left.height - 60);
+  await expect(page.locator('.reading-heading h1')).toHaveText('双岔');
+  await page.setViewportSize({ width: 768, height: 900 });
+  await expect(zone).toBeHidden();
 });

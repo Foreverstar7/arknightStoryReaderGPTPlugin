@@ -324,34 +324,42 @@ export function Reader({
           </button>
         ))}
       </aside>
-      <button
-        className="reader-side-turn reader-side-previous"
-        aria-label={`向前阅读${previous ? `：${previous.title}` : ''}`}
-        title={previous?.title ?? '已是第一篇'}
-        disabled={!previous || busy}
-        onClick={() => {
-          if (previous) open(previous.id, false, 'previous');
-        }}
-      >
-        <Icon name="previous" />
-      </button>
-      <button
-        className="reader-side-turn reader-side-next"
-        aria-label={`向后阅读${next ? `：${next.title}` : ''}`}
-        title={next?.title ?? '已是最后一篇'}
-        disabled={!next || busy}
-        onClick={() => {
-          if (next) open(next.id, false, 'next');
-        }}
-      >
-        <Icon name="next" />
-      </button>
       <main
         className="reader-scroll"
         ref={scroll}
         tabIndex={0}
         aria-label="剧情正文"
       >
+        <div className="reading-turn-zones">
+          <button
+            className="reader-side-turn reader-side-previous"
+            aria-label={`向前阅读${previous ? `：${previous.title}` : ''}`}
+            disabled={!previous || busy}
+            onClick={(event) => {
+              if (
+                previous &&
+                (event.detail === 0 || !window.getSelection()?.toString())
+              )
+                open(previous.id, false, 'previous');
+            }}
+          >
+            <Icon name="previous" />
+          </button>
+          <button
+            className="reader-side-turn reader-side-next"
+            aria-label={`向后阅读${next ? `：${next.title}` : ''}`}
+            disabled={!next || busy}
+            onClick={(event) => {
+              if (
+                next &&
+                (event.detail === 0 || !window.getSelection()?.toString())
+              )
+                open(next.id, false, 'next');
+            }}
+          >
+            <Icon name="next" />
+          </button>
+        </div>
         <article className="reading-copy">
           {hint && (
             <div className="swipe-hint">

@@ -88,6 +88,19 @@ test('catalog modes retain all stories, persist preference, and return from a be
   expect(target.y + target.height).toBeLessThanOrEqual(
     bounds.y + bounds.height,
   );
+  await page.setViewportSize({ width: 320, height: 760 });
+  const selector = page.getByRole('combobox', {
+    name: '选择乐章',
+    exact: true,
+  });
+  await selector.selectOption('fixture-score:road');
+  await page
+    .getByRole('button', { name: '收起顶部工具栏', exact: true })
+    .click();
+  await page
+    .getByRole('button', { name: '展开顶部工具栏', exact: true })
+    .click();
+  await expect(selector).toHaveValue('fixture-score:road');
 });
 
 test('movement axis supports range, mouse drag without opening, keyboard and independent mode scroll positions', async ({
@@ -221,8 +234,38 @@ test('manual chrome changes retain the visible body anchor and wide-screen arrow
   const body = await page.locator('.body-copy').boundingBox();
   if (!arrow || !body) throw Error('Missing reading layout');
   expect(arrow.x).toBeGreaterThan(body.x + body.width);
-  // A narrow desktop sidebar still uses the explicit button; automatic hiding
-  // belongs to narrow touch devices, rather than every small desktop window.
+  const reader = page.locator('.reader-scroll');
+  const viewport = await reader.boundingBox();
+  if (!viewport) throw Error('Missing reading viewport');
+  expect(arrow.width).toBeGreaterThan(80);
+  expect(arrow.height).toBeCloseTo(viewport.height, 0);
+  const beforeWheel = await reader.evaluate((node) => node.scrollTop);
+  await page.mouse.move(arrow.x + arrow.width * 0.75, viewport.y + 70);
+  await page.mouse.wheel(0, 150);
+  await expect
+    .poll(() => reader.evaluate((node) => node.scrollTop))
+    .toBeGreaterThan(beforeWheel);
+  await page.mouse.click(arrow.x + arrow.width * 0.75, viewport.y + 70);
+  await expect(page.locator('.reading-heading h1')).toHaveText('钟楼的方向');
+  const left = await page.locator('.reader-side-previous').boundingBox();
+  if (!left) throw Error('Missing previous margin');
+  await page.mouse.click(left.x + left.width * 0.25, viewport.y + 70);
+  await expect(page.locator('.reading-heading h1')).toHaveText(
+    '一封未寄出的信',
+  );
+  await page.locator('.body-copy').evaluate((node) => {
+    const range = document.createRange();
+    range.selectNodeContents(node.firstElementChild ?? node);
+    const selection = getSelection();
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+  });
+  await page.mouse.click(arrow.x + arrow.width * 0.75, viewport.y + 70);
+  await expect(page.locator('.reading-heading h1')).toHaveText(
+    '一封未寄出的信',
+  );
+  await page.evaluate(() => getSelection()?.removeAllRanges());
+  // Scrolling does not change the manual chrome state in a narrow window.
   await page.setViewportSize({ width: 320, height: 760 });
   await page.locator('.reader-scroll').evaluate((node) => {
     node.scrollTop = 200;
@@ -292,7 +335,7 @@ test('shared movement and chrome layouts fit four windows and both themes, inclu
   }
 });
 
-test('mobile vertical scrolling hides chrome, deliberate horizontal release changes chapter, and selection and edge gestures stay in place', async ({
+test('mobile vertical scrolling preserves manual chrome state, deliberate horizontal release changes chapter, and selection and edge gestures stay in place', async ({
   browser,
 }) => {
   const context = await browser.newContext({
@@ -314,7 +357,7 @@ test('mobile vertical scrolling hides chrome, deliberate horizontal release chan
     await page.waitForTimeout(250);
     await nativeSwipe(page, { x: 260, y: 650 }, { x: 260, y: 320 });
     await expect(
-      page.getByRole('button', { name: '展开顶部工具栏', exact: true }),
+      page.getByRole('button', { name: '收起顶部工具栏', exact: true }),
     ).toBeVisible();
     await expect(
       page.getByRole('heading', { name: '一封未寄出的信', exact: true }),

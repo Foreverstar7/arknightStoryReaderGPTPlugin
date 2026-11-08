@@ -81,7 +81,7 @@ export function ReaderApp({
   const [busy, setBusy] = useState(true);
   const [failure, setFailure] = useState<Failure | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const chrome = useReaderChrome(settingsOpen);
+  const chrome = useReaderChrome();
   const [scoreRevision, setScoreRevision] = useState(0);
   const score = useScoreCatalog(transport, Boolean(snapshot), scoreRevision);
   const [catalogMode, setCatalogMode] = useState<'type' | 'movement' | null>(
@@ -491,8 +491,6 @@ export function ReaderApp({
       aria-busy={busy}
       ref={chrome.root}
       data-chrome-collapsed={chrome.collapsed}
-      onScrollCapture={chrome.onScrollCapture}
-      onPointerDownCapture={chrome.onPointerDownCapture}
     >
       <button
         className="chrome-toggle"

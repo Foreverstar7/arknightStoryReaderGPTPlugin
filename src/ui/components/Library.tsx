@@ -155,7 +155,11 @@ export function StoryCard({
   );
 }
 
-type BrowsingPosition = { top: number; tracks: Map<string, number> };
+type BrowsingPosition = {
+  top: number;
+  tracks: Map<string, number>;
+  selected: string;
+};
 export function Library({
   stories,
   state,
@@ -217,12 +221,14 @@ export function Library({
   function capture(): BrowsingPosition {
     return {
       top: scroller.current?.scrollTop ?? 0,
+      selected,
       tracks: new Map(
         [...tracks.current].map(([id, track]) => [id, track.scrollLeft]),
       ),
     };
   }
   function restore(position: BrowsingPosition) {
+    setSelected(position.selected);
     for (const [id, left] of position.tracks) {
       const track = tracks.current.get(id);
       if (track) track.scrollLeft = left;
@@ -253,7 +259,7 @@ export function Library({
       track?.querySelectorAll<HTMLElement>('.story-card') ?? [],
     ).find((item) => item.dataset.storyId === node.targetStoryId);
     if (!track || !card) return;
-    const sourcePosition = capture();
+    const sourcePosition = { ...capture(), selected: movement.id };
     setReturns((current) => [
       ...current,
       { position: sourcePosition, key: node.key, title: movement.title },
@@ -334,20 +340,7 @@ export function Library({
           STORY ARCHIVE
         </small>
       </aside>
-      <main
-        className="library-scroll"
-        ref={scroller}
-        onScroll={(event) => {
-          const top = event.currentTarget.getBoundingClientRect().top + 24;
-          const current = navigationGroups.findLast((group) => {
-            const section = sections.current.get(group.id);
-            return (
-              section?.isConnected && section.getBoundingClientRect().top <= top
-            );
-          });
-          setSelected(current?.id ?? navigationGroups[0]?.id ?? '');
-        }}
-      >
+      <main className="library-scroll" ref={scroller}>
         <div className="library-intro">
           <span className="eyebrow">ARKNIGHTS / STORY ARCHIVE</span>
           <div className="library-heading">
