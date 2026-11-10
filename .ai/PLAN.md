@@ -4,7 +4,7 @@
 
 ## 1.1.7 交付
 
-宽屏正文布局已完成本地定向浏览器／iframe 检查，用户已授权升为 1.1.7 并提交推送 main。跟进 Check、Pages 和 Release 草稿准备，草稿齐备后由用户点击 Publish release；工作流成功后核对 npm、正式清单与回执。实际 ChatGPT 容器和手机的正文、图片及切篇边界仍待复查。
+1.1.7 功能提交 `d966f5b` 已推送 main；Check 最终通过，Pages 已部署并核对线上 CSS。[Release 草稿](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/releases/tag/untagged-308c341e29396d41382d)及三个附件齐备，固定标签不再移动。下一步由用户点击 Publish release；工作流成功后核对 npm、正式清单与回执。实际 ChatGPT 容器和手机的正文、图片及切篇边界仍待复查。
 
 ## 手机真机体验
 

@@ -2,14 +2,17 @@
 
 更新：2026-11-10。功能范围以 [需求](../docs/requirements.md)为准，待办见 [PLAN](PLAN.md)，发布操作见 [发布指南](../docs/releasing.md)。
 
-## 宽屏正文自适应：1.1.7 准备推送
+## 宽屏正文自适应：1.1.7 草稿已就绪，网页已部署
 
 - 从 `origin/main` 的 `0b32c26` 建立本地分支 `codex/adaptive-reading-width`。共享正文宽度由固定 810px 改为 `clamp(810px, 78cqw, 1120px)`，随阅读面板可用宽度扩展；网页与插件共用，手机及窄侧栏保留原排版。两侧切篇区沿用同一变量，只占版心外的留白。参数依据与维护见 [DECISIONS](DECISIONS.md#宽屏正文自适应2026-11-10)。
 - 固定 Node 26.13.0／npm 12.2.1、Edge 157.0.4341.42：`./scripts/npm.ps1 run build`、`run build:web` 通过。既有 fixture 布局／导航 6 项、独立网页响应式／手势／留白操作 11 项、SDK iframe 3 项通过，覆盖 320×760、768×900、1440×900／960、1024×400 双主题、图片、键盘、减少动态效果和连续缩放。
 - 复用续读检查补查 2560×1000、3803×1000 双主题，4 项通过；常规尺寸另复查 1 项通过。超宽时正文高度变短，旧检查的固定 650px 下限无法成立，已改为校验实际保存／恢复的位置误差不超过 1px，不改变应用保存逻辑。已查看常规四种窗口及超宽截图；无正文／切篇区域重叠或整页横向溢出的可见问题。
 - 执行入口：fixture 使用 `run test:e2e -- tests/browser/reader.spec.ts tests/browser/catalog-modes.spec.ts --grep '320px|every navigation|manual chrome|shared movement|mobile vertical|manual portraits'`；网页使用 `run test:e2e:web -- --grep 'responsive |normal motion|desktop margins|web native mobile'`；iframe 使用 `run test:e2e:host -- --grep 'global reader entry|sidebar links reflow|card to fullscreen'`。额外超宽复用配置在 `.ai/local/adaptive-reading-width/wide.config.ts`，执行 `run test:e2e -- --config .ai/local/adaptive-reading-width/wide.config.ts`。PowerShell 调用需将分隔符写为 `'--'`。截图在 `.ai/local/screenshots/`、`test-results/web/` 和 `.ai/local/adaptive-reading-width/wide/`。
 - 首轮界面检查因沙箱禁止本机套接字而未开始；在允许本机连接的环境中重跑并取得上述结果。内置浏览器访问本机预览超时，未据此宣称真实宿主通过。本轮仅验证原创 fixture／网页模拟源与 SDK iframe，未做手机真机、真实 ChatGPT 新包或真实 PRTS 端到端。
-- 用户已授权作为新版本提交推送。2026-11-10 重新 fetch 并查询 GitHub Release／npm dist-tags，远程 main 为 `0b32c26`，当前公开版为 1.1.6，无 1.1.7 标签或草稿；已将五处版本声明统一为 1.1.7，并补充 [发行说明](../docs/releases/1.1.7-notes.md)。升版后 `./scripts/npm.ps1 run check` 通过：类型、178 项单元／协议及格式检查。接下来推送 main 并跟进 Check、Pages 与自动草稿；实际公开 npm 仍由用户在草稿点击 Publish release，正式清单由发布工作流回写，不在本地提前改写。
+- 用户已授权作为新版本提交推送。2026-11-10 核对 GitHub／npm 当前公开版为 1.1.6，确认 1.1.7 未使用后，统一五处版本声明并补充 [发行说明](../docs/releases/1.1.7-notes.md)。升版后 `./scripts/npm.ps1 run check` 通过：类型、178 项单元／协议及格式检查。功能提交 `d966f5bcac1e995772a5966b7373f5cc3a7244f1` 已推送 main，本地 main 从旧分支快进到同一提交，未推回旧历史。
+- [Check 42741704988](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42741704988) 的 Ubuntu 验收通过；Windows 首次在真实图片响应解析时缺少结构化结果而失败，日志不足以确定根因。对同一提交重跑失败作业后，Windows 实际包／真实 PRTS、完整 fixture 浏览器与 SDK iframe 均通过，自动草稿准备成功；没有修改代码、跳过验收或移动既有标签。
+- [Pages 42741704999](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42741704999) 已成功部署。独立请求公开 `/reader/` 得到 HTTP 200，当前引用的 `assets/index-DIGEFxBX.css` 确含 `clamp(810px,78cqw,1120px)`，线上已采用新宽度；该资源核对不代替手机真机或实际插件 UI 验收。
+- [1.1.7 草稿](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/releases/tag/untagged-308c341e29396d41382d) ID `439878870`，标题／正文与本次说明一致，三个附件齐全，tgz 为 8,033,412 字节。工作流创建的 `v1.1.7` 固定标签已抓取并确认指向 `d966f5b`。当前仍为 draft，实际公开 npm 由用户在草稿点击 Publish release；正式清单保持 1.1.6，由发布工作流成功后自动回写，不在本地提前改写。
 
 ## 实现状态
 
