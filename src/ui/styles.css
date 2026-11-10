@@ -14,7 +14,9 @@
   --shadow: light-dark(#17232d29, #00000066);
   --mask: light-dark(#12212d50, #00000085);
   --copy-size: 17px;
-  --reading-width: 810px;
+  /* Keep the established compact measure, grow with the reader pane (including
+     host iframes), and cap long lines. Page-turn gutters use the same measure. */
+  --reading-width: clamp(810px, 78cqw, 1120px);
   --gap: 18px;
   --progress-fill: #a77d17;
   --progress-disc: #ffffff;

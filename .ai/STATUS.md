@@ -1,6 +1,15 @@
 # 当前状态
 
-更新：2026-11-08。功能范围以 [需求](../docs/requirements.md)为准，待办见 [PLAN](PLAN.md)，发布操作见 [发布指南](../docs/releasing.md)。
+更新：2026-11-10。功能范围以 [需求](../docs/requirements.md)为准，待办见 [PLAN](PLAN.md)，发布操作见 [发布指南](../docs/releasing.md)。
+
+## 宽屏正文自适应：1.1.7 准备推送
+
+- 从 `origin/main` 的 `0b32c26` 建立本地分支 `codex/adaptive-reading-width`。共享正文宽度由固定 810px 改为 `clamp(810px, 78cqw, 1120px)`，随阅读面板可用宽度扩展；网页与插件共用，手机及窄侧栏保留原排版。两侧切篇区沿用同一变量，只占版心外的留白。参数依据与维护见 [DECISIONS](DECISIONS.md#宽屏正文自适应2026-11-10)。
+- 固定 Node 26.13.0／npm 12.2.1、Edge 157.0.4341.42：`./scripts/npm.ps1 run build`、`run build:web` 通过。既有 fixture 布局／导航 6 项、独立网页响应式／手势／留白操作 11 项、SDK iframe 3 项通过，覆盖 320×760、768×900、1440×900／960、1024×400 双主题、图片、键盘、减少动态效果和连续缩放。
+- 复用续读检查补查 2560×1000、3803×1000 双主题，4 项通过；常规尺寸另复查 1 项通过。超宽时正文高度变短，旧检查的固定 650px 下限无法成立，已改为校验实际保存／恢复的位置误差不超过 1px，不改变应用保存逻辑。已查看常规四种窗口及超宽截图；无正文／切篇区域重叠或整页横向溢出的可见问题。
+- 执行入口：fixture 使用 `run test:e2e -- tests/browser/reader.spec.ts tests/browser/catalog-modes.spec.ts --grep '320px|every navigation|manual chrome|shared movement|mobile vertical|manual portraits'`；网页使用 `run test:e2e:web -- --grep 'responsive |normal motion|desktop margins|web native mobile'`；iframe 使用 `run test:e2e:host -- --grep 'global reader entry|sidebar links reflow|card to fullscreen'`。额外超宽复用配置在 `.ai/local/adaptive-reading-width/wide.config.ts`，执行 `run test:e2e -- --config .ai/local/adaptive-reading-width/wide.config.ts`。PowerShell 调用需将分隔符写为 `'--'`。截图在 `.ai/local/screenshots/`、`test-results/web/` 和 `.ai/local/adaptive-reading-width/wide/`。
+- 首轮界面检查因沙箱禁止本机套接字而未开始；在允许本机连接的环境中重跑并取得上述结果。内置浏览器访问本机预览超时，未据此宣称真实宿主通过。本轮仅验证原创 fixture／网页模拟源与 SDK iframe，未做手机真机、真实 ChatGPT 新包或真实 PRTS 端到端。
+- 用户已授权作为新版本提交推送。2026-11-10 重新 fetch 并查询 GitHub Release／npm dist-tags，远程 main 为 `0b32c26`，当前公开版为 1.1.6，无 1.1.7 标签或草稿；已将五处版本声明统一为 1.1.7，并补充 [发行说明](../docs/releases/1.1.7-notes.md)。升版后 `./scripts/npm.ps1 run check` 通过：类型、178 项单元／协议及格式检查。接下来推送 main 并跟进 Check、Pages 与自动草稿；实际公开 npm 仍由用户在草稿点击 Publish release，正式清单由发布工作流回写，不在本地提前改写。
 
 ## 实现状态
 
@@ -81,10 +90,10 @@ npm 明确版本的 404 可见性等待从五分钟调整为 20 分钟，Publish
 | -------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
 | 1.1.1 固定归档 | GitHub／npm／正式来源及回执发布成功；固定源码 `baf8ee32bc79c37649f7e8ca49b744f990a64271`；不含高度修复 | [Publish 42459507527](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42459507527) |
 | 1.1.2 固定归档 | GitHub／npm latest／正式来源及回执均已发布成功                                                         | [Publish 42462147645](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42462147645) |
-| 1.1.4 固定归档 | GitHub／npm latest／正式来源及回执均已发布成功 | [Publish 42469568159](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42469568159) |
-| 1.1.6 固定归档 | GitHub／npm latest／正式来源及回执均已发布成功 | [Publish 42496508211](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42496508211) |
-| 网站           | 网页真实阅读入口的专项检查、构建与部署通过                                                                       | [Pages 42495495493](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42495495493)   |
-| 正式来源       | `.agents/plugins/marketplace.json` 与 npm latest 均为 1.1.6；1.1.3 保留未发布            | [来源目录](../.agents/plugins/marketplace.json)                                                              |
+| 1.1.4 固定归档 | GitHub／npm latest／正式来源及回执均已发布成功                                                         | [Publish 42469568159](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42469568159) |
+| 1.1.6 固定归档 | GitHub／npm latest／正式来源及回执均已发布成功                                                         | [Publish 42496508211](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42496508211) |
+| 网站           | 网页真实阅读入口的专项检查、构建与部署通过                                                             | [Pages 42495495493](https://github.com/Foreverstar7/arknightStoryReaderGPTPlugin/actions/runs/42495495493)   |
+| 正式来源       | `.agents/plugins/marketplace.json` 与 npm latest 均为 1.1.6；1.1.3 保留未发布                          | [来源目录](../.agents/plugins/marketplace.json)                                                              |
 
 GitHub Release 公开与 npm／正式来源发布完成分别核对。[1.1.1 变更说明](../docs/releases/1.1.1-notes.md)保留该版搜索卡片的已知问题。已有标签与附件保持冻结，新变更使用新版本，不替换同名归档。
 

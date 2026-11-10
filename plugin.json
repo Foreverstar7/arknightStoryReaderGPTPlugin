@@ -1,5 +1,5 @@
 {
-  "version": "1.1.6",
+  "version": "1.1.7",
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "arknights-story-reader",
   "description": "方舟剧情阅读器：浏览 PRTS 剧情目录，按需读取正文与图片，保存本机阅读位置。",

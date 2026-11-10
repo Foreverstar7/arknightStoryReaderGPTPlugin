@@ -28,9 +28,11 @@ test('navigation preserves the actual recent chapter and restores the latest pos
     page.getByRole('heading', { name: '一封未寄出的信' }),
   ).toBeVisible();
   const reader = page.getByRole('main', { name: '剧情正文' });
-  await reader.evaluate((element) => {
+  const savedScrollTop = await reader.evaluate((element) => {
     element.scrollTop = 700;
+    return element.scrollTop;
   });
+  expect(savedScrollTop).toBeGreaterThan(0);
   await page.getByRole('button', { name: '⌂ 主页', exact: true }).click();
   // Navigation waits for the save; a click alone does not await an async React handler.
   await expect(
@@ -59,8 +61,13 @@ test('navigation preserves the actual recent chapter and restores the latest pos
   ).toBeVisible();
   await page.getByRole('button', { name: '最近阅读：一封未寄出的信' }).click();
   await expect
-    .poll(() => reader.evaluate((element) => element.scrollTop))
-    .toBeGreaterThan(650);
+    .poll(async () =>
+      Math.abs(
+        (await reader.evaluate((element) => element.scrollTop)) -
+          savedScrollTop,
+      ),
+    )
+    .toBeLessThanOrEqual(1);
   const restored = await reader.evaluate((element) => element.scrollTop);
   await page.getByRole('button', { name: '最近阅读：一封未寄出的信' }).click();
   expect(await reader.evaluate((element) => element.scrollTop)).toBeCloseTo(
@@ -69,8 +76,13 @@ test('navigation preserves the actual recent chapter and restores the latest pos
   );
   await page.reload();
   await expect
-    .poll(() => reader.evaluate((element) => element.scrollTop))
-    .toBeGreaterThan(650);
+    .poll(async () =>
+      Math.abs(
+        (await reader.evaluate((element) => element.scrollTop)) -
+          savedScrollTop,
+      ),
+    )
+    .toBeLessThanOrEqual(1);
   await page.getByRole('button', { name: '篇章目录', exact: true }).click();
   await page
     .getByRole('button', { name: '阅读 档案 01 一封未寄出的信' })
